@@ -4,18 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.config.context.UserContext;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.CreateUserDto;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.event.FollowEventDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ExternalServiceError;
 import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.exception.UsernameNotFoundException;
 import school.faang.user_service.exception.UsernameNotUniqueException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messaging.EventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.avatarGenerator.AvatarGeneratorService;
 import school.faang.user_service.service.externalStorage.S3Service;
@@ -40,6 +42,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final EventPublisher<FollowEventDto> eventPublisher;
 
     @Value("user-avatars-aws-folder")
     private String userAvatarsAwsFolder;
@@ -142,6 +145,18 @@ public class UserServiceImpl implements UserService {
         uploadFileToS3Storage(resourceKey);
 
         return userMapper.toDto(savedUser);
+    }
+
+    @Override
+    @Transactional
+    public void followUser(long followeeId, long followerId) {
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new UserNotFoundException("ljlj"));
+        User followee = userRepository.findById(followeeId).orElseThrow(() -> new UserNotFoundException("jljlj"));
+        follower.getFollowees().add(followee);
+        followee.getFollowers().add(follower);
+
+        FollowEventDto followEvent = new FollowEventDto(followeeId, followerId);
+        eventPublisher.publish(followEvent);
     }
 
     private void uploadFileToS3Storage(String resourceKey) {

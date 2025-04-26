@@ -24,4 +24,6 @@ public interface UserService {
     List<UserDto> getUsersByIds(List<Long> ids);
 
     UserDto createUser(CreateUserDto createUserDto);
+
+    void followUser(long followerId, long followeeId);
 }
