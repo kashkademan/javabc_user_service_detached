@@ -6,7 +6,7 @@ import school.faang.user_service.entity.Education;
 
 @Mapper
 public interface EducationMapper {
-    public Education toEducation(EducationDto educationDto);
+    Education toEducation(EducationDto educationDto);
 
-    public EducationDto toEducationDto(Education education);
+    EducationDto toEducationDto(Education education);
 }

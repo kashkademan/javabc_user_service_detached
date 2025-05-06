@@ -19,4 +19,12 @@ public class EducationController {
     public EducationDto addEducation(long userId, EducationDto educationDto) throws DataValidationException {
         return educationService.addEducation(userId, educationDto);
     }
+
+    public EducationDto updateEducation(long userId, EducationDto educationDto) throws DataValidationException {
+        return educationService.updateEducation(userId, educationDto);
+    }
+
+    public EducationDto getById(long educationId) throws DataValidationException {
+        return educationService.getById(educationId);
+    }
 }

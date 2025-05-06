@@ -31,12 +31,17 @@ public class EducationService {
         }//The task is to check if the yearFrom is less than the current year.
     }    //However, the yearFrom can be equal to the current year.
 
-    public EducationDto addEducation(long userId, EducationDto educationDto) throws DataValidationException {
-        checkYearFrom(educationDto);
+    public Optional<User> checkUserIdEmpty(long userId) throws DataValidationException {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             throw new DataValidationException("User with ID " + userId + " not found");
         }
+        return userOptional;
+    }
+
+    public EducationDto saveEducation(long userId, EducationDto educationDto) throws DataValidationException {
+        checkYearFrom(educationDto);
+        Optional<User> userOptional = checkUserIdEmpty(userId);
 
         Education education = educationMapper.toEducation(educationDto);
         education.setUser(userOptional.get());
@@ -45,8 +50,25 @@ public class EducationService {
         return educationMapper.toEducationDto(education);
     }
 
+    public EducationDto addEducation(long userId, EducationDto educationDto) throws DataValidationException {
+        checkYearFrom(educationDto);
+
+        return saveEducation(userId, educationDto);
+    }
+
     public EducationDto updateEducation(long userId, EducationDto educationDto) throws DataValidationException {
         checkYearFrom(educationDto);
-        return null;
+
+        if (userId != educationDto.getId()) {
+            throw new DataValidationException("User ID in the path does not match the user ID in the request body");
+        }
+
+        return saveEducation(userId, educationDto);
+    }
+
+    public EducationDto getById(long educationId) throws DataValidationException {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(() -> new DataValidationException("Education with ID " + educationId + " not found"));
+        return educationMapper.toEducationDto(education);
     }
 }
