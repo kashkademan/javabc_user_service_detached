@@ -47,16 +47,20 @@ public class Skill {
             joinColumns = @JoinColumn(name = "skill_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @ToString.Exclude
     private List<User> users;
 
     @OneToMany(mappedBy = "skill")
+    @ToString.Exclude
     private List<UserSkillGuarantee> guarantees;
 
     @ManyToMany(mappedBy = "relatedSkills")
+    @ToString.Exclude
     private List<Event> events;
 
 
     @ManyToMany(mappedBy = "skillsToAchieve")
+    @ToString.Exclude
     private List<Goal> goals;
 
     @CreationTimestamp
