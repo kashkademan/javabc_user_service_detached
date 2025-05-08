@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -30,5 +31,6 @@ public class Country {
     private String title;
 
     @OneToMany(mappedBy = "country")
+    @ToString.Exclude
     private List<User> residents;
 }
