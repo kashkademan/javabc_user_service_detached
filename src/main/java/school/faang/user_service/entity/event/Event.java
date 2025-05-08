@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
@@ -58,19 +59,23 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
+    @ToString.Exclude
     private List<User> attendees;
 
     @OneToMany(mappedBy = "event")
+    @ToString.Exclude
     private List<Rating> ratings;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User owner;
 
     @ManyToMany
     @JoinTable(name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    @ToString.Exclude
     private List<Skill> relatedSkills;
 
     @Column(name = "type", nullable = false)
