@@ -34,5 +34,6 @@ public class Country {
     private String title;
 
     @OneToMany(mappedBy = "country")
+    @ToString.Exclude
     private List<User> residents;
 }
