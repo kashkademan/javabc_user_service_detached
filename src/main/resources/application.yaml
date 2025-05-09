@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  web:
+    servlet:
+      context-path: /api/v1
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
