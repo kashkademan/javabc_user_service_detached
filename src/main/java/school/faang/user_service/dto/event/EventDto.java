@@ -13,6 +13,8 @@ import school.faang.user_service.validation.ValidEndDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static school.faang.user_service.util.LogsConstants.WRONG_USER_ID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,7 +43,7 @@ public class EventDto implements EndDateValidatable {
     private int maxAttendees;
 
     @NotNull(message = "ID создателя события не может быть пустым")
-    @Positive(message = "Нужно указать валидный id пользователя-создателя ивента")
+    @Positive(message = WRONG_USER_ID)
     private Long ownerId;
 
     private EventType eventType;
