@@ -41,6 +41,17 @@ public class EventServiceImpl implements EventService {
         );
         List<Long> eventSkillsIds = eventDto.getRelatedSkills();
 
+        validateUserHasAllEventSkills(eventSkillsIds, ownersSkillsIds);
+
+        Event event = eventMapper.toEventEntity(eventDto, owner, ownersSkills);
+        log.info("Создание нового ивента: {}", event);
+        Event savedEvent = eventRepository.save(event);
+        return eventMapper.toEventDto(savedEvent, ownersSkills.stream()
+                .map(Skill::getId)
+                .toList());
+    }
+
+    private void validateUserHasAllEventSkills(List<Long> eventSkillsIds, Set<Long> ownersSkillsIds) {
         if (eventSkillsIds != null && !eventSkillsIds.isEmpty()) {
             Set<Long> requiredSkillsIds = new HashSet<>(eventSkillsIds);
             requiredSkillsIds.removeAll(ownersSkillsIds);
@@ -52,12 +63,5 @@ public class EventServiceImpl implements EventService {
                 );
             }
         }
-
-        Event event = eventMapper.toEventEntity(eventDto, owner, ownersSkills);
-        log.info("Creating new event: {}", event);
-        Event savedEvent = eventRepository.save(event);
-        return eventMapper.toEventDto(savedEvent, ownersSkills.stream()
-                .map(Skill::getId)
-                .toList());
     }
 }
