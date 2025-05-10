@@ -62,23 +62,19 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
-    @ToString.Exclude
     private List<User> attendees;
 
     @OneToMany(mappedBy = "event")
-    @ToString.Exclude
     private List<Rating> ratings;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
     private User owner;
 
     @ManyToMany
     @JoinTable(name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    @ToString.Exclude
     private List<Skill> relatedSkills;
 
     @Column(name = "type", nullable = false)
