@@ -9,8 +9,8 @@ import school.faang.user_service.dto.WorkScheduleCreateDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.UserNotFoundException;
-import school.faang.user_service.exception.WorkScheduleNotFoundException;
+import school.faang.user_service.exception.users.UserNotFoundException;
+import school.faang.user_service.exception.work_schedule.WorkScheduleNotFoundException;
 import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.WorkScheduleRepository;
@@ -75,12 +75,12 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         LocalTime endLunch = workScheduleCreateDto.getEndLunch();
         LocalTime endTime = workScheduleCreateDto.getEndTime();
 
-        boolean startTimeAndLunch = startTime.isBefore(startLunch);
-        boolean startLunchAndEndLunch = startLunch.isBefore(endLunch);
-        boolean endLunchAndEndTime = endLunch.isBefore(endTime);
+        boolean isStartBeforeLaunch = startTime.isBefore(startLunch);
+        boolean isLaunchBeforeLaunchEnd = startLunch.isBefore(endLunch);
+        boolean isLaunchTimeBeforeEnd = endLunch.isBefore(endTime);
 
-        if (!(startTimeAndLunch && startLunchAndEndLunch && endLunchAndEndTime)) {
-            throw new DataValidationException("Неккоректные данные");
+        if (!(isStartBeforeLaunch && isLaunchBeforeLaunchEnd && isLaunchTimeBeforeEnd)) {
+            throw new DataValidationException("Не верно введено время работы");
         }
     }
 }

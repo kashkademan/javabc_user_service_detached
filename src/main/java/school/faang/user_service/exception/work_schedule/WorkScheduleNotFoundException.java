@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exception.work_schedule;
 
 public class WorkScheduleNotFoundException extends RuntimeException{
 
