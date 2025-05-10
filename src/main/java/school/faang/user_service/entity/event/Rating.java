@@ -15,7 +15,9 @@ import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.User;
@@ -25,13 +27,15 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"user", "event"})
+@EqualsAndHashCode(exclude = {"user", "event"})
 @Builder
 @Entity
 @Table(name = "rating")
 public class Rating {
 
-    private final static int RATE_MIN_VALUE = 0;
-    private final static int RATE_MAX_VALUE = 5;
+    private static final int RATE_MIN_VALUE = 0;
+    private static final int RATE_MAX_VALUE = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

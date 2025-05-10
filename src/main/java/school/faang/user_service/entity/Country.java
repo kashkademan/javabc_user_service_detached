@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -18,6 +19,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "residents")
+@EqualsAndHashCode(exclude = "residents")
 @Builder
 @Entity
 @Table(name = "country")
@@ -31,6 +34,5 @@ public class Country {
     private String title;
 
     @OneToMany(mappedBy = "country")
-    @ToString.Exclude
     private List<User> residents;
 }

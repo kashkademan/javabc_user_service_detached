@@ -10,12 +10,16 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import school.faang.user_service.entity.Skill;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "recommendation")
+@EqualsAndHashCode(exclude = "recommendation")
 @Builder
 @Entity
 @Table(name = "skill_offer")

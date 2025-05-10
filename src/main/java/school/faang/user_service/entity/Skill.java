@@ -15,6 +15,7 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,6 +30,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"users", "guarantees", "events", "goals"})
+@EqualsAndHashCode(exclude = {"users", "guarantees", "events", "goals"})
 @Entity
 @Table(name = "skill")
 public class Skill {
@@ -46,20 +49,16 @@ public class Skill {
             joinColumns = @JoinColumn(name = "skill_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @ToString.Exclude
     private List<User> users;
 
     @OneToMany(mappedBy = "skill")
-    @ToString.Exclude
     private List<UserSkillGuarantee> guarantees;
 
     @ManyToMany(mappedBy = "relatedSkills")
-    @ToString.Exclude
     private List<Event> events;
 
 
     @ManyToMany(mappedBy = "skillsToAchieve")
-    @ToString.Exclude
     private List<Goal> goals;
 
     @CreationTimestamp
