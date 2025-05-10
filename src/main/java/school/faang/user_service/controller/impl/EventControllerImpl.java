@@ -28,4 +28,9 @@ public class EventControllerImpl implements EventController {
                 ownerId);
         return new ResponseEntity<>(eventMapper.toEventCreationResponse(event), HttpStatus.CREATED);
     }
+
+    @Override
+    public ResponseEntity<EventCreationResponse> getEvent(Long id) {
+        return new ResponseEntity<>(eventMapper.toEventCreationResponse(eventService.getEvent(id)), HttpStatus.OK);
+    }
 }
