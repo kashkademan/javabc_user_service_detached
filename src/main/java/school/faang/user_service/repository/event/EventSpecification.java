@@ -32,7 +32,7 @@ public class EventSpecification {
                 ));
             }
 
-            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
