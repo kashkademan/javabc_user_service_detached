@@ -16,7 +16,9 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.User;
@@ -27,6 +29,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"author", "receiver", "skillOffers", "request"})
+@EqualsAndHashCode(exclude = {"author", "receiver", "skillOffers", "request"})
 @Builder
 @Entity
 @Table(name = "recommendation")

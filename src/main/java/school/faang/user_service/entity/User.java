@@ -19,6 +19,7 @@ import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,6 +40,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"country", "followers", "followees", "mentors", "mentees", "ownedEvents", "participatedEvents", "goals",
+        "skills", "sentMentorshipRequests", "receivedMentorshipRequests", "sentGoalInvitations", "receivedGoalInvitations",
+        "setGoals", "recommendationsGiven", "recommendationsReceived", "contacts", "ratings", "contactPreference",
+        "premium", "education", "career", "workSchedule"})
+@EqualsAndHashCode(exclude = {"country", "followers", "followees", "mentors", "mentees", "ownedEvents", "participatedEvents", "goals",
+        "skills", "sentMentorshipRequests", "receivedMentorshipRequests", "sentGoalInvitations", "receivedGoalInvitations",
+        "setGoals", "recommendationsGiven", "recommendationsReceived", "contacts", "ratings", "contactPreference",
+        "premium", "education", "career", "workSchedule"})
 @Entity
 @Table(name = "users")
 public class User {
@@ -67,7 +76,6 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
-    @ToString.Exclude
     private Country country;
 
     @Column(name = "city", length = 64)
@@ -89,54 +97,42 @@ public class User {
     @ManyToMany
     @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    @ToString.Exclude
     private List<User> followers;
 
     @ManyToMany(mappedBy = "followers")
-    @ToString.Exclude
     private List<User> followees;
 
     @OneToMany(mappedBy = "owner")
-    @ToString.Exclude
     private List<Event> ownedEvents;
 
     @ManyToMany(mappedBy = "mentors")
-    @ToString.Exclude
     private List<User> mentees;
 
     @ManyToMany
     @JoinTable(name = "mentorship",
             joinColumns = @JoinColumn(name = "mentee_id"),
             inverseJoinColumns = @JoinColumn(name = "mentor_id"))
-    @ToString.Exclude
     private List<User> mentors;
 
     @OneToMany(mappedBy = "receiver")
-    @ToString.Exclude
     private List<MentorshipRequest> receivedMentorshipRequests;
 
     @OneToMany(mappedBy = "requester")
-    @ToString.Exclude
     private List<MentorshipRequest> sentMentorshipRequests;
 
     @OneToMany(mappedBy = "inviter")
-    @ToString.Exclude
     private List<GoalInvitation> sentGoalInvitations;
 
     @OneToMany(mappedBy = "invited")
-    @ToString.Exclude
     private List<GoalInvitation> receivedGoalInvitations;
 
     @OneToMany(mappedBy = "mentor")
-    @ToString.Exclude
     private List<Goal> setGoals;
 
     @ManyToMany(mappedBy = "users")
-    @ToString.Exclude
     private List<Goal> goals;
 
     @ManyToMany(mappedBy = "users")
-    @ToString.Exclude
     private List<Skill> skills;
 
     @ManyToMany
@@ -145,23 +141,18 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    @ToString.Exclude
     private List<Event> participatedEvents;
 
     @OneToMany(mappedBy = "author")
-    @ToString.Exclude
     private List<Recommendation> recommendationsGiven;
 
     @OneToMany(mappedBy = "receiver")
-    @ToString.Exclude
     private List<Recommendation> recommendationsReceived;
 
     @OneToMany(mappedBy = "user")
-    @ToString.Exclude
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "user")
-    @ToString.Exclude
     private List<Rating> ratings;
 
     @Embedded
@@ -170,22 +161,17 @@ public class User {
     private UserProfilePic userProfilePic;
 
     @OneToOne(mappedBy = "user")
-    @ToString.Exclude
     private ContactPreference contactPreference;
 
     @OneToOne(mappedBy = "user")
-    @ToString.Exclude
     private Premium premium;
 
     @OneToMany(mappedBy = "user")
-    @ToString.Exclude
     private List<Education> education;
 
     @OneToMany(mappedBy = "user")
-    @ToString.Exclude
     private List<Career> career;
 
     @OneToOne(mappedBy = "user")
-    @ToString.Exclude
     private WorkSchedule workSchedule;
 }
