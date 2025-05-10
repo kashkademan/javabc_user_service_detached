@@ -2,14 +2,17 @@ package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.RecordNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.repository.event.EventSpecification;
 import school.faang.user_service.service.EventService;
 import school.faang.user_service.validation.event.EventValidation;
 
@@ -53,5 +56,11 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new RecordNotFoundException(
                         String.format("Ивент с id %d не найден", id)
                 ));
+    }
+
+    @Override
+    public List<Event> getEventsByFilter(EventFilterDto filter) {
+        Specification<Event> spec = EventSpecification.withFilter(filter);
+        return eventRepository.findAll(spec);
     }
 }
