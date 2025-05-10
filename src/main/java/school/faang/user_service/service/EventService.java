@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface EventService {
     Event create(Event event, List<Long> eventSkillsIds, Long ownerId);
+
+    Event getEvent(Long id);
 }
