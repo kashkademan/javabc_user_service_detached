@@ -46,4 +46,12 @@ public class EventServiceImpl implements EventService {
         log.info("Создание нового ивента: {}", event);
         return eventRepository.save(event);
     }
+
+    @Override
+    public Event getEvent(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException(
+                        String.format("Ивент с id %d не найден", id)
+                ));
+    }
 }
