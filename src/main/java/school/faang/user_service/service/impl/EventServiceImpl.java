@@ -8,12 +8,12 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.EventCreationNotAllowedException;
 import school.faang.user_service.exception.RecordNotFoundException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.EventService;
+import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +25,7 @@ import java.util.Set;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final EventValidation eventValidation;
     private final EventMapper eventMapper;
 
     @Override
@@ -41,7 +42,7 @@ public class EventServiceImpl implements EventService {
         );
         List<Long> eventSkillsIds = eventDto.getRelatedSkills();
 
-        validateUserHasAllEventSkills(eventSkillsIds, ownersSkillsIds);
+        eventValidation.validateUserHasAllEventSkills(eventSkillsIds, ownersSkillsIds);
 
         Event event = eventMapper.toEventEntity(eventDto, owner, ownersSkills);
         log.info("Создание нового ивента: {}", event);
@@ -49,19 +50,5 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventDto(savedEvent, ownersSkills.stream()
                 .map(Skill::getId)
                 .toList());
-    }
-
-    private void validateUserHasAllEventSkills(List<Long> eventSkillsIds, Set<Long> ownersSkillsIds) {
-        if (eventSkillsIds != null && !eventSkillsIds.isEmpty()) {
-            Set<Long> requiredSkillsIds = new HashSet<>(eventSkillsIds);
-            requiredSkillsIds.removeAll(ownersSkillsIds);
-
-            if (!requiredSkillsIds.isEmpty()) {
-                throw new EventCreationNotAllowedException(
-                        String.format("Недостаточно навыков для создания данного мероприятия. Отсутствуют навыки: %s",
-                                requiredSkillsIds)
-                );
-            }
-        }
     }
 }
