@@ -3,9 +3,10 @@ package school.faang.user_service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import school.faang.user_service.dto.event.EventDto;
+import org.mapstruct.Named;
+import school.faang.user_service.dto.event.request.EventCreationRequest;
+import school.faang.user_service.dto.event.response.EventCreationResponse;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.List;
@@ -15,21 +16,26 @@ public interface EventMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "attendees", ignore = true)
     @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "owner", source = "owner")
-    @Mapping(target = "relatedSkills", source = "skills")
-    @Mapping(target = "status", source = "eventDto.eventStatus")
-    @Mapping(target = "type", source = "eventDto.eventType")
-    @Mapping(target = "title", source = "eventDto.title")
-    @Mapping(target = "description", source = "eventDto.description")
-    @Mapping(target = "startDate", source = "eventDto.startDate")
-    @Mapping(target = "endDate", source = "eventDto.endDate")
-    @Mapping(target = "location", source = "eventDto.location")
-    @Mapping(target = "maxAttendees", source = "eventDto.maxAttendees")
-    Event toEventEntity(EventDto eventDto, User owner, List<Skill> skills);
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "relatedSkills", ignore = true)
+    @Mapping(target = "status", source = "eventRequest.eventStatus")
+    @Mapping(target = "type", source = "eventRequest.eventType")
+    @Mapping(target = "title", source = "eventRequest.title")
+    @Mapping(target = "description", source = "eventRequest.description")
+    @Mapping(target = "startDate", source = "eventRequest.startDate")
+    @Mapping(target = "endDate", source = "eventRequest.endDate")
+    @Mapping(target = "location", source = "eventRequest.location")
+    @Mapping(target = "maxAttendees", source = "eventRequest.maxAttendees")
+    Event toEventEntity(EventCreationRequest eventRequest);
 
     @Mapping(target = "ownerId", source = "event.owner.id")
     @Mapping(target = "eventStatus", source = "event.status")
     @Mapping(target = "eventType", source = "event.type")
-    @Mapping(target = "relatedSkills", source = "skillsIds")
-    EventDto toEventDto(Event event, List<Long> skillsIds);
+    @Mapping(target = "relatedSkills", source = "event.relatedSkills", qualifiedByName = "toRelatedSkillsIds")
+    EventCreationResponse toEventCreationResponse(Event event);
+
+    @Named("toRelatedSkillsIds")
+    default List<Long> toRelatedSkillsIds(List<Skill> skills) {
+        return skills.stream().map(Skill::getId).toList();
+    }
 }
