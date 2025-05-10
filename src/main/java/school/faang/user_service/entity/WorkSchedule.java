@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalTime;
 
@@ -19,6 +20,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"user"})
 @Entity
 @Table(name = "work_schedule")
 public class WorkSchedule {
