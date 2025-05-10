@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.EventController;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.request.EventCreationRequest;
+import school.faang.user_service.dto.event.response.EventCreationResponse;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.service.EventService;
 
 @RestController
@@ -14,12 +17,15 @@ import school.faang.user_service.service.EventService;
 @Slf4j
 public class EventControllerImpl implements EventController {
     private final EventService eventService;
+    private final EventMapper eventMapper;
 
     @Override
-    public ResponseEntity<EventDto> create(EventDto event) {
-        log.info("Получен запрос на создание события: {}", event);
-        EventDto createdEvent = eventService.create(event);
-        log.info("Событие успешно создано: {}", createdEvent);
-        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
+    public ResponseEntity<EventCreationResponse> create(EventCreationRequest request, Long ownerId) {
+        log.info("Получен запрос на создание события: {}", request);
+        Event event = eventService.create(
+                eventMapper.toEventEntity(request),
+                request.getRelatedSkills(),
+                ownerId);
+        return new ResponseEntity<>(eventMapper.toEventCreationResponse(event), HttpStatus.CREATED);
     }
 }
