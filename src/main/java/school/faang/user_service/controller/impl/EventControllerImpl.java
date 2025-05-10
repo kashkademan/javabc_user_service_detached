@@ -69,9 +69,4 @@ public class EventControllerImpl implements EventController {
         log.info("Получен запрос на удаление иваента с id: {}", id);
         return new ResponseEntity<>(eventService.deleteEvent(id), HttpStatus.OK);
     }
-
-    @Override
-    public ResponseEntity<EventCreationResponse> getEvent(Long id) {
-        return new ResponseEntity<>(eventMapper.toEventCreationResponse(eventService.getEvent(id)), HttpStatus.OK);
-    }
 }
