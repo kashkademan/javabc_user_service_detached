@@ -6,11 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.EventController;
+import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.dto.event.request.EventCreationRequest;
 import school.faang.user_service.dto.event.response.EventCreationResponse;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.service.EventService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,5 +35,13 @@ public class EventControllerImpl implements EventController {
     @Override
     public ResponseEntity<EventCreationResponse> getEvent(Long id) {
         return new ResponseEntity<>(eventMapper.toEventCreationResponse(eventService.getEvent(id)), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<EventCreationResponse>> getEventsByFilter(EventFilterDto filter) {
+        log.info("Получен запрос на поиск по фильтру: {}", filter);
+        return new ResponseEntity<>(eventMapper.toEventCreationResponses(
+                eventService.getEventsByFilter(filter)),
+                HttpStatus.OK);
     }
 }
