@@ -38,4 +38,10 @@ public interface EventMapper {
     default List<Long> toRelatedSkillsIds(List<Skill> skills) {
         return skills.stream().map(Skill::getId).toList();
     }
+
+    default List<EventCreationResponse> toEventCreationResponses(List<Event> events) {
+        return events.stream()
+                .map(this::toEventCreationResponse)
+                .toList();
+    }
 }

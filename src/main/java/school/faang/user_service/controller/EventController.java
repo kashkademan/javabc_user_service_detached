@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.dto.event.request.EventCreationRequest;
 import school.faang.user_service.dto.event.response.EventCreationResponse;
+
+import java.util.List;
 
 @RequestMapping("/api/v1/events")
 @Validated
@@ -22,4 +25,7 @@ public interface EventController {
 
     @GetMapping("/{id}")
     ResponseEntity<EventCreationResponse> getEvent(@NotNull @Positive @PathVariable Long id);
+
+    @GetMapping("/filter")
+    ResponseEntity<List<EventCreationResponse>> getEventsByFilter(@RequestBody EventFilterDto filter);
 }
