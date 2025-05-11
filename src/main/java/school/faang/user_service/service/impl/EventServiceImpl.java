@@ -91,4 +91,9 @@ public class EventServiceImpl implements EventService {
         eventRepository.deleteById(eventId);
         return String.format("Ивент с id %d удалён", eventId);
     }
+
+    @Override
+    public List<Event> getOwnedEvents(long userId) {
+        return eventRepository.findAllByUserId(userId);
+    }
 }
