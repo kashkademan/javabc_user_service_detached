@@ -1,18 +1,16 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.work_schedule_dto;
+
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
-
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class WorkScheduleCreateDto {
+@RequiredArgsConstructor
+public class WorkScheduleCreateDto{
     private long id;
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime startTime;
@@ -22,5 +20,5 @@ public class WorkScheduleCreateDto {
     private LocalTime startLunch;
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime endLunch;
-    private String timezone; // часовой пояс в формате IANA (например, "Europe/Moscow")
+    private String timezone;
 }

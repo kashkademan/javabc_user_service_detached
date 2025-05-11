@@ -1,9 +1,10 @@
 package school.faang.user_service.service;
 
-import school.faang.user_service.dto.WorkScheduleCreateDto;
+import school.faang.user_service.dto.work_schedule_dto.WorkScheduleCreateDto;
+import school.faang.user_service.entity.WorkSchedule;
 
 public interface WorkScheduleService {
-    WorkScheduleCreateDto addWorkSchedule(WorkScheduleCreateDto workScheduleCreateDto);
-    WorkScheduleCreateDto updateWorkScheduleDto(WorkScheduleCreateDto workScheduleCreateDto);
-    WorkScheduleCreateDto getById(long workScheduleId);
+    WorkSchedule addWorkSchedule(WorkSchedule workSchedule);
+    WorkSchedule updateWorkScheduleDto(WorkSchedule workSchedule);
+    WorkSchedule getById(long workScheduleId);
 }
