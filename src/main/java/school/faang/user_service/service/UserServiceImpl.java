@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.AchievementEventDto;
 import school.faang.user_service.dto.CreateUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.event.FollowEventDto;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final EventPublisher<FollowEventDto> eventPublisher;
+    private final EventPublisher<AchievementEventDto> eventPublisher2;
 
     @Value("user-avatars-aws-folder")
     private String userAvatarsAwsFolder;
@@ -150,8 +152,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void followUser(long followeeId, long followerId) {
-        User follower = userRepository.findById(followerId).orElseThrow(() -> new UserNotFoundException("ljlj"));
-        User followee = userRepository.findById(followeeId).orElseThrow(() -> new UserNotFoundException("jljlj"));
+        User follower = userRepository.findById(followerId).orElseThrow(() ->
+                new UserNotFoundException("User with id %d not found".formatted(followerId)));
+        User followee = userRepository.findById(followeeId).orElseThrow(() ->
+                new UserNotFoundException("User with id %d not found".formatted(followeeId)));
         follower.getFollowees().add(followee);
         followee.getFollowers().add(follower);
 
