@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import school.faang.user_service.dto.event.request.EventCreationRequest;
-import school.faang.user_service.dto.event.response.EventCreationResponse;
+import school.faang.user_service.dto.event.response.EventResponse;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 
@@ -32,16 +32,16 @@ public interface EventMapper {
     @Mapping(target = "eventStatus", source = "event.status")
     @Mapping(target = "eventType", source = "event.type")
     @Mapping(target = "relatedSkills", source = "event.relatedSkills", qualifiedByName = "toRelatedSkillsIds")
-    EventCreationResponse toEventCreationResponse(Event event);
+    EventResponse toEventResponse(Event event);
 
     @Named("toRelatedSkillsIds")
     default List<Long> toRelatedSkillsIds(List<Skill> skills) {
         return skills.stream().map(Skill::getId).toList();
     }
 
-    default List<EventCreationResponse> toEventCreationResponses(List<Event> events) {
+    default List<EventResponse> toEventResponses(List<Event> events) {
         return events.stream()
-                .map(this::toEventCreationResponse)
+                .map(this::toEventResponse)
                 .toList();
     }
 }
