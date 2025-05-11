@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class EventCreationResponse {
+public class EventResponse {
     private Long id;
 
     private String title;
