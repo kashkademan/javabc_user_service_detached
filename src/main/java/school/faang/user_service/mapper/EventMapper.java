@@ -48,10 +48,4 @@ public interface EventMapper {
                 .map(this::eventToEventResponse)
                 .toList();
     }
-
-    default List<EventCreationResponse> toEventCreationResponses(List<Event> events) {
-        return events.stream()
-                .map(this::toEventCreationResponse)
-                .toList();
-    }
 }
