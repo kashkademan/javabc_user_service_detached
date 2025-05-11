@@ -1,7 +1,9 @@
-package school.faang.user_service.service.mentornship;
+package school.faang.user_service.service.mentorship;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -13,7 +15,6 @@ import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.service.UserService;
-import school.faang.user_service.validation.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,12 +24,14 @@ import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserService userService;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> filters;
 
+    @Transactional
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         Long requesterId = mentorshipRequestDto.getRequesterId();
@@ -64,6 +67,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         return mentorshipRequestMapper.toMentorshipRequestDtoList(requestStream.toList());
     }
 
+    @Transactional
     @Override
     public MentorshipRequestDto acceptRequest(Long id) {
         MentorshipRequestDto foundDto = findMentorshipRequestById(id);
@@ -81,6 +85,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         return mentorshipRequestMapper.toMentorshipRequestDto(request);
     }
 
+    @Transactional
     @Override
     public MentorshipRequestDto rejectRequest(Long id, RejectionDto rejectionDto) {
         MentorshipRequestDto foundDto = findMentorshipRequestById(id);
@@ -92,8 +97,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     private MentorshipRequestDto findMentorshipRequestById(Long id) {
-        MentorshipRequest request = mentorshipRequestRepository.findById(id)
+        return mentorshipRequestRepository.findById(id)
+                .map(mentorshipRequestMapper::toMentorshipRequestDto)
                 .orElseThrow(() -> new EntityNotFoundException("Mentorship with id %d not found".formatted(id)));
-        return mentorshipRequestMapper.toMentorshipRequestDto(request);
     }
 }

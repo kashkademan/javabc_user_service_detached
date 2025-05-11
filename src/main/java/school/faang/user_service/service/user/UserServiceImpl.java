@@ -1,16 +1,18 @@
 package school.faang.user_service.service.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
-import school.faang.user_service.validation.exception.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -22,6 +24,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(UserDto userDto) {
         UserDto existingUser = findUserById(userDto.getId());
