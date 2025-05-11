@@ -7,7 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.EventController;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
-import school.faang.user_service.dto.event.request.EventCreationRequest;
+import school.faang.user_service.dto.event.request.EventCreateRequest;
+import school.faang.user_service.dto.event.request.EventUpdateRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.EventMapper;
@@ -23,19 +24,29 @@ public class EventControllerImpl implements EventController {
     private final EventMapper eventMapper;
 
     @Override
-    public ResponseEntity<EventResponse> create(EventCreationRequest request, Long ownerId) {
+    public ResponseEntity<EventResponse> create(EventCreateRequest request) {
         log.info("Получен запрос на создание события: {}", request);
         Event event = eventService.create(
-                eventMapper.toEventEntity(request),
+                eventMapper.eventCreateReqToEventEntity(request),
                 request.getRelatedSkills(),
-                ownerId);
-        return new ResponseEntity<>(eventMapper.toEventResponse(event), HttpStatus.CREATED);
+                request.getOwnerId());
+        return new ResponseEntity<>(eventMapper.eventToEventResponse(event), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<EventResponse> getEvent(Long id) {
+    public ResponseEntity<EventResponse> updateEvent(EventUpdateRequest request, long id) {
+        log.info("Получен запрос на обновление иваента: {}", request);
+        Event updatedEvent = eventService.updateEvent(
+                eventMapper.eventUpdateReqToEventEntity(request),
+                request.getRelatedSkills(),
+                request.getOwnerId(), id);
+        return new ResponseEntity<>(eventMapper.eventToEventResponse(updatedEvent), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<EventResponse> getEvent(long id) {
         log.info("Получен запрос на получение события: {}", id);
-        return new ResponseEntity<>(eventMapper.toEventResponse(eventService.getEvent(id)), HttpStatus.OK);
+        return new ResponseEntity<>(eventMapper.eventToEventResponse(eventService.getEvent(id)), HttpStatus.OK);
     }
 
     @Override
@@ -47,15 +58,15 @@ public class EventControllerImpl implements EventController {
     }
 
     @Override
-    public ResponseEntity<String> deleteEvent(long id) {
-        log.info("Получен запрос на удаление иваента с id: {}", id);
-        return new ResponseEntity<>(eventService.deleteEvent(id), HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<List<EventResponse>> getOwnedEvents(long ownerId) {
         log.info("Получен запрос на получение иваентов пользователя с userId: {}", ownerId);
         return new ResponseEntity<>(eventMapper.toEventResponses(eventService.getOwnedEvents(ownerId)),
                 HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<String> deleteEvent(long id) {
+        log.info("Получен запрос на удаление иваента с id: {}", id);
+        return new ResponseEntity<>(eventService.deleteEvent(id), HttpStatus.OK);
     }
 }
