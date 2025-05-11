@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
-import school.faang.user_service.dto.event.request.EventCreationRequest;
+import school.faang.user_service.dto.event.request.EventCreateRequest;
+import school.faang.user_service.dto.event.request.EventUpdateRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 
 import java.util.List;
@@ -20,19 +22,22 @@ import java.util.List;
 @RequestMapping("/api/v1/events")
 @Validated
 public interface EventController {
-    @PostMapping("/{ownerId}")
-    ResponseEntity<EventResponse> create(@RequestBody @Valid EventCreationRequest request,
-                                         @NotNull @Positive @PathVariable Long ownerId);
+    @PostMapping
+    ResponseEntity<EventResponse> create(@RequestBody @Valid EventCreateRequest request);
+
+    @PutMapping("/{id}")
+    ResponseEntity<EventResponse> updateEvent(@RequestBody @Valid EventUpdateRequest request,
+                                              @NotNull @Positive @PathVariable long id);
 
     @GetMapping("/{id}")
-    ResponseEntity<EventResponse> getEvent(@NotNull @Positive @PathVariable Long id);
+    ResponseEntity<EventResponse> getEvent(@NotNull @Positive @PathVariable long id);
 
     @GetMapping("/filter")
     ResponseEntity<List<EventResponse>> getEventsByFilter(@RequestBody EventFilterDto filter);
 
-    @DeleteMapping("/{id}")
-    ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id);
-
     @GetMapping("/owner/{ownerId}")
     ResponseEntity<List<EventResponse>> getOwnedEvents(@NotNull @Positive @PathVariable long ownerId);
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id);
 }

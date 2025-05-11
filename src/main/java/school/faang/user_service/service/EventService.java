@@ -8,11 +8,13 @@ import java.util.List;
 public interface EventService {
     Event create(Event event, List<Long> eventSkillsIds, Long ownerId);
 
+    Event updateEvent(Event event, List<Long> eventSkillsIds, Long ownerId, long id);
+
     Event getEvent(Long eventId);
 
     List<Event> getEventsByFilter(EventFilterDto filter);
 
-    String deleteEvent(long eventId);
-
     List<Event> getOwnedEvents(long userId);
+
+    String deleteEvent(long eventId);
 }
