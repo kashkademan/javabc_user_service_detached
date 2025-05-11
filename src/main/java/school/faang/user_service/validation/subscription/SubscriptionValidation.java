@@ -1,30 +1,30 @@
-package school.faang.user_service.validation.subscriptions;
+package school.faang.user_service.validation.subscription;
 
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 
 public class SubscriptionValidation {
 
     public static void validateFollowAction(long followerId, long followeeId) {
         if (checkFollowForSelf(followerId, followeeId)) {
-            throw new DataValidationException("You cant subscribe to yourself");
+            throw new DataValidationException("Нельзя подписаться на себя");
         }
     }
 
     public static void validateUnfollowAction(long followerId, long followeeId) {
         if (checkFollowForSelf(followerId, followeeId)) {
-            throw new DataValidationException("You cant unsubscribe to yourself");
+            throw new DataValidationException("Нельзя отписаться от себя");
         }
     }
 
     public static void validateSubscribeAction(boolean existSub) {
         if (existSub) {
-            throw new DataValidationException("You are already subscribed to this user");
+            throw new DataValidationException("Подписка на этого пользователя уже существует");
         }
     }
 
     public static void validateUnsubscribeAction(boolean existSub) {
         if (!existSub) {
-            throw new DataValidationException("You cant unsubscribe to user that you are not subscribed");
+            throw new DataValidationException("Нельзя отписаться от пользователя без предварительной подписки на него");
         }
     }
 

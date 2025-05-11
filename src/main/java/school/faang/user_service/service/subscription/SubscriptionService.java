@@ -1,13 +1,14 @@
-package school.faang.user_service.service.subscriptions;
+package school.faang.user_service.service.subscription;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
+import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filters.subscriptions.SubscriptionFilter;
+import school.faang.user_service.filter.subscription.SubscriptionFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.validation.subscriptions.SubscriptionValidation;
+import school.faang.user_service.validation.subscription.SubscriptionValidation;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +26,11 @@ public class SubscriptionService {
         SubscriptionValidation.validateFollowAction(followerId, followeeId);
         SubscriptionValidation.validateSubscribeAction(existSub);
 
-        subscriptionRepository.followUser(followerId, followeeId);
+        subscriptionRepository.save(Subscription.builder()
+                .follower_id(followerId)
+                .followee_id(followeeId)
+                .build()
+        );
     }
 
     @Transactional
@@ -34,7 +39,11 @@ public class SubscriptionService {
         SubscriptionValidation.validateUnfollowAction(followerId, followeeId);
         SubscriptionValidation.validateUnsubscribeAction(existSub);
 
-        subscriptionRepository.unfollowUser(followerId, followeeId);
+        subscriptionRepository.delete(Subscription.builder()
+                .follower_id(followerId)
+                .followee_id(followeeId)
+                .build()
+        );
     }
 
     @Transactional(readOnly = true)
