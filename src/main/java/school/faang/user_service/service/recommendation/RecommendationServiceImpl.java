@@ -51,7 +51,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
         Recommendation recommendationEntity = recommendationRepository.findById(recommendationId)
-                .orElseThrow(() -> new DataValidationException("Не удалось получить созданную рекомендацию"));
+                .orElseThrow(() -> new DataValidationException("Failed to retrieve the created recommendation"));
         checkAndAddSkillsGuarantees(recommendationEntity);
 
         return recommendationMapper.toDto(recommendationEntity);
@@ -73,7 +73,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
         Recommendation recommendationEntity = recommendationRepository.findById(updated.getId())
-                .orElseThrow(() -> new DataValidationException("Не удалось получить созданную рекомендацию"));
+                .orElseThrow(() -> new DataValidationException("Failed to retrieve the created recommendation"));
         checkAndAddSkillsGuarantees(recommendationEntity);
 
         return recommendationMapper.toDto(recommendationEntity);
@@ -84,7 +84,6 @@ public class RecommendationServiceImpl implements RecommendationService {
     public void delete(long id) {
         skillOfferRepository.deleteAllByRecommendationId(id);
         recommendationRepository.deleteById(id);
-
     }
 
     @Override
@@ -109,40 +108,42 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private void validateRecommendation(RecommendationDto recommendation) {
         checkLastRecommendationDate(recommendation);
-        checkMissingSkills(recommendation);
-        checkUniqueSkills(recommendation);
+        if (recommendation.getSkillOffers() != null && !recommendation.getSkillOffers().isEmpty()) {
+            checkMissingSkills(recommendation);
+            checkUniqueSkills(recommendation);
         }
+    }
 
     private void checkLastRecommendationDate(RecommendationDto recommendation) {
         Optional<Recommendation> previousRecommendation = recommendationRepository
-                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendation.getAuthorId(), recommendation.getReceiverId());
+                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendation.getAuthorId(),
+                        recommendation.getReceiverId());
         if (previousRecommendation.isPresent()) {
             LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
             if (previousRecommendation.get().getCreatedAt().isAfter(sixMonthsAgo)) {
-                throw new DataValidationException("Нельзя давать рекомендацию одному пользователю чаще, чем раз в 6 месяцев");
+                throw new DataValidationException(
+                        "You cannot give a recommendation to the same user more than once every 6 months");
             }
         }
     }
 
     private void checkMissingSkills(RecommendationDto recommendation) {
-        if (recommendation.getSkillOffers() != null && !recommendation.getSkillOffers().isEmpty()) {
-            List<Long> missingSkillIds = recommendation.getSkillOffers().stream()
-                    .map(SkillOfferDto::getSkillId)
-                    .filter(skillId -> !skillRepository.existsById(skillId))
-                    .toList();
-            if (!missingSkillIds.isEmpty()) {
-                if (missingSkillIds.size() == 1) {
-                    throw new DataValidationException(
-                            String.format("Навык с id %d отсутствует в системе", missingSkillIds.get(0))
-                    );
-                } else {
-                    throw new DataValidationException(
-                            String.format("Следующие навыки отсутствуют в системе: %s",
-                                    missingSkillIds.stream()
-                                            .map(String::valueOf)
-                                            .collect(Collectors.joining(", ")))
-                    );
-                }
+        List<Long> missingSkillIds = recommendation.getSkillOffers().stream()
+                .map(SkillOfferDto::getSkillId)
+                .filter(skillId -> !skillRepository.existsById(skillId))
+                .toList();
+        if (!missingSkillIds.isEmpty()) {
+            if (missingSkillIds.size() == 1) {
+                throw new DataValidationException(
+                        String.format("Skill with id %d does not exist in the system", missingSkillIds.get(0))
+                );
+            } else {
+                throw new DataValidationException(
+                        String.format("The following skills do not exist in the system: %s",
+                                missingSkillIds.stream()
+                                        .map(String::valueOf)
+                                        .collect(Collectors.joining(", ")))
+                );
             }
         }
     }
@@ -151,7 +152,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         Set<Long> uniqueSkillIds = new HashSet<>();
         for (SkillOfferDto skillOffer : recommendation.getSkillOffers()) {
             if (!uniqueSkillIds.add(skillOffer.getSkillId())) {
-                throw new DataValidationException("В рекомендации есть дублирующиеся навыки");
+                throw new DataValidationException("There are duplicate skills in the recommendation");
             }
         }
     }
@@ -162,11 +163,11 @@ public class RecommendationServiceImpl implements RecommendationService {
         for (SkillOffer skillOffer : recommendation.getSkillOffers()) {
             Skill skill = skillOffer.getSkill();
             if (receiver.getSkills().contains(skill)) {
-                boolean authorAlreadyGuarantor = skill.getGuarantees().stream()
+                boolean isAuthorAlreadyGuarantor = skill.getGuarantees().stream()
                         .anyMatch(guarantee -> guarantee.getGuarantor().equals(author) &&
                                 guarantee.getUser().equals(receiver));
 
-                if (!authorAlreadyGuarantor) {
+                if (!isAuthorAlreadyGuarantor) {
                     UserSkillGuarantee newGuarantee = UserSkillGuarantee.builder()
                             .user(receiver)
                             .skill(skill)

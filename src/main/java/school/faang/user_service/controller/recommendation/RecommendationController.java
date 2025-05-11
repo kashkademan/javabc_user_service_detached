@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +23,9 @@ public class RecommendationController {
 
     @PostMapping
     public RecommendationDto giveRecommendation(@RequestBody RecommendationDto recommendation) {
-       RecommendationValidatorUtil.validate(recommendation);
+        RecommendationValidatorUtil.validate(recommendation);
 
-       return recommendationService.create(recommendation);
+        return recommendationService.create(recommendation);
     }
 
     @PutMapping
@@ -41,17 +40,13 @@ public class RecommendationController {
         recommendationService.delete(id);
     }
 
-    @GetMapping("/{receiverId}")
-    public ResponseEntity<List<RecommendationDto>> getAllUserRecommendations(@PathVariable long receiverId) {
-        List<RecommendationDto> recommendations = recommendationService.getAllUserRecommendations(receiverId);
-
-        return ResponseEntity.ok(recommendations);
+    @GetMapping("/receiver/{receiverId}")
+    public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
+        return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    @GetMapping("/{authorId}")
-    public ResponseEntity<List<RecommendationDto>> getAllGivenRecommendations(@PathVariable long authorId) {
-        List<RecommendationDto> recommendations = recommendationService.getAllGivenRecommendations(authorId);
-
-        return ResponseEntity.ok(recommendations);
+    @GetMapping("/author/{authorId}")
+    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId) {
+        return recommendationService.getAllGivenRecommendations(authorId);
     }
 }
