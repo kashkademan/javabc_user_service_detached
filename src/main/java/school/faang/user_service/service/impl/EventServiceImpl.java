@@ -51,10 +51,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event getEvent(Long id) {
-        return eventRepository.findById(id)
+    public Event getEvent(Long eventId) {
+        return eventRepository.findById(eventId)
                 .orElseThrow(() -> new RecordNotFoundException(
-                        String.format("Ивент с id %d не найден", id)
+                        String.format("Ивент с id %d не найден", eventId)
                 ));
     }
 
@@ -62,5 +62,14 @@ public class EventServiceImpl implements EventService {
     public List<Event> getEventsByFilter(EventFilterDto filter) {
         Specification<Event> spec = EventSpecification.withFilter(filter);
         return eventRepository.findAll(spec);
+    }
+
+    @Override
+    public String deleteEvent(long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new RecordNotFoundException(String.format("Ивент с id %d не существует!", eventId));
+        }
+        eventRepository.deleteById(eventId);
+        return String.format("Ивент с id %d удалён", eventId);
     }
 }
