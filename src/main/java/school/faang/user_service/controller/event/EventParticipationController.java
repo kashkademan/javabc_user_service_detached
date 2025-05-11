@@ -3,20 +3,25 @@ package school.faang.user_service.controller.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
+@RequestMapping("/api/events/{eventId}/participants")
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
-    @GetMapping
-    public ResponseEntity<String> registerParticipant(long eventId, long userId) {
+    @PostMapping("/{userId}")
+    public ResponseEntity<String> registerParticipant(@PathVariable long eventId, @PathVariable long userId) {
         try {
             eventParticipationService.registerParticipant(eventId, userId);
             return ResponseEntity.ok("The user has successfully registered for the event.");
@@ -27,8 +32,8 @@ public class EventParticipationController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<String> unregisterParticipant(long eventId, long userId) {
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> unregisterParticipant(@PathVariable long eventId, @PathVariable long userId) {
         try {
             eventParticipationService.unregisterParticipant(eventId, userId);
             return ResponseEntity.ok("The user has been successfully deregistered from the event.");
@@ -40,7 +45,7 @@ public class EventParticipationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> findAllParticipantsByEventId(long eventId) {
+    public ResponseEntity<List<User>> findAllParticipantsByEventId(@PathVariable long eventId) {
         try {
             List<User> participants = eventParticipationService.getParticipant(eventId);
             return ResponseEntity.ok(participants);
@@ -49,8 +54,8 @@ public class EventParticipationController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Integer> getParticipantsCount(long eventId) {
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getParticipantsCount(@PathVariable long eventId) {
         try {
             int count = eventParticipationService.getParticipantsCount(eventId);
             return ResponseEntity.ok(count);
