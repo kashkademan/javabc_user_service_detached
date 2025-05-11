@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,4 +29,7 @@ public interface EventController {
 
     @GetMapping("/filter")
     ResponseEntity<List<EventCreationResponse>> getEventsByFilter(@RequestBody EventFilterDto filter);
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id);
 }

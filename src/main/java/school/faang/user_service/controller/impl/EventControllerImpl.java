@@ -44,4 +44,9 @@ public class EventControllerImpl implements EventController {
                 eventService.getEventsByFilter(filter)),
                 HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<String> deleteEvent(long id) {
+        return new ResponseEntity<>(eventService.deleteEvent(id), HttpStatus.OK);
+    }
 }
