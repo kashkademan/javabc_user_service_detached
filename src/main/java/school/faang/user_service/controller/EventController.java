@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
-import school.faang.user_service.dto.event.request.EventCreateRequest;
-import school.faang.user_service.dto.event.request.EventUpdateRequest;
+import school.faang.user_service.dto.event.request.EventRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 
 import java.util.List;
@@ -23,10 +22,10 @@ import java.util.List;
 @Validated
 public interface EventController {
     @PostMapping
-    ResponseEntity<EventResponse> create(@RequestBody @Valid EventCreateRequest request);
+    ResponseEntity<EventResponse> create(@RequestBody @Valid EventRequest request);
 
     @PutMapping("/{id}")
-    ResponseEntity<EventResponse> updateEvent(@RequestBody @Valid EventUpdateRequest request,
+    ResponseEntity<EventResponse> updateEvent(@RequestBody @Valid EventRequest request,
                                               @NotNull @Positive @PathVariable long id);
 
     @GetMapping("/{id}")
