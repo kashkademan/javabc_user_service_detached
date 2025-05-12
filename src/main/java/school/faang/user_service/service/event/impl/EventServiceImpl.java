@@ -1,4 +1,4 @@
-package school.faang.user_service.service.impl;
+package school.faang.user_service.service.event.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.event.EventSpecification;
-import school.faang.user_service.service.EventService;
+import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.ArrayList;
