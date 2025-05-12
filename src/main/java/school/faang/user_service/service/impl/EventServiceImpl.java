@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -28,6 +29,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final EventValidation eventValidation;
+    private final UserContext userContext;
 
     @Transactional
     @Override
@@ -79,12 +81,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getOwnedEvents(long userId) {
-        return eventRepository.findAllByUserId(userId);
+    public List<Event> getOwnedEvents() {
+        long ownerId = userContext.getUserId();
+        log.info("Получен запрос на получение иваентов пользователя с ownerId: {}", ownerId);
+        return eventRepository.findAllByUserId(ownerId);
     }
 
     @Override
-    public List<Event> getParticipatedEvents(long userId) {
+    public List<Event> getParticipatedEvents() {
+        long userId = userContext.getUserId();
+        log.info("Получен запрос на получение иваентов, в которых участвует пользователь с userId: {}", userId);
         return eventRepository.findParticipatedEventsByUserId(userId);
     }
 
