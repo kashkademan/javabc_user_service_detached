@@ -16,5 +16,7 @@ public interface EventService {
 
     List<Event> getOwnedEvents(long userId);
 
+    List<Event> getParticipatedEvents(long userId);
+
     String deleteEvent(long eventId);
 }
