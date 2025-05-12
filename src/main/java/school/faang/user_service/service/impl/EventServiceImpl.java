@@ -84,6 +84,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<Event> getParticipatedEvents(long userId) {
+        return eventRepository.findParticipatedEventsByUserId(userId);
+    }
+
+    @Override
     public String deleteEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             throw new RecordNotFoundException(String.format("Ивент с id %d не существует!", eventId));
