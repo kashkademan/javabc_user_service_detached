@@ -1,4 +1,4 @@
-package school.faang.user_service.validation.subscription;
+package school.faang.user_service.validator.subscription;
 
 import school.faang.user_service.exception.DataValidationException;
 

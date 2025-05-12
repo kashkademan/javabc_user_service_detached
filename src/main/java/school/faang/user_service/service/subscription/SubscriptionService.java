@@ -8,7 +8,7 @@ import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.subscription.SubscriptionFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.validation.subscription.SubscriptionValidation;
+import school.faang.user_service.validator.subscription.SubscriptionValidation;
 
 import java.util.List;
 import java.util.stream.Stream;
