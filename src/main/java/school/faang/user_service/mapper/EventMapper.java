@@ -4,8 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
-import school.faang.user_service.dto.event.request.EventCreateRequest;
-import school.faang.user_service.dto.event.request.EventUpdateRequest;
+import school.faang.user_service.dto.event.request.EventRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
@@ -27,22 +26,7 @@ public interface EventMapper {
     @Mapping(target = "endDate", source = "eventRequest.endDate")
     @Mapping(target = "location", source = "eventRequest.location")
     @Mapping(target = "maxAttendees", source = "eventRequest.maxAttendees")
-    Event eventCreateReqToEventEntity(EventCreateRequest eventRequest);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "attendees", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "owner", ignore = true)
-    @Mapping(target = "relatedSkills", ignore = true)
-    @Mapping(target = "status", source = "eventRequest.eventStatus")
-    @Mapping(target = "type", source = "eventRequest.eventType")
-    @Mapping(target = "title", source = "eventRequest.title")
-    @Mapping(target = "description", source = "eventRequest.description")
-    @Mapping(target = "startDate", source = "eventRequest.startDate")
-    @Mapping(target = "endDate", source = "eventRequest.endDate")
-    @Mapping(target = "location", source = "eventRequest.location")
-    @Mapping(target = "maxAttendees", source = "eventRequest.maxAttendees")
-    Event eventUpdateReqToEventEntity(EventUpdateRequest eventRequest);
+    Event eventRequestToEventEntity(EventRequest eventRequest);
 
     @Mapping(target = "ownerId", source = "event.owner.id")
     @Mapping(target = "eventStatus", source = "event.status")
