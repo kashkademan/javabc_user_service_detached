@@ -34,11 +34,11 @@ public interface EventController {
     @GetMapping("/filter")
     ResponseEntity<List<EventResponse>> getEventsByFilter(@RequestBody EventFilterDto filter);
 
-    @GetMapping("/owner/{ownerId}")
-    ResponseEntity<List<EventResponse>> getOwnedEvents(@NotNull @Positive @PathVariable long ownerId);
+    @GetMapping("/owner")
+    ResponseEntity<List<EventResponse>> getOwnedEvents();
 
-    @GetMapping("/participation/{userId}")
-    ResponseEntity<List<EventResponse>> getParticipatedEvents(@NotNull @Positive @PathVariable long userId);
+    @GetMapping("/participation")
+    ResponseEntity<List<EventResponse>> getParticipatedEvents();
 
     @DeleteMapping("/{id}")
     ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id);

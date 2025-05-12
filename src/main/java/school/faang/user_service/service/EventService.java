@@ -14,9 +14,9 @@ public interface EventService {
 
     List<Event> getEventsByFilter(EventFilterDto filter);
 
-    List<Event> getOwnedEvents(long userId);
+    List<Event> getOwnedEvents();
 
-    List<Event> getParticipatedEvents(long userId);
+    List<Event> getParticipatedEvents();
 
     String deleteEvent(long eventId);
 }
