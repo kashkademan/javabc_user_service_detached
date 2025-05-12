@@ -1,17 +1,17 @@
-package school.faang.user_service.controller.impl;
+package school.faang.user_service.controller.event.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.controller.EventController;
+import school.faang.user_service.controller.event.EventController;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.dto.event.request.EventRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.EventMapper;
-import school.faang.user_service.service.EventService;
+import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
