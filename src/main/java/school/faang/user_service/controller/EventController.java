@@ -38,6 +38,9 @@ public interface EventController {
     @GetMapping("/owner/{ownerId}")
     ResponseEntity<List<EventResponse>> getOwnedEvents(@NotNull @Positive @PathVariable long ownerId);
 
+    @GetMapping("/participation/{userId}")
+    ResponseEntity<List<EventResponse>> getParticipatedEvents(@NotNull @Positive @PathVariable long userId);
+
     @DeleteMapping("/{id}")
     ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id);
 }
