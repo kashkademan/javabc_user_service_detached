@@ -7,8 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.EventController;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
-import school.faang.user_service.dto.event.request.EventCreateRequest;
-import school.faang.user_service.dto.event.request.EventUpdateRequest;
+import school.faang.user_service.dto.event.request.EventRequest;
 import school.faang.user_service.dto.event.response.EventResponse;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.EventMapper;
@@ -24,20 +23,20 @@ public class EventControllerImpl implements EventController {
     private final EventMapper eventMapper;
 
     @Override
-    public ResponseEntity<EventResponse> create(EventCreateRequest request) {
+    public ResponseEntity<EventResponse> create(EventRequest request) {
         log.info("Получен запрос на создание события: {}", request);
         Event event = eventService.create(
-                eventMapper.eventCreateReqToEventEntity(request),
+                eventMapper.eventRequestToEventEntity(request),
                 request.getRelatedSkills(),
                 request.getOwnerId());
         return new ResponseEntity<>(eventMapper.eventToEventResponse(event), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<EventResponse> updateEvent(EventUpdateRequest request, long id) {
+    public ResponseEntity<EventResponse> updateEvent(EventRequest request, long id) {
         log.info("Получен запрос на обновление иваента: {}", request);
         Event updatedEvent = eventService.updateEvent(
-                eventMapper.eventUpdateReqToEventEntity(request),
+                eventMapper.eventRequestToEventEntity(request),
                 request.getRelatedSkills(),
                 request.getOwnerId(), id);
         return new ResponseEntity<>(eventMapper.eventToEventResponse(updatedEvent), HttpStatus.OK);
