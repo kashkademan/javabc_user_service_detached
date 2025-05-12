@@ -59,8 +59,15 @@ public class EventControllerImpl implements EventController {
 
     @Override
     public ResponseEntity<List<EventResponse>> getOwnedEvents(long ownerId) {
-        log.info("Получен запрос на получение иваентов пользователя с userId: {}", ownerId);
+        log.info("Получен запрос на получение иваентов пользователя с ownerId: {}", ownerId);
         return new ResponseEntity<>(eventMapper.toEventResponses(eventService.getOwnedEvents(ownerId)),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<EventResponse>> getParticipatedEvents(long userId) {
+        log.info("Получен запрос на получение иваентов, в которых участвует пользователь с userId: {}", userId);
+        return new ResponseEntity<>(eventMapper.toEventResponses(eventService.getParticipatedEvents(userId)),
                 HttpStatus.OK);
     }
 
