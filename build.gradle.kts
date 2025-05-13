@@ -122,7 +122,9 @@ tasks.jacocoTestReport {
                       "**/*Mapper.class/**",
                       "**/*MapperImpl.class/**",
                       "**/entity/**",
-                      "**/controler/**"
+                      "**/controller/**",
+                      "**/repository/**",
+                      "**/json/student/**"
                    )
                   }
                 }
