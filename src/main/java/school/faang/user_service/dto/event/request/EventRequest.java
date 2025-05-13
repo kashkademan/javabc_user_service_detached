@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.validation.EndDateValidatable;
@@ -33,6 +34,7 @@ import static school.faang.user_service.util.LogsConstants.WRONG_USER_ID;
 @AllArgsConstructor
 @Builder
 @ValidEndDate
+@Validated
 public class EventRequest implements EndDateValidatable {
     @NotBlank(message = NULL_TITLE)
     @Size(min = 3, max = 255, message = TEXT_LIMIT_FROM_3_TO_255)

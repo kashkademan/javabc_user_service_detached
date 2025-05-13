@@ -1,38 +1,52 @@
 package school.faang.user_service.repository.event;
 
-import jakarta.persistence.criteria.Predicate;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
+@UtilityClass
 public class EventSpecification {
+    
     public static Specification<Event> withFilter(EventFilterDto filter) {
-        return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("title")),
-                        "%" + filter.getTitle().toLowerCase() + "%"
-                ));
-            }
-
-            if (filter.getStartDate() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                        root.get("startDate"), filter.getStartDate()
-                ));
-            }
-
-            if (filter.getOwnerId() != null) {
-                predicates.add(criteriaBuilder.equal(
-                        root.get("owner").get("id"), filter.getOwnerId()
-                ));
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
+        Specification<Event> spec = Specification.where(null);
+        
+        if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
+            spec = spec.and(hasTitle(filter.getTitle()));
+        }
+        
+        if (filter.getStartDate() != null) {
+            spec = spec.and(hasStartDateAfter(filter.getStartDate()));
+        }
+        
+        if (filter.getOwnerId() != null) {
+            spec = spec.and(hasOwner(filter.getOwnerId()));
+        }
+        
+        return spec;
+    }
+    
+    public static Specification<Event> hasTitle(String title) {
+        return (root, query, criteriaBuilder) -> 
+            criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("title")),
+                "%" + title.toLowerCase() + "%"
+            );
+    }
+    
+    public static Specification<Event> hasStartDateAfter(LocalDateTime startDate) {
+        return (root, query, criteriaBuilder) -> 
+            criteriaBuilder.greaterThanOrEqualTo(
+                root.get("startDate"), startDate
+            );
+    }
+    
+    public static Specification<Event> hasOwner(Long ownerId) {
+        return (root, query, criteriaBuilder) -> 
+            criteriaBuilder.equal(
+                root.get("owner").get("id"), ownerId
+            );
     }
 }
