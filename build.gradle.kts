@@ -160,9 +160,6 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
-        }
-    }
-}
 
 checkstyle {
     toolVersion = "10.17.0"
