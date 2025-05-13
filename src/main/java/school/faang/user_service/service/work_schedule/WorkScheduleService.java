@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.work_schedule;
 
 import school.faang.user_service.dto.work_schedule_dto.WorkScheduleCreateDto;
 import school.faang.user_service.entity.WorkSchedule;

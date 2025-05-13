@@ -1,4 +1,4 @@
-package school.faang.user_service.mapper;
+package school.faang.user_service.mapper.work_schedule;
 
 import org.mapstruct.Mapper;
 import school.faang.user_service.dto.work_schedule_dto.WorkScheduleCreateDto;

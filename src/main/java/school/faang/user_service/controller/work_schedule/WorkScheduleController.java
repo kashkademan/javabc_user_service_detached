@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.work_schedule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,8 +16,8 @@ import school.faang.user_service.dto.work_schedule_dto.WorkScheduleCreateDto;
 import school.faang.user_service.dto.work_schedule_dto.WorkScheduleDto;
 import school.faang.user_service.dto.work_schedule_dto.WorkScheduleUpdateDto;
 import school.faang.user_service.entity.WorkSchedule;
-import school.faang.user_service.mapper.WorkScheduleMapper;
-import school.faang.user_service.service.WorkScheduleService;
+import school.faang.user_service.mapper.work_schedule.WorkScheduleMapper;
+import school.faang.user_service.service.work_schedule.WorkScheduleService;
 
 @RestController
 @RequiredArgsConstructor
