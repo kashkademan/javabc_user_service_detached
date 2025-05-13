@@ -3,6 +3,11 @@ name: CI
 on:
   pull_request:
     branches: [ "chimera-master-stream10" ]
+    types: [ opened, reopened, synchronize, edited ]
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   build:
@@ -28,8 +33,11 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle.properties', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('/gradle.properties', '/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew build testClasses -x test -x check -x checkstyleMain -x checkstyleTest --no-daemon
 
       - name: Test with Gradle
         run: ./gradlew test -x testClasses --no-daemon --continue
@@ -37,12 +45,12 @@ jobs:
       - name: Checkstyle verification
         run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
 
-      #- name: Archive test report
-      #  if: always()
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: test_report
-      #    path: build/reports/tests/test
+      - name: Archive test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_report
+          path: build/reports/tests/test
 
       - name: Archive checkstyle report
         if: always()
@@ -50,3 +58,18 @@ jobs:
         with:
           name: checkstyle_report
           path: build/reports/checkstyle
+
+      - name: Comment on Pull Request if build failed
+        if: failure()
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue_number = context.issue.number;
+            const message = "⚠️ ОШИБКА: Сборка завалилась: либо ошибки компиляции, либо не прошли тесты, либо возникли ошибки в стиле кода. Пожалуйста, проверь логи и внеси соответствующие изменения в ПР. После этого красная ошибка ниже должна пропасть, но этот комментарий останется - так и должно быть.";
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: message
+            });
