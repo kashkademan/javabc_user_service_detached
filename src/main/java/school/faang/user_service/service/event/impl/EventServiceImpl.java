@@ -36,7 +36,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event create(Event event, List<Long> eventSkillsIds, Long ownerId) {
+    public Event create(Event event, List<Long> eventSkillsIds) {
+        Long ownerId = userContext.getUserId();
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RecordNotFoundException(
                         String.format("Пользователь с id %d не найден", ownerId)));
