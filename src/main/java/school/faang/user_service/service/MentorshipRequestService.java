@@ -12,7 +12,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.filters.RequestFilter;
+import school.faang.user_service.filters.mentorship_request.RequestFilter;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
