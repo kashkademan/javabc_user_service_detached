@@ -120,7 +120,9 @@ tasks.jacocoTestReport {
                     exclude(
                       "**/mapper/**",
                       "**/*Mapper.class/**",
-                      "**/*MapperImpl.class/**"
+                      "**/*MapperImpl.class/**",
+                      "**/entity/**",
+                      "**/controler/**"
                    )
                   }
                 }
