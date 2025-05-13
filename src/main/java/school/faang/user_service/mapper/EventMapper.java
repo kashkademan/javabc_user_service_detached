@@ -18,6 +18,8 @@ public interface EventMapper {
     @Mapping(target = "ratings", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "relatedSkills", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "status", source = "eventRequest.eventStatus")
     @Mapping(target = "type", source = "eventRequest.eventType")
     @Mapping(target = "title", source = "eventRequest.title")
