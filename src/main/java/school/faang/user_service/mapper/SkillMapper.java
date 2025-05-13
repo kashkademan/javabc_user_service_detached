@@ -1,30 +1,59 @@
 package school.faang.user_service.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring" )
-public interface SkillMapper {
-    CreateSkillDto toCreateDto(Skill skill);
-    Skill toEntity(CreateSkillDto dto);
+@Component
+public class SkillMapper {
 
-    List<SkillDto> toDtos(List<Skill> skills);
-    SkillDto toDto(Skill skill);
+    public Skill toSkill(CreateSkillDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        return Skill.builder()
+                .title(dto.getTitle())
+                .build();
+    }
 
-    @Mapping(target = "skill", source = "skill")
-    @Mapping(target = "offersAmount", source = "count")
-    SkillCandidateDto toCandidateDto(SkillDto skill, int count);
+    public List<SkillDto> toSkillDtos(List<Skill> skills) {
+        if (skills == null) {
+            return null;
+        }
+        List<SkillDto> list = new ArrayList<>(skills.size());
+        skills.forEach(skill -> list.add(toDto(skill)));
+        return list;
+    }
 
-    default List<SkillCandidateDto> toOfferedDtos(List<Skill> skills) {
+    public SkillDto toDto(Skill skill) {
+        if (skill == null) {
+            return null;
+        }
+        return SkillDto.builder()
+                .id(skill.getId())
+                .title(skill.getTitle())
+                .build();
+    }
+
+    public SkillCandidateDto toCandidateDto(SkillDto skill, int count) {
+        if (skill == null) {
+            return null;
+        }
+        return SkillCandidateDto.builder()
+                .skill(skill)
+                .offersAmount(count)
+                .build();
+    }
+
+    public List<SkillCandidateDto> toOfferedDtos(List<Skill> skills) {
         Map<SkillDto, Long> skillCounts = skills.stream()
                 .map(this::toDto)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

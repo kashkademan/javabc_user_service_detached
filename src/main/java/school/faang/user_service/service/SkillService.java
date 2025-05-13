@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
@@ -17,9 +16,8 @@ import java.util.List;
 public class SkillService {
     private final SkillRepository skillRepository;
     private final SkillValidator skillValidator;
-    private final UserContext userContext;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Skill create(Skill skill) {
         skillValidator.validateTitleBlank(skill.getTitle());
         skillValidator.validateTitleUnique(skill.getTitle());
@@ -29,16 +27,14 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public List<Skill> getUserSkills() {
-        long userId = userContext.getUserId();
+    public List<Skill> getUserSkills(long userId) {
         List<Skill> userSkills = skillRepository.findAllByUserId(userId);
         log.info("У пользователя {} есть навыки {}", userId, userSkills);
         return userSkills;
     }
 
     @Transactional(readOnly = true)
-    public List<Skill> getOfferedSkills() {
-        long userId = userContext.getUserId();
+    public List<Skill> getOfferedSkills(long userId) {
         List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
         log.info("У пользователя {} есть предложенные навыки {}", userId, offeredSkills);
         return offeredSkills;
