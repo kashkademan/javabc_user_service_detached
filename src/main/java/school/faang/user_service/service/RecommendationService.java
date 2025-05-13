@@ -1,7 +1,8 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.UserSkillGuarantee;
@@ -17,7 +18,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class RecommendationService {
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
@@ -27,9 +28,10 @@ public class RecommendationService {
     private final SkillOfferMapper skillOfferMapper;
     private final RecommendationMapper recommendationMapper;
 
+    @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) throws DataValidationException {
         Optional<Recommendation> previousRecommendation = recommendationRepository
-                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthor(), recommendationDto.getReceiver());
+                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
 
         if (previousRecommendation.isPresent()) {
             if (previousRecommendation.get().getCreatedAt().isAfter(LocalDateTime.now().minusMonths(6))) {
@@ -38,7 +40,7 @@ public class RecommendationService {
         }
         if (recommendationDto.getSkillOffers().size() != skillRepository.countExisting(recommendationDto.getSkillOffers()
                 .stream()
-                .map(SkillOfferDto::getSkill)
+                .map(SkillOfferDto::getSkillId)
                 .toList())) {
             throw new DataValidationException("Some skills do not exist in our system");
         }
@@ -56,7 +58,7 @@ public class RecommendationService {
         });
 
         recommendationRepository
-                .create(recommendationDto.getAuthor(), recommendationDto.getReceiver(), recommendationDto.getContent());
+                .create(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent());
         return recommendationDto;
     }
 }
