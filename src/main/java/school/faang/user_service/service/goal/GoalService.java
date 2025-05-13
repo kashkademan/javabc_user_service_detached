@@ -51,8 +51,11 @@ public class GoalService {
         users.add(owner);
         goal.setUsers(users);
 
-        Goal parentGoal = getGoalByIdOrThrow(goalCreateRequestDto.getParentId());
-        goal.setParent(parentGoal);
+        Long parentId = goalCreateRequestDto.getParentId();
+        if (parentId != null) {
+            Goal parentGoal = getGoalByIdOrThrow(parentId);
+            goal.setParent(parentGoal);
+        }
 
         goal.setStatus(GoalStatus.ACTIVE);
 

@@ -27,5 +27,6 @@ public class GoalUpdateRequestDto {
     @NotNull(message = "Completed is mandatory")
     private GoalStatus status;
 
+    @Size(min = 1, message = "At least one skill must be specified")
     private List<Long> skillIds;
 }

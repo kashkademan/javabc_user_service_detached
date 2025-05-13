@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 public interface GoalMapper {
     Goal toGoalEntity(final GoalCreateRequestDto goalCreateRequestDto);
 
+    Goal toGoalEntity(final GoalUpdateRequestDto goalUpdateRequestDto);
+
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdAt", target = "createdDate")
     @Mapping(source = "updatedAt", target = "updatedDate")
