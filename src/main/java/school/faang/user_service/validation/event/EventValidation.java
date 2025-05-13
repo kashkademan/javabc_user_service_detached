@@ -7,6 +7,7 @@ import school.faang.user_service.exception.EventCreationNotAllowedException;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -28,6 +29,12 @@ public class EventValidation {
                                 requiredSkillsIds)
                 );
             }
+        }
+    }
+
+    public void isUserEventOwner(Long userId, Long ownerId) {
+        if (!Objects.equals(userId, ownerId)) {
+            throw new IllegalArgumentException("У вас нет прав на редактирование этого ивента");
         }
     }
 }

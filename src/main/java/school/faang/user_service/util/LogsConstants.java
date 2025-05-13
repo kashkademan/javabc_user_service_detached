@@ -16,4 +16,6 @@ public final class LogsConstants {
     public static final String TEXT_LIMIT_FROM_3_TO_255 = "Название должно содержать от 3 до 255 символов";
     public static final String TEXT_LIMIT_TO_2000 = "Описание не должно превышать 2000 символов";
 
+    // Сообщения об ошибках при работе с Event
+    public static final String EVENT_NOT_FOUND = "Ивент с id %d не найден";
 }
