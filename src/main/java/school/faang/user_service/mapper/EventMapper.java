@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
-import school.faang.user_service.dto.event.request.EventRequest;
+import school.faang.user_service.dto.event.request.EventRequestDto;
 import school.faang.user_service.dto.event.response.EventResponseDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
@@ -22,7 +22,7 @@ public interface EventMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "status", source = "eventRequest.eventStatus")
     @Mapping(target = "type", source = "eventRequest.eventType")
-    Event eventRequestToEventEntity(EventRequest eventRequest);
+    Event eventRequestToEventEntity(EventRequestDto eventRequest);
 
     @Mapping(target = "ownerId", source = "event.owner.id")
     @Mapping(target = "eventStatus", source = "event.status")

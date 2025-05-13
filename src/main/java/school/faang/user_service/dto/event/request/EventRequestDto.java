@@ -35,7 +35,7 @@ import static school.faang.user_service.util.LogsConstants.WRONG_USER_ID;
 @Builder
 @ValidEndDate
 @Validated
-public class EventRequest implements EndDateValidatable {
+public class EventRequestDto implements EndDateValidatable {
     @NotBlank(message = NULL_TITLE)
     @Size(min = 3, max = 255, message = TEXT_LIMIT_FROM_3_TO_255)
     private String title;

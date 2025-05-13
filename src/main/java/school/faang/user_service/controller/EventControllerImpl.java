@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.event.impl;
+package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.controller.event.EventController;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
-import school.faang.user_service.dto.event.request.EventRequest;
+import school.faang.user_service.dto.event.request.EventRequestDto;
 import school.faang.user_service.dto.event.response.EventResponseDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.EventMapper;
@@ -28,13 +27,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/events")
-public class EventControllerImpl implements EventController {
+public class EventControllerImpl {
     private final EventService eventService;
     private final EventMapper eventMapper;
 
-    @Override
     @PostMapping
-    public ResponseEntity<EventResponseDto> create(@RequestBody @Valid EventRequest request) {
+    public ResponseEntity<EventResponseDto> create(@RequestBody @Valid EventRequestDto request) {
         log.info("Получен запрос на создание события: {}", request);
         Event event = eventService.create(
                 eventMapper.eventRequestToEventEntity(request),
@@ -43,9 +41,8 @@ public class EventControllerImpl implements EventController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Override
     @PatchMapping("/{id}")
-    public ResponseEntity<EventResponseDto> updateEvent(@RequestBody @Valid EventRequest request,
+    public ResponseEntity<EventResponseDto> updateEvent(@RequestBody @Valid EventRequestDto request,
                                                         @NotNull @Positive @PathVariable long id) {
         log.info("Получен запрос на обновление иваента: {}", request);
         Event updatedEvent = eventService.updateEvent(
@@ -56,7 +53,6 @@ public class EventControllerImpl implements EventController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Override
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDto> getEvent(@NotNull @Positive @PathVariable long id) {
         log.info("Получен запрос на получение события: {}", id);
@@ -64,8 +60,7 @@ public class EventControllerImpl implements EventController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Override
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ResponseEntity<List<EventResponseDto>> getEventsByFilter(@RequestBody EventFilterDto filter) {
         log.info("Получен запрос на поиск по фильтру: {}", filter);
         List<EventResponseDto> eventsResponse = eventMapper.toEventResponses(
@@ -73,21 +68,18 @@ public class EventControllerImpl implements EventController {
         return ResponseEntity.ok(eventsResponse);
     }
 
-    @Override
-    @GetMapping("/owner")
+    @GetMapping("/owned")
     public ResponseEntity<List<EventResponseDto>> getOwnedEvents() {
         List<EventResponseDto> eventsResponse = eventMapper.toEventResponses(eventService.getOwnedEvents());
         return ResponseEntity.ok(eventsResponse);
     }
 
-    @Override
-    @GetMapping("/participation")
+    @GetMapping("/participated")
     public ResponseEntity<List<EventResponseDto>> getParticipatedEvents() {
         List<EventResponseDto> eventsResponse = eventMapper.toEventResponses(eventService.getParticipatedEvents());
         return ResponseEntity.ok(eventsResponse);
     }
 
-    @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEvent(@NotNull @Positive @PathVariable long id) {
         log.info("Получен запрос на удаление иваента с id: {}", id);
