@@ -20,6 +20,9 @@ import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static school.faang.user_service.validation.ValidationUtils.executeIfNotNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,20 +51,32 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event updateEvent(Event event, List<Long> eventSkillsIds, Long ownerId, long id) {
+    public Event updateEvent(Event eventUpdates, List<Long> eventSkillsIds, long id) {
+        long ownerId = userContext.getUserId();
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RecordNotFoundException(
                         String.format("Пользователь с id %d не найден", ownerId)));
-        if (!eventRepository.existsById(id)) {
-            throw new RecordNotFoundException(
-                    String.format("Ивент с id %d не найден", id));
+        if (!Objects.equals(ownerId, owner.getId())) {
+            throw new IllegalArgumentException("У вас нет прав на редактирование этого ивента");
         }
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RecordNotFoundException(
+                String.format("Ивент с id %d не найден", id)));
+
         eventValidation.validateUserHasAllEventSkills(eventSkillsIds, owner);
 
-        List<Skill> eventSkills = skillRepository.findAllById(eventSkillsIds);
-        event.setId(id);
-        event.setOwner(owner);
-        event.setRelatedSkills(new ArrayList<>(eventSkills));
+        executeIfNotNull(eventUpdates.getTitle(), () -> event.setTitle(eventUpdates.getTitle()));
+        executeIfNotNull(eventUpdates.getDescription(), () -> event.setDescription(eventUpdates.getDescription()));
+        executeIfNotNull(eventUpdates.getStartDate(), () -> event.setStartDate(eventUpdates.getStartDate()));
+        executeIfNotNull(eventUpdates.getEndDate(), () -> event.setEndDate(eventUpdates.getEndDate()));
+        executeIfNotNull(eventUpdates.getLocation(), () -> event.setLocation(eventUpdates.getLocation()));
+        executeIfNotNull(eventUpdates.getMaxAttendees(), () -> event.setMaxAttendees(eventUpdates.getMaxAttendees()));
+        executeIfNotNull(eventUpdates.getRelatedSkills(), () -> {
+            List<Skill> eventSkills = skillRepository.findAllById(eventSkillsIds);
+            event.setRelatedSkills(new ArrayList<>(eventSkills));
+        });
+        executeIfNotNull(eventUpdates.getType(), () -> event.setType(eventUpdates.getType()));
+        executeIfNotNull(eventUpdates.getStatus(), () -> event.setStatus(eventUpdates.getStatus()));
+
         log.info("Обновление ивента: {}", event);
         return eventRepository.save(event);
     }

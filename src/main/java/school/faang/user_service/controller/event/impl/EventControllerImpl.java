@@ -38,7 +38,7 @@ public class EventControllerImpl implements EventController {
         Event updatedEvent = eventService.updateEvent(
                 eventMapper.eventRequestToEventEntity(request),
                 request.getRelatedSkills(),
-                request.getOwnerId(), id);
+                id);
         return new ResponseEntity<>(eventMapper.eventToEventResponse(updatedEvent), HttpStatus.OK);
     }
 
