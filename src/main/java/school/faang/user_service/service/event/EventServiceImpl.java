@@ -1,7 +1,6 @@
 package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -18,7 +17,6 @@ import school.faang.user_service.service.EventService;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -43,19 +41,21 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventDto(event);
     }
 
+    @Override
     public List<EventDto> getEventsByFilter(EventFilterDto eventFilterDto) {
-        List<Event> allEvents = eventRepository.findAll();
-        List<EventDto> eventDtos = allEvents.stream()
+        List<EventDto> eventDtos = eventRepository.findAll().stream()
                 .map(eventMapper::toEventDto)
                 .toList();
 
         return applyFilters(eventDtos, eventFilterDto);
     }
 
+    @Override
     public void deleteEvent(long id) {
         eventRepository.deleteById(id);
     }
 
+    @Override
     public EventDto updateEvent(EventDto eventDto) {
         validateUserSkills(eventDto);
         Event event = eventMapper.toEvent(eventDto);
@@ -65,14 +65,14 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventDto(savedEvent);
     }
 
+    @Override
     public List<EventDto> getOwnedEvents(long userId) {
-        List<Event> events = eventRepository.findAllByUserId(userId);
-
-        return events.stream()
+        return eventRepository.findAll().stream()
                 .map(eventMapper::toEventDto)
                 .toList();
     }
 
+    @Override
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
 
@@ -83,14 +83,16 @@ public class EventServiceImpl implements EventService {
 
     private void validateUserSkills(EventDto event) {
         User owner = userRepository.findById(event.getOwnerId()).orElseThrow();
-        List<Long> userSkillIds = owner.getSkills().stream().map(Skill::getId).toList();
+        List<Long> userSkillIds = owner.getSkills().stream()
+                .map(Skill::getId)
+                .toList();
         if (event.getRelatedSkills() == null || userSkillIds.containsAll(event.getRelatedSkills())) {
             return;
         }
         throw new DataValidationException("Owner should have all event's skills.");
     }
 
-    private List<EventDto> applyFilters (List<EventDto> events, EventFilterDto eventFilterDto) {
+    private List<EventDto> applyFilters(List<EventDto> events, EventFilterDto eventFilterDto) {
         Stream<EventDto> eventDtoStream = events.stream();
         for (EventFilter filter : filters) {
             if (filter.isApplicable(eventFilterDto)) {
@@ -101,7 +103,7 @@ public class EventServiceImpl implements EventService {
         return eventDtoStream.toList();
     }
 
-    public void setOwner(Event event, long ownerId) {
+    private void setOwner(Event event, long ownerId) {
         User owner = userRepository.findById(ownerId).orElseThrow();
         event.setOwner(owner);
     }
