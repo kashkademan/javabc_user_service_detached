@@ -6,7 +6,7 @@ import school.faang.user_service.entity.event.Event;
 import java.util.List;
 
 public interface EventService {
-    Event create(Event event, List<Long> eventSkillsIds, Long ownerId);
+    Event create(Event event, List<Long> eventSkillsIds);
 
     Event updateEvent(Event event, List<Long> eventSkillsIds, long id);
 

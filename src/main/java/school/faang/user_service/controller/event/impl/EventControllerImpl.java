@@ -27,8 +27,7 @@ public class EventControllerImpl implements EventController {
         log.info("Получен запрос на создание события: {}", request);
         Event event = eventService.create(
                 eventMapper.eventRequestToEventEntity(request),
-                request.getRelatedSkills(),
-                request.getOwnerId());
+                request.getRelatedSkills());
         return new ResponseEntity<>(eventMapper.eventToEventResponse(event), HttpStatus.CREATED);
     }
 
