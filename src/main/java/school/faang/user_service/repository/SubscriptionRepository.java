@@ -3,11 +3,12 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
 
 import java.util.stream.Stream;
 
-public interface SubscriptionRepository extends CrudRepository<User, Long> {
+public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
 
     @Query(nativeQuery = true, value = "insert into subscription (follower_id, followee_id) values (:followerId, :followeeId)")
     @Modifying

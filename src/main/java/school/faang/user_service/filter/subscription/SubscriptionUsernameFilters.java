@@ -1,4 +1,4 @@
-package school.faang.user_service.filters.subscriptions;
+package school.faang.user_service.filter.subscription;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;

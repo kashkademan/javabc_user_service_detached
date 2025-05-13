@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.subscriptions;
+package school.faang.user_service.controller.subscription;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.subscription.SubscriptionDto;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mappers.subscription.SubscriptionMapper;
-import school.faang.user_service.service.subscriptions.SubscriptionService;
+import school.faang.user_service.mapper.subscription.SubscriptionMapper;
+import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 
@@ -25,7 +25,6 @@ import java.util.List;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
-    private final SubscriptionMapper subscriptionMapper;
 
     @PostMapping("/{userId}/subscriptions/follow")
     public ResponseEntity<Long> followUser(@PathVariable("userId") long followerId, @RequestParam long followeeId) {
@@ -50,7 +49,7 @@ public class SubscriptionController {
                                                               @RequestBody SubscriptionFilterDto filterDto) {
         List<User> followers = subscriptionService.getFollowers(followeeId, filterDto);
         List<SubscriptionDto> dtoList = followers.stream()
-                .map(subscriptionMapper::userToSubscriptionDto)
+                .map(SubscriptionMapper::userToSubscriptionDto)
                 .toList();
 
         return new ResponseEntity<>(
@@ -72,7 +71,7 @@ public class SubscriptionController {
                                                               @RequestBody SubscriptionFilterDto filterDto) {
         List<User> followees = subscriptionService.getFollowing(followeeId, filterDto);
         List<SubscriptionDto> dtoList = followees.stream()
-                .map(subscriptionMapper::userToSubscriptionDto)
+                .map(SubscriptionMapper::userToSubscriptionDto)
                 .toList();
 
         return new ResponseEntity<>(
