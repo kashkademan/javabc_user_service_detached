@@ -51,6 +51,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional
     @Override
     public Event updateEvent(Event eventUpdates, List<Long> eventSkillsIds, long id) {
         long ownerId = userContext.getUserId();
@@ -82,6 +83,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.save(event);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Event getEvent(Long eventId) {
         return eventRepository.findById(eventId)
@@ -90,12 +92,14 @@ public class EventServiceImpl implements EventService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Event> getEventsByFilter(EventFilterDto filter) {
         Specification<Event> spec = EventSpecification.withFilter(filter);
         return eventRepository.findAll(spec);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Event> getOwnedEvents() {
         long ownerId = userContext.getUserId();
@@ -103,6 +107,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findAllByUserId(ownerId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Event> getParticipatedEvents() {
         long userId = userContext.getUserId();
