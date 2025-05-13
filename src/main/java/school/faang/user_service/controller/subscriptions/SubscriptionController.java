@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.subscription.SubscriptionDto;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mappers.subscription.SubscriptionMapper;
+import school.faang.user_service.mapper.subscription.SubscriptionMapper;
 import school.faang.user_service.service.subscriptions.SubscriptionService;
 
 import java.util.List;

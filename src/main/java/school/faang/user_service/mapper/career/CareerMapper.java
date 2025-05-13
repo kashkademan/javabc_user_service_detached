@@ -1,4 +1,4 @@
-package school.faang.user_service.mappers.career;
+package school.faang.user_service.mapper.career;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

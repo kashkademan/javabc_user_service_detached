@@ -1,4 +1,4 @@
-package school.faang.user_service.mappers.subscription;
+package school.faang.user_service.mapper.subscription;
 
 import lombok.Builder;
 import org.springframework.stereotype.Component;
