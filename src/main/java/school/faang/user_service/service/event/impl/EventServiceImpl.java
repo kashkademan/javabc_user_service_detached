@@ -20,8 +20,8 @@ import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import static school.faang.user_service.util.LogsConstants.EVENT_NOT_FOUND;
 import static school.faang.user_service.validation.ValidationUtils.executeIfNotNull;
 
 @Slf4j
@@ -58,11 +58,11 @@ public class EventServiceImpl implements EventService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RecordNotFoundException(
                         String.format("Пользователь с id %d не найден", ownerId)));
-        if (!Objects.equals(ownerId, owner.getId())) {
-            throw new IllegalArgumentException("У вас нет прав на редактирование этого ивента");
-        }
+
+        eventValidation.isUserEventOwner(ownerId, owner.getId());
+
         Event event = eventRepository.findById(id).orElseThrow(() -> new RecordNotFoundException(
-                String.format("Ивент с id %d не найден", id)));
+                String.format(EVENT_NOT_FOUND, id)));
 
         eventValidation.validateUserHasAllEventSkills(eventSkillsIds, owner);
 
@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
     public Event getEvent(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new RecordNotFoundException(
-                        String.format("Ивент с id %d не найден", eventId)
+                        String.format(EVENT_NOT_FOUND, eventId)
                 ));
     }
 
@@ -115,11 +115,17 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findParticipatedEventsByUserId(userId);
     }
 
+    @Transactional
     @Override
     public String deleteEvent(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new RecordNotFoundException(String.format("Ивент с id %d не существует!", eventId));
-        }
+        Long ownerId = eventRepository.findOwnerIdByEventId(eventId)
+                .orElseThrow(() -> new RecordNotFoundException(
+                        String.format(EVENT_NOT_FOUND, eventId)
+                ));
+        long userId = userContext.getUserId();
+
+        eventValidation.isUserEventOwner(userId, ownerId);
+
         eventRepository.deleteById(eventId);
         return String.format("Ивент с id %d удалён", eventId);
     }
