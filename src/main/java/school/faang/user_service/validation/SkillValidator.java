@@ -17,8 +17,8 @@ public class SkillValidator {
 
     public void validateTitleUnique(String title) {
         if (skillRepository.existsByTitle(title)) {
-            log.error(SKILL_ALREADY_EXIST, title);
-            throw new DataValidationException(SKILL_ALREADY_EXIST, title);
+            log.error("Навык '{}' уже существует", title);
+            throw new DataValidationException(String.format(SKILL_ALREADY_EXIST, title));
         }
     }
 
