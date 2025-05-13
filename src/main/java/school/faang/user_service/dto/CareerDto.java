@@ -1,16 +1,12 @@
 package school.faang.user_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class CareerDto {
-    private long id;
+    private Long id;
     private LocalDate dateFrom;
     private LocalDate dateTo;
     private String company;

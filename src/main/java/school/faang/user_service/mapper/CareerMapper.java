@@ -8,8 +8,7 @@ import school.faang.user_service.entity.Career;
 @Mapper(componentModel = "spring")
 public interface CareerMapper {
     @Mapping(target = "user", ignore = true)
-    Career toCareer(CareerDto careerDto);
+    Career toCareerEntity(CareerDto careerDto);
 
     CareerDto toCareerDto(Career career);
-
 }
