@@ -16,6 +16,9 @@ public class UserPhonePatternFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto userFilterDto) {
+        if (!isApplicable(userFilterDto)) {
+            return users;
+        }
         return users.filter(user -> userFilterDto.getPhonePattern().equalsIgnoreCase(user.getPhone()));
     }
 }

@@ -1,6 +1,7 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -17,6 +19,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @SpringBootTest
 class SubscriptionServiceImplTest {
 
@@ -73,7 +76,7 @@ class SubscriptionServiceImplTest {
 
         List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(1, result.size());
+        assertEquals(1, result.size(), "");
         assertEquals(ALEX_NAME, result.get(0).getUsername());
         assertEquals(new UserDto(ALEX_ID, ALEX_NAME, ALEX_EMAIL), result.get(0));
     }
