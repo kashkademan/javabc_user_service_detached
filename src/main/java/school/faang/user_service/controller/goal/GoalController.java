@@ -49,14 +49,12 @@ public class GoalController {
     }
 
     @GetMapping("/subtasks/{goalParentId}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<GoalResponseDto>> getSubtasksByGoalId(@PathVariable long goalParentId) {
         log.info("Goal controller accepted request get subtasks with parent id {}", goalParentId);
         return ResponseEntity.ok(goalService.getSubtasksByParentGoalId(goalParentId));
     }
 
     @PostMapping("/filter")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<GoalResponseDto>> getGoalsByUser(@RequestBody @Valid GoalFilterDto filterDto) {
         log.info("Goal controller accepted request get goats for user with filter {}", filterDto);
         return ResponseEntity.ok(goalService.getGoalsByUser(filterDto));
