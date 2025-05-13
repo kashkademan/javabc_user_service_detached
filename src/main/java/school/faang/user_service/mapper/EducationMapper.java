@@ -13,6 +13,5 @@ public interface EducationMapper {
     @Mapping(target = "user", ignore = true)
     Education toEducation(EducationDto educationDto);
 
-    @Mapping(target = "user", ignore = true)
     EducationDto toEducationDto(Education education);
 }
