@@ -150,6 +150,5 @@ tasks.jacocoTestCoverageVerification {
                 minimum = "0.80".toBigDecimal()
             }
         }
-
     }
 }
