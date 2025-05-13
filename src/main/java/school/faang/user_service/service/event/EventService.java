@@ -8,7 +8,7 @@ import java.util.List;
 public interface EventService {
     Event create(Event event, List<Long> eventSkillsIds, Long ownerId);
 
-    Event updateEvent(Event event, List<Long> eventSkillsIds, Long ownerId, long id);
+    Event updateEvent(Event event, List<Long> eventSkillsIds, long id);
 
     Event getEvent(Long eventId);
 
