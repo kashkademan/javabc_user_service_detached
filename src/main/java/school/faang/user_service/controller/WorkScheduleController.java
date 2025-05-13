@@ -46,9 +46,9 @@ public class WorkScheduleController {
     }
 
     @PatchMapping
-    public WorkScheduleUpdateDto updateWorkSchedule(@RequestBody WorkScheduleUpdateDto workScheduleUpdateDto) {
+    public WorkScheduleDto updateWorkSchedule(@RequestBody WorkScheduleUpdateDto workScheduleUpdateDto) {
         WorkSchedule workSchedule = workScheduleMapper.toWorkScheduleUpdate(workScheduleUpdateDto);
         WorkSchedule updateWorkSchedule = workScheduleService.updateWorkScheduleDto(workSchedule);
-        return workScheduleMapper.toWorkScheduleUpdateDto(updateWorkSchedule);
+        return workScheduleMapper.toWorkScheduleDto(updateWorkSchedule);
     }
 }
