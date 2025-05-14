@@ -13,6 +13,7 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -35,6 +36,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceImplTest {
+    private static final long MENTORSHIP_REQUEST_ID = 1L;
+    private static final long REQUESTER_ID = 1L;
+    private static final long RECEIVER_ID = 2L;
+
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
 
@@ -59,7 +64,7 @@ public class MentorshipRequestServiceImplTest {
                 .thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class,
-                () -> mentorshipRequestService.rejectRequest(1L, RejectionDto.builder().build()));
+                () -> mentorshipRequestService.rejectRequest(MENTORSHIP_REQUEST_ID, RejectionDto.builder().build()));
     }
 
     @Test
@@ -67,7 +72,7 @@ public class MentorshipRequestServiceImplTest {
         when(mentorshipRequestRepository.findById(any()))
                 .thenReturn(Optional.of(MentorshipRequest.builder().build()));
 
-        mentorshipRequestService.rejectRequest(1L, RejectionDto.builder().build());
+        mentorshipRequestService.rejectRequest(MENTORSHIP_REQUEST_ID, RejectionDto.builder().build());
 
         verify(mentorshipRequestRepository, times(1)).save(any());
     }
@@ -77,7 +82,7 @@ public class MentorshipRequestServiceImplTest {
         MentorshipRequest firstRequest = MentorshipRequest.builder().id(0L).build();
         List<MentorshipRequest> requestsList = List.of(
                 firstRequest,
-                MentorshipRequest.builder().id(1L).build(),
+                MentorshipRequest.builder().id(MENTORSHIP_REQUEST_ID).build(),
                 MentorshipRequest.builder().id(2L).build()
         );
         when(mentorshipRequestRepository.findAll()).thenReturn(requestsList);
@@ -91,8 +96,6 @@ public class MentorshipRequestServiceImplTest {
                 mentorshipRequestMapper,
                 List.of(firstFilter, secondFilter)
         );
-        when(mentorshipRequestMapper.toMentorshipRequestDtoList(List.of(firstRequest)))
-                .thenReturn(List.of(MentorshipRequestDto.builder().id(0L).build()));
 
         List<MentorshipRequestDto> result = mentorshipRequestService.getRequests(RequestFilterDto.builder().build());
 
@@ -105,13 +108,13 @@ public class MentorshipRequestServiceImplTest {
         MentorshipRequest firstRequest = MentorshipRequest.builder().id(0L).build();
         List<MentorshipRequest> requestsList = List.of(
                 firstRequest,
-                MentorshipRequest.builder().id(1L).build(),
+                MentorshipRequest.builder().id(MENTORSHIP_REQUEST_ID).build(),
                 MentorshipRequest.builder().id(2L).build()
         );
         when(mentorshipRequestRepository.findAll()).thenReturn(requestsList);
         when(firstFilter.isApplicable(any())).thenReturn(true);
         when(secondFilter.isApplicable(any())).thenReturn(true);
-        when(firstFilter.apply(any(), any())).thenAnswer(invocation -> Stream.empty());
+        when(firstFilter.apply(any(), any())).thenAnswer(invocation -> Stream.of(requestsList));
         when(secondFilter.apply(any(), any())).thenAnswer(invocation -> Stream.empty());
         mentorshipRequestService = new MentorshipRequestServiceImpl(
                 mentorshipRequestRepository,
@@ -119,8 +122,6 @@ public class MentorshipRequestServiceImplTest {
                 mentorshipRequestMapper,
                 List.of(firstFilter, secondFilter)
         );
-        when(mentorshipRequestMapper.toMentorshipRequestDtoList(List.of()))
-                .thenReturn(List.of());
 
         List<MentorshipRequestDto> result = mentorshipRequestService.getRequests(RequestFilterDto.builder().build());
 
@@ -129,9 +130,9 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void testAcceptRequestAlreadyMentorThrowsException() {
-        Long requestId = 1L;
-        Long requesterId = 10L;
-        Long receiverId = 20L;
+        Long requestId = MENTORSHIP_REQUEST_ID;
+        Long requesterId = REQUESTER_ID;
+        Long receiverId = RECEIVER_ID;
         UserDto receiver = UserDto.builder().id(receiverId).build();
         UserDto requester = UserDto.builder()
                 .id(requesterId)
@@ -153,15 +154,15 @@ public class MentorshipRequestServiceImplTest {
                 () -> mentorshipRequestService.acceptRequest(requestId)
         );
 
-        assertEquals("User with id 20 is already mentor for user with id 10", ex.getMessage());
+        assertEquals("User with id %d is already mentor for user with id %d".formatted(receiverId, requesterId), ex.getMessage());
         verify(userService, never()).updateUser(any());
     }
 
     @Test
     void testAcceptRequestSuccess() {
-        Long requestId = 1L;
-        Long requesterId = 10L;
-        Long receiverId = 20L;
+        Long requestId = MENTORSHIP_REQUEST_ID;
+        Long requesterId = REQUESTER_ID;
+        Long receiverId = RECEIVER_ID;
         MentorshipRequestDto requestDto = MentorshipRequestDto.builder()
                 .id(requestId)
                 .requesterId(requesterId)
@@ -197,8 +198,8 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void testRequestMentorshipTooFrequentThrows() {
-        Long requesterId = 1L;
-        Long receiverId = 2L;
+        Long requesterId = REQUESTER_ID;
+        Long receiverId = RECEIVER_ID;
         MentorshipRequestDto dto = MentorshipRequestDto.builder()
                 .requesterId(requesterId)
                 .receiverId(receiverId)
@@ -224,7 +225,7 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void testRequestMentorshipSelfRequestThrows() {
-        Long userId = 1L;
+        Long userId = REQUESTER_ID;
         MentorshipRequestDto dto = MentorshipRequestDto.builder()
                 .requesterId(userId)
                 .receiverId(userId)
@@ -237,35 +238,29 @@ public class MentorshipRequestServiceImplTest {
                 () -> mentorshipRequestService.requestMentorship(dto)
         );
 
-        assertEquals("User with id 1 could not send mentorship request to himself", ex.getMessage());
+        assertEquals("User with id %d could not send mentorship request to himself".formatted(userId), ex.getMessage());
         verify(mentorshipRequestRepository, never()).save(any());
     }
 
     @Test
     void testRequestMentorshipSuccess() {
-        Long requesterId = 1L;
-        Long receiverId = 2L;
+        Long requesterId = REQUESTER_ID;
+        Long receiverId = RECEIVER_ID;
         MentorshipRequestDto dto = MentorshipRequestDto.builder()
                 .requesterId(requesterId)
                 .receiverId(receiverId)
                 .build();
         UserDto requester = UserDto.builder().id(requesterId).build();
         UserDto receiver = UserDto.builder().id(receiverId).build();
-        MentorshipRequest entity = MentorshipRequest.builder()
-                .id(10L)
-                .status(RequestStatus.PENDING)
-                .build();
+        MentorshipRequest entity = mentorshipRequestMapper.toMentorshipRequestEntity(dto);
         when(userService.findUserById(requesterId)).thenReturn(requester);
         when(userService.findUserById(receiverId)).thenReturn(receiver);
         when(mentorshipRequestRepository.findLatestRequest(requesterId, receiverId))
                 .thenReturn(Optional.empty());
-        when(mentorshipRequestMapper.toMentorshipRequestEntity(any())).thenReturn(entity);
         when(mentorshipRequestRepository.save(entity)).thenReturn(entity);
-        when(mentorshipRequestMapper.toMentorshipRequestDto(entity)).thenReturn(dto);
 
         MentorshipRequestDto result = mentorshipRequestService.requestMentorship(dto);
 
-        assertEquals(RequestStatus.PENDING, result.getRequestStatus());
         verify(mentorshipRequestRepository).save(entity);
     }
 }

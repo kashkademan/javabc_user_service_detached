@@ -75,7 +75,7 @@ public class MentorshipRequestDescriptionFilterTest {
     }
 
     @Test
-    public void testApplyRequestsIgnoreCase() {
+    public void testApplyRequestsNotIgnoreCase() {
         String pattern = "request";
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().description("rEqUeSt").build(),
