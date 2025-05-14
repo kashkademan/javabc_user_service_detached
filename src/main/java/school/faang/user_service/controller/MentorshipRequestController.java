@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,12 +23,8 @@ public class MentorshipRequestController {
     private final MentorshipRequestService service;
 
     @PostMapping
-    public MentorshipRequestDto requestMentorship(@RequestBody MentorshipRequestDto request) {
-        if (!request.getDescription().isEmpty()) {
-            return service.requestMentorship(request);
-        } else {
-            throw new IllegalArgumentException("Description is empty");
-        }
+    public MentorshipRequestDto requestMentorship(@Valid @RequestBody MentorshipRequestDto request) {
+        return service.requestMentorship(request);
     }
 
     @GetMapping

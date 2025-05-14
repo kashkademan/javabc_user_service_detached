@@ -10,12 +10,10 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filters.mentorship_request.RequestFilter;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,41 +25,38 @@ import java.util.stream.Stream;
 public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mapper;
-    private final UserRepository userRepo;
+    private final UserService userService;
     private final List<RequestFilter> filters;
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto request) {
-        if (Objects.equals(request.getRequesterId(), request.getReceiverId())) {
+        if (Objects.equals(request.requesterId(), request.receiverId())) {
             throw new IllegalArgumentException("The user cannot send a request to himself");
         }
 
-        User requester = userRepo.findById(request.getRequesterId())
-                .orElseThrow(() -> new IllegalArgumentException
-                        ("The Requester with id =" + request.getRequesterId() + " does not exist"));
-
-        User receiver = userRepo.findById(request.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException
-                        ("The Receiver with id =" + request.getReceiverId() + " does not exist"));
+        User requester = userService.getUserById(request.requesterId());
+        User receiver = userService.getUserById(request.receiverId());
 
         Optional<MentorshipRequest> optionalMentorshipRequest = mentorshipRequestRepository
-                .findLatestRequest(request.getRequesterId(), request.getReceiverId());
+                .findLatestRequest(request.requesterId(), request.receiverId());
+
+        MentorshipRequest mentorshipRequestReturn;
         if (optionalMentorshipRequest.isPresent()) {
             MentorshipRequest mentorshipRequest = optionalMentorshipRequest.get();
-            if (ChronoUnit.MONTHS.between(mentorshipRequest.getUpdatedAt(), LocalDate.now()) > 3) {
+            if (LocalDateTime.now().minusMonths(3L).isBefore(mentorshipRequest.getUpdatedAt())) {
                 throw new IllegalArgumentException("It's been less than three months since the last request");
             }
             requester.getSentMentorshipRequests().add(mapper.toEntity(request));
             receiver.getReceivedMentorshipRequests().add(mapper.toEntity(request));
 
-            mentorshipRequestRepository
-                    .create(request.getRequesterId(), request.getReceiverId(), request.getDescription());
+            mentorshipRequestReturn = mentorshipRequestRepository
+                    .create(request.requesterId(), request.receiverId(), request.description());
 
         } else {
-            mentorshipRequestRepository
-                    .create(request.getRequesterId(), request.getReceiverId(), request.getDescription());
+            mentorshipRequestReturn = mentorshipRequestRepository
+                    .create(request.requesterId(), request.receiverId(), request.description());
         }
-        return request;
+        return mapper.toDto(mentorshipRequestReturn);
     }
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
@@ -85,41 +80,34 @@ public class MentorshipRequestService {
 
     @Transactional
     public void acceptRequest(Long id) {
-        MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("there is no such id"));
+        MentorshipRequest request = getMentorshipRequestById(id);
 
-        User requester = userRepo.findById(request.getRequester().getId())
-                .orElseThrow(() -> new IllegalArgumentException
-                        ("The Requester with id =" + request.getRequester().getId() + " does not exist"));
+        User requester = userService.getUserById(request.getRequester().getId());
+        User receiver = userService.getUserById(request.getReceiver().getId());
 
-        User receiver = userRepo.findById(request.getReceiver().getId())
-                .orElseThrow(() -> new IllegalArgumentException
-                        ("The Receiver with id =" + request.getReceiver().getId() + " does not exist"));
-
-        if (!receiver.getMentees().contains(requester)) {
-            receiver.getMentees().add(requester);
-            requester.getMentors().add(receiver);
-
-            if (!request.getStatus().equals(RequestStatus.PENDING)) {
-                throw new IllegalArgumentException("The request has already been rejected");
-            }
-
-            request.setStatus(RequestStatus.ACCEPTED);
-            mentorshipRequestRepository.save(request);
-        } else {
+        if (receiver.getMentees().contains(requester)) {
             throw new IllegalArgumentException("You already have such a mentor.");
         }
+
+        receiver.getMentees().add(requester);
+        requester.getMentors().add(receiver);
+
+        request.setStatus(RequestStatus.ACCEPTED);
+        mentorshipRequestRepository.save(request);
     }
 
     @Transactional
     public void rejectRequest(Long id, RejectionDto rejection) {
-        MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("there is no such id"));
+        MentorshipRequest request = getMentorshipRequestById(id);
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
             throw new IllegalArgumentException("The request has already been rejected");
         }
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.reason());
+    }
+
+    private MentorshipRequest getMentorshipRequestById(Long id){
+        return mentorshipRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("there is no such id"));
     }
 }

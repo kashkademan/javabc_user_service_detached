@@ -1,13 +1,6 @@
 package school.faang.user_service.dto;
 
-import lombok.Data;
 import school.faang.user_service.entity.RequestStatus;
 
-@Data
-public class RequestFilterDto {
-    private Long id;
-    private String description;
-    private Long requesterId;
-    private Long receiverId;
-    private RequestStatus status;
+public record RequestFilterDto(Long id, String description, Long requesterId, Long receiverId, RequestStatus status) {
 }
