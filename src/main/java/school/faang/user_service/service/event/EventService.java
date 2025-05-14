@@ -58,9 +58,21 @@ public class EventService {
 
         validateOwnerHasSkills(event.getOwner().getId(), event.getRelatedSkills());
 
-        Event updatedEvent = eventRepository.save(event);
-        log.info("Событие с id={} успешно обновлено", updatedEvent.getId());
-        return updatedEvent;
+        existingEvent.setTitle(event.getTitle());
+        existingEvent.setDescription(event.getDescription());
+        existingEvent.setStartDate(event.getStartDate());
+        existingEvent.setEndDate(event.getEndDate());
+        existingEvent.setLocation(event.getLocation());
+        existingEvent.setMaxAttendees(event.getMaxAttendees());
+        existingEvent.setType(event.getType());
+        existingEvent.setStatus(event.getStatus());
+
+        existingEvent.getRelatedSkills().clear();
+        existingEvent.getRelatedSkills().addAll(event.getRelatedSkills());
+
+        Event updated = eventRepository.save(existingEvent);
+        log.info("Событие с id={} успешно обновлено", updated.getId());
+        return updated;
     }
 
     @Transactional(readOnly=true)
