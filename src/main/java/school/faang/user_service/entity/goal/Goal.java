@@ -18,8 +18,9 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
@@ -28,7 +29,8 @@ import school.faang.user_service.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,7 +44,7 @@ public class Goal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parent_goal_id")
+    @JoinColumn(name = "parent_goal_id")
     private Goal parent;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
