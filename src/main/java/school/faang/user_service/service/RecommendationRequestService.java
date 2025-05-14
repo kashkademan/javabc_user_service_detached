@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationMapper recommendationMapper;
@@ -39,6 +38,7 @@ public class RecommendationRequestService {
     private final SkillRequestRepository skillRequestRepository;
     private final List<RecommendationFilter> filters;
 
+    @Transactional
     public RecommendationResponseDto create(RecommendationRequestDto recommendationRequest) {
         Long requesterId = recommendationRequest.requesterId();
         Long receiverId = recommendationRequest.receiverId();
@@ -112,6 +112,7 @@ public class RecommendationRequestService {
         return recommendationMapper.toDto(request);
     }
 
+    @Transactional
     public RecommendationResponseDto rejectRequest(long id, RecommendationRejectDto rejection) {
         RecommendationRequest request = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request not found with id: " + id));

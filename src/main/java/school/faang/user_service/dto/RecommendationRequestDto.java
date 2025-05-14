@@ -12,6 +12,7 @@ public record RecommendationRequestDto(
     @NotBlank(message = "Message cannot be blank")
     String message,
 
+    @NotNull(message = "Status cannot be null")
     String status,
 
     @NotEmpty(message = "Skills cannot be empty")
