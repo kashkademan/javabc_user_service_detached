@@ -41,7 +41,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     public List<UserDto> getParticipants(long eventId) {
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         return users.stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
