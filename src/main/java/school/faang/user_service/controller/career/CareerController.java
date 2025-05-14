@@ -10,15 +10,15 @@ import school.faang.user_service.service.career.CareerService;
 public class CareerController {
     private final CareerService careerService;
 
-    public CareerDto addCareer(long userId, CareerDto careerDto) {
+    public CareerDto addCareer(Long userId, CareerDto careerDto) {
         return careerService.addCareer(userId, careerDto);
     }
 
-    public CareerDto updateCareer(long userId, CareerDto careerDto) {
+    public CareerDto updateCareer(Long userId, CareerDto careerDto) {
         return careerService.updateCareer(userId, careerDto);
     }
 
-    public CareerDto getById(long careerId) {
+    public CareerDto getById(Long careerId) {
         return careerService.getById(careerId);
     }
 }

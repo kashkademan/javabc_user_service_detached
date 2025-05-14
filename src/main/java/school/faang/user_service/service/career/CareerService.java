@@ -11,7 +11,6 @@ import school.faang.user_service.repository.CareerRepository;
 import school.faang.user_service.repository.UserRepository;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,8 @@ public class CareerService {
     private final CareerMapper careerMapper;
 
     public CareerDto addCareer(Long userId, CareerDto careerDto) {
-        validateDate(careerDto.getDateFrom());
+        validateDate(careerDto.getDateFrom(), "from");
+        validateDate(careerDto.getDateTo(), "to");
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("User with id %d not found".formatted(userId)));
@@ -33,13 +33,21 @@ public class CareerService {
     }
 
     public CareerDto updateCareer(Long userId, CareerDto careerDto) {
-        validateDate(careerDto.getDateFrom());
+        validateDate(careerDto.getDateFrom(), "from");
+        validateDate(careerDto.getDateTo(), "to");
 
         Career existingCareer = careerRepository.findById(careerDto.getId())
-                .orElseThrow(() -> new DataValidationException("Career not found"));
+                .orElseThrow(() -> new DataValidationException(
+                        String.format("Career not found for id: %d", careerDto.getId())
+                ));
 
-        if (!Objects.equals(existingCareer.getUser().getId(), userId)) {
-            throw new DataValidationException("Id is not equal");
+        if (!existingCareer.getUser().getId().equals(userId)) {
+            throw new DataValidationException(
+                    String.format("User id mismatch. Expected: %d, Actual: %d (Career id: %d)",
+                            userId,
+                            existingCareer.getUser().getId(),
+                            careerDto.getId())
+            );
         }
 
         Career updateCareer = careerMapper.toCareerEntity(careerDto);
@@ -51,12 +59,14 @@ public class CareerService {
     public CareerDto getById(Long careerId) {
         return careerRepository.findById(careerId)
                 .map(careerMapper::toCareerDto)
-                .orElseThrow(() -> new DataValidationException("Career not found"));
+                .orElseThrow(() -> new DataValidationException("Career with id %d not found".formatted(careerId)));
     }
 
-    private void validateDate(LocalDate date) {
-        if (date.isAfter(LocalDate.now())) {
-            throw new DataValidationException("Invalid date");
+    private void validateDate(LocalDate date, String fieldName) {
+        if (date != null && date.isAfter(LocalDate.now())) {
+            throw new DataValidationException(
+                    String.format("Field '%s' cannot be in the future. Provided: %s", fieldName, date)
+            );
         }
     }
 }
