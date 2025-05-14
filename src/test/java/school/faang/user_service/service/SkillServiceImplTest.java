@@ -2,7 +2,7 @@ package school.faang.user_service.service;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -14,18 +14,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapperImpl;
 import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.mapper.SkillOfferMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,12 +43,16 @@ public class SkillServiceImplTest {
     private SkillCandidateMapperImpl skillCandidateMapper;
 
     @Mock
+    private SkillOfferMapperImpl skillOfferMapper;
+
+    @Mock
     private SkillOfferService skillOfferService;
 
     @Mock
     private UserSkillGuaranteeService userSkillGuaranteeService;
 
     @InjectMocks
+    // @Spy
     private SkillServiceImpl skillService;
 
     private static final long SKILL1_ID = 1L;
@@ -131,6 +138,8 @@ public class SkillServiceImplTest {
     public void testAcquireSkillFromOffers_acquired() {
         when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
         when(skillMapper.toDto(skill1)).thenReturn(skill1Dto);
+
+        assertEquals(skill1Dto, skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID));
     }
 
     @Test
@@ -143,41 +152,58 @@ public class SkillServiceImplTest {
     @Test
     @DisplayName("Acquire skill from offers test. Negative. Exception should be thrown. Skill not found.")
     public void testAcquireSkillFromOffers_notAcquired_skillNotFound() {
-        // SkillOffer skillOffer1 = new SkillOffer();
-        // SkillOffer skillOffer2 = new SkillOffer();
-        // SkillOffer skillOffer3 = new SkillOffer();
-        // SkillOffer skillOffer4 = new SkillOffer();
-        // Recommendation recommendation1 = new Recommendation();
-        // recommendation1.setAuthor(new User());
-        // recommendation1.setReceiver(new User());
+        SkillOffer skillOffer1 = new SkillOffer();
+        SkillOffer skillOffer2 = new SkillOffer();
+        SkillOffer skillOffer3 = new SkillOffer();
+        SkillOffer skillOffer4 = new SkillOffer();
+        Recommendation recommendation1 = new Recommendation();
+        recommendation1.setAuthor(new User());
+        recommendation1.setReceiver(new User());
         
-        // skillOffer1.setSkill(skill1);
-        // skillOffer2.setSkill(skill1);
-        // skillOffer3.setSkill(skill1);
-        // skillOffer4.setSkill(skill1);
+        skillOffer1.setSkill(skill1);
+        skillOffer2.setSkill(skill1);
+        skillOffer3.setSkill(skill1);
+        skillOffer4.setSkill(skill1);
 
-        // skillOffer1.setRecommendation(recommendation1);
-        // skillOffer2.setRecommendation(recommendation1);
-        // skillOffer3.setRecommendation(recommendation1);
-        // skillOffer4.setRecommendation(recommendation1);
+        skillOffer1.setRecommendation(recommendation1);
+        skillOffer2.setRecommendation(recommendation1);
+        skillOffer3.setRecommendation(recommendation1);
+        skillOffer4.setRecommendation(recommendation1);
 
-        // when(skillRepository.findUserSkill(SKILL1_ID, USER1_ID)).thenReturn(Optional.empty());
-        // when(skillOfferService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)).thenReturn(List.of(
-        //     skillOffer1, 
-        //     skillOffer2, 
-        //     skillOffer3, 
-        //     skillOffer4
-        // ));
-        // doNothing().when(skillRepository).assignSkillToUser(SKILL1_ID, USER1_ID);
-        // doNothing().when(userSkillGuaranteeService).saveAll(List.of(new UserSkillGuarantee()));
+        when(skillRepository.findUserSkill(SKILL1_ID, USER1_ID)).thenReturn(Optional.empty());
+        when(skillOfferService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)).thenReturn(List.of(
+            skillOffer1, 
+            skillOffer2, 
+            skillOffer3, 
+            skillOffer4
+        ));
         when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.empty());
 
+        verify(skillRepository).assignSkillToUser(SKILL1_ID, USER1_ID);
+        verify(userSkillGuaranteeService).saveAll(Mockito.any());
         assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID));
     }
 
     @Test
     @DisplayName("Find all offeres of a skill to user.")
     public void testFindAllOffersOfSkill() {
-        
+        SkillOffer skillOffer1 = new SkillOffer();
+        Recommendation recommendation1 = new Recommendation();
+        recommendation1.setId(1L);
+        skillOffer1.setSkill(skill1);
+        skillOffer1.setRecommendation(recommendation1);
+        SkillOffer skillOffer2 = new SkillOffer();
+        Recommendation recommendation2 = new Recommendation();
+        recommendation2.setId(2L);
+        skillOffer2.setSkill(skill2);
+        skillOffer2.setRecommendation(recommendation2);
+        SkillOfferDto skillOfferDto1 = new SkillOfferDto();
+        SkillOfferDto skillOfferDto2 = new SkillOfferDto();
+
+        when(skillOfferService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)).thenReturn(List.of(skillOffer1, skillOffer2));
+        when(skillOfferMapper.toDto(skillOffer1)).thenReturn(skillOfferDto1);
+        when(skillOfferMapper.toDto(skillOffer2)).thenReturn(skillOfferDto2);
+
+        assertEquals(skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID), List.of(skillOfferDto1, skillOfferDto1));
     }
 }
