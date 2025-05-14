@@ -25,5 +25,4 @@ public interface GoalMapper {
     }
 
     void updateGoalFromDto(GoalDto dto, @MappingTarget Goal goal);
-
 }

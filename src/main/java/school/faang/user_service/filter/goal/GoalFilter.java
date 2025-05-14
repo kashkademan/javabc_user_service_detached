@@ -7,5 +7,4 @@ public interface GoalFilter {
     boolean doFilter(Goal goal, GoalFilterDto filterDto);
 
     boolean isApplicable(GoalFilterDto criteria);
-
 }
