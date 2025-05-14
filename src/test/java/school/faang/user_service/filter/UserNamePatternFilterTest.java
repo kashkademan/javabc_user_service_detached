@@ -19,7 +19,7 @@ class UserNamePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по имени — фильтрует корректно")
-    void testApplyFilterWhenNamePatternIsSet() {
+    void testApply_whenNamePatternSet_thenReturnMatchingUsers() {
         UserFilterDto dto = new UserFilterDto();
         dto.setNamePattern("User1");
         Stream<User> input = Stream.of(user1, user2, user3, userNullName);
@@ -32,7 +32,7 @@ class UserNamePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по имени — пропускает, если параметр не задан")
-    void testSkipFilterWhenNamePatternIsNull() {
+    void testApply_whenNamePatternIsNull_thenSkipFiltering() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2);
 
@@ -43,7 +43,7 @@ class UserNamePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по имени — username = null")
-    void testHandleNullUsername() {
+    void testApply_whenUserNameIsNull_thenExcludeFromResult() {
         UserFilterDto dto = new UserFilterDto();
         dto.setNamePattern("Test");
         Stream<User> input = Stream.of(userNullName);

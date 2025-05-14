@@ -19,7 +19,7 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по телефону — фильтрует корректно")
-    void testApplyFilterWhenPhonePatternIsSet() {
+    void testApply_whenPhonePatternSet_thenReturnMatchingUsers() {
         UserFilterDto dto = new UserFilterDto();
         dto.setPhonePattern("123");
 
@@ -32,7 +32,7 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по телефону — пропускает, если параметр не задан")
-    void testSkipFilterWhenPhonePatternIsNull() {
+    void testApply_whenPhonePatternIsNull_thenSkipFiltering() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2);
 
@@ -43,7 +43,7 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по телефону — phone = null")
-    void testHandleNullPhone() {
+    void testApply_whenUserPhoneIsNull_thenExcludeFromResult() {
         UserFilterDto dto = new UserFilterDto();
         dto.setPhonePattern("123");
         Stream<User> input = Stream.of(userNullPhone);

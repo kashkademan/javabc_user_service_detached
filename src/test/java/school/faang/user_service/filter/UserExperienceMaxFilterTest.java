@@ -20,7 +20,7 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — фильтрует корректно")
-    void testApplyFilterWhenMaxExperienceIsSet() {
+    void testApply_whenMaxExperienceSet_thenReturnMatchingUsers() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMax(10);
         Stream<User> input = Stream.of(user1, user2, user3);
@@ -33,7 +33,7 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — пропускает, если параметр не задан")
-    void testSkipFilterWhenMaxExperienceIsNull() {
+    void testApply_whenMaxExperienceIsNull_thenSkipFiltering() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2, user3);
 
@@ -44,7 +44,7 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — граничное значение")
-    void testIncludeUserWithExactMaxExperience() {
+    void testApply_whenUserHasExactMaxExperience_thenIncludeUser() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMax(10);
         Stream<User> input = Stream.of(user2);

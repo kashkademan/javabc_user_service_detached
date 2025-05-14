@@ -19,7 +19,7 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — фильтрует корректно")
-    void testApplyFilterWhenMinExperienceIsSet() {
+    void testApply_whenMinExperienceSet_thenReturnMatchingUsers() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMin(10);
         Stream<User> input = Stream.of(user1, user2, user3);
@@ -32,7 +32,7 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — пропускает, если параметр не задан")
-    void testSkipFilterWhenMinExperienceIsNull() {
+    void testApply_whenMinExperienceIsNull_thenSkipFiltering() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2, user3);
 
@@ -43,7 +43,7 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — граничное значение")
-    void testIncludeUserWithExactMinExperience() {
+    void testApply_whenUserHasExactMinExperience_thenIncludeUser() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMin(10);
         Stream<User> input = Stream.of(user2);
