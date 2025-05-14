@@ -7,12 +7,12 @@ import java.util.List;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Description;
 
 import school.faang.user_service.controller.SkillController;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -21,88 +21,78 @@ import school.faang.user_service.exception.DataValidationException;
 @ExtendWith(MockitoExtension.class)
 public class SkillControllerTest {
 
-    private static final long SKILL1_ID = 1L;
-    private static final String SKILL1_TITLE = "Java";
-
-    private static final long SKILL2_ID = 2L;
-    private static final String SKILL2_TITLE = "Go";
-    
-    private static final long SKILL3_ID = 3L;
-    private static final String SKILL3_TITLE = "    ";
-    
-    private static final long SKILL4_ID = 4L;
-    private static final String SKILL4_TITLE = "";
-    
-    private static final long SKILL5_ID = 5L;
-    private static final String SKILL5_TITLE = null; 
-    
-    private static final long USER1_ID = 1L;
-    private static final long USER2_ID = -6L;
-
-    private SkillDto skill1Dto;
-    private SkillDto skill2Dto;
-    private SkillDto skill3Dto;
-    private SkillDto skill4Dto;
-    private SkillDto skill5Dto;
-
     @Mock
     SkillService skillService;
 
     @InjectMocks
     SkillController skillController;
 
-    @BeforeEach
-    void setUp() {
-        skill1Dto = new SkillDto();
-        skill1Dto.setId(SKILL1_ID);
-        skill1Dto.setTitle(SKILL1_TITLE);
-        
-        skill2Dto = new SkillDto();
-        skill2Dto.setId(SKILL2_ID);
-        skill2Dto.setTitle(SKILL2_TITLE);
-        
-        skill3Dto = new SkillDto();
-        skill3Dto.setId(SKILL3_ID);
-        skill3Dto.setTitle(SKILL3_TITLE);
-        
-        skill4Dto = new SkillDto();
-        skill4Dto.setId(SKILL4_ID);
-        skill4Dto.setTitle(SKILL4_TITLE);
-        
-        skill5Dto = new SkillDto();
-        skill5Dto.setId(SKILL5_ID);
-        skill5Dto.setTitle(SKILL5_TITLE);
-    }
-
     @Test
+    @Description("Skill created.")
     void testCreate_created() {
-        when(skillService.create(skill1Dto)).thenReturn(skill1Dto);
-        assertEquals(skillController.create(skill1Dto), skill1Dto);
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("Java");
+
+        when(skillService.create(skillDto)).thenReturn(skillDto);
+
+        assertEquals(skillController.create(skillDto), skillDto);
     }
 
     @Test
+    @Description("Skill not created. Title contains only spaces.")
     void testCreate_notCreated_titleOnlySpaces() {
-        assertThrows(DataValidationException.class, () -> skillController.create(skill3Dto));
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("  ");
+        
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillController.create(skillDto)
+        );
     }
 
     @Test
+    @Description("Skill not created. Title is empty string.")
     void testCreate_notCreated_titleEmptyString() {
-        assertThrows(DataValidationException.class, () -> skillController.create(skill4Dto));
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("");
+        
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillController.create(skillDto)
+        );
     }
 
     @Test
+    @Description("Skill not created. Title is NULL.")
     void testCreate_notCreated_titleNull() {
-        assertThrows(DataValidationException.class, () -> skillController.create(skill5Dto));
+        SkillDto skillDto = new SkillDto();
+        
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillController.create(skillDto)
+        );
     }
 
     @Test
+    @Description("Retriev skills for user.")
     void testGetUserSkills_positive() {
-        when(skillService.getUserSkills(USER1_ID)).thenReturn(List.of(skill1Dto, skill2Dto));
-        assertEquals(skillController.getUserSkills(USER1_ID), List.of(skill1Dto, skill2Dto));
+        SkillDto skill1Dto = new SkillDto();
+        skill1Dto.setTitle("Java");
+
+        SkillDto skill2Dto = new SkillDto();
+        skill2Dto.setTitle("Go");
+        
+        when(skillService.getUserSkills(1L)).thenReturn(List.of(skill1Dto, skill2Dto));
+        
+        assertEquals(List.of(skill1Dto, skill2Dto), skillController.getUserSkills(1L));
     }
 
     @Test
+    @Description("Skills are not retried. User id is negative.")
     void testGetUserSkills_negative() {
-        assertThrows(DataValidationException.class, () -> skillController.getUserSkills(USER2_ID));
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillController.getUserSkills(-1L)
+        );
     }
 }

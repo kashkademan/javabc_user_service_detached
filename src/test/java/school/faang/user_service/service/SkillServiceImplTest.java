@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -52,7 +52,6 @@ public class SkillServiceImplTest {
     private UserSkillGuaranteeService userSkillGuaranteeService;
 
     @InjectMocks
-    // @Spy
     private SkillServiceImpl skillService;
 
     private static final long SKILL1_ID = 1L;
@@ -94,7 +93,7 @@ public class SkillServiceImplTest {
 
         SkillDto result = skillService.create(skill1Dto);
 
-        assertEquals(result, skill1Dto);
+        assertEquals(skill1Dto, result);
     }
 
     @Test
@@ -113,7 +112,7 @@ public class SkillServiceImplTest {
 
         List<SkillDto> result = skillService.getUserSkills(USER1_ID);
 
-        assertEquals(result, List.of(skill1Dto, skill2Dto));
+        assertEquals(List.of(skill1Dto, skill2Dto), result);
     }
 
     @Test
@@ -130,7 +129,7 @@ public class SkillServiceImplTest {
 
         List<SkillCandidateDto> result = skillService.getOfferedSkills(USER1_ID);
         
-        assertEquals(result, List.of(skillCandidateDto1, skillCandidateDto2));
+        assertEquals(List.of(skillCandidateDto1, skillCandidateDto2), result);
     }
 
     @Test
@@ -146,29 +145,39 @@ public class SkillServiceImplTest {
     @DisplayName("Acquire skill from offers test. Negative. Exception should be thrown. Skill already assigned.")
     public void testAcquireSkillFromOffers_notAcquired_alreadyAssigned() {
         when(skillRepository.findUserSkill(SKILL1_ID, USER1_ID)).thenReturn(Optional.of(skill1));
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID));
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID)
+        );
     }
 
     @Test
     @DisplayName("Acquire skill from offers test. Negative. Exception should be thrown. Skill not found.")
     public void testAcquireSkillFromOffers_notAcquired_skillNotFound() {
-        SkillOffer skillOffer1 = new SkillOffer();
-        SkillOffer skillOffer2 = new SkillOffer();
-        SkillOffer skillOffer3 = new SkillOffer();
-        SkillOffer skillOffer4 = new SkillOffer();
-        Recommendation recommendation1 = new Recommendation();
-        recommendation1.setAuthor(new User());
-        recommendation1.setReceiver(new User());
+        Recommendation recommendation1 = Recommendation.builder()
+            .author(new User())
+            .receiver(new User())
+            .build(); 
         
-        skillOffer1.setSkill(skill1);
-        skillOffer2.setSkill(skill1);
-        skillOffer3.setSkill(skill1);
-        skillOffer4.setSkill(skill1);
-
-        skillOffer1.setRecommendation(recommendation1);
-        skillOffer2.setRecommendation(recommendation1);
-        skillOffer3.setRecommendation(recommendation1);
-        skillOffer4.setRecommendation(recommendation1);
+        SkillOffer skillOffer1 = SkillOffer.builder()
+            .skill(skill1)
+            .recommendation(recommendation1)
+            .build();
+        
+        SkillOffer skillOffer2 = SkillOffer.builder()
+            .skill(skill1)
+            .recommendation(recommendation1)
+            .build();
+        
+        SkillOffer skillOffer3 = SkillOffer.builder()
+            .skill(skill1)
+            .recommendation(recommendation1)
+            .build();
+        
+        SkillOffer skillOffer4 = SkillOffer.builder()
+            .skill(skill1)
+            .recommendation(recommendation1)
+            .build();
 
         when(skillRepository.findUserSkill(SKILL1_ID, USER1_ID)).thenReturn(Optional.empty());
         when(skillOfferService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)).thenReturn(List.of(
@@ -177,11 +186,20 @@ public class SkillServiceImplTest {
             skillOffer3, 
             skillOffer4
         ));
-        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.empty());
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(skillRepository.findById(SKILL2_ID)).thenReturn(Optional.empty());
+        when(skillMapper.toDto(skill1)).thenReturn(skill1Dto);
+        doNothing().when(userSkillGuaranteeService).saveAll(Mockito.any());
+        doNothing().when(skillRepository).assignSkillToUser(SKILL1_ID, USER1_ID);
 
-        verify(skillRepository).assignSkillToUser(SKILL1_ID, USER1_ID);
+        skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID);
+        verify(skillRepository).findById(SKILL1_ID);
         verify(userSkillGuaranteeService).saveAll(Mockito.any());
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER1_ID));
+        verify(skillRepository).assignSkillToUser(SKILL1_ID, USER1_ID);
+        assertThrows(
+            DataValidationException.class, 
+            () -> skillService.acquireSkillFromOffers(SKILL2_ID, USER1_ID)
+        );
     }
 
     @Test
@@ -204,6 +222,10 @@ public class SkillServiceImplTest {
         when(skillOfferMapper.toDto(skillOffer1)).thenReturn(skillOfferDto1);
         when(skillOfferMapper.toDto(skillOffer2)).thenReturn(skillOfferDto2);
 
-        assertEquals(skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID), List.of(skillOfferDto1, skillOfferDto1));
+        // assertEquals(skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID), List.of(skillOfferDto1, skillOfferDto1));
+        assertEquals(
+            List.of(skillOfferDto1, skillOfferDto1), 
+            skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)
+        );
     }
 }
