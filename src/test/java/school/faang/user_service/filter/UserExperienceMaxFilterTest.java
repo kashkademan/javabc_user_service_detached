@@ -2,7 +2,6 @@ package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 
 class UserExperienceMaxFilterTest extends BaseUserFilterTest {
@@ -22,7 +20,7 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — фильтрует корректно")
-    void applyFilterWhenMaxExperienceIsSet() {
+    void testApplyFilterWhenMaxExperienceIsSet() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMax(10);
         Stream<User> input = Stream.of(user1, user2, user3);
@@ -31,12 +29,11 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(u -> u.getExperience() <= 10));
-        verify(filter).apply(Mockito.any(), Mockito.eq(dto));
     }
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — пропускает, если параметр не задан")
-    void skipFilterWhenMaxExperienceIsNull() {
+    void testSkipFilterWhenMaxExperienceIsNull() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2, user3);
 
@@ -47,7 +44,7 @@ class UserExperienceMaxFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по максимальному опыту — граничное значение")
-    void includeUserWithExactMaxExperience() {
+    void testIncludeUserWithExactMaxExperience() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMax(10);
         Stream<User> input = Stream.of(user2);

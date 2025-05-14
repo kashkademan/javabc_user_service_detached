@@ -60,7 +60,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Подписка — если уже подписан, выбрасывается исключение")
-    void throwExceptionWhenAlreadyFollowing() {
+    void testThrowExceptionWhenAlreadyFollowing() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(1L, 2L)).thenReturn(true);
 
         assertThrows(DataValidationException.class, () ->
@@ -69,7 +69,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Подписка")
-    void followUserIfNotAlreadyFollowing() {
+    void testFollowUserIfNotAlreadyFollowing() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(1L, 2L)).thenReturn(false);
 
         subscriptionService.followUser(1L, 2L);
@@ -79,7 +79,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Отписка")
-    void unfollowUser() {
+    void testUnfollowUser() {
         subscriptionService.unfollowUser(1L, 2L);
 
         verify(subscriptionRepository).unfollowUser(1L, 2L);
@@ -87,7 +87,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Счётчик подписчиков и подписок")
-    void returnCounts() {
+    void testReturnCounts() {
         when(subscriptionRepository.findFollowersAmountByFolloweeId(5L)).thenReturn(3);
         when(subscriptionRepository.findFolloweesAmountByFollowerId(10L)).thenReturn(7);
 
@@ -97,7 +97,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Получение подписок — все фильтры корректны")
-    void applyOnlyApplicableFilters() {
+    void testApplyOnlyApplicableFilters() {
         when(subscriptionRepository.findByFollowerId(42L)).thenReturn(Stream.of(user1));
         when(userMapper.toUserDTO(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);
@@ -111,7 +111,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Получение подписок — фильтры не установлены")
-    void applyNotApplicableFilters() {
+    void testApplyNotApplicableFilters() {
         when(subscriptionRepository.findByFollowerId(42L)).thenReturn(Stream.of(user1, user2));
         when(userMapper.toUserDTO(user1)).thenReturn(dto1);
         when(userMapper.toUserDTO(user2)).thenReturn(dto2);
@@ -125,7 +125,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация подписок — фильтр срабатывает")
-    void filterOutOneUser() {
+    void testFilterOutOneUser() {
         when(subscriptionRepository.findByFolloweeId(22L)).thenReturn(Stream.of(user1, user2));
         when(userMapper.toUserDTO(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);
@@ -142,7 +142,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Получение подписок — комбинация фильтров, один исключает")
-    void combinationOfFiltersOneExcludesUser() {
+    void testCombinationOfFiltersOneExcludesUser() {
         when(subscriptionRepository.findByFollowerId(22L)).thenReturn(Stream.of(user1, user2));
         when(userMapper.toUserDTO(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);

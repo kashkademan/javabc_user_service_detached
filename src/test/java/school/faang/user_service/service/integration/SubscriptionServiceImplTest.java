@@ -70,20 +70,20 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по имени: только Alex")
-    void getFollowers_filtersByName() {
+    void testGetFollowers_filtersByName() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setNamePattern("alex");
 
         List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(1, result.size(), "");
+        assertEquals(1, result.size());
         assertEquals(ALEX_NAME, result.get(0).getUsername());
         assertEquals(new UserDto(ALEX_ID, ALEX_NAME, ALEX_EMAIL), result.get(0));
     }
 
     @Test
     @DisplayName("Фильтрация по телефону: оба проходят")
-    void getFollowers_filtersByPhone_bothMatch() {
+    void testGetFollowers_filtersByPhone_bothMatch() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern(ALEX_PHONE);
 
@@ -94,7 +94,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по телефону: никто не проходит")
-    void getFollowers_filtersByPhone_noneMatch() {
+    void testGetFollowers_filtersByPhone_noneMatch() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern("234567890");
 
@@ -105,7 +105,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по телефону и опыту: только Sam")
-    void getFollowers_filtersByPhoneAndExperience() {
+    void testGetFollowers_filtersByPhoneAndExperience() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern(SAM_PHONE);
         filterDto.setExperienceMin(ALEX_EXPERIENCE + 1);

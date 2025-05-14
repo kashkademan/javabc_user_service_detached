@@ -2,7 +2,6 @@ package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
@@ -21,7 +19,7 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — фильтрует корректно")
-    void applyFilterWhenMinExperienceIsSet() {
+    void testApplyFilterWhenMinExperienceIsSet() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMin(10);
         Stream<User> input = Stream.of(user1, user2, user3);
@@ -30,12 +28,11 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(user -> user.getExperience() >= 10));
-        verify(filter).apply(Mockito.any(), Mockito.eq(dto));
     }
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — пропускает, если параметр не задан")
-    void skipFilterWhenMinExperienceIsNull() {
+    void testSkipFilterWhenMinExperienceIsNull() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2, user3);
 
@@ -46,7 +43,7 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по минимальному опыту — граничное значение")
-    void includeUserWithExactMinExperience() {
+    void testIncludeUserWithExactMinExperience() {
         UserFilterDto dto = new UserFilterDto();
         dto.setExperienceMin(10);
         Stream<User> input = Stream.of(user2);

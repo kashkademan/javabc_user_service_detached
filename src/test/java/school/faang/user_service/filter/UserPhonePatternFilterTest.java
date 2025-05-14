@@ -2,7 +2,6 @@ package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -12,7 +11,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
@@ -21,7 +19,7 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по телефону — фильтрует корректно")
-    void applyFilterWhenPhonePatternIsSet() {
+    void testApplyFilterWhenPhonePatternIsSet() {
         UserFilterDto dto = new UserFilterDto();
         dto.setPhonePattern("123");
 
@@ -30,12 +28,11 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
         assertEquals(1, result.size());
         assertEquals("123", result.get(0).getPhone());
-        verify(filter).apply(Mockito.any(), Mockito.eq(dto));
     }
 
     @Test
     @DisplayName("Фильтр по телефону — пропускает, если параметр не задан")
-    void skipFilterWhenPhonePatternIsNull() {
+    void testSkipFilterWhenPhonePatternIsNull() {
         UserFilterDto dto = new UserFilterDto();
         Stream<User> input = Stream.of(user1, user2);
 
@@ -46,7 +43,7 @@ class UserPhonePatternFilterTest extends BaseUserFilterTest {
 
     @Test
     @DisplayName("Фильтр по телефону — phone = null")
-    void handleNullPhone() {
+    void testHandleNullPhone() {
         UserFilterDto dto = new UserFilterDto();
         dto.setPhonePattern("123");
         Stream<User> input = Stream.of(userNullPhone);
