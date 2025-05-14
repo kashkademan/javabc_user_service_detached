@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -60,7 +59,6 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 recommendationRequestDto.getSkillIds()
                         .stream()
                         .map(skillRepository::findById)
-                        .filter(Optional::isPresent)
                         .map(optionalSkill ->
                                 skillRequestRepository.create(
                                         recommendationRequest.getId(),
@@ -91,6 +89,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .orElseThrow(() -> new NoSuchElementException("Recommendation request with id %s doesn't exist".formatted(id))));
     }
 
+
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Recommendation request with id %s doesn't exist".formatted(id)));
@@ -99,6 +98,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
             throw new IllegalArgumentException("Unable to reject request");
         }
 
+        // тут не сохраняю в БД значит метод не меняет ни как логику, можно обновить страницу и всё будет по старому
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.getReason());
 
