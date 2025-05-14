@@ -18,7 +18,9 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     @Override
     public void registerParticipant(long eventId, long userId) {
         List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        if (participants.stream().anyMatch(user -> user.getId() == userId)) {
+        boolean isAlreadyRegistered = participants.stream()
+                .anyMatch(user -> user.getId() == userId);
+        if (isAlreadyRegistered) {
             throw new RuntimeException("User is already registered");
         }
         eventParticipationRepository.register(eventId, userId);
@@ -27,7 +29,9 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     @Override
     public void unregisterParticipant(long eventId, long userId) {
         List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        if (participants.stream().noneMatch(user -> user.getId() == userId)) {
+        boolean isNotRegistered = participants.stream()
+                .noneMatch(user -> user.getId() == userId);
+        if (isNotRegistered) {
             throw new RuntimeException("User is not registered");
         }
         eventParticipationRepository.unregister(eventId, userId);

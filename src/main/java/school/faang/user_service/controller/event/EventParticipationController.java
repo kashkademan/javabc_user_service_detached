@@ -37,3 +37,4 @@ public class EventParticipationController {
         return eventParticipationService.getParticipantsCount(eventId);
     }
 }
+
