@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
-    @NotNull (message ="ID must not be null")
+
+    @NotNull(message = "ID must not be null")
     private Long id;
-    @NotNull (message ="Name must not be null")
+    @NotNull(message = "Name must not be null")
     private String username;
-    @Email(message ="Only valid email address needed")
+    @Email(message = "Only valid email address needed")
     private String email;
 }
+
