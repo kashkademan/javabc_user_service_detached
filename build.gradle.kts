@@ -166,7 +166,7 @@ checkstyle {
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
     checkstyle.enableExternalDtdLoad.set(true)
     //ignoreFailures.set(false);
-}
+        }
 
 tasks.checkstyleMain {
     source = fileTree("${project.rootDir}/src/main/java")
