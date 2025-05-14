@@ -123,7 +123,7 @@ tasks.jacocoTestReport {
                       "**/*Mapper.class/**",
                       "**/*MapperImpl.class/**",
                       "**/entity/**",
-                      "**/controler/**",
+                      "**/controller/**",
                       "**/repository/**",
                       "**/json/student/**"
                    )
@@ -149,6 +149,10 @@ tasks.jacocoTestCoverageVerification {
                 value = "COVEREDRATIO"
                 minimum = "0.80".toBigDecimal()
             }
+        }
+
+    }
+}
         }
     }
 }
