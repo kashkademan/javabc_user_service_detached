@@ -1,10 +1,12 @@
 package school.faang.user_service.dto.event;
 
+import lombok.Builder;
 import lombok.Data;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
 @Data
+@Builder
 public class EventFilterDto {
     private String title;
     private Long ownerId;
