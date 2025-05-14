@@ -56,6 +56,6 @@ public class GoalController {
     @PostMapping("/filter")
     public ResponseEntity<List<GoalResponseDto>> getGoalsByUser(@RequestBody @Valid GoalFilterDto filterDto) {
         log.info("Goal controller accepted request get goats for user with filter {}", filterDto);
-        return ResponseEntity.ok(goalService.getGoalsByUser(filterDto));
+        return ResponseEntity.ok(goalService.getGoalsByUserAndFilter(filterDto));
     }
 }

@@ -46,7 +46,7 @@ public class GoalService {
         checkCountGoalForUser(userId);
         checkSkills(goalCreateRequestDto.getSkillIds());
 
-        User owner = userService.getUserById(userId);
+        User owner = userService.getUserByIdOrThrow(userId);
         List<User> users = new ArrayList<>();
         users.add(owner);
         goal.setUsers(users);
@@ -107,14 +107,13 @@ public class GoalService {
 
 
     @Transactional(readOnly = true)
-    public List<GoalResponseDto> getGoalsByUser(GoalFilterDto filter) {
+    public List<GoalResponseDto> getGoalsByUserAndFilter(GoalFilterDto filter) {
         long userId = userContext.getUserId();
-        GoalStatus statusFilter = filter.getCompleted() ? GoalStatus.COMPLETED : GoalStatus.ACTIVE;
 
         try (Stream<Goal> goalsStream = goalRepository.findGoalsByUserId(userId)) {
             return goalsStream
                     .filter(goal -> Objects.equals(goal.getTitle(), filter.getTitle()))
-                    .filter(goal -> Objects.equals(goal.getStatus(), statusFilter))
+                    .filter(goal -> Objects.equals(goal.getStatus(), filter.getStatus()))
                     .map(goalMapper::toGoalResponseDto)
                     .toList();
         }
