@@ -11,7 +11,7 @@ public class SubscriptionUsernameFilters implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionFilterDto filterDto) {
-        return Objects.nonNull(filterDto.getNamePattern()) && !filterDto.getNamePattern().isEmpty();
+        return Objects.nonNull(filterDto.getNamePattern()) && !filterDto.getNamePattern().isBlank();
     }
 
     @Override

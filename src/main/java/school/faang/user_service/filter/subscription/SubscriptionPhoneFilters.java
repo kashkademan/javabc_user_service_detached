@@ -11,7 +11,7 @@ public class SubscriptionPhoneFilters implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionFilterDto filterDto) {
-        return Objects.nonNull(filterDto.getPhonePattern()) && !filterDto.getPhonePattern().isEmpty();
+        return Objects.nonNull(filterDto.getPhonePattern()) && !filterDto.getPhonePattern().isBlank();
     }
 
     @Override

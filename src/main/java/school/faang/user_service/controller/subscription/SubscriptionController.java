@@ -81,7 +81,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("{userId}/subscriptions/followingCount")
-    public ResponseEntity<Integer> getFollowingCount(@PathVariable("userId") long followerId) {
+    public ResponseEntity<Long> getFollowingCount(@PathVariable("userId") long followerId) {
         return new ResponseEntity<>(
                 subscriptionService.getFollowingCount(followerId),
                 HttpStatus.OK
