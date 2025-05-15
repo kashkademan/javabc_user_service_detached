@@ -37,10 +37,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String
                         .format("User with id %d was not found", userId)));
-        Long previousWorkScheduleId = workScheduleDto.getId();
-        WorkSchedule previousWorkSchedule = workScheduleRepository.findById(previousWorkScheduleId)
+        Long workScheduleId = workScheduleDto.getId();
+        WorkSchedule previousWorkSchedule = workScheduleRepository.findById(workScheduleId)
                         .orElseThrow(() -> new EntityNotFoundException(String
-                                .format("WorkSchedule with id %d was not found", previousWorkScheduleId)));
+                                .format("WorkSchedule with id %d was not found", workScheduleId)));
         if (!(Objects.equals(userId, previousWorkSchedule.getUser().getId()))) {
             throw new RuntimeException("You can change only your own schedule");
         }

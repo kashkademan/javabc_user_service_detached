@@ -3,18 +3,21 @@ package school.faang.user_service.service.schedule;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.WorkScheduleDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.WorkSchedule;
-import school.faang.user_service.mapper.WorkScheduleMapper;
+import school.faang.user_service.mapper.WorkScheduleMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.WorkScheduleRepository;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class WorkScheduleServiceImplTest {
 
     @Mock
@@ -32,7 +36,7 @@ class WorkScheduleServiceImplTest {
     private WorkScheduleRepository workScheduleRepository;
 
     @Spy
-    private WorkScheduleMapper workScheduleMapper;
+    private WorkScheduleMapperImpl workScheduleMapper;
 
     @InjectMocks
     private WorkScheduleServiceImpl service;
@@ -44,15 +48,25 @@ class WorkScheduleServiceImplTest {
     private Long anotherId;
     private Long workScheduleId;
     private WorkScheduleDto workScheduleDto;
+    private WorkScheduleDto newWorkScheduleDto;
     private User user;
+    private User anotheruser;
 
     @BeforeEach
     public void setUp() {
         userId = 1L;
         user = User.builder().id(userId).build();
         anotherId = 2L;
+        anotheruser = User.builder().id(anotherId).build();
         workScheduleId = 133L;
-        workScheduleDto = WorkScheduleDto.builder().id(workScheduleId).build();
+        workScheduleDto = WorkScheduleDto.builder()
+                .id(workScheduleId)
+                .startTime(LocalTime.of(8, 0))
+                .build();
+        newWorkScheduleDto = WorkScheduleDto.builder()
+                .id(workScheduleId)
+                .startTime(LocalTime.of(8, 30))
+                .build();
     }
 
     @Test
@@ -79,6 +93,7 @@ class WorkScheduleServiceImplTest {
 
     @Test
     void testUpdateWorkScheduleWithoutPreviousVersion() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(workScheduleRepository.findById(workScheduleId)).thenThrow(new EntityNotFoundException(String
                 .format("WorkSchedule with id %d was not found", workScheduleId)));
 
@@ -90,9 +105,11 @@ class WorkScheduleServiceImplTest {
 
     @Test
     void testUpdateNotTheirOwnWorkSchedule() {
-        workScheduleDto.setId(anotherId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        WorkSchedule workScheduleEntity = workScheduleMapper.toWorkScheduleEntity(workScheduleDto);
+        workScheduleEntity.setUser(anotheruser);
         when(workScheduleRepository.findById(workScheduleId))
-                .thenReturn(Optional.ofNullable(workScheduleMapper.toWorkScheduleEntity(workScheduleDto)));
+                .thenReturn(Optional.of(workScheduleEntity));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             service.updateWorkSchedule(userId, workScheduleDto);
@@ -100,10 +117,16 @@ class WorkScheduleServiceImplTest {
         assertEquals("You can change only your own schedule", exception.getMessage());
     }
 
-
-
-
     @Test
-    void getById() {
+    void testUpdateRightWorkSchedule() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        WorkSchedule workScheduleEntity = workScheduleMapper.toWorkScheduleEntity(workScheduleDto);
+        workScheduleEntity.setUser(user);
+        when(workScheduleRepository.findById(workScheduleId))
+                .thenReturn(Optional.of(workScheduleEntity));
+
+        service.updateWorkSchedule(userId, newWorkScheduleDto);
+        verify(workScheduleRepository, times(1)).save(workScheduleCaptor.capture());
+        assertEquals(newWorkScheduleDto.getStartTime(), workScheduleCaptor.getValue().getStartTime());
     }
 }
