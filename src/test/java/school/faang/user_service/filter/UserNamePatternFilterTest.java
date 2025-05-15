@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserNamePatternFilterTest extends BaseUserFilterTest {
@@ -31,14 +32,13 @@ class UserNamePatternFilterTest extends BaseUserFilterTest {
     }
 
     @Test
-    @DisplayName("Фильтр по имени — пропускает, если параметр не задан")
-    void testApply_whenNamePatternIsNull_thenSkipFiltering() {
+    @DisplayName("isApplicable возвращает false, если параметр не задан")
+    void isApplicable_whenNamePatternIsNull_thenReturnFalse() {
         UserFilterDto dto = new UserFilterDto();
-        Stream<User> input = Stream.of(user1, user2);
 
-        List<User> result = filter.apply(input, dto).toList();
+        boolean result = filter.isApplicable(dto);
 
-        assertEquals(2, result.size());
+        assertFalse(result);
     }
 
     @Test

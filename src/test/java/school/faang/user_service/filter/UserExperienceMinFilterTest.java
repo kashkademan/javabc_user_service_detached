@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserExperienceMinFilterTest extends BaseUserFilterTest {
@@ -31,14 +32,13 @@ class UserExperienceMinFilterTest extends BaseUserFilterTest {
     }
 
     @Test
-    @DisplayName("Фильтр по минимальному опыту — пропускает, если параметр не задан")
-    void testApply_whenMinExperienceIsNull_thenSkipFiltering() {
+    @DisplayName("isApplicable возвращает false, если параметр не задан")
+    void isApplicable_whenMinExperienceIsNull_thenReturnFalse() {
         UserFilterDto dto = new UserFilterDto();
-        Stream<User> input = Stream.of(user1, user2, user3);
 
-        List<User> result = filter.apply(input, dto).toList();
+        boolean result = filter.isApplicable(dto);
 
-        assertEquals(3, result.size());
+        assertFalse(result);
     }
 
     @Test
