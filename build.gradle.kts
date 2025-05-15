@@ -123,7 +123,7 @@ tasks.jacocoTestReport {
                       "**/*Mapper.class/**",
                       "**/*MapperImpl.class/**",
                       "**/entity/**",
-                      "**/controller/**",
+                      "**/controler/**",
                       "**/repository/**",
                       "**/json/student/**"
                    )
@@ -163,6 +163,7 @@ checkstyle {
     //ignoreFailures.set(false);
         }
 
+<<<<<<< HEAD
 tasks.checkstyleMain {
     source = fileTree("${project.rootDir}/src/main/java")
     include("**/*.java")
@@ -174,4 +175,7 @@ tasks.checkstyleTest {
     source = fileTree("${project.rootDir}/src/test")
     include("**/*.java")
     classpath = files()
+=======
+    }
+>>>>>>> 1e599fb75c (fixed comments)
 }
