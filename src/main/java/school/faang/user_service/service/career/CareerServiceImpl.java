@@ -50,7 +50,7 @@ public class CareerServiceImpl implements CareerService {
     public CareerDto getById(long careerId) {
         return careerRepository.findById(careerId)
                 .map(careerMapper::toCareerDto)
-                .orElseThrow(() -> new RuntimeException("Career not found"));
+                .orElseThrow(() -> new DataValidationException("Career not found"));
     }
 
     private void validateFromDate(LocalDate fromDate) {
