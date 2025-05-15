@@ -111,6 +111,7 @@ tasks.jacocoTestReport {
 
     sourceDirectories.setFrom(files("src/main/java"))
 }
+
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
 
@@ -141,6 +142,7 @@ tasks.jacocoTestCoverageVerification {
         }
     )
 }
+
 tasks.check {
     dependsOn(tasks.jacocoTestReport)
     dependsOn(tasks.jacocoTestCoverageVerification)
