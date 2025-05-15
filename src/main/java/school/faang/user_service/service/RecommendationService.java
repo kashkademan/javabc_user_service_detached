@@ -29,46 +29,67 @@ public class RecommendationService {
     private final Pageable pageable;
 
     @Transactional
-    public RecommendationDto create(RecommendationDto recommendationDto) throws DataValidationException {
+    public RecommendationDto create(RecommendationDto recommendationDto) {
         validation(recommendationDto);
-        recommendationDto.getSkillOffers().forEach(skillOfferDto -> {
+        recommendationDto.skillOffers().forEach(skillOfferDto -> {
             checkForGuarantee(recommendationMapper.toEntity(recommendationDto), skillOfferDto);
             skillOfferRepository.save(skillOfferMapper.toEntity(skillOfferDto));
         });
 
-        recommendationRepository
-                .create(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent());
-        return recommendationDto;
+        Long id = recommendationRepository
+                .create(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
+
+        return new RecommendationDto(id,
+                recommendationDto.authorId(),
+                recommendationDto.receiverId(),
+                recommendationDto.content(),
+                recommendationDto.skillOffers(),
+                recommendationDto.createdAt());
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
         validation(recommendationDto);
-        recommendationRepository.update(recommendationDto.getAuthorId(), recommendationDto.getReceiverId(), recommendationDto.getContent());
-        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
-        recommendationDto.getSkillOffers()
-                .forEach(skillOfferDto -> skillOfferRepository.create(skillOfferDto.getSkillId(), recommendationDto.getId()));
-        recommendationDto.getSkillOffers()
-                .forEach(skillOfferDto -> checkForGuarantee(recommendationMapper.toEntity(recommendationDto), skillOfferDto));
+        recommendationRepository.update(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
+        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.id());
+        recommendationDto.skillOffers()
+                .forEach(skillOfferDto -> {
+                    skillOfferRepository.create(skillOfferDto.skillId(), recommendationDto.id());
+                    checkForGuarantee(recommendationMapper.toEntity(recommendationDto), skillOfferDto);
+                });
 
-        return recommendationDto;
+        return recommendationMapper.toDto(recommendationRepository.findById(recommendationDto.id()).get());
     }
 
     public void delete(long id) {
+        if (recommendationRepository.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("Nonexistent id");
+        }
+
         recommendationRepository.deleteById(id);
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        return recommendationRepository.findAllByReceiverId(receiverId, pageable).getContent()
+        List<RecommendationDto> userRecommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable).getContent()
                 .stream()
                 .map(recommendationMapper::toDto)
                 .toList();
+        if (userRecommendations.isEmpty()) {
+            throw new IllegalArgumentException("NonexistentId");
+        }
+
+        return userRecommendations;
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long id) {
-        return recommendationRepository.findAllByAuthorId(id, pageable).getContent()
+        List<RecommendationDto> givenRecommendations = recommendationRepository.findAllByAuthorId(id, pageable).getContent()
                 .stream()
                 .map(recommendationMapper::toDto)
                 .toList();
+
+        if (givenRecommendations.isEmpty()) {
+            throw new IllegalArgumentException("Nonexistent id");
+        }
+        return givenRecommendations;
     }
 
     private void checkForGuarantee(Recommendation recommendation, SkillOfferDto skillOfferDto) {
@@ -87,17 +108,17 @@ public class RecommendationService {
     private boolean isAfterSixMonth (RecommendationDto recommendationDto) {
         return recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
-                        recommendationDto.getAuthorId(),
-                        recommendationDto.getReceiverId()
+                        recommendationDto.authorId(),
+                        recommendationDto.receiverId()
                 )
                 .filter(r -> r.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(6)))
                 .isPresent();
     }
 
     private boolean ifSkillsExist (RecommendationDto recommendationDto) {
-        return recommendationDto.getSkillOffers().size() != skillRepository.countExisting(recommendationDto.getSkillOffers()
+        return recommendationDto.skillOffers().size() != skillRepository.countExisting(recommendationDto.skillOffers()
                 .stream()
-                .map(SkillOfferDto::getSkillId)
+                .map(SkillOfferDto::skillId)
                 .toList());
     }
 

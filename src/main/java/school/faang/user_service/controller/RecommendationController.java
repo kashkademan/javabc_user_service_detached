@@ -14,14 +14,14 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendation) throws DataValidationException {
-        if (!recommendation.getContent().isEmpty()) {
+        if (!recommendation.content().isEmpty()) {
             return recommendationService.create(recommendation);
         }
         throw new DataValidationException("Empty content");
     }
 
     public RecommendationDto updateRecommendation(RecommendationDto recommendation)  throws DataValidationException {
-        if (!recommendation.getContent().isEmpty()) {
+        if (!recommendation.content().isEmpty()) {
             return recommendationService.update(recommendation);
         }
         throw new DataValidationException("Empty content");
