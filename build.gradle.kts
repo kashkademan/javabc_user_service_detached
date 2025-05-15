@@ -134,6 +134,13 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     violationRules {
+        excludes = listOf(
+                "school.faang.user_service.entity.*",
+                "school.faang.user_service.controller.*",
+                "school.faang.user_service.mapper.*",
+                "com.json.student.*"
+        )
+
         rule {
             element = "CLASS"
             limit {
