@@ -32,15 +32,18 @@ public class Education {
     private Integer yearTo;
 
     @Column(name = "institution", nullable = false)
-    private String institution; // название учебного заведения (школа, университет, колледж)
+    private String institution;
 
     @Column(name = "education_level")
-    private String educationLevel; // полученное образование (среднее, высшее, неоконченное высшее и т.п.)
+    private String educationLevel;
 
     @Column(name = "specialization")
-    private String specialization; // направление обучения, специализация
+    private String specialization;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public void setUser(User user) {
+    }
 }
