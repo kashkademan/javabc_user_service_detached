@@ -26,9 +26,9 @@ class WorkScheduleControllerTest {
     @InjectMocks
     WorkScheduleController controller;
 
-    Long userId;
-    Long workScheduleId;
-    WorkScheduleDto workScheduleDto;
+    private Long userId;
+    private Long workScheduleId;
+    private WorkScheduleDto workScheduleDto;
 
     @BeforeEach
     public void setUp() {
@@ -38,7 +38,7 @@ class WorkScheduleControllerTest {
     }
 
     @Test
-    void addWorkScheduleCorrect() {
+    void testAddWorkScheduleCorrect() {
         doNothing().when(validator).validateDto(workScheduleDto);
 
         controller.addWorkSchedule(userId, workScheduleDto);
@@ -46,7 +46,7 @@ class WorkScheduleControllerTest {
     }
 
     @Test
-    void updateWorkSchedule() {
+    void testUpdateWorkSchedule() {
         doNothing().when(validator).validateDto(workScheduleDto);
 
         controller.updateWorkSchedule(userId, workScheduleDto);
@@ -54,7 +54,7 @@ class WorkScheduleControllerTest {
     }
 
     @Test
-    void getById() {
+    void testGetById() {
         controller.getById(workScheduleId);
         verify(workScheduleService, times(1)).getById(workScheduleId);
     }

@@ -8,8 +8,8 @@ import school.faang.user_service.exception.DataValidationException;
 public class WorkScheduleDtoValidator {
 
     public void validateDto(WorkScheduleDto workScheduleDto) {
-        checkValidTimeLine(workScheduleDto);
         checkValidFields(workScheduleDto);
+        checkValidTimeLine(workScheduleDto);
     }
 
     private void checkValidTimeLine(WorkScheduleDto workScheduleDto) {
