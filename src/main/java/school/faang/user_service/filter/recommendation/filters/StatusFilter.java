@@ -20,8 +20,7 @@ public class StatusFilter implements RecommendationRequestFilterStrategy {
 
     @Override
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests, RequestFilterDto requestFilterDto) {
-        return recommendationRequests
-                .filter(recommendationRequest ->
+        return recommendationRequests.filter(recommendationRequest ->
                         Objects.equals(recommendationRequest.getStatus(), requestFilterDto.getStatus()));
     }
 }

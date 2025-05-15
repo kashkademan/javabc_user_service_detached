@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -18,7 +19,7 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -30,14 +31,14 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final List<RecommendationRequestFilterStrategy> recommendationRequestFilters;
-
     private final RecommendationRequestMapper recommendationRequestMapper;
 
+    @Override
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
         User requester = userRepository.findById(recommendationRequestDto.getRequesterId())
-                .orElseThrow(() -> new IllegalArgumentException("Requester with id %s was not found".formatted(recommendationRequestDto.getRequesterId())));
+                .orElseThrow(() -> new EntityNotFoundException("Requester with id %s was not found".formatted(recommendationRequestDto.getRequesterId())));
         User receiver = userRepository.findById(recommendationRequestDto.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException("Receiver with id %s was not found".formatted(recommendationRequestDto.getReceiverId())));
+                .orElseThrow(() -> new EntityNotFoundException("Receiver with id %s was not found".formatted(recommendationRequestDto.getReceiverId())));
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findLatestPendingRequest(
                         recommendationRequestDto.getRequesterId(),
@@ -47,18 +48,21 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         recommendationRequest.setRequester(requester);
         recommendationRequest.setReceiver(receiver);
 
-        if (!recommendationRequest.getUpdatedAt().isBefore(LocalDateTime.now().minus(Period.ofMonths(6)))) {
+        if (recommendationRequest.getUpdatedAt().isAfter(LocalDateTime.now().minus(Period.ofMonths(6)))) {
             throw new IllegalArgumentException("Recommendation request has already been updated in the last 6 months.");
         }
 
-        if (!recommendationRequestDto.getSkillIds().stream().allMatch(skillRepository::existsById)) {
-            throw new NoSuchElementException("Not all required skills exist in data base");
+        boolean allSkillsFound = recommendationRequestDto.getSkillIds().stream().allMatch(skillRepository::existsById);
+
+        if (!allSkillsFound) {
+            throw new EntityNotFoundException("Not all required skills exist in data base");
         }
 
         recommendationRequest.setSkills(
                 recommendationRequestDto.getSkillIds()
                         .stream()
                         .map(skillRepository::findById)
+                        .filter(Optional::isPresent)
                         .map(optionalSkill ->
                                 skillRequestRepository.create(
                                         recommendationRequest.getId(),
@@ -70,6 +74,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         return recommendationRequestMapper.toDto(savedRecommendationRequest);
     }
 
+    @Override
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
         Stream<RecommendationRequest> recommendations = recommendationRequestRepository.findAll().stream();
 
@@ -79,28 +84,28 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
             }
         }
 
-        return recommendations
-                .map(recommendationRequestMapper::toDto)
-                .toList();
+        return recommendations.map(recommendationRequestMapper::toDto).toList();
     }
 
+    @Override
     public RecommendationRequestDto getRequest(long id) {
         return recommendationRequestMapper.toDto(recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Recommendation request with id %s doesn't exist".formatted(id))));
+                .orElseThrow(() -> new EntityNotFoundException("Recommendation request with id %s doesn't exist".formatted(id))));
     }
 
-
+    @Override
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Recommendation request with id %s doesn't exist".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Recommendation request with id %s doesn't exist".formatted(id)));
 
         if (recommendationRequest.getStatus() != RequestStatus.PENDING) {
             throw new IllegalArgumentException("Unable to reject request");
         }
 
-        // тут не сохраняю в БД значит метод не меняет ни как логику, можно обновить страницу и всё будет по старому
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.getReason());
+
+        recommendationRequestRepository.save(recommendationRequest);
 
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
