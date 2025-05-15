@@ -21,30 +21,30 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("user_service/mentorship")
+@RequestMapping("mentorship/requests")
 public class MentorshipRequestController {
 
     private final MentorshipRequestService mentorshipRequestService;
 
-    @PostMapping("requests")
+    @PostMapping
     public ResponseEntity<MentorshipResponseDto> requestMentorship(@RequestBody @Valid MentorshipRequestDto mentorshipRequestDto) {
         MentorshipResponseDto response = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("requests")
+    @GetMapping
     public ResponseEntity<List<MentorshipResponseDto>> getMentorshipRequests(@ModelAttribute MentorshipFilterDto filterDto){
          List<MentorshipResponseDto> response = mentorshipRequestService.getRequests(filterDto);
          return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping("requests/{id}/accept")
+    @PostMapping("/{id}/accept")
     public ResponseEntity<Void> acceptRequest(@PathVariable Long id) {
         mentorshipRequestService.acceptRequest(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("requests/{id}/reject")
+    @PostMapping("/{id}/reject")
     public ResponseEntity<Void> rejectRequest(@PathVariable @RequestBody Long id,
                                               @RequestBody RejectionDto dto) {
         mentorshipRequestService.rejectRequest(id, dto);
