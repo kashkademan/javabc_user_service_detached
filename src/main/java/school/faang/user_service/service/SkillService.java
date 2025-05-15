@@ -18,9 +18,9 @@ import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
 
-import static school.faang.user_service.constant.Constants.MIN_SKILL_OFFERS;
-import static school.faang.user_service.constant.Constants.SKILL_NOT_FOUND;
-import static school.faang.user_service.constant.Constants.USER_NOT_FOUND;
+import static school.faang.user_service.util.LogsConstants.MIN_SKILL_OFFERS;
+import static school.faang.user_service.util.LogsConstants.SKILL_NOT_FOUND;
+import static school.faang.user_service.util.LogsConstants.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
