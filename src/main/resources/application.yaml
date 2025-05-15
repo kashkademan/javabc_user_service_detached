@@ -38,3 +38,7 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+logic:
+  constants:
+    max_active_goals: 3
