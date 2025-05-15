@@ -105,8 +105,8 @@ public class EventParticipationServiceImplTest {
 
     @Test
     void testGetParticipantsCount() {
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(3);
+        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(4);
         int result = eventParticipationService.getParticipantsCount(eventId);
-        assertEquals(3, result);
+        assertEquals(4, result);
     }
 }
