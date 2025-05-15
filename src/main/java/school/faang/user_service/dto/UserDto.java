@@ -19,7 +19,7 @@ public class UserDto {
     private String username;
     @Email(message = "Only valid email address needed")
     private String email;
-
+    @NotNull
     private List<UserDto> mentors;
 }
 
