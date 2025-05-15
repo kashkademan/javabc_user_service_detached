@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 
-import static school.faang.user_service.constant.Constants.BLANK_SKILL_TITLE;
-import static school.faang.user_service.constant.Constants.SKILL_ALREADY_EXIST;
-import static school.faang.user_service.constant.Constants.USER_HAS_SKILL;
+import static school.faang.user_service.util.LogsConstants.BLANK_SKILL_TITLE;
+import static school.faang.user_service.util.LogsConstants.SKILL_ALREADY_EXIST;
+import static school.faang.user_service.util.LogsConstants.USER_HAS_SKILL;
 
 @Component
 @RequiredArgsConstructor
