@@ -1,16 +1,18 @@
 package school.faang.user_service.util;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 
+@Component
 public class WorkScheduleDtoValidator {
 
-    public static void validateDto(WorkScheduleDto workScheduleDto) {
+    public void validateDto(WorkScheduleDto workScheduleDto) {
         checkValidTimeLine(workScheduleDto);
         checkValidFields(workScheduleDto);
     }
 
-    private static void checkValidTimeLine(WorkScheduleDto workScheduleDto) {
+    private void checkValidTimeLine(WorkScheduleDto workScheduleDto) {
         if (workScheduleDto.getStartTime().isBefore(workScheduleDto.getStartLunch())
                 && workScheduleDto.getStartLunch().isBefore(workScheduleDto.getEndLunch())
                 && workScheduleDto.getEndLunch().isBefore(workScheduleDto.getEndTime())) {
@@ -20,7 +22,7 @@ public class WorkScheduleDtoValidator {
                 "both of them should be before endLunch. And all of them should be before endTime");
     }
 
-    private static void checkValidFields(WorkScheduleDto workScheduleDto) {
+    private void checkValidFields(WorkScheduleDto workScheduleDto) {
         if (workScheduleDto.getId() == 0
                 || workScheduleDto.getTimezone() == null
                 || workScheduleDto.getStartTime() == null
