@@ -2,16 +2,18 @@ package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EventParticipationServiceImpl implements EventParticipationService{
+public class EventParticipationServiceImpl implements EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
+    private final UserMapper userMapper;
 
     public void registerParticipant(long eventId, long userId) {
         if (isParticipantRegistered(eventId, userId)) {
@@ -29,8 +31,10 @@ public class EventParticipationServiceImpl implements EventParticipationService{
         }
     }
 
-    public List<User> getParticipant(long eventId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
+    public List<UserDto> getParticipant(long eventId) {
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
+                .map(userMapper::toUserDTO)
+                .toList();
     }
 
     public long getParticipantsCount(long eventId) {
