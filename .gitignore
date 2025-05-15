@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### IDX ###
+.idx/
+docker-compose.yaml
+javabc-db.session.sql

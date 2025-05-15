@@ -1,0 +1,55 @@
+package school.faang.user_service.filter;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Spy;
+import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.User;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class UserNamePatternFilterTest extends BaseUserFilterTest {
+
+    @Spy
+    private UserNamePatternFilter filter = new UserNamePatternFilter();
+
+    @Test
+    @DisplayName("Фильтр по имени — фильтрует корректно")
+    void testApply_whenNamePatternSet_thenReturnMatchingUsers() {
+        UserFilterDto dto = new UserFilterDto();
+        dto.setNamePattern("User1");
+        Stream<User> input = Stream.of(user1, user2, user3, userNullName);
+
+        List<User> result = filter.apply(input, dto).toList();
+
+        assertEquals(1, result.size());
+        assertEquals("User1", result.get(0).getUsername());
+    }
+
+    @Test
+    @DisplayName("isApplicable возвращает false, если параметр не задан")
+    void isApplicable_whenNamePatternIsNull_thenReturnFalse() {
+        UserFilterDto dto = new UserFilterDto();
+
+        boolean result = filter.isApplicable(dto);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Фильтр по имени — username = null")
+    void testApply_whenUserNameIsNull_thenExcludeFromResult() {
+        UserFilterDto dto = new UserFilterDto();
+        dto.setNamePattern("Test");
+        Stream<User> input = Stream.of(userNullName);
+
+        List<User> result = filter.apply(input, dto).toList();
+
+        assertTrue(result.isEmpty());
+    }
+}
