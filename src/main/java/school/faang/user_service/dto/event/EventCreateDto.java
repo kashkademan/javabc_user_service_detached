@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
 import java.time.LocalDateTime;
@@ -14,34 +13,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDto {
-    @NotNull
-    private Long id;
-
+public class EventCreateDto {
     @NotBlank
     private String title;
-
     @NotBlank
     private String description;
-
-    @NotNull
+    @NotNull(message = "Дата начала события обязательна")
     private LocalDateTime startDate;
-
-    @NotNull
+    @NotNull(message = "Дата окончания события обязательна")
     private LocalDateTime endDate;
-
-    @NotNull
-    private Long ownerId;
-
-    private List<Long> relatedSkills;
-
     private String location;
-
-    @NotNull
+    private List<Long> relatedSkills;
+    @NotNull(message = "Название события обязательно")
     private EventType eventType;
-
-    private EventStatus eventStatus;
-
-    private LocalDateTime updatedAt;
 }
-

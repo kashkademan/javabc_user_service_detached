@@ -41,4 +41,14 @@ public class SkillService {
                 )
         );
     }
+
+    @Transactional(readOnly = true)
+    public List<Skill> getSkillsByUserId(long userId) {
+        return skillRepository.findAllByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Skill> getSkillsByIds(List<Long> skillIds) {
+        return skillRepository.findAllById(skillIds);
+    }
 }
