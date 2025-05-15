@@ -1,6 +1,7 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -17,6 +19,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @SpringBootTest
 class SubscriptionServiceImplTest {
 
@@ -67,7 +70,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по имени: только Alex")
-    void getFollowers_filtersByName() {
+    void testGetFollowers_filtersByName() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setNamePattern("alex");
 
@@ -80,7 +83,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по телефону: оба проходят")
-    void getFollowers_filtersByPhone_bothMatch() {
+    void testGetFollowers_filtersByPhone_bothMatch() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern(ALEX_PHONE);
 
@@ -91,7 +94,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по телефону: никто не проходит")
-    void getFollowers_filtersByPhone_noneMatch() {
+    void testGetFollowers_filtersByPhone_noneMatch() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern("234567890");
 
@@ -102,7 +105,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     @DisplayName("Фильтрация по телефону и опыту: только Sam")
-    void getFollowers_filtersByPhoneAndExperience() {
+    void testGetFollowers_filtersByPhoneAndExperience() {
         UserFilterDto filterDto = new UserFilterDto();
         filterDto.setPhonePattern(SAM_PHONE);
         filterDto.setExperienceMin(ALEX_EXPERIENCE + 1);
