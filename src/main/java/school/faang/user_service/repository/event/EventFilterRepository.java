@@ -24,24 +24,28 @@ public class EventFilterRepository {
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> event = query.from(Event.class);
 
-        List<Predicate> predicates = new ArrayList<>();
-        if (filter.getTitle() != null) {
-            predicates.add(cb.like(cb.lower(event.get("title")), "%" + filter.getTitle().toLowerCase() + "%"));
-        }
-        if (filter.getEventType() != null) {
-            predicates.add(cb.equal(event.get("type"), filter.getEventType()));
-        }
-        if (filter.getEventStatus() != null) {
-            predicates.add(cb.equal(event.get("status"), filter.getEventStatus()));
-        }
-        if (filter.getStartFrom() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(event.get("startDate"), filter.getStartFrom()));
-        }
-        if (filter.getStartTo() != null) {
-            predicates.add(cb.lessThanOrEqualTo(event.get("startDate"), filter.getStartTo()));
+        PredicateBuilder builder = new PredicateBuilder();
+        builder
+                .add(filter.getTitle() == null ? null : cb.like(cb.lower(event.get("title")), "%" + filter.getTitle().toLowerCase() + "%"))
+                .add(filter.getEventType() == null ? null : cb.equal(event.get("type"), filter.getEventType()))
+                .add(filter.getEventStatus() == null ? null : cb.equal(event.get("status"), filter.getEventStatus()))
+                .add(filter.getStartFrom() == null ? null : cb.greaterThanOrEqualTo(event.get("startDate"), filter.getStartFrom()))
+                .add(filter.getStartTo() == null ? null : cb.lessThanOrEqualTo(event.get("startDate"), filter.getStartTo()));
+
+        query.where(builder.build());
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    private static class PredicateBuilder {
+        private final List<Predicate> predicates = new ArrayList<>();
+
+        public PredicateBuilder add(Predicate p) {
+            if (p != null) predicates.add(p);
+            return this;
         }
 
-        query.where(predicates.toArray(new Predicate[0]));
-        return entityManager.createQuery(query).getResultList();
+        public Predicate[] build() {
+            return predicates.toArray(new Predicate[0]);
+        }
     }
 }
