@@ -8,8 +8,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.entity.goal.mapper.GoalMapper;
 import school.faang.user_service.exception.goal.GoalNotExistException;
+import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -17,15 +17,17 @@ import school.faang.user_service.validator.goal.GoalValidator;
 import school.faang.user_service.validator.goal.SkillValidator;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
+
+import static school.faang.user_service.util.EntityUtil.setIfNotNull;
+import static school.faang.user_service.util.EntityUtil.setIfTrue;
 
 @Service
 @RequiredArgsConstructor
 public class GoalService {
 
     private final UserContext userContext;
-
-    private final GoalMapper goalMapper;
     private final GoalRepository goalRepository;
     private final GoalValidator goalValidator;
 
@@ -37,45 +39,38 @@ public class GoalService {
     @Transactional
     public Goal createGoal(Goal newGoalData, List<Long> skillsId, Long parentId) {
         long userId = userContext.getUserId();
-        goalValidator.validateMaxActiveGoalLimit(goalRepository.countActiveGoalsPerUser(userId));
+        goalValidator.validateMaxActiveGoalLimitPerUser(userId);
 
-        if (parentId != null && !goalRepository.existsById(parentId)) {
-            throw new GoalNotExistException(parentId);
-        }
+        newGoalData.setStatus(GoalStatus.ACTIVE);
+        setIfNotNull(parentId, id -> newGoalData.setParent(getGoalById(id)));
+        setIfTrue(skillsId,
+                ids -> !ids.isEmpty(),
+                ids -> newGoalData.setSkillsToAchieve(skillService.findSkillsById(skillsId)));
 
-        Goal newGoal = goalRepository.create(newGoalData.getTitle(), newGoalData.getDescription(), parentId);
+        Goal newGoal = goalRepository.save(newGoalData);
         goalRepository.assignGoalToUser(userId, newGoal.getId());
 
-        if (!skillsId.isEmpty()) {
-            skillService.assignSkillToGoal(newGoal.getId(), skillsId);
-        }
         return newGoal;
     }
 
     @Transactional
     public Goal update(long goalId, Goal newGoalData, List<Long> skillsId) {
         Goal dbGoal = getGoalById(goalId);
-        goalValidator.validateUpdateCompleteGoal(dbGoal);
-        skillValidator.validateExistingSkills(
-                skillsId.stream()
-                        .filter(skillService::isSkillNotExists)
-                        .toList()
-        );
 
-        goalMapper.update(dbGoal, newGoalData);
-
-        boolean skillsChanged = !dbGoal.getSkillsToAchieve()
-                .stream()
-                .map(Skill::getId)
-                .toList()
-                .equals(skillsId);
-
-        if (skillsChanged) {
-            skillService.updateSkillForGoal(goalId, skillsId);
-            dbGoal.setSkillsToAchieve(skillService.findSkillsByGoalId(goalId));
+        if(dbGoal.getStatus() == GoalStatus.COMPLETED) {
+            throw new UpdateComleteGoalException(goalId);
         }
 
-        if (dbGoal.getStatus().equals(GoalStatus.COMPLETED)) {
+        skillValidator.validateExistingSkills(skillsId);
+
+        updateEntity(dbGoal, newGoalData);
+
+        if (isSkillsListUpdated(dbGoal, skillsId)) {
+            skillService.removeSkillForGoal(goalId);
+            dbGoal.setSkillsToAchieve(skillService.findSkillsById(skillsId));
+        }
+
+        if (dbGoal.getStatus() == GoalStatus.COMPLETED) {
             List<Long> involvedUsersId = goalRepository.findUsersByGoalId(dbGoal.getId());
 
             goalValidator.validateAllSubGoalsCompleted(goalId, goalRepository.findByParent(goalId));
@@ -85,7 +80,6 @@ public class GoalService {
         }
 
         goalRepository.save(dbGoal);
-
         return dbGoal;
     }
 
@@ -93,10 +87,11 @@ public class GoalService {
     public void delete(long goalId) {
         Goal goal = getGoalById(goalId);
 
-        boolean userNotOwner = goalRepository.findGoalsByUserId(userContext.getUserId())
-                .noneMatch(userGoal -> userGoal.getId().equals(goalId));
+        boolean userNotOwner = goal.getUsers()
+                .stream()
+                .noneMatch(user -> Objects.equals(user.getId(), userContext.getUserId()));
 
-        if(userNotOwner) {
+        if (userNotOwner) {
             throw new UserNotGoalOwnerException(userContext.getUserId(), goalId);
         }
 
@@ -129,5 +124,20 @@ public class GoalService {
                 .reduce(goalStream,
                         (currentStream, filter) -> filter.apply(currentStream, goalFilterDto),
                         Stream::concat);
+    }
+
+    private void updateEntity(Goal targetGoal, Goal newGoalData) {
+        setIfNotNull(newGoalData.getTitle(), targetGoal::setTitle);
+        setIfNotNull(newGoalData.getDescription(), targetGoal::setDescription);
+        setIfNotNull(newGoalData.getStatus(), targetGoal::setStatus);
+        setIfNotNull(newGoalData.getDeadline(), targetGoal::setDeadline);
+    }
+
+    private boolean isSkillsListUpdated(Goal targetGoal, List<Long> skillsId) {
+        return targetGoal.getSkillsToAchieve().size() != skillsId.size()
+                || !targetGoal.getSkillsToAchieve()
+                .stream()
+                .map(Skill::getId)
+                .allMatch(skillsId::contains);
     }
 }

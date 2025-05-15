@@ -2,11 +2,14 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.exception.skill.SkillNotExistException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.goal.SkillValidator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,19 +18,18 @@ public class SkillService {
     private final SkillRepository skillRepository;
     private final SkillValidator skillValidator;
 
+    @Transactional
     public void assignSkillToGoal(long goalId, List<Long> skillsId) {
-        List<Long> absentSkillsId = skillsId.stream()
-                .filter(this::isSkillNotExists)
-                .toList();
-        skillValidator.validateExistingSkills(absentSkillsId);
+        skillValidator.validateExistingSkills(skillsId);
         skillsId.forEach(skillId -> skillRepository.assignSkillToGoal(goalId, skillId));
     }
 
-    public void updateSkillForGoal(long goalId, List<Long> newSkillsId) {
+    @Transactional
+    public void removeSkillForGoal(long goalId) {
         skillRepository.removeSkillsFromGoal(goalId);
-        assignSkillToGoal(goalId, newSkillsId);
     }
 
+    @Transactional
     public void assignSkillsToUser(long userId, List<Skill> skills) {
         List<Skill> ownedSkills = skillRepository.findAllByUserId(userId);
         skills
@@ -36,10 +38,15 @@ public class SkillService {
                 .forEach(skill -> skillRepository.assignSkillToUser(skill.getId(), userId));
     }
 
-    public boolean isSkillNotExists(long skillId) {
-        return !skillRepository.existsById(skillId);
+    @Transactional(readOnly = true)
+    public List<Skill> findSkillsById(List<Long> skillsId) {
+        return skillsId.stream()
+                .map(skillId -> skillRepository.findById(skillId)
+                        .orElseThrow(() -> new SkillNotExistException(skillId)))
+                .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<Skill> findSkillsByGoalId(long goalId) {
         return skillRepository.findSkillsByGoalId(goalId);
     }
