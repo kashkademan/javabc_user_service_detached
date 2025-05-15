@@ -4,52 +4,58 @@ import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.validator.Validator;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SamePersonValidatorTest {
-    private final Validator<RecommendationRequestDto> validator = new SamePersonValidator();
+class PersonValidatorTest {
+    private final Validator<RecommendationRequestDto> validator = new PersonValidator();
 
     @Test
     public void testRequesterIdIsNull() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(null, 10L)));
+        assertEquals(PersonValidator.REQUESTER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testRequesterIdIsNegative() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(-10L, 10L)));
+        assertEquals(PersonValidator.REQUESTER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testRequesterIdIsZero() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(0L, 10L)));
+        assertEquals(PersonValidator.REQUESTER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testReceiverIdIsNull() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(10L, null)));
+        assertEquals(PersonValidator.RECEIVER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testReceiverIdIsNegative() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(10L, -20L)));
+        assertEquals(PersonValidator.RECEIVER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testReceiverIdIsZero() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(10L, 0L)));
+        assertEquals(PersonValidator.RECEIVER_ID_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testPersonIsSame() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(10L, 10L)));
+        assertEquals(PersonValidator.SAME_PERSON, result.getMessage());
     }
 
     @Test

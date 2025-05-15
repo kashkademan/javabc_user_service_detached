@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class RecommendationRequestFilterByReceiverId implements Filter<RequestFilterDto, RecommendationRequest> {
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
-        return filterDto.receiverId() != null;
+        return !(filterDto.receiverId() == null || filterDto.receiverId().compareTo(0L) <= 0);
     }
 
     @Override

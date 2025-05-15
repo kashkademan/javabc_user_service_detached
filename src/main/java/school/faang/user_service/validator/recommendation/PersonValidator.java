@@ -7,7 +7,7 @@ import school.faang.user_service.validator.Validator;
 
 @Slf4j
 @Component
-public class SamePersonValidator implements Validator<RecommendationRequestDto> {
+public class PersonValidator implements Validator<RecommendationRequestDto> {
     public static final String SAME_PERSON = "Requester and Receiver is a same person";
     public static final String REQUESTER_ID_IS_EMPTY = "recommendation requester id is empty or 0";
     public static final String RECEIVER_ID_IS_EMPTY = "recommendation receiver id is empty or 0";

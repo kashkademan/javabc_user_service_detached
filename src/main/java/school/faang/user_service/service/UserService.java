@@ -11,11 +11,12 @@ import static school.faang.user_service.utils.Utils.format;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    public static final String USER_NOT_FOUND = "User by ID={} is not found";
+
     private final UserRepository userRepository;
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(
-                        format("User by ID={} is not found", userId)));
+                .orElseThrow(() -> new UserNotFoundException(format(USER_NOT_FOUND, userId)));
     }
 }

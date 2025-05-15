@@ -4,28 +4,30 @@ import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.validator.Validator;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RejectValidatorTest {
     private final Validator<RejectionDto> validator = new RejectValidator();
 
     @Test
     public void testValidatorWithNullRejection() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(null)));
+        assertEquals(RejectValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testValidatorWithBlankRejection() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto("   ")));
+        assertEquals(RejectValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testValidatorWithEmptyRejection() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto("")));
+        assertEquals(RejectValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test
