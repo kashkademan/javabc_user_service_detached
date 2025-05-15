@@ -39,8 +39,8 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{id}/accept")
-    public ResponseEntity<Void> acceptRequest(@PathVariable Long id) {
-        mentorshipRequestService.acceptRequest(id);
+    public ResponseEntity<Void> acceptRequest(@PathVariable Long requestId) {
+        mentorshipRequestService.acceptRequest(requestId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

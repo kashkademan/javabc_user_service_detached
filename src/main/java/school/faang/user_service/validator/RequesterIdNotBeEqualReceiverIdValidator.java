@@ -6,7 +6,7 @@ import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Component
-public class RequesterIdNotBeEqualReceiverIdValidator implements MentorshipValidator{
+public class RequesterIdNotBeEqualReceiverIdValidator implements MentorshipValidator {
 
     @Override
     public void validate(MentorshipRequestDto dto) {
