@@ -39,11 +39,9 @@ public class SubscriptionService {
         SubscriptionValidation.validateUnfollowAction(followerId, followeeId);
         SubscriptionValidation.validateUnsubscribeAction(existSub);
 
-        subscriptionRepository.delete(Subscription.builder()
-                .follower_id(followerId)
-                .followee_id(followeeId)
-                .build()
-        );
+        Subscription subscription = subscriptionRepository.getSubscription(followerId, followeeId);
+
+        subscriptionRepository.delete(subscription);
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +64,7 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public Integer getFollowingCount(long followerId) {
+    public Long getFollowingCount(long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
