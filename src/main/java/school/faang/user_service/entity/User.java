@@ -1,7 +1,6 @@
 package school.faang.user_service.entity;
 
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -149,10 +148,8 @@ public class User {
     private List<Rating> ratings;
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id")),
-            @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
-    })
+    @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id"))
+    @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
     private UserProfilePic userProfilePic;
 
     @OneToOne(mappedBy = "user")
