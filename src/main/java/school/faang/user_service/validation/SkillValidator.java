@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 
-import static school.faang.user_service.constant.SkillConstant.BLANK_SKILL_TITLE;
-import static school.faang.user_service.constant.SkillConstant.SKILL_ALREADY_EXIST;
+import static school.faang.user_service.constant.Constants.BLANK_SKILL_TITLE;
+import static school.faang.user_service.constant.Constants.SKILL_ALREADY_EXIST;
+import static school.faang.user_service.constant.Constants.USER_HAS_SKILL;
 
 @Component
 @RequiredArgsConstructor
@@ -29,4 +30,10 @@ public class SkillValidator {
         }
     }
 
+    public void validateUserHasSkill(long userId, long skillId) {
+        if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
+            log.error("У пользователя {} уже есть навык {}", userId, skillId);
+            throw new DataValidationException(String.format(USER_HAS_SKILL, userId, skillId));
+        }
+    }
 }

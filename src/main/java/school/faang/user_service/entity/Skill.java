@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
@@ -30,6 +31,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"users", "guarantees", "events", "goals"})
 @Entity
 @Table(name = "skill")
 public class Skill {
@@ -68,11 +70,5 @@ public class Skill {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Override
-    public String toString() {
-        String StringTemplater = "Skill(id=%d, title=%s, createdAt=%s, updatedAt=%s)";
-        return StringTemplater.format(StringTemplater, id, title, createdAt, updatedAt);
-    }
 
 }
