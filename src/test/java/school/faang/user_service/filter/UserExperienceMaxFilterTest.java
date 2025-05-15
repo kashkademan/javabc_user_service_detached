@@ -1,0 +1,57 @@
+package school.faang.user_service.filter;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Spy;
+import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.User;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+class UserExperienceMaxFilterTest extends BaseUserFilterTest {
+
+    @Spy
+    private UserExperienceMaxFilter filter = new UserExperienceMaxFilter();
+
+    @Test
+    @DisplayName("Фильтр по максимальному опыту — фильтрует корректно")
+    void testApply_whenMaxExperienceSet_thenReturnMatchingUsers() {
+        UserFilterDto dto = new UserFilterDto();
+        dto.setExperienceMax(10);
+        Stream<User> input = Stream.of(user1, user2, user3);
+
+        List<User> result = filter.apply(input, dto).toList();
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(u -> u.getExperience() <= 10));
+    }
+
+    @Test
+    @DisplayName("isApplicable возвращает false, если параметр не задан")
+    void isApplicable_whenMaxExperienceIsNull_thenReturnFalse() {
+        UserFilterDto dto = new UserFilterDto();
+
+        boolean result = filter.isApplicable(dto);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Фильтр по максимальному опыту — граничное значение")
+    void testApply_whenUserHasExactMaxExperience_thenIncludeUser() {
+        UserFilterDto dto = new UserFilterDto();
+        dto.setExperienceMax(10);
+        Stream<User> input = Stream.of(user2);
+
+        List<User> result = filter.apply(input, dto).toList();
+
+        assertEquals(1, result.size());
+        assertEquals(10, result.get(0).getExperience());
+    }
+}
