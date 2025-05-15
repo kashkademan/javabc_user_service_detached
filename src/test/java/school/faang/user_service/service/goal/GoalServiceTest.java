@@ -291,7 +291,7 @@ public class GoalServiceTest {
     public void testUpdateGoal_goalNotFound() {
         long goalId = 1L;
         goalUpdateRequestDto.setId(goalId);
-        when(goalRepository.findById(goalId)).thenThrow(GoalNotFoundException.class);
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
         assertThrows(GoalNotFoundException.class, () -> goalService.updateGoal(goalUpdateRequestDto));
         verify(goalRepository, never()).save(goalCaptor.capture());
@@ -302,9 +302,10 @@ public class GoalServiceTest {
     public void testUpdateGoal_goalAlreadyCompleted() {
         long goalId = 1L;
         goalUpdateRequestDto.setId(goalId);
-        goalUpdateRequestDto.setStatus(GoalStatus.COMPLETED);
+        Goal goal = new Goal();
+        goal.setId(goalId);
+        goal.setStatus(GoalStatus.COMPLETED);
 
-        Goal goal = goalMapper.toGoalEntity(goalUpdateRequestDto);
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
 
         assertThrows(GoalAlreadyCompletedException.class, () -> goalService.updateGoal(goalUpdateRequestDto));
@@ -330,15 +331,6 @@ public class GoalServiceTest {
     }
 
     @Test
-    public void testDeleteGoalById_goalNotFound() {
-        long goalId = 1L;
-        when(goalRepository.findById(goalId)).thenThrow(GoalNotFoundException.class);
-
-        assertThrows(GoalNotFoundException.class, () -> goalService.deleteGoalById(goalId));
-        verify(goalRepository, never()).deleteById(goalId);
-    }
-
-    @Test
     public void testDeleteGoalById_goalDelete() {
         long goalId = 1L;
         Goal goal = new Goal();
@@ -348,6 +340,15 @@ public class GoalServiceTest {
         goalService.deleteGoalById(goalId);
 
         verify(goalRepository, times(1)).deleteById(goalId);
+    }
+
+    @Test
+    public void testDeleteGoalById_goalNotFound() {
+        long goalId = 1L;
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        assertThrows(GoalNotFoundException.class, () -> goalService.deleteGoalById(goalId));
+        verify(goalRepository, never()).deleteById(goalId);
     }
 
     @Test
@@ -405,7 +406,7 @@ public class GoalServiceTest {
     @Test
     public void testGetGoalByIdOrThrow_goalNotFound() {
         long goalId = 5L;
-        when(goalRepository.findById(goalId)).thenThrow(GoalNotFoundException.class);
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
         assertThrows(GoalNotFoundException.class, () -> goalService.getGoalByIdOrThrow(goalId));
         verify(goalRepository, times(1)).findById(goalId);
