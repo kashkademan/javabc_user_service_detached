@@ -34,6 +34,15 @@ public interface GoalMapper {
 
     void update(@MappingTarget Goal goal, final GoalUpdateRequestDto goalUpdateRequestDto);
 
+    @Mapping(source = "parent.id", target = "parentId")
+    @Mapping(source = "createdAt", target = "createdDate")
+    @Mapping(source = "updatedAt", target = "updatedDate")
+    @Mapping(source = "mentor.id", target = "mentorId")
+    @Mapping(target = "invitationsIds", expression = "java(mapInvitationIds(goal.getInvitations()))")
+    @Mapping(target = "usersIds", expression = "java(mapUserIds(goal.getUsers()))")
+    @Mapping(target = "skillToAchieveIds", expression = "java(mapSkillIds(goal.getSkillsToAchieve()))")
+    List<GoalResponseDto> toGoalResponseDtoList(List<Goal> goals);
+
     default List<Long> mapInvitationIds(List<GoalInvitation> invitations) {
         if (invitations == null) {
             return new ArrayList<>();
