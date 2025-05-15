@@ -17,31 +17,20 @@ import java.util.List;
 public class EventDto {
     @NotNull
     private Long id;
-
     @NotBlank
     private String title;
-
     @NotBlank
     private String description;
-
     @NotNull
     private LocalDateTime startDate;
-
     @NotNull
     private LocalDateTime endDate;
-
     @NotNull
     private Long ownerId;
-
     private List<Long> relatedSkills;
-
     private String location;
-
     @NotNull
     private EventType eventType;
-
     private EventStatus eventStatus;
-
     private LocalDateTime updatedAt;
 }
-
