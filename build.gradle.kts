@@ -99,6 +99,30 @@ jacoco {
     reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
 }
 
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "PACKAGE" // можно: BUNDLE, PACKAGE, CLASS
+
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+
+            excludes = listOf(
+                "school.faang.user_service.config.*",
+                "school.faang.user_service.controller.*",
+                "school.faang.user_service.dto.*",
+                "school.faang.user_service.entity.*",
+                "school.faang.user_service.repository.*",
+                "school.faang.user_service.exception.*",
+                "com/json/student.*"
+            )
+        }
+    }
+}
+
 tasks.jacocoTestReport {
 
     reports {
@@ -117,32 +141,8 @@ tasks.jacocoTestReport {
                     "**/entity/**",
                     "**/repository/**",
                     "**/exception/**",
-                    "**/com.json.student/**"
                 )
             }
         })
     )
-}
-
-tasks.jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            element = "PACKAGE" // можно: BUNDLE, PACKAGE, CLASS
-
-            excludes = listOf(
-                "school.faang.user_service.config.*",
-                "school.faang.user_service.controller.*",
-                "school.faang.user_service.dto.*",
-                "school.faang.user_service.entity.*",
-                "school.faang.user_service.repository.*",
-                "school.faang.user_service.exception.*",
-                )
-
-            limit {
-                counter = "INSTRUCTION"
-                value = "COVEREDRATIO"
-                minimum = "0.70".toBigDecimal()
-            }
-        }
-    }
 }
