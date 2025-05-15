@@ -63,7 +63,7 @@ public class RecommendationRequest {
     private Recommendation recommendation;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    private List<SkillRequest> skills;
+    private final List<SkillRequest> skills = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -76,9 +76,6 @@ public class RecommendationRequest {
     private LocalDateTime updatedAt;
 
     public void addSkillRequest(SkillRequest skillRequest) {
-        if (skills == null) {
-            skills = new ArrayList<>();
-        }
         skills.add(skillRequest);
     }
 

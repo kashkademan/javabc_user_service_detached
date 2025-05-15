@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -13,7 +14,9 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.MessageError;
 import school.faang.user_service.exception.RecommendationRequestException;
+import school.faang.user_service.exception.RecommendationRequestNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -32,7 +35,7 @@ import java.util.stream.Stream;
 public class RecommendationRequestService {
     public static final String SIX_MONTHS_PERIOD_ERROR = "A recommendation request from the same user " +
             "to another can be sent no more than once every 6 months.";
-    public static final String REQUEST_BY_ID_NOT_FOUND = "The recommendation request by id={0} was not found.";
+    public static final String REQUEST_BY_ID_NOT_FOUND = "The recommendation request by ID={} was not found.";
     public static final String SKILLS_MISSING_FROM_DATABASE = "one or more skills are missing from the database";
 
     private final UserService userService;
@@ -46,7 +49,7 @@ public class RecommendationRequestService {
     private final List<Validator<RejectionDto>> rejectValidators;
 
     @Transactional
-    public RecommendationRequestDto create(RecommendationRequestDto dto) {
+    public RecommendationResponseDto create(RecommendationRequestDto dto) {
         log.info("validators count: {}", requestValidators.size());
         requestValidators.forEach(validator -> {
             log.info("run validator: {}", validator.getClass().getName());
@@ -60,7 +63,7 @@ public class RecommendationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
+    public List<RecommendationResponseDto> getRequests(RequestFilterDto filterDto) {
         Stream<RecommendationRequest> requests = requestRepository.findAll().stream();
         filters.forEach(filter -> {
             log.info("run filter {}", filter.getClass().getName());
@@ -71,7 +74,7 @@ public class RecommendationRequestService {
 
         return requests
                 .map(entity -> {
-                    RecommendationRequestDto dto = mapper.toDto(entity);
+                    RecommendationResponseDto dto = mapper.toDto(entity);
                     setDtoSkills(entity, dto);
                     dto.setRequesterId(entity.getRequester().getId());
                     dto.setReceiverId(entity.getReceiver().getId());
@@ -81,11 +84,11 @@ public class RecommendationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public RecommendationRequestDto getRequest(Long id) {
+    public RecommendationResponseDto getRequest(Long id) {
         RecommendationRequest entity = requestRepository.findById(id)
-                .orElseThrow(() -> requestException(id, REQUEST_BY_ID_NOT_FOUND));
+                .orElseThrow(() -> notFoundException(id));
 
-        RecommendationRequestDto dto = mapper.toDto(entity);
+        RecommendationResponseDto dto = mapper.toDto(entity);
         setDtoSkills(entity, dto);
         dto.setRequesterId(entity.getRequester().getId());
         dto.setReceiverId(entity.getReceiver().getId());
@@ -93,26 +96,25 @@ public class RecommendationRequestService {
     }
 
     @Transactional
-    public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
+    public RecommendationResponseDto rejectRequest(Long id, RejectionDto rejection) {
         rejectValidators.forEach(validator -> validator.validate(rejection));
         RecommendationRequest entity = requestRepository.findById(id)
-                .orElseThrow(() -> requestException(id, REQUEST_BY_ID_NOT_FOUND));
+                .orElseThrow(() -> notFoundException(id));
         log.info("before {}", entity);
         Set<RequestStatus> checkStatusForReject = Set.of(RequestStatus.REJECTED, RequestStatus.ACCEPTED);
         if (checkStatusForReject.contains(entity.getStatus())) {
-            //todo: сделать универсальным поднятие ошибок
-            throw requestException(MessageFormat.format(
-                    "The recommendation request status cannot be changed. " +
+            throw otherException(MessageFormat.format(
+                    "The status of the recommendation request has not been changed. " +
                             "Entity (id={0}) have one of the next status {1}",
                     id, checkStatusForReject));
         }
         Integer rowCount = requestRepository.setStatus(id, RequestStatus.REJECTED, rejection.reason());
         if (rowCount != 1) {
-            throw requestException(MessageFormat.format(
+            throw otherException(MessageFormat.format(
                     "The status of the recommendation request has not been changed (id={0})", id));
         }
         RecommendationRequest result = requestRepository.findById(id)
-                .orElseThrow(() -> requestException(id, REQUEST_BY_ID_NOT_FOUND));
+                .orElseThrow(() -> notFoundException(id));
         log.info("after update {}", result);
         return mapper.toDto(result);
     }
@@ -124,19 +126,20 @@ public class RecommendationRequestService {
     private void validateTimePeriod(RecommendationRequestDto dto) {
         int requestCount = requestRepository.countRepeatedRequest(dto.getRequesterId(), dto.getReceiverId());
         if (requestCount > 0) {
-            throw requestException(SIX_MONTHS_PERIOD_ERROR);
+            log.error("RequesterId={}, ReceiverId={}; {}",
+                    dto.getRequesterId(), dto.getReceiverId(), SIX_MONTHS_PERIOD_ERROR);
+            throw new RecommendationRequestNotFoundException(MessageError.RECOMMEND_REQUEST_NOT_FOUND_EXCEPTION);
         }
     }
 
     @NotNull
-    private static RecommendationRequestException requestException(Long id, String message) {
-        String errorMessage = MessageFormat.format(message, id);
-        log.error(errorMessage);
-        return new RecommendationRequestException(errorMessage);
+    private static RecommendationRequestNotFoundException notFoundException(Long id) {
+        log.error(REQUEST_BY_ID_NOT_FOUND, id);
+        return new RecommendationRequestNotFoundException(MessageError.RECOMMEND_REQUEST_NOT_FOUND_EXCEPTION);
     }
 
     @NotNull
-    private static RecommendationRequestException requestException(String message) {
+    private static RecommendationRequestException otherException(String message) {
         log.error(message);
         return new RecommendationRequestException(message);
     }
@@ -146,7 +149,7 @@ public class RecommendationRequestService {
         entity.setRequester(getUser(dto.getRequesterId()));
         //RECEIVER. Если нет в БД, то ошибка
         entity.setReceiver(getUser(dto.getReceiverId()));
-        entity.setStatus(getStatus(dto));
+        //entity.setStatus(dto.getStatus());
         List<Skill> skills = getSkills(dto);
         skills.forEach(skill -> {
             SkillRequest skillRequest = new SkillRequest();
@@ -154,14 +157,6 @@ public class RecommendationRequestService {
             skillRequest.setSkill(skill);
             entity.addSkillRequest(skillRequest);
         });
-    }
-
-    private RequestStatus getStatus(RecommendationRequestDto dto) {
-        if (dto.getStatus() == null || dto.getStatus().isBlank()) {
-            return RequestStatus.PENDING;
-        } else {
-            return RequestStatus.valueOf(dto.getStatus());
-        }
     }
 
     private User getUser(Long userId) {
@@ -176,7 +171,7 @@ public class RecommendationRequestService {
         return skills;
     }
 
-    private void setDtoSkills(RecommendationRequest entity, RecommendationRequestDto dto) {
+    private void setDtoSkills(RecommendationRequest entity, RecommendationResponseDto dto) {
         entity.getSkills().forEach(skillRequest -> dto.addSkill(skillRequest.getId()));
     }
 

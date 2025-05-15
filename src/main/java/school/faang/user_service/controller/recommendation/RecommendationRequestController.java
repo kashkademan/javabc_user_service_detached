@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
@@ -17,19 +18,19 @@ import java.util.List;
 public class RecommendationRequestController {
     private final RecommendationRequestService requestService;
 
-    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
+    public RecommendationResponseDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
         return requestService.create(recommendationRequest);
     }
 
-    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+    public List<RecommendationResponseDto> getRecommendationRequests(RequestFilterDto filter) {
         return requestService.getRequests(filter);
     }
 
-    public RecommendationRequestDto getRecommendationRequest(Long id) {
+    public RecommendationResponseDto getRecommendationRequest(Long id) {
         return requestService.getRequest(id);
     }
 
-    public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
+    public RecommendationResponseDto rejectRequest(Long id, RejectionDto rejection) {
         return requestService.rejectRequest(id, rejection);
     }
 }
