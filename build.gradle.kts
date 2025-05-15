@@ -115,43 +115,29 @@ tasks.checkstyleTest {
     source = fileTree("${project.rootDir}/src/test")
     include("**/*.java")
     classpath = files()
+}
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-        reports {
-            xml.required.set(false)
-            csv.required.set(false)
-            html.required.set(true)
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.required.set(true)
+    }
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it) {
+            exclude("**/mapper/**", "**/*Mapper.class/**", "**/*MapperImpl.class/**", "**/entity/**", "**/controller/**", "**/repository/**", "**/json/student/**")
         }
-        classDirectories.setFrom(
-                files(classDirectories.files.map {
-                  fileTree(it) {
-                    exclude(
-                      "**/mapper/**",
-                      "**/*Mapper.class/**",
-                      "**/*MapperImpl.class/**",
-                      "**/entity/**",
-                      "**/controler/**",
-                      "**/repository/**",
-                      "**/json/student/**"
-                   )
-                  }
-                }
-                )
-        )
+    }))
 }
 
 tasks.jacocoTestCoverageVerification {
     violationRules {
-        excludes = listOf(
-                "school.faang.user_service.entity.*",
-                "school.faang.user_service.controller.*",
-                "school.faang.user_service.mapper.*",
-                "com.json.student.*"
-        )
 
         rule {
             element = "CLASS"
+            excludes = listOf("school.faang.user_service.entity.*",
+                    "school.faang.user_service.controller.*", "school.faang.user_service.mapper.*", "com.json.student.*")
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
