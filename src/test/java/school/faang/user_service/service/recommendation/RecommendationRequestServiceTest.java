@@ -1,13 +1,15 @@
 package school.faang.user_service.service.recommendation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
+import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -22,12 +24,15 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,15 +46,31 @@ public class RecommendationRequestServiceTest {
     private SkillRepository skillRepository;
     @Mock
     private SkillRequestRepository skillRequestRepository;
-    // Тут пустой список стратегий, может надо каждую стратегию подгрузить отдельно через мок, но как я могу указать InjectMocks если у меня уже есть ниже?
-    @Spy
-    private List<RecommendationRequestFilterStrategy> recommendationRequestFilters;
+
+    @Mock
+    private RecommendationRequestFilterStrategy receiverIdFilter;
+    @Mock
+    private RecommendationRequestFilterStrategy requesterIdFilter;
 
     @Spy
     private RecommendationRequestMapperImpl recommendationRequestMapper;
 
-    @InjectMocks
     private RecommendationRequestServiceImpl recommendationRequestService;
+
+    @BeforeEach
+    public void setUp() {
+        recommendationRequestService = new RecommendationRequestServiceImpl(
+                userRepository,
+                skillRepository,
+                skillRequestRepository,
+                recommendationRequestRepository,
+                List.of(
+                        receiverIdFilter,
+                        requesterIdFilter
+                ),
+                recommendationRequestMapper
+        );
+    }
 
     @Test
     public void testCreateThrowsRequesterIsNotFound() {
@@ -178,38 +199,176 @@ public class RecommendationRequestServiceTest {
         assertEquals(recommendationRequestMapper.toDto(entity), recommendationRequestService.create(dto));
     }
 
-//    @Test
-//    public void testGetRequestsEmptyFilter() {
-//        long recommendationRequestId1 = 1L;
-//        long recommendationRequestId2 = 2L;
-//
-//        RecommendationRequest recommendationRequest1 = new RecommendationRequest();
-//        recommendationRequest1.setId(recommendationRequestId1);
-//        RecommendationRequest recommendationRequest2 = new RecommendationRequest();
-//        recommendationRequest2.setId(recommendationRequestId2);
-//
-//        RecommendationRequestDto entity1 = new RecommendationRequestDto();
-//        entity1.setId(recommendationRequestId1);
-//        RecommendationRequestDto entity2 = new RecommendationRequestDto();
-//        entity2.setId(recommendationRequestId2);
-//
-//        List<RecommendationRequestDto> expectedListOfDtos = List.of(entity1, entity2);
-//
-//        RequestFilterDto requestFilterDto = new RequestFilterDto();
-//        requestFilterDto.setRequesterId(null);
-//        requestFilterDto.setReceiverId(null);
-//        requestFilterDto.setStatus(null);
-//        requestFilterDto.setSkillId(null);
-//        requestFilterDto.setCreatedAt(null);
-//
-//        when(recommendationRequestRepository.findAll())
-//                .thenReturn(List.of(recommendationRequest1, recommendationRequest2));
-//        recommendationRequestFilters.forEach(filter ->
-//                when(filter.isApplicable(requestFilterDto))
-//                        .thenReturn(false));
-//
-//        assertEquals(expectedListOfDtos, recommendationRequestService.getRequests(requestFilterDto));
-//    }
+    @Test
+    public void testGetRequestsEmptyFilter() {
+        long recommendationRequestId1 = 1L;
+        long recommendationRequestId2 = 2L;
+
+        RecommendationRequest entity1 = new RecommendationRequest();
+        entity1.setId(recommendationRequestId1);
+        RecommendationRequest entity2 = new RecommendationRequest();
+        entity2.setId(recommendationRequestId2);
+
+        RecommendationRequestDto dto1 = new RecommendationRequestDto();
+        dto1.setId(recommendationRequestId1);
+        dto1.setSkillIds(new ArrayList<>());
+        RecommendationRequestDto dto2 = new RecommendationRequestDto();
+        dto2.setId(recommendationRequestId2);
+        dto2.setSkillIds(new ArrayList<>());
+
+        List<RecommendationRequestDto> listOfExpectedDtos = List.of(dto1, dto2);
+
+        RequestFilterDto requestFilterDto = new RequestFilterDto();
+
+        when(recommendationRequestRepository.findAll())
+                .thenReturn(List.of(entity1, entity2));
+
+        when(requesterIdFilter.isApplicable(any())).thenReturn(false);
+        when(receiverIdFilter.isApplicable(any())).thenReturn(false);
+
+        assertEquals(listOfExpectedDtos, recommendationRequestService.getRequests(requestFilterDto));
+    }
+
+    @Test
+    public void testGetRequestsFilterOneParam() {
+        long recommendationRequestId1 = 1L;
+        long recommendationRequestId2 = 2L;
+
+        User requester = new User();
+        requester.setId(10L);
+        User receiver = new User();
+        receiver.setId(20L);
+
+        RecommendationRequest entity1 = new RecommendationRequest();
+        entity1.setId(recommendationRequestId1);
+        entity1.setRequester(requester);
+        entity1.setReceiver(receiver);
+        RecommendationRequest entity2 = new RecommendationRequest();
+        entity2.setId(recommendationRequestId2);
+
+        RecommendationRequestDto dto1 = recommendationRequestMapper.toDto(entity1);
+
+        List<RecommendationRequestDto> listOfExpectedDtos = List.of(dto1);
+
+        RequestFilterDto requestFilterDto = new RequestFilterDto();
+
+        when(recommendationRequestRepository.findAll())
+                .thenReturn(List.of(entity1));
+
+        when(requesterIdFilter.isApplicable(any())).thenReturn(true);
+        when(receiverIdFilter.isApplicable(any())).thenReturn(false);
+
+        when(requesterIdFilter.apply(any(), any()))
+                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
+                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
+
+                    return stream.filter(recommendationRequest ->
+                            recommendationRequest.getRequester().getId().equals(requester.getId()));
+                });
+
+        assertEquals(listOfExpectedDtos, recommendationRequestService.getRequests(requestFilterDto));
+    }
+
+    @Test
+    public void testGetRequestsFilterTwoParam() {
+        long recommendationRequestId1 = 1L;
+        long recommendationRequestId2 = 2L;
+
+        User requester = new User();
+        requester.setId(10L);
+        User receiver = new User();
+        receiver.setId(20L);
+
+        RecommendationRequest entity1 = new RecommendationRequest();
+        entity1.setId(recommendationRequestId1);
+        entity1.setRequester(requester);
+        entity1.setReceiver(receiver);
+        RecommendationRequest entity2 = new RecommendationRequest();
+        entity2.setId(recommendationRequestId2);
+        entity2.setRequester(requester);
+        entity2.setReceiver(receiver);
+
+        RecommendationRequestDto dto1 = recommendationRequestMapper.toDto(entity1);
+        RecommendationRequestDto dto2 = recommendationRequestMapper.toDto(entity2);
+
+        List<RecommendationRequestDto> listOfExpectedDtos = List.of(dto1, dto2);
+
+        RequestFilterDto requestFilterDto = new RequestFilterDto();
+
+        when(recommendationRequestRepository.findAll())
+                .thenReturn(List.of(entity1, entity2));
+
+        when(requesterIdFilter.isApplicable(any())).thenReturn(true);
+        when(receiverIdFilter.isApplicable(any())).thenReturn(true);
+
+        when(requesterIdFilter.apply(any(), any()))
+                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
+                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
+
+                    return stream.filter(recommendationRequest ->
+                            recommendationRequest.getRequester().getId().equals(requester.getId()));
+                });
+
+        when(receiverIdFilter.apply(any(), any()))
+                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
+                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
+
+                    return stream.filter(recommendationRequest ->
+                            recommendationRequest.getReceiver().getId().equals(receiver.getId()));
+                });
+
+        assertEquals(listOfExpectedDtos, recommendationRequestService.getRequests(requestFilterDto));
+    }
+
+    @Test
+    public void testGetRequestsPassSeparateFiltersReturnEmpty() {
+        User requester1 = new User();
+        requester1.setId(10L);
+        User requester2 = new User();
+        requester2.setId(20L);
+        User receiver1 = new User();
+        receiver1.setId(30L);
+        User receiver2 = new User();
+        receiver2.setId(40L);
+
+        long recommendationRequestId1 = 1L;
+        long recommendationRequestId2 = 2L;
+
+        RecommendationRequest entity1 = new RecommendationRequest();
+        entity1.setId(recommendationRequestId1);
+        entity1.setRequester(requester1);
+        entity1.setReceiver(receiver1);
+        RecommendationRequest entity2 = new RecommendationRequest();
+        entity2.setId(recommendationRequestId2);
+        entity2.setRequester(requester2);
+        entity2.setReceiver(receiver2);
+
+        RequestFilterDto requestFilterDto = new RequestFilterDto();
+
+        when(recommendationRequestRepository.findAll())
+                .thenReturn(List.of(entity1, entity2));
+
+        when(requesterIdFilter.isApplicable(any())).thenReturn(true);
+        when(receiverIdFilter.isApplicable(any())).thenReturn(true);
+
+        when(requesterIdFilter.apply(any(), any()))
+                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
+                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
+
+                    return stream.filter(recommendationRequest ->
+                            recommendationRequest.getRequester().getId().equals(requester1.getId()));
+                });
+
+        when(receiverIdFilter.apply(any(), any()))
+                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
+                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
+
+                    return stream.filter(recommendationRequest ->
+                            recommendationRequest.getReceiver().getId().equals(receiver2.getId()));
+                });
+
+        assertEquals(List.of(), recommendationRequestService.getRequests(requestFilterDto));
+    }
 
     @Test
     public void testGetRequestThrowsNoSuchElementException() {
