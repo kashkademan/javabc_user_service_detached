@@ -85,7 +85,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Skill creation test. Positive. Skill is created.")
-    public void testCreate_created() {
+    public void testCreate_whenSkillDoesNotExist_thenSkillIsCreated() {
         when(skillRepository.existsByTitle(skill1.getTitle())).thenReturn(false);
         when(skillMapper.toEntity(skill1Dto)).thenReturn(skill1);
         when(skillMapper.toDto(skill1)).thenReturn(skill1Dto);
@@ -98,14 +98,14 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Skill creation test. Negative. Exception should be thrown.")
-    public void testCreate_notCreated() {
+    public void testCreate_whenSkillExist_thenSkillnotCreated() {
         when(skillRepository.existsByTitle(skill1.getTitle())).thenReturn(true);
         assertThrows(DataValidationException.class, () -> skillService.create(skill1Dto));
     }
 
     @Test
     @DisplayName("Get users skills test.")
-    public void testGetUserSkills() {
+    public void testGetUserSkills_whenUserHasSkills_thenSkillsAreReturned() {
         when(skillRepository.findAllByUserId(USER1_ID)).thenReturn(List.of(skill1, skill2));
         when(skillMapper.toDto(skill1)).thenReturn(skill1Dto);
         when(skillMapper.toDto(skill2)).thenReturn(skill2Dto);
@@ -117,7 +117,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Get skills offered to user test.")
-    public void testGetOfferedSkills() {
+    public void testGetOfferedSkills_whenUserHasSkills_thenSkillsAreReturned() {
         SkillCandidateDto skillCandidateDto1 = new SkillCandidateDto(skill1Dto, 2L);
         SkillCandidateDto skillCandidateDto2 = new SkillCandidateDto(skill2Dto, 3L);
         
@@ -134,7 +134,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Acquire skill from offers test. Positive. Skill is acquired.")
-    public void testAcquireSkillFromOffers_acquired() {
+    public void testAcquireSkillFromOffers_whenSkillsOfferd_thenAcquired() {
         when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
         when(skillMapper.toDto(skill1)).thenReturn(skill1Dto);
 
@@ -143,7 +143,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Acquire skill from offers test. Negative. Exception should be thrown. Skill already assigned.")
-    public void testAcquireSkillFromOffers_notAcquired_alreadyAssigned() {
+    public void testAcquireSkillFromOffers_whenUserHasSkill_thenNotAcquired() {
         when(skillRepository.findUserSkill(SKILL1_ID, USER1_ID)).thenReturn(Optional.of(skill1));
         assertThrows(
             DataValidationException.class, 
@@ -153,7 +153,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Acquire skill from offers test. Negative. Exception should be thrown. Skill not found.")
-    public void testAcquireSkillFromOffers_notAcquired_skillNotFound() {
+    public void testAcquireSkillFromOffers_whenSkillIsNotFoud_thenNotAcquired() {
         Recommendation recommendation1 = Recommendation.builder()
             .author(new User())
             .receiver(new User())
@@ -204,7 +204,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("Find all offeres of a skill to user.")
-    public void testFindAllOffersOfSkill() {
+    public void testFindAllOffersOfSkill_whenSkillsAreOffered_thenSkillsAreRetrieved() {
         SkillOffer skillOffer1 = new SkillOffer();
         Recommendation recommendation1 = new Recommendation();
         recommendation1.setId(1L);
@@ -222,7 +222,6 @@ public class SkillServiceImplTest {
         when(skillOfferMapper.toDto(skillOffer1)).thenReturn(skillOfferDto1);
         when(skillOfferMapper.toDto(skillOffer2)).thenReturn(skillOfferDto2);
 
-        // assertEquals(skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID), List.of(skillOfferDto1, skillOfferDto1));
         assertEquals(
             List.of(skillOfferDto1, skillOfferDto1), 
             skillService.findAllOffersOfSkill(SKILL1_ID, USER1_ID)
