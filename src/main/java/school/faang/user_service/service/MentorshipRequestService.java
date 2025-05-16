@@ -11,6 +11,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.RequestToResponseDto;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship_request.RequestFilter;
 
@@ -25,7 +26,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
-    private final MentorshipRequestMapper mapper;
+    private final RequestToResponseDto responseMapper;
+    private final MentorshipRequestMapper requestMapper;
     private final UserService userService;
     private final List<RequestFilter> filters;
 
@@ -41,7 +43,6 @@ public class MentorshipRequestService {
         Optional<MentorshipRequest> optionalMentorshipRequest = mentorshipRequestRepository
                 .findLatestRequest(request.requesterId(), request.receiverId());
 
-        MentorshipRequest newMentorshipRequest;
         if (optionalMentorshipRequest.isPresent()) {
             MentorshipRequest mentorshipRequest = optionalMentorshipRequest.get();
             if (LocalDateTime.now().minusMonths(3L).isBefore(mentorshipRequest.getUpdatedAt())) {
@@ -49,15 +50,15 @@ public class MentorshipRequestService {
             }
         }
 
-        requester.getSentMentorshipRequests().add(mapper.toEntity(request));
-        receiver.getReceivedMentorshipRequests().add(mapper.toEntity(request));
+        requester.getSentMentorshipRequests().add(requestMapper.toEntity(request));
+        receiver.getReceivedMentorshipRequests().add(requestMapper.toEntity(request));
         //Будут ли изменения выше сохраняться в базе?
 
-        newMentorshipRequest = mentorshipRequestRepository
+        MentorshipRequest newMentorshipRequest = mentorshipRequestRepository
                 .create(request.requesterId(), request.receiverId(), request.description());
 
 
-        return toMentorshipResponseDto(newMentorshipRequest);
+        return responseMapper.toDto(newMentorshipRequest);
     }
 
     public List<MentorshipResponseDto> getRequests(RequestFilterDto filter) {
@@ -65,7 +66,7 @@ public class MentorshipRequestService {
         Iterable<MentorshipRequest> iterable = mentorshipRequestRepository.findAll();
         iterable.forEach(listRequest::add);
 
-        return getFilteredRequest(listRequest, filter).map(this::toMentorshipResponseDto).toList();
+        return getFilteredRequest(listRequest, filter).map(responseMapper::toDto).toList();
     }
 
     public Stream<MentorshipRequest> getFilteredRequest
@@ -110,17 +111,5 @@ public class MentorshipRequestService {
 
     private MentorshipRequest getMentorshipRequestById(Long id) {
         return mentorshipRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("there is no such id"));
-    }
-
-    private MentorshipResponseDto toMentorshipResponseDto(MentorshipRequest request) {
-        return new MentorshipResponseDto(
-                request.getId(),
-                request.getDescription(),
-                request.getRequester().getId(),
-                request.getReceiver().getId(),
-                request.getStatus(),
-                request.getCreatedAt(),
-                request.getUpdatedAt()
-        );
     }
 }
