@@ -156,6 +156,7 @@ public class GoalServiceImpl implements GoalService {
         List<GoalFilter> applicableFilters = goalFilters.stream()
                 .filter(goalFilter -> goalFilter.isApplicable(filterDto))
                 .toList();
+
         return goalStream
                 .filter(goal -> applicableFilters.stream().allMatch(goalFilter -> goalFilter.doFilter(goal, filterDto)))
                 .toList();

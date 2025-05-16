@@ -8,7 +8,7 @@ import school.faang.user_service.filter.EventFilter;
 import java.util.stream.Stream;
 
 @Component
-public class StatusFilter implements EventFilter {
+public class EventStatusFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getEventStatus() != null;
