@@ -1,5 +1,6 @@
 package school.faang.user_service.service.career;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.CareerDto;
@@ -9,22 +10,23 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.CareerRepository;
 import school.faang.user_service.repository.UserRepository;
-
-import java.time.LocalDate;
+import school.faang.user_service.service.CareerService;
+import school.faang.user_service.validator.CareerValidator;
 
 @Service
 @RequiredArgsConstructor
-public class CareerService {
+public class CareerServiceImpl implements CareerService {
     private final UserRepository userRepository;
     private final CareerRepository careerRepository;
     private final CareerMapper careerMapper;
+    private final CareerValidator careerValidator;
 
+    @Override
     public CareerDto addCareer(Long userId, CareerDto careerDto) {
-        validateDate(careerDto.getDateFrom(), "from");
-        validateDate(careerDto.getDateTo(), "to");
+        careerValidator.validateDate(careerDto);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("User with id %d not found".formatted(userId)));
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
 
         Career career = careerMapper.toCareerEntity(careerDto);
         career.setUser(user);
@@ -32,12 +34,12 @@ public class CareerService {
         return careerMapper.toCareerDto(savedCareer);
     }
 
+    @Override
     public CareerDto updateCareer(Long userId, CareerDto careerDto) {
-        validateDate(careerDto.getDateFrom(), "from");
-        validateDate(careerDto.getDateTo(), "to");
+        careerValidator.validateDate(careerDto);
 
         Career existingCareer = careerRepository.findById(careerDto.getId())
-                .orElseThrow(() -> new DataValidationException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         String.format("Career not found for id: %d", careerDto.getId())
                 ));
 
@@ -56,17 +58,10 @@ public class CareerService {
         return careerMapper.toCareerDto(savedCareer);
     }
 
+    @Override
     public CareerDto getById(Long careerId) {
         return careerRepository.findById(careerId)
                 .map(careerMapper::toCareerDto)
                 .orElseThrow(() -> new DataValidationException("Career with id %d not found".formatted(careerId)));
-    }
-
-    private void validateDate(LocalDate date, String fieldName) {
-        if (date != null && date.isAfter(LocalDate.now())) {
-            throw new DataValidationException(
-                    String.format("Field '%s' cannot be in the future. Provided: %s", fieldName, date)
-            );
-        }
     }
 }

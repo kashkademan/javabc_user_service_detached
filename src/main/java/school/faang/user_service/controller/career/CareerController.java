@@ -3,12 +3,12 @@ package school.faang.user_service.controller.career;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.CareerDto;
-import school.faang.user_service.service.career.CareerService;
+import school.faang.user_service.service.career.CareerServiceImpl;
 
 @Controller
 @RequiredArgsConstructor
 public class CareerController {
-    private final CareerService careerService;
+    private final CareerServiceImpl careerService;
 
     public CareerDto addCareer(Long userId, CareerDto careerDto) {
         return careerService.addCareer(userId, careerDto);
