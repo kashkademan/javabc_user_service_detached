@@ -84,7 +84,7 @@ public class GoalServiceImpl implements GoalService {
                 .filter(skillId -> !existingSkillIds.contains(skillId))
                 .toList();
         if (!missingSkillIds.isEmpty())
-            throw new IllegalArgumentException("Skill ids not exists: ".formatted(missingSkillIds.toArray()));
+            throw new IllegalArgumentException("Skill ids not exists: %s".formatted(missingSkillIds));
 
         goalMapper.updateGoalFromDto(goalDto, goalToUpdate);
         goalToUpdate.setUpdatedAt(LocalDateTime.now());
