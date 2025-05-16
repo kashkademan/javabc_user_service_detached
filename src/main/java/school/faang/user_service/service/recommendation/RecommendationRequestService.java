@@ -14,9 +14,9 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.MessageError;
-import school.faang.user_service.exception.RecommendationRequestException;
-import school.faang.user_service.exception.RecommendationRequestNotFoundException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestNotFoundException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestValidationException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -24,10 +24,11 @@ import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.Validator;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static school.faang.user_service.utils.Utils.format;
 
 @Slf4j
 @Service
@@ -86,7 +87,7 @@ public class RecommendationRequestService {
     @Transactional(readOnly = true)
     public RecommendationResponseDto getRequest(Long id) {
         RecommendationRequest entity = requestRepository.findById(id)
-                .orElseThrow(() -> notFoundException(id));
+                .orElseThrow(() -> recommendationRequestNotFoundException(id));
 
         RecommendationResponseDto dto = mapper.toDto(entity);
         setDtoSkills(entity, dto);
@@ -99,24 +100,27 @@ public class RecommendationRequestService {
     public RecommendationResponseDto rejectRequest(Long id, RejectionDto rejection) {
         rejectValidators.forEach(validator -> validator.validate(rejection));
         RecommendationRequest entity = requestRepository.findById(id)
-                .orElseThrow(() -> notFoundException(id));
-        log.info("before {}", entity);
+                .orElseThrow(() -> recommendationRequestNotFoundException(id));
+        log.info("rejectRequest. before {}", entity);
         Set<RequestStatus> checkStatusForReject = Set.of(RequestStatus.REJECTED, RequestStatus.ACCEPTED);
         if (checkStatusForReject.contains(entity.getStatus())) {
-            throw otherException(MessageFormat.format(
-                    "The status of the recommendation request has not been changed. " +
-                            "Entity (id={0}) have one of the next status {1}",
-                    id, checkStatusForReject));
+            String errorMessage = format("The status of the recommendation request" +
+                            " has not been changed. Entity (id={}) have one of the next status {}",
+                    id, checkStatusForReject);
+            log.error(errorMessage);
+            throw recommendationRequestException(errorMessage);
         }
-        Integer rowCount = requestRepository.setStatus(id, RequestStatus.REJECTED, rejection.reason());
-        if (rowCount != 1) {
-            throw otherException(MessageFormat.format(
-                    "The status of the recommendation request has not been changed (id={0})", id));
-        }
-        RecommendationRequest result = requestRepository.findById(id)
-                .orElseThrow(() -> notFoundException(id));
-        log.info("after update {}", result);
-        return mapper.toDto(result);
+        entity.setStatus(RequestStatus.REJECTED);
+        entity.setRejectionReason(rejection.reason());
+        RecommendationRequest resultEntity = requestRepository.save(entity);
+
+        log.info("after update {}", resultEntity);
+        RecommendationResponseDto resultDto = mapper.toDto(resultEntity);
+        resultEntity.getSkills()
+                .forEach(skillEntity -> resultDto.addSkill(skillEntity.getId()));
+        resultDto.setRequesterId(resultEntity.getRequester().getId());
+        resultDto.setReceiverId(resultEntity.getReceiver().getId());
+        return resultDto;
     }
 
     /**
@@ -126,20 +130,22 @@ public class RecommendationRequestService {
     private void validateTimePeriod(RecommendationRequestDto dto) {
         int requestCount = requestRepository.countRepeatedRequest(dto.getRequesterId(), dto.getReceiverId());
         if (requestCount > 0) {
-            log.error("RequesterId={}, ReceiverId={}; {}",
+            String errorMessage = format("requesterId={}, receiverId={}: {}",
                     dto.getRequesterId(), dto.getReceiverId(), SIX_MONTHS_PERIOD_ERROR);
-            throw new RecommendationRequestNotFoundException(MessageError.RECOMMEND_REQUEST_NOT_FOUND_EXCEPTION);
+            log.error(errorMessage);
+            throw new RecommendationRequestValidationException(SIX_MONTHS_PERIOD_ERROR);
         }
     }
 
     @NotNull
-    private static RecommendationRequestNotFoundException notFoundException(Long id) {
-        log.error(REQUEST_BY_ID_NOT_FOUND, id);
-        return new RecommendationRequestNotFoundException(MessageError.RECOMMEND_REQUEST_NOT_FOUND_EXCEPTION);
+    private static RecommendationRequestNotFoundException recommendationRequestNotFoundException(Long id) {
+        String errorMessage = format(REQUEST_BY_ID_NOT_FOUND, id);
+        log.error(errorMessage, id);
+        return new RecommendationRequestNotFoundException(errorMessage);
     }
 
     @NotNull
-    private static RecommendationRequestException otherException(String message) {
+    private static RecommendationRequestException recommendationRequestException(String message) {
         log.error(message);
         return new RecommendationRequestException(message);
     }

@@ -49,4 +49,6 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     @Query(value = "select s from Skill s where s.id in (:skillIds)")
     List<Skill> getSkillsByIds(List<Long> skillIds);
+
+    List<Skill> findByIdIn(List<Long> skillIds);
 }

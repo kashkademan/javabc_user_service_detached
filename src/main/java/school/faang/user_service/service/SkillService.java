@@ -13,6 +13,6 @@ public class SkillService {
     private final SkillRepository skillRepository;
 
     public List<Skill> getSkillsByIds(List<Long> skills) {
-        return skillRepository.getSkillsByIds(skills);
+        return skillRepository.findByIdIn(skills);
     }
 }

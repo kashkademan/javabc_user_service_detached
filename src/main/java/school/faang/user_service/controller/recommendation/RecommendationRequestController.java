@@ -8,7 +8,6 @@ import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
-import school.faang.user_service.validator.Validator;
 
 import java.util.List;
 

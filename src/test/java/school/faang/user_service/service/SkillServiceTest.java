@@ -30,7 +30,7 @@ class SkillServiceTest {
                 Skill.builder().id(3L).build()
         );
 
-        when(skillRepository.getSkillsByIds(skillIds)).thenReturn(skills);
+        when(skillRepository.findByIdIn(skillIds)).thenReturn(skills);
 
         List<Skill> resultSkills = skillService.getSkillsByIds(skillIds);
         assertNotNull(resultSkills);

@@ -3,7 +3,6 @@ package school.faang.user_service.filter.recommendation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
-import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.filter.Filter;
 
@@ -14,7 +13,7 @@ import java.util.stream.Stream;
 public class RecommendationRequestFilterByStatus implements Filter<RequestFilterDto, RecommendationRequest> {
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
-        return !(filterDto.status() == null || filterDto.status().isBlank());
+        return filterDto.status() != null;
     }
 
     @Override
@@ -22,13 +21,7 @@ public class RecommendationRequestFilterByStatus implements Filter<RequestFilter
             Stream<RecommendationRequest> recommendationRequest,
             RequestFilterDto filterDto
     ) {
-        try {
-            RequestStatus requestStatus = Enum.valueOf(RequestStatus.class, filterDto.status());
-            return recommendationRequest
-                    .filter(request -> request.getStatus().equals(requestStatus));
-        } catch (IllegalArgumentException e) {
-            log.error("");
-            return recommendationRequest;
-        }
+        return recommendationRequest
+                .filter(request -> request.getStatus() == filterDto.status());
     }
 }
