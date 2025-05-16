@@ -1,13 +1,11 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.filter.recommendation.MessagePatternFilter;
-import school.faang.user_service.filter.recommendation.ReceiverIdFilter;
-import school.faang.user_service.filter.recommendation.RecommendationFilter;
-import school.faang.user_service.filter.recommendation.RequesterIdFilter;
 import school.faang.user_service.dto.RecommendationRejectDto;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationResponseDto;
@@ -16,7 +14,12 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.recommendation.MessagePatternFilter;
+import school.faang.user_service.filter.recommendation.ReceiverIdFilter;
+import school.faang.user_service.filter.recommendation.RecommendationFilter;
+import school.faang.user_service.filter.recommendation.RequesterIdFilter;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecommendationRequestService {
@@ -40,53 +44,55 @@ public class RecommendationRequestService {
 
     @Transactional
     public RecommendationResponseDto create(RecommendationRequestDto recommendationRequest) {
-        Long requesterId = recommendationRequest.requesterId();
-        Long receiverId = recommendationRequest.receiverId();
+        try {
+            Long requesterId = recommendationRequest.requesterId();
+            Long receiverId = recommendationRequest.receiverId();
 
-        User requester = userRepository.findById(requesterId)
-                .orElseThrow(() -> new EntityNotFoundException("Requester not found with id: " + requesterId));
-        User receiver = userRepository.findById(receiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Receiver not found with id: " + receiverId));
+            if (requesterId.equals(receiverId)) {
+                throw new DataValidationException("Requester and receiver cannot be the same");
+            }
 
-        Optional<RecommendationRequest> latestRequest = recommendationRequestRepository
-                .findLatestPendingRequest(requesterId, receiverId);
+            User requester = userRepository.findById(requesterId)
+                    .orElseThrow(() -> new EntityNotFoundException("Requester not found with id: " + requesterId));
+            User receiver = userRepository.findById(receiverId)
+                    .orElseThrow(() -> new EntityNotFoundException("Receiver not found with id: " + receiverId));
 
-        if (latestRequest.isPresent()) {
             LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
-            if (latestRequest.get().getCreatedAt().isAfter(sixMonthsAgo)) {
+            Optional<RecommendationRequest> latestRequest = recommendationRequestRepository.findLatestPendingRequest(
+                    requesterId, receiverId);
+
+            if (latestRequest.isPresent() && latestRequest.get().getCreatedAt().isAfter(sixMonthsAgo)) {
                 throw new DataValidationException("You can send a recommendation request to this user only once per 6 months");
             }
-        }
 
-        if (recommendationRequest.skills() == null || recommendationRequest.skills().isEmpty()) {
-            throw new DataValidationException("Skills list must not be empty!");
-        }
-
-        recommendationRequest.skills().forEach(skillTitle -> {
-            if (!skillRepository.existsByTitle(skillTitle)) {
-                throw new DataValidationException("Skill not found: " + skillTitle);
+            if (recommendationRequest.skills() == null || recommendationRequest.skills().isEmpty()) {
+                throw new DataValidationException("Skills list must not be empty!");
             }
-        });
 
-        RecommendationRequest newRequest = recommendationMapper.toEntity(recommendationRequest);
+            RecommendationRequest newRequest = recommendationMapper.toEntity(recommendationRequest);
+            newRequest.setRequester(requester);
+            newRequest.setReceiver(receiver);
+            newRequest.setStatus(RequestStatus.PENDING);
 
-        newRequest.setRequester(requester);
-        newRequest.setReceiver(receiver);
+            RecommendationRequest savedRequest = recommendationRequestRepository.save(newRequest);
 
-        RecommendationRequest savedRequest = recommendationRequestRepository.save(newRequest);
+            recommendationRequest.skills().forEach(skillTitle -> {
+                Skill skill = skillRepository.findByTitle(skillTitle)
+                        .orElseThrow(() -> new EntityNotFoundException("Skill not found: " + skillTitle));
 
-        recommendationRequest.skills().forEach(skillTitle -> {
-            Skill skill = skillRepository.findAll().stream()
-                    .filter(s -> s.getTitle().equals(skillTitle))
-                    .findFirst()
-                    .orElseThrow(() -> new EntityNotFoundException("Skill not found: " + skillTitle));
-            skillRequestRepository.create(savedRequest.getId(), skill.getId());
-        });
+                SkillRequest skillRequest = new SkillRequest();
+                skillRequest.setRequest(savedRequest);
+                skillRequest.setSkill(skill);
+                skillRequestRepository.save(skillRequest);
+            });
 
-        return recommendationMapper.toDto(savedRequest);
+            return recommendationMapper.toDto(savedRequest);
+        } catch (Exception e) {
+            log.error("Failed to create recommendation request", e);
+            throw new DataValidationException("Failed to create recommendation request: " + e.getMessage());
+        }
     }
-
-    public List<RecommendationResponseDto> getRequests(RequestFilterDto filter) {
+    public List<RecommendationResponseDto> getRequests(@Valid RequestFilterDto filter) {
         List<RecommendationRequest> allRequests = recommendationRequestRepository.findAll();
         List<RecommendationFilter> filters = List.of(
                 new RequesterIdFilter(),
@@ -113,7 +119,7 @@ public class RecommendationRequestService {
     }
 
     @Transactional
-    public RecommendationResponseDto rejectRequest(long id, RecommendationRejectDto rejection) {
+    public RecommendationResponseDto rejectRequest(long id, @Valid RecommendationRejectDto rejection) {
         RecommendationRequest request = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request not found with id: " + id));
 

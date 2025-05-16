@@ -1,5 +1,6 @@
 package school.faang.user_service.repository.recommendation;
 
+import feign.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,5 +13,5 @@ public interface SkillRequestRepository extends CrudRepository<SkillRequest, Lon
             VALUES (:requestId, :skillId)
             """)
     @Modifying
-    SkillRequest create(long requestId, long skillId);
+    void create(@Param("requestId") long requestId, @Param("skillId") long skillId);
 }

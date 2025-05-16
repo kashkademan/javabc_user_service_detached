@@ -16,7 +16,10 @@ public interface RecommendationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "rejectionReason", ignore = true)
-    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "requester", ignore = true)  // Добавлено
+    @Mapping(target = "receiver", ignore = true)   // Добавлено
+    @Mapping(target = "recommendation", ignore = true) // Добавлено
+    @Mapping(target = "status", constant = "PENDING")
     RecommendationRequest toEntity(RecommendationRequestDto dto);
 
     @Mapping(target = "requesterId", source = "requester.id")
