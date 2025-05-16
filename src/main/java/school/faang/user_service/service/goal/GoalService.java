@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,15 +13,17 @@ import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalValidator;
 import school.faang.user_service.validator.goal.SkillValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static school.faang.user_service.util.EntityUtil.setIfNotNull;
-import static school.faang.user_service.util.EntityUtil.setIfTrue;
+import static school.faang.user_service.validation.ValidationUtils.setIfNotNull;
 
 @Service
 @RequiredArgsConstructor
@@ -34,41 +36,36 @@ public class GoalService {
     private final SkillService skillService;
     private final SkillValidator skillValidator;
 
+    private final UserService userService;
+
     private final List<GoalFilter> filters;
 
     @Transactional
     public Goal createGoal(Goal newGoalData, List<Long> skillsId, Long parentId) {
         long userId = userContext.getUserId();
+
         goalValidator.validateMaxActiveGoalLimitPerUser(userId);
+        skillValidator.validateExistingSkills(skillsId);
 
+        newGoalData.setUsers(userService.getUsersById(List.of(userContext.getUserId())));
         newGoalData.setStatus(GoalStatus.ACTIVE);
+        newGoalData.setSkillsToAchieve(skillsId.isEmpty() ? new ArrayList<>() : skillService.getSkillsById(skillsId));
         setIfNotNull(parentId, id -> newGoalData.setParent(getGoalById(id)));
-        setIfTrue(skillsId,
-                ids -> !ids.isEmpty(),
-                ids -> newGoalData.setSkillsToAchieve(skillService.findSkillsById(skillsId)));
 
-        Goal newGoal = goalRepository.save(newGoalData);
-        goalRepository.assignGoalToUser(userId, newGoal.getId());
-
-        return newGoal;
+        return goalRepository.save(newGoalData);
     }
 
     @Transactional
     public Goal update(long goalId, Goal newGoalData, List<Long> skillsId) {
         Goal dbGoal = getGoalById(goalId);
 
-        if(dbGoal.getStatus() == GoalStatus.COMPLETED) {
+        if (dbGoal.getStatus() == GoalStatus.COMPLETED) {
             throw new UpdateComleteGoalException(goalId);
         }
 
         skillValidator.validateExistingSkills(skillsId);
 
-        updateEntity(dbGoal, newGoalData);
-
-        if (isSkillsListUpdated(dbGoal, skillsId)) {
-            skillService.removeSkillForGoal(goalId);
-            dbGoal.setSkillsToAchieve(skillService.findSkillsById(skillsId));
-        }
+        updateGoalEntity(dbGoal, newGoalData, skillsId);
 
         if (dbGoal.getStatus() == GoalStatus.COMPLETED) {
             List<Long> involvedUsersId = goalRepository.findUsersByGoalId(dbGoal.getId());
@@ -79,8 +76,7 @@ public class GoalService {
                     skillService.assignSkillsToUser(userId, dbGoal.getSkillsToAchieve()));
         }
 
-        goalRepository.save(dbGoal);
-        return dbGoal;
+        return goalRepository.save(dbGoal);
     }
 
     @Transactional
@@ -126,11 +122,16 @@ public class GoalService {
                         Stream::concat);
     }
 
-    private void updateEntity(Goal targetGoal, Goal newGoalData) {
+    private void updateGoalEntity(Goal targetGoal, Goal newGoalData, List<Long> skillsId) {
         setIfNotNull(newGoalData.getTitle(), targetGoal::setTitle);
         setIfNotNull(newGoalData.getDescription(), targetGoal::setDescription);
         setIfNotNull(newGoalData.getStatus(), targetGoal::setStatus);
         setIfNotNull(newGoalData.getDeadline(), targetGoal::setDeadline);
+
+        if (isSkillsListUpdated(targetGoal, skillsId)) {
+            skillService.removeSkillForGoal(targetGoal.getId());
+            targetGoal.setSkillsToAchieve(skillService.getSkillsById(skillsId));
+        }
     }
 
     private boolean isSkillsListUpdated(Goal targetGoal, List<Long> skillsId) {

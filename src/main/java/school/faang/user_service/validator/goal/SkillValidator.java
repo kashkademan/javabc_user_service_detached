@@ -15,6 +15,9 @@ public class SkillValidator {
     private final SkillRepository skillRepository;
 
     public void validateExistingSkills(List<Long> skillsId) {
+        if (skillsId.isEmpty()) {
+            return;
+        }
         List<Long> absentSkillsId = skillsId.stream()
                 .filter(skillId -> !skillRepository.existsById(skillId))
                 .toList();

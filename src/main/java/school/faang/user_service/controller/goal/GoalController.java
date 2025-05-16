@@ -2,6 +2,7 @@ package school.faang.user_service.controller.goal;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import school.faang.user_service.entity.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.dto.GoalDto;
+import school.faang.user_service.entity.goal.dto.request.CreateGoalDto;
+import school.faang.user_service.entity.goal.dto.request.UpdateGoalDto;
+import school.faang.user_service.entity.goal.dto.response.GoalDto;
 import school.faang.user_service.entity.goal.mapper.GoalMapper;
-import school.faang.user_service.service.GoalService;
+import school.faang.user_service.service.goal.GoalService;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -48,25 +49,19 @@ public class GoalController {
     }
 
     @PostMapping
-    public ResponseEntity<GoalDto> createGoal(@RequestBody @Valid GoalDto goalDto) {
+    public ResponseEntity<GoalDto> createGoal(@RequestBody @Valid CreateGoalDto goalDto) {
         Goal createdGoal = goalService.createGoal(
                 goalMapper.toGoal(goalDto),
                 goalDto.skillsId(),
                 goalDto.parentId()
         );
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(createdGoal.getId())
-                .toUri();
-
-        return ResponseEntity.created(location)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(goalMapper.toGoalDto(createdGoal));
     }
 
     @PatchMapping("/{goalId}")
-    public ResponseEntity<GoalDto> updateGoal(@PathVariable long goalId, @RequestBody @Valid GoalDto goalDto) {
+    public ResponseEntity<GoalDto> updateGoal(@PathVariable long goalId, @RequestBody @Valid UpdateGoalDto goalDto) {
         Goal createdGoal = goalService.update(
                 goalId,
                 goalMapper.toGoal(goalDto),

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.skill.SkillNotExistException;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.validator.goal.SkillValidator;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,12 +15,11 @@ import java.util.stream.Collectors;
 public class SkillService {
 
     private final SkillRepository skillRepository;
-    private final SkillValidator skillValidator;
 
-    @Transactional
-    public void assignSkillToGoal(long goalId, List<Long> skillsId) {
-        skillValidator.validateExistingSkills(skillsId);
-        skillsId.forEach(skillId -> skillRepository.assignSkillToGoal(goalId, skillId));
+    @Transactional(readOnly = true)
+    public Skill getSkillById(long skillId) {
+        return skillRepository.findById(skillId)
+                .orElseThrow(() -> new SkillNotExistException(skillId));
     }
 
     @Transactional
@@ -39,15 +37,9 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public List<Skill> findSkillsById(List<Long> skillsId) {
+    public List<Skill> getSkillsById(List<Long> skillsId) {
         return skillsId.stream()
-                .map(skillId -> skillRepository.findById(skillId)
-                        .orElseThrow(() -> new SkillNotExistException(skillId)))
+                .map(this::getSkillById)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<Skill> findSkillsByGoalId(long goalId) {
-        return skillRepository.findSkillsByGoalId(goalId);
     }
 }
