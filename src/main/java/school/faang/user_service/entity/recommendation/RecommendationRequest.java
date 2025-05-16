@@ -25,6 +25,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,7 +38,7 @@ public class RecommendationRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "requester_id", nullable = false)
@@ -62,7 +63,7 @@ public class RecommendationRequest {
     private Recommendation recommendation;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    private List<SkillRequest> skills;
+    private final List<SkillRequest> skills = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -76,5 +77,18 @@ public class RecommendationRequest {
 
     public void addSkillRequest(SkillRequest skillRequest) {
         skills.add(skillRequest);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RecommendationRequest{");
+        sb.append("id=").append(id);
+        sb.append(", message='").append(message).append('\'');
+        sb.append(", status=").append(status.toString());
+        sb.append(", rejectionReason='").append(rejectionReason).append('\'');
+        sb.append(", createdAt=").append(createdAt);
+        sb.append(", updatedAt=").append(updatedAt);
+        sb.append('}');
+        return sb.toString();
     }
 }
