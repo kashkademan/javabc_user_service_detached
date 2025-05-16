@@ -11,7 +11,7 @@ import school.faang.user_service.entity.Education;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface EducationMapper {
     @Mapping(target = "user", ignore = true)
-    Education toEducation(EducationDto educationDto);
+    Education toEntity(EducationDto educationDto);
 
-    EducationDto toEducationDto(Education education);
+    EducationDto toDto(Education education);
 }
