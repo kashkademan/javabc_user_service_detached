@@ -104,7 +104,7 @@ tasks.jacocoTestReport {
     }
 
     classDirectories.setFrom(
-        fileTree("${buildDir}/classes/java/main/school/faang/user_service") {
+        fileTree("${buildDir}/classes/java/main") {
             include("school/faang/user_service/**")
         }
     )
