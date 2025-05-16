@@ -18,6 +18,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -162,13 +163,13 @@ class GoalServiceImplTest {
     @Test
     void createGoalAddsGoalToUserGoalsList() {
         Long userId = 1L;
-        Long parentId = 5L;
 
         User user = new User();
         user.setId(userId);
         user.setUsername("test_user");
         user.setGoals(new ArrayList<>());
 
+        Long parentId = 5L;
         Goal parent = new Goal();
         parent.setId(parentId);
 
@@ -202,5 +203,142 @@ class GoalServiceImplTest {
         verify(skillRepository).saveAllAndFlush(Collections.emptyList());
     }
 
+    @Test
+    void updateGoalThrowsOnAlreadyCompletedGoal() {
+        Long goalId = 1L;
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.COMPLETED);
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setStatus(GoalStatus.COMPLETED);
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                goalService.updateGoal(goalId, updateDto)
+        );
+
+        assertEquals("Goal was already completed", exception.getMessage());
+
+        verify(goalRepository, times(1)).findById(goalId);
+        verify(goalMapper, never()).updateGoalFromDto(any(), any());
+        verify(goalRepository, never()).save(any());
+    }
+
+    @Test
+    void updateGoalThrowsOnUnknownSkills() {
+        Long goalId = 1L;
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.ACTIVE);
+
+        Long knownSkillId = 1L;
+        Long unknownSkillId = 2L;
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setStatus(GoalStatus.ACTIVE);
+        updateDto.setSkillIds(List.of(knownSkillId, unknownSkillId));
+
+        Skill knownSkill = new Skill();
+        knownSkill.setId(knownSkillId);
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+        when(skillRepository.findAllById(updateDto.getSkillIds())).thenReturn(List.of(knownSkill));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                goalService.updateGoal(goalId, updateDto)
+        );
+
+        assertTrue(exception.getMessage().contains("Skill ids not exists:"));
+        assertTrue(exception.getMessage().contains(unknownSkillId.toString()));
+
+        verify(goalRepository).findById(goalId);
+        verify(skillRepository).findAllById(updateDto.getSkillIds());
+        verify(goalMapper, never()).updateGoalFromDto(any(), any());
+        verify(goalRepository, never()).save(any());
+    }
+
+    @Test
+    void updateGoalHappyPath() {
+        Long goalId = 1L;
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.ACTIVE);
+        existingGoal.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0)); // старое значение
+
+        Skill skill = new Skill();
+        skill.setId(1L);
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setTitle("Updated Title");
+        updateDto.setDescription("Updated Description");
+        updateDto.setStatus(GoalStatus.ACTIVE);
+        updateDto.setSkillIds(List.of(skill.getId()));
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+        when(skillRepository.findAllById(updateDto.getSkillIds())).thenReturn(List.of(skill));
+
+        GoalDto resultDto = new GoalDto();
+        resultDto.setId(goalId);
+        when(goalMapper.toGoalDTO(existingGoal)).thenReturn(resultDto);
+
+        GoalDto result = goalService.updateGoal(goalId, updateDto);
+
+        assertEquals(goalId, result.getId());
+        assertEquals("Updated Title", existingGoal.getTitle());
+        assertEquals("Updated Description", existingGoal.getDescription());
+        assertNotNull(existingGoal.getUpdatedAt());
+        assertTrue(existingGoal.getUpdatedAt().isAfter(LocalDateTime.of(2025, 1, 1, 0, 0)));
+
+        verify(goalRepository).findById(goalId);
+        verify(skillRepository).findAllById(updateDto.getSkillIds());
+        verify(goalMapper).updateGoalFromDto(updateDto, existingGoal);
+        verify(goalRepository).save(existingGoal);
+        verify(userRepository, never()).saveAllAndFlush(any());
+        verify(skillRepository, never()).saveAllAndFlush(any());
+    }
+
+    @Test
+    void updateGoalCompletesGoalAndUpdatesUsersWithSkills() {
+        Long goalId = 1L;
+
+        Skill skill = new Skill();
+        skill.setId(1L);
+        skill.setUsers(new ArrayList<>());
+
+        User user = new User();
+        user.setId(1L);
+        user.setSkills(new ArrayList<>());
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.ACTIVE);
+        existingGoal.setSkillsToAchieve(List.of(skill));
+        existingGoal.setUsers(List.of(user));
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setStatus(GoalStatus.COMPLETED);
+        updateDto.setSkillIds(List.of(skill.getId()));
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+        when(skillRepository.findAllById(updateDto.getSkillIds())).thenReturn(List.of(skill));
+        when(goalMapper.toGoalDTO(existingGoal)).thenReturn(updateDto);
+
+        goalService.updateGoal(goalId, updateDto);
+
+        assertTrue(user.getSkills().contains(skill));
+        assertTrue(skill.getUsers().contains(user));
+
+        verify(userRepository).saveAllAndFlush(List.of(user));
+        verify(skillRepository).saveAllAndFlush(List.of(skill));
+    }
 
 }
