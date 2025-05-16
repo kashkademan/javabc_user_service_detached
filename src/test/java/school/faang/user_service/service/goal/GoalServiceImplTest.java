@@ -3,26 +3,24 @@ package school.faang.user_service.service.goal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,11 +38,44 @@ class GoalServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
+    private GoalFilter titleStubFilter = new GoalFilter() {
+        @Override
+        public boolean doFilter(Goal goal, GoalFilterDto filterDto) {
+            return filterDto.getTitle().equals(goal.getTitle());
+        }
+
+        @Override
+        public boolean isApplicable(GoalFilterDto criteria) {
+            return true;
+        }
+    };
+
+    private GoalFilter skillTitlesStubFilter = new GoalFilter() {
+        @Override
+        public boolean doFilter(Goal goal, GoalFilterDto criteria) {
+            List<String> goalSkills = goal.getSkillsToAchieve().stream()
+                    .map(Skill::getTitle)
+                    .toList();
+            return goalSkills.containsAll(criteria.getSkillTitles());
+        }
+
+        @Override
+        public boolean isApplicable(GoalFilterDto criteria) {
+            return true;
+        }
+    };
+
     private GoalServiceImpl goalService;
 
     @BeforeEach
     void setUp() {
+        goalService = new GoalServiceImpl(
+                goalMapper,
+                goalRepository,
+                skillRepository,
+                userRepository,
+                List.of(titleStubFilter, skillTitlesStubFilter)
+        );
         ReflectionTestUtils.setField(goalService, "maximumAllowedActiveGoals", 3);
     }
 
@@ -339,6 +370,179 @@ class GoalServiceImplTest {
 
         verify(userRepository).saveAllAndFlush(List.of(user));
         verify(skillRepository).saveAllAndFlush(List.of(skill));
+    }
+
+    @Test
+    void deleteGoalThrowsIfGoalNotFound() {
+        long goalId = 42L;
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> goalService.deleteGoal(goalId));
+
+        verify(goalRepository).findById(goalId);
+        verify(goalRepository, never()).delete(any());
+        verify(userRepository, never()).saveAllAndFlush(any());
+        verify(skillRepository, never()).saveAllAndFlush(any());
+    }
+
+    @Test
+    void deleteGoalRemovesGoalFromUsersAndSkills() {
+        long goalId = 1L;
+
+        Goal goal = new Goal();
+        goal.setId(goalId);
+
+        GoalDto expectedToDelete = new GoalDto();
+        expectedToDelete.setDescription("to delete");
+
+        User user = new User();
+        user.setId(100L);
+        user.setGoals(new ArrayList<>(List.of(goal)));
+        goal.setUsers(List.of(user));
+
+        Skill skill = new Skill();
+        skill.setId(200L);
+        skill.setGoals(new ArrayList<>(List.of(goal)));
+        goal.setSkillsToAchieve(List.of(skill));
+
+        goal.setInvitations(new ArrayList<>()); //TODO после мерджа 77371
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+        when(goalMapper.toGoalDTO(goal)).thenReturn(expectedToDelete);
+
+        GoalDto result = goalService.deleteGoal(goalId);
+
+        assertFalse(user.getGoals().contains(goal));
+        assertFalse(skill.getGoals().contains(goal));
+        assertEquals(expectedToDelete, result);
+
+        verify(goalRepository).findById(goalId);
+        verify(goalRepository).delete(goal);
+        verify(userRepository).saveAllAndFlush(List.of(user));
+        verify(skillRepository).saveAllAndFlush(List.of(skill));
+        verify(goalMapper, atLeastOnce()).toGoalDTO(goal);
+    }
+
+    @Test
+    void findSubtasksByGoalIdFiltered() {
+        long parentGoalId = 1L;
+
+        GoalFilterDto filterDto = new GoalFilterDto();
+        filterDto.setTitle("Expected Title");
+        filterDto.setSkillTitles(List.of("Java", "Spring"));
+
+        Skill javaSkill = new Skill();
+        javaSkill.setTitle("Java");
+        Skill springSkill = new Skill();
+        springSkill.setTitle("Spring");
+        Skill pythonSkill = new Skill();
+        pythonSkill.setTitle("Python");
+
+        Goal matchingGoal1 = new Goal();
+        matchingGoal1.setId(101L);
+        matchingGoal1.setTitle("Expected Title");
+        matchingGoal1.setSkillsToAchieve(List.of(javaSkill, springSkill)); // pass
+
+        Goal matchingGoal2 = new Goal();
+        matchingGoal2.setId(102L);
+        matchingGoal2.setTitle("Expected Title");
+        matchingGoal2.setSkillsToAchieve(List.of(javaSkill, pythonSkill, springSkill)); // pass
+
+        Goal nonMatchingByTitle = new Goal();
+        nonMatchingByTitle.setId(103L);
+        nonMatchingByTitle.setTitle("Wrong Title");
+        nonMatchingByTitle.setSkillsToAchieve(List.of(javaSkill, springSkill)); // decline
+
+        Goal nonMatchingBySkills = new Goal();
+        nonMatchingBySkills.setId(104L);
+        nonMatchingBySkills.setTitle("Expected Title");
+        nonMatchingBySkills.setSkillsToAchieve(List.of(pythonSkill)); // decline
+
+        Goal nonMatchingByBoth = new Goal();
+        nonMatchingByBoth.setId(105L);
+        nonMatchingByBoth.setTitle("Wrong Title");
+        nonMatchingByBoth.setSkillsToAchieve(List.of(pythonSkill)); // decline
+
+        Stream<Goal> allGoals = Stream.of(
+                matchingGoal1,
+                matchingGoal2,
+                nonMatchingByTitle,
+                nonMatchingBySkills,
+                nonMatchingByBoth
+        );
+
+        when(goalRepository.findByParent(parentGoalId)).thenReturn(allGoals);
+
+        GoalDto dto1 = goalMapper.toGoalDTO(matchingGoal1);
+        GoalDto dto2 = goalMapper.toGoalDTO(matchingGoal2);
+
+        List<GoalDto> result = goalService.findSubtasksByGoalId(parentGoalId, filterDto);
+
+        assertEquals(List.of(dto1, dto2), result);
+
+        verify(goalRepository).findByParent(parentGoalId);
+        verify(goalMapper).toGoalDTOs(List.of(matchingGoal1, matchingGoal2));
+    }
+
+    @Test
+    void findGoalsByUserIdFiltered() {
+        long userId = 42L;
+
+        GoalFilterDto filterDto = new GoalFilterDto();
+        filterDto.setTitle("Expected Title");
+        filterDto.setSkillTitles(List.of("Java", "Spring"));
+
+        Skill javaSkill = new Skill();
+        javaSkill.setTitle("Java");
+        Skill springSkill = new Skill();
+        springSkill.setTitle("Spring");
+        Skill pythonSkill = new Skill();
+        pythonSkill.setTitle("Python");
+
+        Goal matchingGoal1 = new Goal();
+        matchingGoal1.setId(201L);
+        matchingGoal1.setTitle("Expected Title");
+        matchingGoal1.setSkillsToAchieve(List.of(javaSkill, springSkill)); // pass
+
+        Goal matchingGoal2 = new Goal();
+        matchingGoal2.setId(202L);
+        matchingGoal2.setTitle("Expected Title");
+        matchingGoal2.setSkillsToAchieve(List.of(javaSkill, springSkill, pythonSkill)); // pass
+
+        Goal nonMatchingByTitle = new Goal();
+        nonMatchingByTitle.setId(203L);
+        nonMatchingByTitle.setTitle("Wrong Title");
+        nonMatchingByTitle.setSkillsToAchieve(List.of(javaSkill, springSkill)); // decline
+
+        Goal nonMatchingBySkills = new Goal();
+        nonMatchingBySkills.setId(204L);
+        nonMatchingBySkills.setTitle("Expected Title");
+        nonMatchingBySkills.setSkillsToAchieve(List.of(pythonSkill)); // decline
+
+        Goal nonMatchingByBoth = new Goal();
+        nonMatchingByBoth.setId(205L);
+        nonMatchingByBoth.setTitle("Wrong Title");
+        nonMatchingByBoth.setSkillsToAchieve(List.of(pythonSkill)); // decline
+
+        Stream<Goal> allGoals = Stream.of(
+                matchingGoal1,
+                matchingGoal2,
+                nonMatchingByTitle,
+                nonMatchingBySkills,
+                nonMatchingByBoth
+        );
+
+        when(goalRepository.findGoalsByUserId(userId)).thenReturn(allGoals);
+
+        GoalDto dto1 = goalMapper.toGoalDTO(matchingGoal1);
+        GoalDto dto2 = goalMapper.toGoalDTO(matchingGoal2);
+
+        List<GoalDto> result = goalService.findGoalsByUserId(userId, filterDto);
+
+        assertEquals(List.of(dto1, dto2), result);
+
+        verify(goalRepository).findGoalsByUserId(userId);
+        verify(goalMapper).toGoalDTOs(List.of(matchingGoal1, matchingGoal2));
     }
 
 }
