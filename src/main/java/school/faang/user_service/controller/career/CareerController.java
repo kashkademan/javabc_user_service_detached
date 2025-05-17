@@ -15,6 +15,8 @@ import school.faang.user_service.dto.CareerDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.career.CareerService;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/v1/users/{userId}/careers")
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class CareerController {
             @PathVariable long careerId,
             @RequestBody CareerDto careerDto) {
 
-        if (careerDto.getId() != null && !careerDto.getId().equals(careerId)) {
+        if (careerDto.getId() != null && !Objects.equals(careerDto.getId(), careerId)) {
             throw new DataValidationException("ID in path and body must match");
         }
 

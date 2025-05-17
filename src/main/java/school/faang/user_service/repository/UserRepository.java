@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
-            SELECT COUNT(s.id) FROM users "u"
+            SELECT COUNT(s.id) FROM users u
             JOIN user_skill us ON us.user_id = u.id
             JOIN skill s ON us.skill_id = s.id
             WHERE u.id = ?1 AND s.id IN (?2)
