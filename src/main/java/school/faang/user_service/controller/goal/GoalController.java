@@ -17,7 +17,7 @@ import school.faang.user_service.dto.goal.GoalCreateRequestDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
-import school.faang.user_service.facade.GoalFacade;
+import school.faang.user_service.facade.goal.GoalFacade;
 
 import java.util.List;
 

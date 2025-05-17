@@ -1,7 +1,8 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validator.goal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
@@ -21,9 +22,9 @@ public class GoalValidator {
         }
     }
 
-    public void checkGoalIsCompleted(long goalId, GoalStatus goalStatus) {
-        if (Objects.equals(goalStatus, GoalStatus.COMPLETED)) {
-            String errorMsg = String.format("Trying change the completed goal with id %d", goalId);
+    public void checkGoalIsCompleted(Goal goal) {
+        if (Objects.equals(goal.getStatus(), GoalStatus.COMPLETED)) {
+            String errorMsg = String.format("Trying change the completed goal with id %d", goal.getId());
             log.error(errorMsg);
             throw new GoalAlreadyCompletedException(errorMsg);
         }

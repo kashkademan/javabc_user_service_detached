@@ -1,4 +1,4 @@
-package school.faang.user_service.facade;
+package school.faang.user_service.facade.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -8,6 +8,7 @@ import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.model.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -48,8 +49,9 @@ public class GoalFacade {
         return goalMapper.toGoalResponseDtoList(goals);
     }
 
-    public List<GoalResponseDto> getGoalsByUserAndFilter(GoalFilterDto filter) {
-        List<Goal> goals = goalService.getGoalsByUserAndFilter(filter);
+    public List<GoalResponseDto> getGoalsByUserAndFilter(final GoalFilterDto filterDto) {
+        GoalFilter goalFilter = goalMapper.toGoalFilter(filterDto);
+        List<Goal> goals = goalService.getGoalsByUserAndFilter(goalFilter);
         return goalMapper.toGoalResponseDtoList(goals);
     }
 }

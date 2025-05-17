@@ -5,16 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
+import school.faang.user_service.model.GoalFilter;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.GoalValidator;
+import school.faang.user_service.validator.goal.GoalValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class GoalService {
     @Transactional
     public Goal updateGoal(final Goal goal, final List<Long> skillIds) {
 
-        goalValidator.checkGoalIsCompleted(goal.getId(), goal.getStatus());
+        goalValidator.checkGoalIsCompleted(goal);
 
         setSkills(goal, skillIds);
 
@@ -72,13 +72,6 @@ public class GoalService {
         assignSkillsToAllUsersIfGoalCompleted(saveGoal);
 
         return saveGoal;
-    }
-
-    private void setSkills(Goal goal, List<Long> skillIds) {
-        List<Skill> skills = skillIds.stream()
-                .map(skillService::getSkillByIdOrThrow)
-                .collect(Collectors.toList());
-        goal.setSkillsToAchieve(skills);
     }
 
     @Transactional
@@ -99,7 +92,7 @@ public class GoalService {
 
 
     @Transactional(readOnly = true)
-    public List<Goal> getGoalsByUserAndFilter(GoalFilterDto filter) {
+    public List<Goal> getGoalsByUserAndFilter(GoalFilter filter) {
         long userId = userContext.getUserId();
 
         try (Stream<Goal> goalsStream = goalRepository.findGoalsByUserId(userId)) {
@@ -129,5 +122,12 @@ public class GoalService {
                     .toList();
             skillService.assignSkillsToUsers(skillIds, userIds);
         }
+    }
+
+    private void setSkills(Goal goal, List<Long> skillIds) {
+        List<Skill> skills = skillIds.stream()
+                .map(skillService::getSkillByIdOrThrow)
+                .collect(Collectors.toList());
+        goal.setSkillsToAchieve(skills);
     }
 }

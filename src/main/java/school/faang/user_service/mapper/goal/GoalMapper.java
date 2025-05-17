@@ -5,12 +5,14 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.GoalCreateRequestDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.model.GoalFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,8 @@ public interface GoalMapper {
     @Mapping(target = "usersIds", expression = "java(mapUserIds(goal.getUsers()))")
     @Mapping(target = "skillToAchieveIds", expression = "java(mapSkillIds(goal.getSkillsToAchieve()))")
     List<GoalResponseDto> toGoalResponseDtoList(List<Goal> goals);
+
+    GoalFilter toGoalFilter(GoalFilterDto goalFilterDto);
 
     default List<Long> mapInvitationIds(List<GoalInvitation> invitations) {
         if (invitations == null) {
