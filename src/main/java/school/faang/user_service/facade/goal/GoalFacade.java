@@ -30,7 +30,7 @@ public class GoalFacade {
     }
 
     public GoalResponseDto updateGoal(final GoalUpdateRequestDto goalUpdateRequestDto) {
-        Goal goal = goalService.getGoalByIdOrThrow(goalUpdateRequestDto.getId());
+        Goal goal = goalService.getGoalByIdIfActiveElseThrow(goalUpdateRequestDto.getId());
 
         goalMapper.update(goal, goalUpdateRequestDto);
 

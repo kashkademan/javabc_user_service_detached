@@ -32,6 +32,16 @@ public class GoalService {
     private final UserContext userContext;
     private final GoalValidator goalValidator;
 
+
+    @Transactional
+    public Goal getGoalByIdOrThrow(long goalId) {
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> {
+                    log.error("Goal with id {} not found", goalId);
+                    return new GoalNotFoundException(goalId);
+                });
+    }
+
     @Transactional
     public Goal createGoal(final Goal goal, final Long parentId, final List<Long> skillIds) {
         long userId = userContext.getUserId();
@@ -61,9 +71,6 @@ public class GoalService {
 
     @Transactional
     public Goal updateGoal(final Goal goal, final List<Long> skillIds) {
-
-        goalValidator.checkGoalIsCompleted(goal);
-
         setSkills(goal, skillIds);
 
         Goal saveGoal = goalRepository.save(goal);
@@ -103,13 +110,10 @@ public class GoalService {
         }
     }
 
-    @Transactional
-    public Goal getGoalByIdOrThrow(long goalId) {
-        return goalRepository.findById(goalId)
-                .orElseThrow(() -> {
-                    log.error("Goal with id {} not found", goalId);
-                    return new GoalNotFoundException(goalId);
-                });
+    public Goal getGoalByIdIfActiveElseThrow(long goalId) {
+        Goal goal = getGoalByIdOrThrow(goalId);
+        goalValidator.checkGoalIsCompleted(goal);
+        return goal;
     }
 
     private void assignSkillsToAllUsersIfGoalCompleted(Goal saveGoal) {

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,26 +24,29 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @InjectMocks
     private UserService userService;
+    private User user;
+
+    @BeforeEach
+    public void setUp() {
+        user = new User();
+        user.setId(5L);
+    }
 
     @Test
     public void testGetUserByIdOrThrow_successfully() {
-        long userId = 5L;
-        User user = new User();
-        user.setId(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        User returnUser = userService.getUserByIdOrThrow(userId);
+        User returnUser = userService.getUserByIdOrThrow(user.getId());
 
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).findById(user.getId());
         assertEquals(user.getId(), returnUser.getId());
     }
 
     @Test
     public void testGetUserByIdOrThrow_userNotFound() {
-        long userId = 5L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserByIdOrThrow(userId));
-        verify(userRepository, times(1)).findById(userId);
+        assertThrows(UserNotFoundException.class, () -> userService.getUserByIdOrThrow(user.getId()));
+        verify(userRepository, times(1)).findById(user.getId());
     }
 }
