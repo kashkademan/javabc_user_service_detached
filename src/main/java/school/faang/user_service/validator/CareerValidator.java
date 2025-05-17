@@ -23,8 +23,7 @@ public class CareerValidator {
             );
         }
 
-        if (careerDto.getDateFrom() != null && careerDto.getDateTo() != null
-                && careerDto.getDateTo().isBefore(careerDto.getDateFrom())) {
+        if (careerDto.getDateTo().isBefore(careerDto.getDateFrom())) {
             throw new DataValidationException(
                     String.format("End date (%s) cannot be before start date (%s)",
                             careerDto.getDateTo(), careerDto.getDateFrom())
