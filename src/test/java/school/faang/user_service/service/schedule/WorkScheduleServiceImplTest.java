@@ -129,4 +129,21 @@ class WorkScheduleServiceImplTest {
         verify(workScheduleRepository, times(1)).save(workScheduleCaptor.capture());
         assertEquals(newWorkScheduleDto.getStartTime(), workScheduleCaptor.getValue().getStartTime());
     }
+
+    @Test
+    void testGetByIdUsesScheduleRepository(){
+        service.getById(workScheduleId);
+
+        verify(workScheduleRepository, times(1)).findById(workScheduleId);
+    }
+
+    @Test
+    void testGetByIdReturnsDto(){
+        when(workScheduleRepository.findById(workScheduleId))
+                .thenReturn(Optional.of(WorkSchedule.builder().build()));
+
+        WorkScheduleDto result = service.getById(workScheduleId);
+
+        assertEquals(WorkScheduleDto.class, result.getClass());
+    }
 }

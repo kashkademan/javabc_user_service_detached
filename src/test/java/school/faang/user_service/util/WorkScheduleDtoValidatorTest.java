@@ -57,7 +57,7 @@ class WorkScheduleDtoValidatorTest {
     }
 
     @Test
-    void testValidateWrightDto(){
+    void testValidateRightDto(){
         WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
                 .id(1L)
                 .startTime(LocalTime.of(8, 0))
