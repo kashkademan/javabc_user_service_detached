@@ -17,6 +17,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 import static school.faang.user_service.util.LogsConstants.MIN_SKILL_OFFERS;
 import static school.faang.user_service.util.LogsConstants.SKILL_NOT_FOUND;
@@ -56,7 +57,7 @@ public class SkillService {
     }
 
     @Transactional
-    public Skill acquireSkillFromOffers(long userId, long skillId) {
+    public Optional<Skill> acquireSkillFromOffers(long userId, long skillId) {
         Skill skill;
         skillValidator.validateUserHasSkill(userId, skillId);
         List<SkillOffer> skillOfferList = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
@@ -67,21 +68,23 @@ public class SkillService {
             User user = userRepository.findById(userId).
                     orElseThrow(() -> new EntityNotFoundException(String.format(USER_NOT_FOUND, userId)));
             skillRepository.assignSkillToUser(skillId, userId);
-            skillOfferList.forEach((skillOffer) -> {
-                Recommendation recommendation = skillOffer.getRecommendation();
-                if (recommendation != null) {
-                    UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
-                            .user(user)
-                            .skill(skill)
-                            .guarantor(recommendation.getAuthor())
-                            .build();
-                    userSkillGuaranteeRepository.save(userSkillGuarantee);
-                }
-            });
-
+            skillOfferList.forEach((skillOffer) -> fillUserSkillGuarantee(skillOffer, user, skill));
+            return Optional.ofNullable(skill);
         } else {
-            skill = null;
+            return Optional.empty();
         }
-        return skill;
     }
+
+    private void fillUserSkillGuarantee(SkillOffer skillOffer, User user, Skill skill) {
+        Recommendation recommendation = skillOffer.getRecommendation();
+        if (recommendation != null) {
+            UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
+                    .user(user)
+                    .skill(skill)
+                    .guarantor(recommendation.getAuthor())
+                    .build();
+            userSkillGuaranteeRepository.save(userSkillGuarantee);
+        }
+    }
+
 }
