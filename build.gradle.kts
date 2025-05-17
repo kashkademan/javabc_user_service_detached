@@ -86,6 +86,17 @@ tasks.jacocoTestReport {
         csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
+
+    classDirectories.setFrom(
+        files(
+            fileTree("${buildDir}/classes/java/main") {
+                include("school/faang/user_service/service/**/*.class")
+            },
+            fileTree("${buildDir}/classes/kotlin/main") {
+                include("school/faang/user_service/service/**/*.class")
+            }
+        )
+    )
 }
 
 tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
