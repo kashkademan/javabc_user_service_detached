@@ -14,19 +14,19 @@ class MentorshipRequestStatusFilterTest {
     private final MentorshipRequestFilter filter = new MentorshipRequestStatusFilter();
 
     @Test
-    public void testRequestIsApplicable() {
+    public void testIsApplicable_whenStatusIsNotNull_thenReturnTrue() {
         boolean result = filter.isApplicable(RequestFilterDto.builder().statusPattern(RequestStatus.ACCEPTED).build());
         assertTrue(result);
     }
 
     @Test
-    public void testRequestIsNotApplicable() {
+    public void testIsApplicable_whenStatusIsNull_thenReturnFalse() {
         boolean result = filter.isApplicable(RequestFilterDto.builder().build());
         assertFalse(result);
     }
 
     @Test
-    public void testApplyRequestFilter() {
+    public void testApply_whenFilterIsFailed_thenReturnEmptyList() {
         RequestStatus pattern = RequestStatus.ACCEPTED;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().status(pattern).build(),
@@ -40,7 +40,7 @@ class MentorshipRequestStatusFilterTest {
     }
 
     @Test
-    public void testApplySeveralApplicableRequests() {
+    public void testApply_whenFiltersIsPassed_thenReturnAllRequests() {
         RequestStatus pattern = RequestStatus.ACCEPTED;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().status(pattern).build(),
@@ -55,7 +55,7 @@ class MentorshipRequestStatusFilterTest {
     }
 
     @Test
-    public void testApplyNoneApplicableRequests() {
+    public void testApply_whenAllFiltersFailed_thenReturnEmptyList() {
         RequestStatus pattern = RequestStatus.ACCEPTED;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().status(RequestStatus.REJECTED).build(),

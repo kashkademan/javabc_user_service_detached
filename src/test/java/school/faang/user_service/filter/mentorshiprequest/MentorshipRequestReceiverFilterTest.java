@@ -16,19 +16,19 @@ public class MentorshipRequestReceiverFilterTest {
     private final MentorshipRequestFilter filter = new MentorshipRequestReceiverFilter();
 
     @Test
-    public void testRequestIsApplicable() {
+    public void testIsApplicable_whenReceiverIsNotNull_thenReturnTrue() {
         boolean result = filter.isApplicable(RequestFilterDto.builder().receiverIdPattern(1L).build());
         assertTrue(result);
     }
 
     @Test
-    public void testRequestIsNotApplicable() {
+    public void testIsApplicable_whenReceiverIsNull_thenReturnFalse() {
         boolean result = filter.isApplicable(RequestFilterDto.builder().build());
         assertFalse(result);
     }
 
     @Test
-    public void testApplyRequestFilter() {
+    public void testApply_whenNotAllFiltersPassed_thenNecessaryRequests() {
         Long pattern = 1L;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().receiver(User.builder().id(pattern).build()).build(),
@@ -42,7 +42,7 @@ public class MentorshipRequestReceiverFilterTest {
     }
 
     @Test
-    public void testApplySeveralApplicableRequests() {
+    public void testApply_whenFiltersIsPassed_thenReturnAllRequests() {
         Long pattern = 1L;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().receiver(User.builder().id(pattern).build()).build(),
@@ -57,7 +57,7 @@ public class MentorshipRequestReceiverFilterTest {
     }
 
     @Test
-    public void testApplyNoneApplicableRequests() {
+    public void testApply_whenAllFiltersFailed_thenReturnEmptyList() {
         Long pattern = 1L;
         Stream<MentorshipRequest> requests = Stream.of(
                 MentorshipRequest.builder().receiver(User.builder().id(9L).build()).build(),

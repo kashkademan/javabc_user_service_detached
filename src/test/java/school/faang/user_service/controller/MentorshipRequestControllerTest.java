@@ -27,7 +27,7 @@ public class MentorshipRequestControllerTest {
     private MentorshipRequestController controller;
 
     @Test
-    public void requestMentorshipValidParameters() {
+    public void testRequestMentorship_whenValidParameters_thenReturnCorrectValue() {
         when(service.requestMentorship(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         MentorshipRequestDto mentorshipRequestDto = MentorshipRequestDto.builder()
@@ -45,7 +45,7 @@ public class MentorshipRequestControllerTest {
     }
 
     @Test
-    public void getMentorshipRequestsValidParameters() {
+    public void testGetRequests_whenValidParameters_thenReturnNotEmptyList() {
         List<MentorshipRequestDto> requests = List.of(
                 MentorshipRequestDto.builder().build(),
                 MentorshipRequestDto.builder().build()
@@ -60,7 +60,7 @@ public class MentorshipRequestControllerTest {
     }
 
     @Test
-    public void testAcceptRequestValidParameters() {
+    public void testAcceptRequest_whenValidParameters_thenReturnAcceptedRequest() {
         when(service.acceptRequest(any()))
                 .thenReturn(MentorshipRequestDto.builder().id(1L).build());
 
@@ -71,7 +71,7 @@ public class MentorshipRequestControllerTest {
     }
 
     @Test
-    public void testRejectRequestValidParameters() {
+    public void testRejectRequest_whenValidParameters_thenReturnRejectedRequest() {
         when(service.rejectRequest(any(), any()))
                 .thenReturn(MentorshipRequestDto.builder()
                         .id(1L)
