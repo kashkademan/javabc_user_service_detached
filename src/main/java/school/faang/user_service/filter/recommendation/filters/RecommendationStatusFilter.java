@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-public class StatusFilter implements RecommendationRequestFilterStrategy {
+public class RecommendationStatusFilter implements RecommendationRequestFilterStrategy {
 
     @Override
     public boolean isApplicable(RequestFilterDto requestFilterDto) {
