@@ -19,11 +19,11 @@ import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.model.GoalFilter;
+import school.faang.user_service.model.goal.GoalFilter;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.goal.GoalValidator;
+import school.faang.user_service.validation.goal.GoalValidator;
 
 import java.util.List;
 import java.util.Objects;

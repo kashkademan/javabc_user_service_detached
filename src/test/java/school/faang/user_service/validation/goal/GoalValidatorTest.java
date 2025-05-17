@@ -1,4 +1,4 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validation.goal;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
-import school.faang.user_service.validator.goal.GoalValidator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;

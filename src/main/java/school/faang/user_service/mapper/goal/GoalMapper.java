@@ -12,7 +12,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.model.GoalFilter;
+import school.faang.user_service.model.goal.GoalFilter;
 
 import java.util.ArrayList;
 import java.util.List;

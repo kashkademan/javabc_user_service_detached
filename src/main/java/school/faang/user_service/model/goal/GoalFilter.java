@@ -1,4 +1,4 @@
-package school.faang.user_service.model;
+package school.faang.user_service.model.goal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

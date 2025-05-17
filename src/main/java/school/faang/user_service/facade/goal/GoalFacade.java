@@ -8,7 +8,7 @@ import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.goal.GoalMapper;
-import school.faang.user_service.model.GoalFilter;
+import school.faang.user_service.model.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
