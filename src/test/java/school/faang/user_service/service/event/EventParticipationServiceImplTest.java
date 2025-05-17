@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,7 @@ public class EventParticipationServiceImplTest {
     @Mock
     private EventParticipationRepository eventParticipationRepository;
     @Spy
-    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private UserMapperImpl userMapper;
     @InjectMocks
     private EventParticipationServiceImpl eventParticipationService;
 
@@ -107,6 +108,9 @@ public class EventParticipationServiceImplTest {
     void testGetParticipantsCount() {
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(4);
         int result = eventParticipationService.getParticipantsCount(eventId);
+        assertEquals(4, result);
+
+        verify(eventParticipationRepository).countParticipants(eventId);
         assertEquals(4, result);
     }
 }
