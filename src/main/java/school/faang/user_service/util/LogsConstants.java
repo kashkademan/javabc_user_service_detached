@@ -27,6 +27,7 @@ public final class LogsConstants {
     public static final String BLANK_SKILL_TITLE = "Название навыка не может быть пустым";
     public static final String USER_HAS_SKILL = "У пользователя %s уже есть навык %s";
     public static final String SKILL_NOT_FOUND = "Навык по id = %s не найден";
+    public static final String CONDITION_FOR_OFFERS_AMOUNT_FAILED = "Условие по количеству предложений не подходит для присвоения навыка";
 
     public static final int MIN_SKILL_OFFERS = 3;
 

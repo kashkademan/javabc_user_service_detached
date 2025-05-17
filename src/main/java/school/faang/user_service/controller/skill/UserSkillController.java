@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
@@ -18,6 +19,9 @@ import school.faang.user_service.service.SkillService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static school.faang.user_service.util.LogsConstants.CONDITION_FOR_OFFERS_AMOUNT_FAILED;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -44,11 +48,19 @@ public class UserSkillController {
     @PostMapping("/{userId}/skills/offered/{skillId}")
     public ResponseEntity<?> acquireSkillFromOffers(@PathVariable long userId, @PathVariable long skillId) {
         try {
-            SkillDto skillDto = skillMapper.toDto(skillService.acquireSkillFromOffers(userId, skillId));
-            log.info("Пользователю {} присвоен навык {}", userId, skillDto);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(skillDto);
+            Optional<Skill> skillOpt = skillService.acquireSkillFromOffers(userId, skillId);
+            if (skillOpt.isPresent()) {
+                SkillDto skillDto = skillMapper.toDto(skillOpt.get());
+                log.info("Пользователю {} присвоен навык {}", userId, skillDto);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(skillDto);
+            } else {
+                log.warn(CONDITION_FOR_OFFERS_AMOUNT_FAILED);
+                return ResponseEntity
+                        .status(HttpStatus.PRECONDITION_FAILED)
+                        .body(Collections.singletonMap("warning", CONDITION_FOR_OFFERS_AMOUNT_FAILED));
+            }
         } catch (DataValidationException | EntityNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
