@@ -2,7 +2,6 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterIDto;
@@ -28,7 +27,6 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
 
     @Value("${logic.constants.max_active_goals}")
     private int maximumAllowedActiveGoals;
-    private final ApplicationContext context;
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
@@ -83,8 +81,6 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         goalInvitationRepository.saveAndFlush(goalInvitation);
         goal.getUsers().add(invited);
         invited.getGoals().add(goal);
-        GoalRepository goalRepository = context.getBean(GoalRepository.class);
-        UserRepository userRepository = context.getBean(UserRepository.class);
         goalRepository.saveAndFlush(goal);
         userRepository.saveAndFlush(invited);
     }
