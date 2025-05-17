@@ -31,9 +31,11 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.role.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -89,8 +91,15 @@ public class User {
     private LocalDateTime updatedAt;
 
     @ManyToMany
+    @JoinTable(name = "users_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<UserRole> roles;
+
+    @ManyToMany
     @JoinTable(name = "subscription",
-            joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
+            joinColumns = @JoinColumn(name = "followee_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private List<User> followers;
 
     @ManyToMany(mappedBy = "followers")

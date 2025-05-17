@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.avatar.AvatarType;
 import school.faang.user_service.dto.csv.CsvUserDto;
+import school.faang.user_service.dto.user.UserAuthDto;
 import school.faang.user_service.dto.user.UserRegistrationDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Education;
@@ -69,6 +70,11 @@ public class UserService {
         List<CsvUserDto> validUsers = getValidUsers(users);
         log.info("✅ Valid users to save: {}", validUsers.size());
         validUsers.forEach(this::saveUserWithEducation);
+    }
+
+    public UserAuthDto findAuthByUsername(String username) {
+        return userMapper.toAuthDto(userRepository.findByUsernameLike(username)
+                .orElseThrow(() -> new EntityNotFoundException("User with name " + username + " not found")));
     }
 
     private String generatePassword() {

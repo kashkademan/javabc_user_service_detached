@@ -2,13 +2,18 @@ package school.faang.user_service.mapper.user;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import school.faang.user_service.dto.user.UserAuthDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserRegistrationDto;
 import school.faang.user_service.dto.user.UserResponseDto;
+import school.faang.user_service.entity.role.Role;
+import school.faang.user_service.entity.role.UserRole;
 import school.faang.user_service.entity.User;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -40,6 +45,14 @@ public interface UserMapper {
 
     @Mapping(target = "avatarUrl", expression = "java(user.getUserProfilePic() != null ? user.getUserProfilePic().getFileId() : null)")
     UserResponseDto toResponseDto(User user);
+
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "getRoleNames")
+    UserAuthDto toAuthDto(User user);
+
+    @Named("getRoleNames")
+    static Set<Role> getRoleNames(Set<UserRole> roles) {
+        return roles.stream().map(UserRole::getName).collect(Collectors.toSet());
+    }
 
     static List<Long> toIds(List<User> users) {
         return users == null ? List.of() : users.stream().map(User::getId).collect(Collectors.toList());

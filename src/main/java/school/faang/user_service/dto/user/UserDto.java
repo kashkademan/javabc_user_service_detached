@@ -16,7 +16,7 @@ public class UserDto {
     private String email;
     private String phone;
     private Long telegramId;
-    private PreferredContact preference;;
+    private PreferredContact preference;
     private List<Long> mentorIds;
     private List<Long> menteeIds;
 
