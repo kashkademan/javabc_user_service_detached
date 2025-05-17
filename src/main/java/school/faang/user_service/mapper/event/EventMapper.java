@@ -12,7 +12,6 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.model.event.EventFilter;
 
@@ -21,14 +20,9 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
 
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "relatedSkills", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "attendees", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "maxAttendees", ignore = true)
-    Event toEntityFromCreateDto(EventCreateDto dto, User owner);
+    Event toEntityFromCreateDto(EventCreateDto dto);
 
     @Mapping(source = "relatedSkills", target = "relatedSkills", qualifiedByName = "skillsToIds")
     @Mapping(source = "owner.id", target = "ownerId")
@@ -40,9 +34,8 @@ public interface EventMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "owner", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "type", ignore = true)
     @Mapping(target = "maxAttendees", ignore = true)
+    @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(EventUpdateDto dto, @MappingTarget Event entity);
 
