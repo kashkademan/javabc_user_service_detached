@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,14 @@ public class UserController {
     private final UserMapper userMapper;
     private final UserAvatarService userAvatarService;
     private final UserElasticService userElasticService;
+
+    @GetMapping("/search")
+    public List<UserDto> searchUsers(@RequestParam String query,
+                                     @RequestParam int page,
+                                     @RequestParam int size) {
+        List<User> users = userElasticService.searchUsers(query, page, size);
+        return userMapper.toUserDtoList(users);
+    }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUser(@PathVariable @Positive long userId) {

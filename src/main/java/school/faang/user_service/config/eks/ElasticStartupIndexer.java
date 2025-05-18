@@ -20,8 +20,8 @@ public class ElasticStartupIndexer {
     private final UserElasticService userElasticService;
     private final UserService userService;
 
-    @EventListener(ApplicationReadyEvent.class)
     @Transactional
+    @EventListener(ApplicationReadyEvent.class)
     public void run() {
         log.info("Started startup bulking Elastic Search with existing in database users");
         List<User> users = userService.getAllUsers();
