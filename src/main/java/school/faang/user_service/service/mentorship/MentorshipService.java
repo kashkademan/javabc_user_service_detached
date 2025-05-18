@@ -11,13 +11,13 @@ import school.faang.user_service.mapper.mentorship.MenteesMapper;
 import school.faang.user_service.mapper.mentorship.MentorsMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.volidation.mentorship.MentorshipValidation;
+import school.faang.user_service.validation.mentorship.MentorshipValidation;
 
 import java.util.List;
 
-import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateIsMenteeOf;
-import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateIsMentorOf;
-import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateMentorshipUsers;
+import static school.faang.user_service.validation.mentorship.MentorshipValidation.validateIsMenteeOf;
+import static school.faang.user_service.validation.mentorship.MentorshipValidation.validateIsMentorOf;
+import static school.faang.user_service.validation.mentorship.MentorshipValidation.validateMentorshipUsers;
 
 
 @Slf4j

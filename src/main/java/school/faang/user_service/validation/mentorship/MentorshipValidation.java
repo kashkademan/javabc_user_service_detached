@@ -1,4 +1,4 @@
-package school.faang.user_service.volidation.mentorship;
+package school.faang.user_service.validation.mentorship;
 
 import jakarta.persistence.EntityNotFoundException;
 import school.faang.user_service.entity.User;
