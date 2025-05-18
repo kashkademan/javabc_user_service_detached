@@ -1,7 +1,6 @@
 package school.faang.user_service.entity;
 
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -19,23 +18,25 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -147,10 +148,8 @@ public class User {
     private List<Rating> ratings;
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id")),
-            @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
-    })
+    @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id"))
+    @AttributeOverride(name = "smallFileId", column = @Column(name = "profile_pic_small_file_id"))
     private UserProfilePic userProfilePic;
 
     @OneToOne(mappedBy = "user")

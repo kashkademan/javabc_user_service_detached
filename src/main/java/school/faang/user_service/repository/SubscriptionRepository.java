@@ -3,11 +3,12 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
 
 import java.util.stream.Stream;
 
-public interface SubscriptionRepository extends CrudRepository<User, Long> {
+public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
 
     @Query(nativeQuery = true, value = "insert into subscription (follower_id, followee_id) values (:followerId, :followeeId)")
     @Modifying
@@ -16,6 +17,9 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
     @Query(nativeQuery = true, value = "delete from subscription where follower_id = :followerId and followee_id = :followeeId")
     @Modifying
     void unfollowUser(long followerId, long followeeId);
+
+    @Query(nativeQuery = true, value = "select * from subscription where follower_id = :followerId and followee_id = :followeeId")
+    Subscription getSubscription(long followerId, long followeeId);
 
     @Query(nativeQuery = true, value = "select exists(select 1 from subscription where follower_id = :followerId and followee_id = :followeeId)")
     boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId);
@@ -28,7 +32,7 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
     Stream<User> findByFolloweeId(long followeeId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where followee_id = :followeeId")
-    int findFollowersAmountByFolloweeId(long followeeId);
+    long findFollowersAmountByFolloweeId(long followeeId);
 
     @Query(nativeQuery = true, value = """
             select u.* from users as u
@@ -38,5 +42,5 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
     Stream<User> findByFollowerId(long followerId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :followerId")
-    int findFolloweesAmountByFollowerId(long followerId);
+    long findFolloweesAmountByFollowerId(long followerId);
 }
