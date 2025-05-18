@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.entity.goal.GoalStatus;
 
 @Data
 @AllArgsConstructor
@@ -13,6 +14,6 @@ public class GoalFilterDto {
     @NotBlank(message = "Title is mandatory")
     private String title;
 
-    @NotNull(message = "Completed is mandatory")
-    private Boolean completed;
+    @NotNull(message = "Status is mandatory")
+    private GoalStatus status;
 }

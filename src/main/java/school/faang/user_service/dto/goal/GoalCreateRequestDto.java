@@ -21,5 +21,6 @@ public class GoalCreateRequestDto {
     @Size(max = 128, message = "Max length description — 128 char")
     private String description;
 
+    @Size(min = 1, message = "At least one skill must be specified")
     private List<Long> skillIds;
 }

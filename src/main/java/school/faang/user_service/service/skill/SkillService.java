@@ -26,7 +26,7 @@ public class SkillService {
     }
 
     @Transactional
-    public void assignSkillsToUsers(List<Long> skillIds, List<Long> userIds) {
+    public void assignSkillsToUsers(final List<Long> skillIds, final List<Long> userIds) {
         skillIds.forEach(skillId ->
                 userIds.forEach(userId ->
                         skillRepository.findUserSkill(skillId, userId)
