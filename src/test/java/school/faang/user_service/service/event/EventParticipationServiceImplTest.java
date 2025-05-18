@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,17 +28,23 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EventParticipationServiceImplTest {
     @Mock
-    EventParticipationRepository eventParticipationRepository;
+    private EventParticipationRepository eventParticipationRepository;
+
     @Spy
-    UserMapperImpl userMapper;
-    EventParticipationServiceImpl eventParticipationService;
-    List<User> userList;
+    private UserMapperImpl userMapper;
+
+    @InjectMocks
+    private EventParticipationServiceImpl eventParticipationService;
+
+    private List<User> userList;
     List<UserDto> expectedDtoList;
-    long eventId;
+    private long eventId;
+    private long userId;
 
     @BeforeEach
     void setup() {
         eventId = 1L;
+        userId = 1L;
 
         userList = List.of(
                 createTestUser(1L, "user1", "user1@example.com"),
@@ -48,9 +55,6 @@ class EventParticipationServiceImplTest {
                 new UserDto(1L, "user1", "user1@example.com"),
                 new UserDto(2L, "user2", "user2@example.com")
         );
-
-        eventParticipationService =
-                new EventParticipationServiceImpl(eventParticipationRepository, userMapper);
     }
 
     @Test
@@ -58,25 +62,27 @@ class EventParticipationServiceImplTest {
     void testRegisterParticipant_ParticipantIsPresentInDB() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
 
-        assertThrows(DataValidationException.class, () -> eventParticipationService.registerParticipant(eventId, 1L));
+        assertThrows(DataValidationException.class, () -> eventParticipationService.registerParticipant(eventId, userId));
     }
 
     @Test
     @DisplayName("Регистрация пользователя, по eventId и userId. Пользователь в БД отсутствует. Успешная регистрация.")
     void testRegisterParticipant_ParticipantNotPresentInDB() {
+        userId = 4L;
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
 
-        eventParticipationService.registerParticipant(eventId, 4L);
+        eventParticipationService.registerParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).register(eventId, 4L);
+        verify(eventParticipationRepository, times(1)).register(eventId, userId);
     }
 
     @Test
     @DisplayName("Разрегистрация пользователя, по eventId. Пользователь в БД отсутствует. Выбрасывание ошибки.")
     void testUnregisterParticipant_ParticipantNotPresentInDB() {
+        userId = 4L;
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
 
-        assertThrows(DataValidationException.class, () -> eventParticipationService.unregisterParticipant(eventId, 4L));
+        assertThrows(DataValidationException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId));
     }
 
     @Test
@@ -84,9 +90,9 @@ class EventParticipationServiceImplTest {
     void testUnregisterParticipant_ParticipantIsPresentInDB() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
 
-        eventParticipationService.unregisterParticipant(eventId, 1L);
+        eventParticipationService.unregisterParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).unregister(eventId, 1L);
+        verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
     }
 
     @Test
@@ -105,7 +111,7 @@ class EventParticipationServiceImplTest {
     @Test
     @DisplayName("Проверка на пустой список участников")
     void testGetParticipant_WhenNoParticipants_ShouldReturnEmptyList() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of());
+        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of());
 
         List<UserDto> userDtoList = eventParticipationService.getParticipant(eventId);
 
@@ -128,12 +134,13 @@ class EventParticipationServiceImplTest {
     @Test
     @DisplayName("Проверка на отсутствие участников в БД")
     void testGetParticipantsCount_WhenNoParticipants() {
-        when(eventParticipationRepository.countParticipants(5L)).thenReturn(0);
+        eventId = 5L;
+        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(0);
 
-        long actualCount = eventParticipationService.getParticipantsCount(5L);
+        long actualCount = eventParticipationService.getParticipantsCount(eventId);
 
         assertEquals(0, actualCount);
-        verify(eventParticipationRepository).countParticipants(5L);
+        verify(eventParticipationRepository).countParticipants(eventId);
     }
 
     private User createTestUser(Long id, String username, String email) {
