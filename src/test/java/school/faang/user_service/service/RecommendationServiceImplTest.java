@@ -20,9 +20,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
-import school.faang.user_service.mapper.SkillOfferMapper;
 import school.faang.user_service.mapper.SkillOfferMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -45,7 +43,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RecommendationServiceTest {
+public class RecommendationServiceImplTest {
     private static final long EXPECTED_DTO_ID = 1L;
     private static final long AUTHOR_ID = 1L;
     private static final long RECEIVER_ID = 2L;
@@ -67,10 +65,10 @@ public class RecommendationServiceTest {
     private SkillRepository skillRepository;
 
     @Spy
-    private SkillOfferMapper skillOfferMapper = new SkillOfferMapperImpl();
+    private SkillOfferMapperImpl skillOfferMapper;
 
     @Spy
-    private RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
+    private RecommendationMapperImpl recommendationMapper;
 
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
@@ -119,7 +117,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void create_ShouldAddNewRecommendation() {
+    void testCreate_whenValidInput_thenReturnsCreatedRecommendation() {
         when(skillRepository.existsById(SKILL_ID)).thenReturn(true);
         when(recommendationRepository.create(AUTHOR_ID, RECEIVER_ID, inputDto.getContent()))
                 .thenReturn(EXPECTED_DTO_ID);
@@ -138,7 +136,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void create_ShouldThrow_WhenSingleSkillDoesNotExist() {
+    void testCreate_whenSingleSkillNotExists_thenThrowsDataValidationException() {
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(AUTHOR_ID, RECEIVER_ID))
                 .thenReturn(Optional.empty());
         when(skillRepository.existsById(SKILL_ID)).thenReturn(false);
@@ -151,7 +149,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void create_ShouldThrow_WhenMultipleSkillsDoNotExist() {
+    void testCreate_whenMultipleSkillsNotExist_thenThrowsDataValidationException() {
         SkillOfferDto dto1 = SkillOfferDto.builder().skillId(5L).build();
         SkillOfferDto dto2 = SkillOfferDto.builder().skillId(7L).build();
         inputDto.setSkillOffers(List.of(dto1, dto2));
@@ -169,7 +167,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void create_ShouldThrow_WhenDuplicateSkillsProvided() {
+    void testCreate_whenDuplicateSkills_thenThrowsDataValidationException() {
         inputDto.setSkillOffers(List.of(skillOfferDto, skillOfferDto));
 
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(AUTHOR_ID, RECEIVER_ID))
@@ -184,7 +182,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void create_ShouldThrow_WhenTooFrequentRecommendations() {
+    void testCreate_whenRecommendationTooFrequent_thenThrowsDataValidationException() {
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(AUTHOR_ID, RECEIVER_ID))
                 .thenReturn(Optional.of(recommendation));
 
@@ -196,7 +194,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void update_ShouldChangeExistedRecommendation() {
+    void testUpdate_whenValidInput_thenReturnsUpdatedRecommendation() {
         inputDto.setId(EXPECTED_DTO_ID);
         inputDto.setContent("Helpful");
 
@@ -218,7 +216,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void delete_ShouldRemoveRecommendationAndOffers() {
+    void  testDelete_whenValidId_thenRemovesRecommendationAndOffers() {
         long idToDelete = 42L;
         recommendationService.delete(idToDelete);
         InOrder inOrder = inOrder(skillOfferRepository, recommendationRepository);
@@ -227,7 +225,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void getAllUserRecommendations_ShouldReturnMappedDtos() {
+    void testGetAllUserRecommendations_whenRecommendationsExist_thenReturnsMappedDtos() {
         List<Recommendation> recommendations = List.of(recommendation);
         Page<Recommendation> recommendationsPage = new PageImpl<>(recommendations);
         List<RecommendationDto> recommendationDtos = recommendationMapper.toDtoList(recommendations);
@@ -244,7 +242,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void getAllUserRecommendations_ShouldReturnEmptyList() {
+    void testGetAllUserRecommendations_whenNoRecommendations_thenReturnsEmptyList() {
         when(recommendationRepository.findAllByReceiverId(eq(RECEIVER_ID), any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
@@ -253,7 +251,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void getAllGivenRecommendations_ShouldReturnMappedDtos() {
+    void testGetAllGivenRecommendations_whenRecommendationsExist_thenReturnsMappedDtos() {
         List<Recommendation> recommendations = List.of(recommendation);
         Page<Recommendation> recommendationsPage = new PageImpl<>(recommendations);
         List<RecommendationDto> recommendationDtos = recommendationMapper.toDtoList(recommendations);
@@ -270,7 +268,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    void getAllGiveRecommendations_ShouldReturnEmptyList() {
+    void testGetAllGivenRecommendations_whenNoRecommendations_thenReturnsEmptyList()  {
         when(recommendationRepository.findAllByAuthorId(eq(AUTHOR_ID), any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
