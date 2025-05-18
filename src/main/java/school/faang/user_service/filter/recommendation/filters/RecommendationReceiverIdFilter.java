@@ -6,22 +6,22 @@ import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilterStrategy;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-public class SkillIdFilter implements RecommendationRequestFilterStrategy {
+public class RecommendationReceiverIdFilter implements RecommendationRequestFilterStrategy {
 
     @Override
     public boolean isApplicable(RequestFilterDto requestFilterDto) {
-        return requestFilterDto.getSkillId() != null;
+        return requestFilterDto.getReceiverId() != null;
     }
 
     @Override
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests, RequestFilterDto requestFilterDto) {
         return recommendationRequests
                 .filter(recommendationRequest ->
-                        recommendationRequest.getSkills().stream()
-                                .anyMatch(skill -> skill.getSkill().getId() == requestFilterDto.getSkillId()));
+                        Objects.equals(recommendationRequest.getReceiver().getId(), requestFilterDto.getReceiverId()));
     }
 }
