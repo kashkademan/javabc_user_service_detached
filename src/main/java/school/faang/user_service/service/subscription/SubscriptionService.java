@@ -8,7 +8,7 @@ import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.subscription.SubscriptionFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.validator.subscription.SubscriptionValidation;
+import school.faang.user_service.validation.subscription.SubscriptionValidation;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,11 +39,9 @@ public class SubscriptionService {
         SubscriptionValidation.validateUnfollowAction(followerId, followeeId);
         SubscriptionValidation.validateUnsubscribeAction(existSub);
 
-        subscriptionRepository.delete(Subscription.builder()
-                .follower_id(followerId)
-                .followee_id(followeeId)
-                .build()
-        );
+        Subscription subscription = subscriptionRepository.getSubscription(followerId, followeeId);
+
+        subscriptionRepository.delete(subscription);
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +64,7 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public Integer getFollowingCount(long followerId) {
+    public Long getFollowingCount(long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
