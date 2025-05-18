@@ -17,8 +17,8 @@ public class GoalFilterBySkills implements GoalFilter {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> filteredData, GoalFilterDto filterDto) {
-        return filteredData.filter(goal ->
-                goal.getSkillsToAchieve()
+        return filteredData.filter(goal -> Objects.nonNull(goal.getSkillsToAchieve())
+                && goal.getSkillsToAchieve()
                         .stream()
                         .anyMatch(skill -> filterDto.skillsId().contains(skill.getId()))
         );

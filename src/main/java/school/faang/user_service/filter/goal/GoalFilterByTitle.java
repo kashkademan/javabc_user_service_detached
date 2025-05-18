@@ -17,7 +17,8 @@ public class GoalFilterByTitle implements GoalFilter {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> filteredData, GoalFilterDto filterDto) {
-        return filteredData.filter(goal -> goal.getTitle()
+        return filteredData.filter(goal -> Objects.nonNull(goal.getTitle())
+                && goal.getTitle()
                 .toLowerCase()
                 .contains(filterDto.title().toLowerCase()));
     }

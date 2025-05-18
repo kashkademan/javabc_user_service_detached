@@ -17,8 +17,8 @@ public class GoalFilterByUsers implements GoalFilter {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> filteredData, GoalFilterDto filterDto) {
-        return filteredData.filter(goal ->
-                goal.getUsers()
+        return filteredData.filter(goal -> Objects.nonNull(goal.getUsers())
+                && goal.getUsers()
                         .stream()
                         .anyMatch(user -> filterDto.usersId().contains(user.getId()))
         );
