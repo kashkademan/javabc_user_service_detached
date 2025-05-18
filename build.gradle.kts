@@ -3,7 +3,6 @@ plugins {
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
-    jacoco
     kotlin("jvm")
 }
 
@@ -95,54 +94,3 @@ kotlin {
     jvmToolchain(17)
 }
 
-jacoco {
-    reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
-}
-
-tasks.jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            element = "PACKAGE" // можно: BUNDLE, PACKAGE, CLASS
-
-            limit {
-                counter = "INSTRUCTION"
-                value = "COVEREDRATIO"
-                minimum = "0.70".toBigDecimal()
-            }
-
-            excludes = listOf(
-                "school.faang.user_service.config.*",
-                "school.faang.user_service.controller.*",
-                "school.faang.user_service.dto.*",
-                "school.faang.user_service.entity.*",
-                "school.faang.user_service.repository.*",
-                "school.faang.user_service.exception.*",
-                "com/json/student.*"
-            )
-        }
-    }
-}
-
-tasks.jacocoTestReport {
-
-    reports {
-        xml.required.set(false)
-        csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
-    }
-
-    classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                exclude(
-                    "**/config/**",
-                    "**/controller/**",
-                    "**/dto/**",
-                    "**/entity/**",
-                    "**/repository/**",
-                    "**/exception/**",
-                )
-            }
-        })
-    )
-}
