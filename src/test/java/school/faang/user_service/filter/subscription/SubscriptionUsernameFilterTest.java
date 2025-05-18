@@ -9,13 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestSubscriptionPhoneFilters {
-    private final SubscriptionPhoneFilters filters = new SubscriptionPhoneFilters();
+public class SubscriptionUsernameFilterTest {
+    private final SubscriptionUsernameFilter filters = new SubscriptionUsernameFilter();
 
     @Test
     public void testApplicableTrue() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getPhonePattern()).thenReturn("111");
+        when(dtoFilter.getNamePattern()).thenReturn("name");
 
         boolean result = filters.isApplicable(dtoFilter);
         assertTrue(result);
@@ -24,7 +24,7 @@ public class TestSubscriptionPhoneFilters {
     @Test
     public void testApplicableEmpty() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getPhonePattern()).thenReturn("");
+        when(dtoFilter.getNamePattern()).thenReturn("");
 
         boolean result = filters.isApplicable(dtoFilter);
         assertFalse(result);
@@ -33,7 +33,7 @@ public class TestSubscriptionPhoneFilters {
     @Test
     public void testApplicableBlank() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getPhonePattern()).thenReturn("   ");
+        when(dtoFilter.getNamePattern()).thenReturn("   ");
 
         boolean result = filters.isApplicable(dtoFilter);
         assertFalse(result);
@@ -42,7 +42,7 @@ public class TestSubscriptionPhoneFilters {
     @Test
     public void testApplicableNull() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getPhonePattern()).thenReturn(null);
+        when(dtoFilter.getNamePattern()).thenReturn(null);
 
         boolean result = filters.isApplicable(dtoFilter);
         assertFalse(result);
@@ -53,8 +53,8 @@ public class TestSubscriptionPhoneFilters {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getPhone()).thenReturn(null);
-        when(dtoFilter.getPhonePattern()).thenReturn("111");
+        when(user.getUsername()).thenReturn(null);
+        when(dtoFilter.getNamePattern()).thenReturn("name");
 
         boolean result = filters.apply(user, dtoFilter);
         assertFalse(result);
@@ -65,8 +65,8 @@ public class TestSubscriptionPhoneFilters {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getPhone()).thenReturn("");
-        when(dtoFilter.getPhonePattern()).thenReturn("111");
+        when(user.getUsername()).thenReturn("");
+        when(dtoFilter.getNamePattern()).thenReturn("name");
 
         boolean result = filters.apply(user, dtoFilter);
         assertFalse(result);
@@ -77,8 +77,8 @@ public class TestSubscriptionPhoneFilters {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getPhone()).thenReturn("222");
-        when(dtoFilter.getPhonePattern()).thenReturn("111");
+        when(user.getUsername()).thenReturn("my_family");
+        when(dtoFilter.getNamePattern()).thenReturn("name");
 
         boolean result = filters.apply(user, dtoFilter);
         assertFalse(result);
@@ -89,8 +89,8 @@ public class TestSubscriptionPhoneFilters {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getPhone()).thenReturn("111222");
-        when(dtoFilter.getPhonePattern()).thenReturn("111");
+        when(user.getUsername()).thenReturn("my_name");
+        when(dtoFilter.getNamePattern()).thenReturn("name");
 
         boolean result = filters.apply(user, dtoFilter);
         assertTrue(result);
