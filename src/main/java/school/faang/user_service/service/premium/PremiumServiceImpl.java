@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
 import school.faang.user_service.dto.PremiumDto;
@@ -32,6 +33,7 @@ public class PremiumServiceImpl implements PremiumService {
     private final PremiumMapper premiumMapper;
     private final UserMapper userMapper;
     private final PaymentServiceClient paymentServiceClient;
+    private final UserContext userContext;
 
     @Override
     public PremiumDto buyPremium(long userId, PremiumPeriod period) {
@@ -39,6 +41,7 @@ public class PremiumServiceImpl implements PremiumService {
             throw new AlreadyPremiumUserException("User with id %d already has premium".formatted(userId));
         }
         UserDto userDto = userService.findUserById(userId);
+        userContext.setUserId(userId);
         PaymentResponse response = paymentServiceClient.sendPayment(
                 PaymentRequest.builder()
                         .paymentNumber(System.currentTimeMillis())
