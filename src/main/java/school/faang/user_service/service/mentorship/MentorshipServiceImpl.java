@@ -1,5 +1,6 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorship.MenteeDto;
@@ -21,9 +22,14 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MenteeMapper menteeMapper;
     private final MentorMapper mentorMapper;
 
-    public List<MenteeDto> getMentees(long userId) {
-        User user = mentorshipRepository.findById(userId)
+    public User getUserById(long userId) {
+        return mentorshipRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("User not found."));
+    }
+
+    @Override
+    public List<MenteeDto> getMentees(long userId) {
+        User user = getUserById(userId);
         return Optional.ofNullable(user.getMentees())
                 .orElse(Collections.emptyList())
                 .stream()
@@ -31,13 +37,24 @@ public class MentorshipServiceImpl implements MentorshipService {
                 .toList();
     }
 
+    @Override
     public List<MentorDto> getMentors(long userId) {
-        User user = mentorshipRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("User not found."));
+        User user = getUserById(userId);
         return Optional.ofNullable(user.getMentors())
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(mentorMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteMentorship(long mentorId, long menteeId) {
+        User mentor = getUserById(mentorId);
+        User mentee = getUserById(menteeId);
+        mentor.getMentees().removeIf(user -> user.getId().equals(menteeId));
+        mentee.getMentors().removeIf(user -> user.getId().equals(mentorId));
+        mentorshipRepository.save(mentor);
+        mentorshipRepository.save(mentee);
     }
 }
