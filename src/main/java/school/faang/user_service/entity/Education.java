@@ -12,7 +12,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
@@ -44,6 +46,4 @@ public class Education {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void setUser(User user) {
-    }
 }
