@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.invitation.InvitationFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -19,7 +20,6 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalInvitationService;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -44,37 +44,41 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
 
         Long goalId = goalInvitationDto.getGoalId();
         goalInvitation.setGoal(goalRepository.findById(goalId)
-                .orElseThrow(() -> new NoSuchElementException("Goal id: " + goalId)));
+                .orElseThrow(() -> new EntityNotFoundException("Goal id: " + goalId)));
         goalInvitation.setInviter(userRepository.findById(inviterId)
-                .orElseThrow(() -> new NoSuchElementException("User id: " + inviterId)));
+                .orElseThrow(() -> new EntityNotFoundException("User id: " + inviterId)));
         goalInvitation.setInvited(userRepository.findById(invitedUserId)
-                .orElseThrow(() -> new NoSuchElementException("User id: " + invitedUserId)));
+                .orElseThrow(() -> new EntityNotFoundException("User id: " + invitedUserId)));
 
         goalInvitation.setStatus(RequestStatus.PENDING);
 
         GoalInvitation created = goalInvitationRepository.saveAndFlush(goalInvitation);
-        return goalInvitationMapper.toGoalInvitationDTO(created);
+        return goalInvitationMapper.toGoalInvitationDto(created);
     }
 
     @Override
     public void acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository
-                .findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invitation ID: " + id));
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Invitation ID: " + id));
 
         Goal goal = goalInvitation.getGoal();
         User invited = goalInvitation.getInvited();
 
         if (goal == null) {
-            throw new IllegalStateException("No existing goal in invitation");
+            throw new IllegalStateException("No existing goal in invitation with id " + id);
         }
 
         if (isUserAlreadyWorksOnGoal(goal, invited)) {
-            throw new UnsupportedOperationException("Invited user already works on goal");
+            throw new UnsupportedOperationException(
+                    String.format("Invited user id: %d already works on goal %s", invited.getId(), goal.getTitle())
+            );
         }
 
         if (isMaximumAllowedActiveGoalsReachedForUser(invited)) {
-            throw new DataValidationException("User has Maximum allowed active goals");
+            throw new UserServiceException(
+                    String.format("User id: %d has Maximum allowed active goals - %d",
+                            invited.getId(),
+                            maximumAllowedActiveGoals));
         }
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
@@ -87,9 +91,8 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
 
     @Override
     public void rejectGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository
-                .findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Invitation ID: " + id));
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Invitation ID: " + id));
         if (goalInvitation.getGoal() != null) {
             goalInvitation.setStatus(RequestStatus.REJECTED);
             goalInvitationRepository.saveAndFlush(goalInvitation);
@@ -107,20 +110,18 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
                         .allMatch(invitationFilter -> invitationFilter.doFilter(goalInvitation, filter)))
                 .toList();
 
-        return goalInvitationMapper.toDTOs(filteredGoalInvitations);
+        return goalInvitationMapper.toDtos(filteredGoalInvitations);
     }
 
     private boolean isMaximumAllowedActiveGoalsReachedForUser(User invited) {
-        long activeGoalsOfInvited = invited
-                .getGoals().stream()
+        long activeGoalsOfInvited = invited.getGoals().stream()
                 .filter(goal -> GoalStatus.ACTIVE == goal.getStatus())
                 .count();
         return activeGoalsOfInvited >= maximumAllowedActiveGoals;
     }
 
     private boolean isUserAlreadyWorksOnGoal(Goal goal, User invited) {
-        return invited
-                .getGoals().stream()
+        return invited.getGoals().stream()
                 .anyMatch(goal::equals);
     }
 }
