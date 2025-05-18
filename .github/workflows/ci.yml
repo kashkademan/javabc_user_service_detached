@@ -1,0 +1,17 @@
+name: test-on-pr
+
+on:
+  pull_request:
+    branches:
+      - feature/pipeline-test-BC-78027
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build and run tests
+        run: ./gradlew clean test
