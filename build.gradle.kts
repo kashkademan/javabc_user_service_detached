@@ -145,5 +145,3 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
-
-
