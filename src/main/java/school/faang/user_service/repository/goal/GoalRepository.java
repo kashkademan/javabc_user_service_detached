@@ -23,13 +23,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """)
     Goal create(String title, String description, Long parent);
 
-    @Modifying
-    @Query(nativeQuery = true, value = """
-            INSERT INTO user_goal (user_Id, goal_Id, created_at, updated_at)
-            VALUES (:userId, :goalId, NOW(), NOW())
-            """)
-    void assignGoalToUser(long userId, long goalId);
-
     @Query(nativeQuery = true, value = """
             SELECT COUNT(ug.goal_id) FROM user_goal ug
             JOIN goal g ON g.id = ug.goal_id
