@@ -6,7 +6,7 @@ import school.faang.user_service.validation.subscription.SubscriptionValidation;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestSubscriptionValidation {
+public class SubscriptionValidationTest {
 
     @Test
     public void testValidateFollowActionSameId() {

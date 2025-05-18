@@ -7,18 +7,18 @@ import school.faang.user_service.entity.User;
 import java.util.Objects;
 
 @Component
-public class SubscriptionPhoneFilters implements SubscriptionFilter {
+public class SubscriptionUsernameFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionFilterDto filterDto) {
-        return Objects.nonNull(filterDto.getPhonePattern()) && !filterDto.getPhonePattern().isBlank();
+        return Objects.nonNull(filterDto.getNamePattern()) && !filterDto.getNamePattern().isBlank();
     }
 
     @Override
     public boolean apply(User user, SubscriptionFilterDto filterDto) {
-        if (Objects.isNull(user.getPhone())) {
+        if (Objects.isNull(user.getUsername())) {
             return false;
         }
-        return user.getPhone().contains(filterDto.getPhonePattern());
+        return user.getUsername().contains(filterDto.getNamePattern());
     }
 }

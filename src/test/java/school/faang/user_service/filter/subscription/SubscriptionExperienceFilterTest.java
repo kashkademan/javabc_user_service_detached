@@ -9,40 +9,44 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestSubscriptionUsernameFilters {
-    private final SubscriptionUsernameFilters filters = new SubscriptionUsernameFilters();
+public class SubscriptionExperienceFilterTest {
+    private final SubscriptionExperienceFilter filters = new SubscriptionExperienceFilter();
 
     @Test
-    public void testApplicableTrue() {
+    public void testApplicableTrueForMinValue() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getNamePattern()).thenReturn("name");
+        when(dtoFilter.getExperienceMin()).thenReturn(1);
+        when(dtoFilter.getExperienceMax()).thenReturn(0);
 
         boolean result = filters.isApplicable(dtoFilter);
         assertTrue(result);
     }
 
     @Test
-    public void testApplicableEmpty() {
+    public void testApplicableTrueForMaxValue() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getNamePattern()).thenReturn("");
+        when(dtoFilter.getExperienceMin()).thenReturn(0);
+        when(dtoFilter.getExperienceMax()).thenReturn(1);
 
         boolean result = filters.isApplicable(dtoFilter);
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    public void testApplicableBlank() {
+    public void testApplicableTrueForBothValues() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getNamePattern()).thenReturn("   ");
+        when(dtoFilter.getExperienceMin()).thenReturn(1);
+        when(dtoFilter.getExperienceMax()).thenReturn(1);
 
         boolean result = filters.isApplicable(dtoFilter);
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    public void testApplicableNull() {
+    public void testApplicableFalse() {
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-        when(dtoFilter.getNamePattern()).thenReturn(null);
+        when(dtoFilter.getExperienceMin()).thenReturn(0);
+        when(dtoFilter.getExperienceMax()).thenReturn(0);
 
         boolean result = filters.isApplicable(dtoFilter);
         assertFalse(result);
@@ -53,46 +57,38 @@ public class TestSubscriptionUsernameFilters {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getUsername()).thenReturn(null);
-        when(dtoFilter.getNamePattern()).thenReturn("name");
+        when(user.getExperience()).thenReturn(null);
+        when(dtoFilter.getExperienceMin()).thenReturn(1);
+        when(dtoFilter.getExperienceMax()).thenReturn(1);
 
         boolean result = filters.apply(user, dtoFilter);
         assertFalse(result);
     }
 
     @Test
-    public void testApplyEntityFieldIsEmpty() {
+    public void testApplyEntityFieldBetweenFilterValues() {
         User user = mock(User.class);
         SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
 
-        when(user.getUsername()).thenReturn("");
-        when(dtoFilter.getNamePattern()).thenReturn("name");
-
-        boolean result = filters.apply(user, dtoFilter);
-        assertFalse(result);
-    }
-
-    @Test
-    public void testApplyEntityFieldDoesNotContainPattern() {
-        User user = mock(User.class);
-        SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-
-        when(user.getUsername()).thenReturn("my_family");
-        when(dtoFilter.getNamePattern()).thenReturn("name");
-
-        boolean result = filters.apply(user, dtoFilter);
-        assertFalse(result);
-    }
-
-    @Test
-    public void testApplyEntityFieldContainsPattern() {
-        User user = mock(User.class);
-        SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
-
-        when(user.getUsername()).thenReturn("my_name");
-        when(dtoFilter.getNamePattern()).thenReturn("name");
+        when(user.getExperience()).thenReturn(20);
+        when(dtoFilter.getExperienceMin()).thenReturn(1);
+        when(dtoFilter.getExperienceMax()).thenReturn(20);
 
         boolean result = filters.apply(user, dtoFilter);
         assertTrue(result);
     }
+
+    @Test
+    public void testApplyEntityFieldNotBetweenFilterValues() {
+        User user = mock(User.class);
+        SubscriptionFilterDto dtoFilter = mock(SubscriptionFilterDto.class);
+
+        when(user.getExperience()).thenReturn(0);
+        when(dtoFilter.getExperienceMin()).thenReturn(1);
+        when(dtoFilter.getExperienceMax()).thenReturn(20);
+
+        boolean result = filters.apply(user, dtoFilter);
+        assertFalse(result);
+    }
 }
+

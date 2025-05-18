@@ -4,20 +4,21 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
 import school.faang.user_service.entity.User;
 
-import java.time.temporal.ValueRange;
 import java.util.Objects;
 
 @Component
-public class SubscriptionExperienceFilters implements SubscriptionFilter {
+public class SubscriptionPhoneFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionFilterDto filterDto) {
-        return filterDto.getExperienceMin() > 0 || filterDto.getExperienceMax() > 0;
+        return Objects.nonNull(filterDto.getPhonePattern()) && !filterDto.getPhonePattern().isBlank();
     }
 
     @Override
     public boolean apply(User user, SubscriptionFilterDto filterDto) {
-        return Objects.nonNull(user.getExperience()) && ValueRange.of(filterDto.getExperienceMin(),
-                filterDto.getExperienceMax()).isValidIntValue(user.getExperience());
+        if (Objects.isNull(user.getPhone())) {
+            return false;
+        }
+        return user.getPhone().contains(filterDto.getPhonePattern());
     }
 }
