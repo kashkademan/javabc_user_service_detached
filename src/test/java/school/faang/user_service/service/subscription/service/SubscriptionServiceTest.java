@@ -47,47 +47,43 @@ public class SubscriptionServiceTest {
 
     private static final long FOLLOWER_ID = 1L;
     private static final long FOLLOWEE_ID = 2L;
-
+    private final  UserDtoFilter userDtoFilterCorrect = new UserDtoFilter("NN", "947", 3, 10);
     @Test
-    void testUserFollowedSuccess() {
+    void testUserFollowed_BothExist() {
         bothExist();
-
         subscriptionService.followUser(FOLLOWER_ID, FOLLOWEE_ID);
-
         verify(subscriptionRepository).followUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
-    void testUserFollowedFailureWithException() {
+    void testUserFollowed_when_OneMissing_ExceptionThrown() {
         when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
         when(userRepository.existsById(FOLLOWEE_ID)).thenReturn(false);
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(FOLLOWER_ID, FOLLOWEE_ID));
     }
 
     @Test
-    void testUserFollowedFailureSubToOneSelf() {
+    void testUserFollowed_when_SubscribingToOneSelf_ExceptionThrown() {
         followerExists();
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(FOLLOWER_ID, FOLLOWER_ID));
     }
 
     @Test
-    void testUnfollowSuccess() {
+    void testUnfollow_Success() {
         bothExist();
         subscriptionService.unfollowUser(FOLLOWER_ID, FOLLOWEE_ID);
         verify(subscriptionRepository).unfollowUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
-    void testUnfollowFailureWithException() {
+    void testUnfollow_UnfollowingHimself_ExceptionThrown() {
         when(userRepository.existsById(FOLLOWER_ID)).thenReturn(true);
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.followUser(FOLLOWER_ID, FOLLOWER_ID));
     }
 
     @Test
-    void testGetFollowersFailureWithMinExp() {
+    void testGetFollowers_MinExp_ExceptionThrown() {
         followeeExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("XX", "947", 3, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWER_ID);
@@ -107,17 +103,14 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MinExpTested " + (user.getExperience()>filter.getExperienceMin()));
             return user.getExperience()>filter.getExperienceMin();
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
 
     @Test
-    void testGetFollowersFailureWithMaxExp() {
+    void testGetFollowers_MaxExp_ExceptionThrown() {
         followeeExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("XX", "947", 3, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWER_ID);
@@ -137,22 +130,18 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getExperience()<filter.getExperienceMax()));
             return user.getExperience()<filter.getExperienceMax();
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
 
-
     @Test
-    void testGetFollowersFailureWithNamePattern() {
+    void testGetFollowers_WrongName_ExceptionThrown() {
         followeeExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("XX", "947", 3, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWER_ID);
-        matchingUser.setAboutMe("NN");
+        matchingUser.setAboutMe("XX");
         matchingUser.setPhone("444");
         matchingUser.setExperience(22);
 
@@ -168,18 +157,14 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Name Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getAboutMe().contains(filter.getNamePattern());
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
 
-
     @Test
-    void testGetFollowersFailureWithPhoneNumberPattern() {
+    void testGetFollowers_WrongPhone_ExceptionThrown() {
         followeeExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("XX", "947", 3, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWER_ID);
@@ -199,19 +184,15 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForPhoneNumber.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Phone Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getPhone().equals(filter.getPhonePattern());
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
 
-
-
     @Test
-    void testGetFollowersSuccess() {
+    void testGetFollowers_Success() {
         followeeExists();
 
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 1, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWER_ID);
@@ -240,35 +221,31 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MinExpTested " + (user.getExperience()>filter.getExperienceMin()));
             return user.getExperience()>filter.getExperienceMin();
         });
 
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getExperience()<filter.getExperienceMax()));
             return user.getExperience()<filter.getExperienceMax();
         });
 
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Name Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getAboutMe().contains(filter.getNamePattern());
         });
 
         when(userFilterStrategyForPhoneNumber.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
           User user = invocation.getArgument(0);
           UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Phone Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getPhone().equals(filter.getPhonePattern());
         });
 
         when(userMapper.mapListOfUsers(List.of(matchingUser))).thenReturn(List.of(userDto));
 
-        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter);
-        System.out.println(result);
+        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect);
+
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(FOLLOWER_ID, result.get(0).getId());
@@ -277,21 +254,16 @@ public class SubscriptionServiceTest {
     }
 
     @Test
-    public void getFollowerCountSuccess() {
+    public void getFollowerCount_Success() {
         followeeExists();
         when(subscriptionRepository.findFollowersAmountByFolloweeId(FOLLOWEE_ID)).thenReturn(3);
         int count = subscriptionService.getFollowerCount(FOLLOWEE_ID);
         Assertions.assertEquals(3, count);
     }
 
-
-
-
     @Test
-    public void testGetFollowingSuccess() {
+    public void testGetFollowing_Success() {
         followerExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 1, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
@@ -320,35 +292,30 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MinExpTested " + (user.getExperience()>filter.getExperienceMin()));
             return user.getExperience()>filter.getExperienceMin();
         });
 
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getExperience()<filter.getExperienceMax()));
             return user.getExperience()<filter.getExperienceMax();
         });
 
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Name Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getAboutMe().contains(filter.getNamePattern());
         });
 
         when(userFilterStrategyForPhoneNumber.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("Phone Tested " + user.getAboutMe().contains(filter.getNamePattern()));
             return user.getPhone().equals(filter.getPhonePattern());
         });
 
         when(userMapper.mapListOfUsers(List.of(matchingUser))).thenReturn(List.of(userDto));
 
-        List<UserDto> result = subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter);
-        System.out.println(result);
+        List<UserDto> result = subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect);
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(FOLLOWEE_ID, result.get(0).getId());
@@ -357,16 +324,16 @@ public class SubscriptionServiceTest {
     }
 
     @Test
-    void testGetFollowingFailureWithMinExp() {
+    void testGetFollowing_MinExp_ExceptionThrown() {
         followerExists();
 
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 6, 10);
+
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
         matchingUser.setAboutMe("NN");
         matchingUser.setPhone("947");
-        matchingUser.setExperience(5);
+        matchingUser.setExperience(2);
 
         when(subscriptionRepository.findByFollowerId(FOLLOWER_ID))
                 .thenReturn(Stream.of(matchingUser));
@@ -380,17 +347,15 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MinExpTested " + (user.getExperience()>filter.getExperienceMin()));
             return user.getExperience()>filter.getExperienceMin();
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
 
     @Test
-    void testGetFollowingFailureWithMaxExp() {
+    void testGetFollowing_MaxExp_ExceptionThrown() {
         followerExists();
 
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 6, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
@@ -410,18 +375,15 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getExperience()<filter.getExperienceMax()));
             return user.getExperience()<filter.getExperienceMax();
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
 
-
     @Test
-    void testGetFollowingFailureWithNamePattern() {
+    void testGetFollowing_WrongName_ExceptionThrown() {
         followerExists();
 
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 6, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
@@ -441,18 +403,14 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getAboutMe().contains(filter.getNamePattern())));
             return user.getAboutMe().contains(filter.getNamePattern());
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
 
-
     @Test
-    void testGetFollowingFailureWithPhoneNumberPattern() {
+    void testGetFollowing_WrongPhone_ExceptionThrown() {
         followerExists();
-
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 6, 10);
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
@@ -472,10 +430,9 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForPhoneNumber.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            System.out.println("MaxExpTested " + (user.getAboutMe().contains(filter.getNamePattern())));
             return user.getPhone().equals(filter.getNamePattern());
         });
-        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter));
+        Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
 
     @Test
