@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.mentorship;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NonNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MentorDto {
+public class MenteeDto {
 
     @NonNull
     private Long userId;
@@ -18,3 +18,4 @@ public class MentorDto {
     @NotBlank
     private String email;
 }
+

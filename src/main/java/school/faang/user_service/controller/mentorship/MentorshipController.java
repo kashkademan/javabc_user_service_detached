@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.MenteeDto;
-import school.faang.user_service.dto.MentorDto;
+import school.faang.user_service.dto.mentorship.MenteeDto;
+import school.faang.user_service.dto.mentorship.MentorDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
