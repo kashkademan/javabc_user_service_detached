@@ -8,14 +8,14 @@ import school.faang.user_service.filter.EventFilter;
 import java.util.stream.Stream;
 
 @Component
-public class TypeFilter implements EventFilter {
+public class EventStatusFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
-        return filter.getEventType() != null;
+        return filter.getEventStatus() != null;
     }
 
     @Override
     public Stream<EventDto> apply(Stream<EventDto> eventStream, EventFilterDto filter) {
-        return eventStream.filter(event -> event.getEventType() == filter.getEventType());
+        return eventStream.filter(event -> event.getEventStatus() == filter.getEventStatus());
     }
 }

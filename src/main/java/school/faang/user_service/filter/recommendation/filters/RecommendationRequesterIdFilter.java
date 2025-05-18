@@ -11,16 +11,17 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-public class StatusFilter implements RecommendationRequestFilterStrategy {
+public class RecommendationRequesterIdFilter implements RecommendationRequestFilterStrategy {
 
     @Override
     public boolean isApplicable(RequestFilterDto requestFilterDto) {
-        return requestFilterDto.getStatus() != null;
+        return requestFilterDto.getRequesterId() != null;
     }
 
     @Override
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests, RequestFilterDto requestFilterDto) {
-        return recommendationRequests.filter(recommendationRequest ->
-                        Objects.equals(recommendationRequest.getStatus(), requestFilterDto.getStatus()));
+        return recommendationRequests
+                .filter(recommendationRequest ->
+                        Objects.equals(recommendationRequest.getRequester().getId(), requestFilterDto.getRequesterId()));
     }
 }
