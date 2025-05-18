@@ -8,7 +8,7 @@ import school.faang.user_service.filter.EventFilter;
 import java.util.stream.Stream;
 
 @Component
-public class LocationFilter implements EventFilter {
+public class EventLocationFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getLocation() != null;
