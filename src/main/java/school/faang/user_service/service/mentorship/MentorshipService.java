@@ -1,6 +1,5 @@
 package school.faang.user_service.service.mentorship;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +11,13 @@ import school.faang.user_service.mapper.MenteesMapper;
 import school.faang.user_service.mapper.MentorsMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.volidation.mentorship.MentorshipValidation;
 
 import java.util.List;
+
+import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateIsMenteeOf;
+import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateIsMentorOf;
+import static school.faang.user_service.volidation.mentorship.MentorshipValidation.validateMentorshipUsers;
 
 
 @Slf4j
@@ -26,12 +30,9 @@ public class MentorshipService {
     @Transactional
     public List<MenteeDto> getMentees(long mentorId) {
         User mentor = findUserIntoUserRepository(mentorId);
-
         List<User> mentees = mentor.getMentees();
 
-        if (mentees.isEmpty()) {
-            throw new IllegalArgumentException("У юзера нету учеников");
-        }
+        MentorshipValidation.validateMenteesNonEmpty(mentees);
 
         return mentees.stream()
                 .map(MenteesMapper::toDto)
@@ -41,8 +42,9 @@ public class MentorshipService {
     @Transactional
     public List<MentorDto> getMentors(long menteeId) {
         User mentee = findUserIntoUserRepository(menteeId);
-
         List<User> mentors = mentee.getMentors();
+
+        MentorshipValidation.validateMentorsNonEmpty(mentors);
 
         return mentors.stream()
                 .map(MentorsMapper::toDto)
@@ -54,22 +56,20 @@ public class MentorshipService {
         User mentor = findUserIntoMentorshipRepository(mentorId);
         User mentee = findUserIntoMentorshipRepository(menteeId);
 
-        if (!mentor.getMentees().contains(mentee)) {
-            throw new EntityNotFoundException("Пользователя нет в списке менти");
-        }
+        validateMentorshipUsers(mentor, mentee);
+        validateIsMenteeOf(mentor, mentee);
 
         mentor.getMentees().remove(mentee);
         userRepository.save(mentor);
     }
 
     @Transactional
-    public void deleteMentor (long mentorId, long menteeId) {
+    public void deleteMentor(long mentorId, long menteeId) {
         User mentor = findUserIntoMentorshipRepository(mentorId);
         User mentee = findUserIntoMentorshipRepository(menteeId);
 
-        if(!mentee.getMentors().contains(mentor)) {
-            throw new EntityNotFoundException("Пользователя нету в списке менторов");
-        }
+        validateMentorshipUsers(mentor, mentee);
+        validateIsMentorOf(mentor, mentee);
 
         mentee.getMentors().remove(mentor);
         userRepository.save(mentor);
