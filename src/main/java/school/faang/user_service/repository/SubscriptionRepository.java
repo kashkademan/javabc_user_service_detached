@@ -18,6 +18,9 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     @Modifying
     void unfollowUser(long followerId, long followeeId);
 
+    @Query(nativeQuery = true, value = "select * from subscription where follower_id = :followerId and followee_id = :followeeId")
+    Subscription getSubscription(long followerId, long followeeId);
+
     @Query(nativeQuery = true, value = "select exists(select 1 from subscription where follower_id = :followerId and followee_id = :followeeId)")
     boolean existsByFollowerIdAndFolloweeId(long followerId, long followeeId);
 
@@ -39,5 +42,5 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     Stream<User> findByFollowerId(long followerId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :followerId")
-    int findFolloweesAmountByFollowerId(long followerId);
+    long findFolloweesAmountByFollowerId(long followerId);
 }

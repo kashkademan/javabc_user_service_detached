@@ -8,7 +8,7 @@ import java.time.temporal.ValueRange;
 import java.util.Objects;
 
 @Component
-public class SubscriptionExperienceFilters implements SubscriptionFilter {
+public class SubscriptionExperienceFilter implements SubscriptionFilter {
 
     @Override
     public boolean isApplicable(SubscriptionFilterDto filterDto) {
