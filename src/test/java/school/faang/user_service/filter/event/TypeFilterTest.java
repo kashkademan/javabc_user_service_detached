@@ -16,21 +16,21 @@ class TypeFilterTest {
     private final EventTypeFilter typeFilter = new EventTypeFilter();
 
     @Test
-    void testIsApplicableTrue() {
+    void testIsApplicable_whenCriteriaExists_thenReturnTrue() {
         EventFilterDto filter = EventFilterDto.builder().eventType(EventType.POLL).build();
 
         assertTrue(typeFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableFalse() {
+    void testIsApplicable_whenCriteriaIsNull_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().title(null).build();
 
         assertFalse(typeFilter.isApplicable(filter));
     }
 
     @Test
-    void testApply() {
+    void testApply_whenPartiallyPassed_thenReturnFilteredList() {
         EventType firstEventType = EventType.MEETING;
         EventType secondEventType = EventType.POLL;
         Stream<EventDto> eventStream = Stream.of(EventDto.builder().eventType(firstEventType).build(),

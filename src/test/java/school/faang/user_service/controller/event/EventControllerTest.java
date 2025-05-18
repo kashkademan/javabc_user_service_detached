@@ -24,33 +24,34 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventControllerTest {
+    private final static long USER_ID = 1L;
+    private final static long FIRST_EVENT_ID = 2L;
+    private final static long SECOND_EVENT_ID = 3L;
+
     @Mock
     private EventService eventService;
     @InjectMocks
     private EventController eventController;
 
     @Test
-    void testCreateSuccess() {
-        long eventId = 1L;
-        long userId = 2L;
+    void testCreate_whenValid_thenReturnCreatedEvent() {
         String title = "Event title";
-        EventDto eventDto = createEventDto(null, userId, title);
-        EventDto returnedEventDto = createEventDto(eventId, userId, title);
+        EventDto eventDto = createEventDto(null, USER_ID, title);
+        EventDto returnedEventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
         when(eventService.create(eventDto)).thenReturn(returnedEventDto);
 
         EventDto createdEventDto = eventController.create(eventDto);
-        verify(eventService, times(1)).create(eventDto);
 
+        verify(eventService, times(1)).create(eventDto);
         assertNotNull(createdEventDto);
-        assertEquals(eventId, createdEventDto.getId());
-        assertEquals(userId, createdEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, createdEventDto.getId());
+        assertEquals(USER_ID, createdEventDto.getOwnerId());
         assertEquals(title, createdEventDto.getTitle());
     }
 
     @Test
-    void testCreateWithTitleValidationError() {
-        long userId = 2L;
-        EventDto eventDto = createEventDto(null, userId, null);
+    void testCreate_whenEmptyTitle_thenThrowException() {
+        EventDto eventDto = createEventDto(null, USER_ID, null);
 
         DataValidationException exception = assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
 
@@ -58,7 +59,7 @@ class EventControllerTest {
     }
 
     @Test
-    void testCreateWithOwnerValidationError() {
+    void testCreate_withEmptyOwner_thenThrowException() {
         String title = "Event title";
         EventDto eventDto = createEventDto(null, null, title);
 
@@ -68,10 +69,9 @@ class EventControllerTest {
     }
 
     @Test
-    void testCreateWithStartDateValidationError() {
-        long userId = 2L;
+    void testCreate_whenEmptyStartDate_thenThrowException() {
         String title = "Event title";
-        EventDto eventDto = createEventDto(null, userId, title, null);
+        EventDto eventDto = createEventDto(null, USER_ID, title, null);
 
         DataValidationException exception = assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
 
@@ -79,29 +79,24 @@ class EventControllerTest {
     }
 
     @Test
-    void testGetEvent() {
-        long eventId = 1L;
-        long userId = 2L;
+    void testGetEvent_whenEventExists_thenReturnEvent() {
         String title = "Event title";
-        EventDto eventDto = createEventDto(eventId, userId, title);
-        when(eventService.getEvent(eventId)).thenReturn(eventDto);
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
+        when(eventService.getEvent(FIRST_EVENT_ID)).thenReturn(eventDto);
 
-        EventDto foundEventDto = eventController.getEvent(eventId);
+        EventDto foundEventDto = eventController.getEvent(FIRST_EVENT_ID);
 
         assertNotNull(foundEventDto);
-        assertEquals(eventId, foundEventDto.getId());
-        assertEquals(userId, foundEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, foundEventDto.getId());
+        assertEquals(USER_ID, foundEventDto.getOwnerId());
         assertEquals(title, foundEventDto.getTitle());
     }
 
     @Test
-    void testGetEventsByFilter() {
-        long firstEventId = 1L;
-        long secondEventId = 2L;
-        long userId = 3L;
+    void testGetEventsByFilter_whenAllPassed_thenReturnList() {
         String title = "Event title";
-        EventDto firstEventDto = createEventDto(firstEventId, userId, title);
-        EventDto secondEventDto = createEventDto(secondEventId, userId, title);
+        EventDto firstEventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
+        EventDto secondEventDto = createEventDto(SECOND_EVENT_ID, USER_ID, title);
         EventFilterDto filter = EventFilterDto.builder().build();
         when(eventService.getEventsByFilter(filter)).thenReturn(List.of(firstEventDto, secondEventDto));
 
@@ -115,40 +110,33 @@ class EventControllerTest {
 
     @Test
     void testDeleteEvent() {
-        long eventId = 1L;
-
-        assertDoesNotThrow(() -> eventController.deleteEvent(eventId));
-        verify(eventService, times(1)).deleteEvent(eventId);
+        assertDoesNotThrow(() -> eventController.deleteEvent(FIRST_EVENT_ID));
+        verify(eventService, times(1)).deleteEvent(FIRST_EVENT_ID);
     }
 
     @Test
-    void testUpdateEvent() {
-        long eventId = 1L;
-        long userId = 2L;
+    void testUpdateEvent_whenValid_thenReturnEvent() {
         String title = "Event title";
-        EventDto eventDto = createEventDto(eventId, userId, title);
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
         when(eventService.updateEvent(eventDto)).thenReturn(eventDto);
 
         EventDto updatedEventDto = eventController.updateEvent(eventDto);
-        verify(eventService, times(1)).updateEvent(eventDto);
 
+        verify(eventService, times(1)).updateEvent(eventDto);
         assertNotNull(updatedEventDto);
-        assertEquals(eventId, updatedEventDto.getId());
-        assertEquals(userId, updatedEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, updatedEventDto.getId());
+        assertEquals(USER_ID, updatedEventDto.getOwnerId());
         assertEquals(title, updatedEventDto.getTitle());
     }
 
     @Test
-    void testGetOwnedEvents() {
-        long firstEventId = 1L;
-        long secondEventId = 2L;
-        long userId = 3L;
+    void testGetOwnedEvents_whenExists_thenReturnList() {
         String title = "Event title";
-        EventDto firstEventDto = createEventDto(firstEventId, userId, title);
-        EventDto secondEventDto = createEventDto(secondEventId, userId, title);
-        when(eventService.getOwnedEvents(userId)).thenReturn(List.of(firstEventDto, secondEventDto));
+        EventDto firstEventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
+        EventDto secondEventDto = createEventDto(SECOND_EVENT_ID, USER_ID, title);
+        when(eventService.getOwnedEvents(USER_ID)).thenReturn(List.of(firstEventDto, secondEventDto));
 
-        List<EventDto> events = eventController.getOwnedEvents(userId);
+        List<EventDto> events = eventController.getOwnedEvents(USER_ID);
 
         assertNotNull(events);
         assertEquals(2, events.size());
@@ -157,16 +145,13 @@ class EventControllerTest {
     }
 
     @Test
-    void testGetParticipatedEvents() {
-        long firstEventId = 1L;
-        long secondEventId = 2L;
-        long userId = 3L;
+    void testGetParticipatedEvents_whenExists_thenReturnList() {
         String title = "Event title";
-        EventDto firstEventDto = createEventDto(firstEventId, userId, title);
-        EventDto secondEventDto = createEventDto(secondEventId, userId, title);
-        when(eventService.getParticipatedEvents(userId)).thenReturn(List.of(firstEventDto, secondEventDto));
+        EventDto firstEventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);
+        EventDto secondEventDto = createEventDto(SECOND_EVENT_ID, USER_ID, title);
+        when(eventService.getParticipatedEvents(USER_ID)).thenReturn(List.of(firstEventDto, secondEventDto));
 
-        List<EventDto> events = eventController.getParticipatedEvents(userId);
+        List<EventDto> events = eventController.getParticipatedEvents(USER_ID);
 
         assertNotNull(events);
         assertEquals(2, events.size());

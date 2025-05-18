@@ -39,6 +39,9 @@ class EventServiceImplTest {
     public final static String TITLE_FOR_FILTER = "Filtered title";
 
     private final static String DEFAULT_EVENT_TITLE = "Event title";
+    private final static long USER_ID = 1L;
+    private final static long FIRST_EVENT_ID = 2L;
+    private final static long SECOND_EVENT_ID = 3L;
 
     @Mock
     private EventRepository eventRepository;
@@ -57,42 +60,36 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testCreateSuccess() {
-        long userId = 1L;
-        long eventId = 2L;
+    void testCreate_whenValid_thenSuccess() {
         String eventTitle = "Created event";
-        User user = createUser(userId);
-        Event event = createEvent(eventId, user, eventTitle);
-        EventDto eventDto = createEventDto(eventId, userId, eventTitle);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        User user = createUser(USER_ID);
+        Event event = createEvent(FIRST_EVENT_ID, user, eventTitle);
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, eventTitle);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(eventRepository.save(any())).thenReturn(event);
 
         EventDto savedEventDto = eventService.create(eventDto);
 
-        assertEquals(userId, savedEventDto.getOwnerId());
-        assertEquals(eventId, savedEventDto.getId());
+        assertEquals(USER_ID, savedEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, savedEventDto.getId());
         assertEquals(eventTitle, savedEventDto.getTitle());
     }
 
     @Test
-    void testCreateForUnexistingUser() {
-        long userId = -1L;
-        long eventId = 1L;
-        EventDto eventDto = createEventDto(eventId, userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    void testCreate_whenUnexistingUser_thenThrowException() {
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> eventService.create(eventDto));
     }
 
     @Test
-    void testCreateWithMismatchSkills() {
-        long userId = 1L;
-        long eventId = 1L;
+    void testCreate_whenMismatchSkills_thenThrowException() {
         long skillId = 1L;
         String eventTitle = "Created event";
-        User user = createUser(userId);
-        EventDto eventDto = createEventDto(eventId, userId, eventTitle, List.of(skillId));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        User user = createUser(USER_ID);
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, eventTitle, List.of(skillId));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
         DataValidationException exception = assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
 
@@ -100,21 +97,19 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testGetEventSuccess() {
-        long userId = 2L;
-        long eventId = 1L;
-        User user = createUser(userId);
-        Event event = createEvent(eventId, user);
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+    void testGetEvent_whenEventExists_thenReturnEvent() {
+        User user = createUser(USER_ID);
+        Event event = createEvent(FIRST_EVENT_ID, user);
+        when(eventRepository.findById(FIRST_EVENT_ID)).thenReturn(Optional.of(event));
 
-        EventDto foundEventDto = eventService.getEvent(eventId);
+        EventDto foundEventDto = eventService.getEvent(FIRST_EVENT_ID);
 
-        assertEquals(eventId, foundEventDto.getId());
-        assertEquals(userId, foundEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, foundEventDto.getId());
+        assertEquals(USER_ID, foundEventDto.getOwnerId());
     }
 
     @Test
-    void testGetEventNotExisting() {
+    void testGetEvent_whenEventNotExists_thenThrowException() {
         long eventId = -1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
@@ -122,16 +117,13 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testGetEventsByFilter() {
-        long userId = 1L;
-        long firstEventId = 2L;
-        long secondEventId = 3L;
-        User user = createUser(userId);
-        Event firstEvent = createEvent(firstEventId, user);
-        Event secondEvent = createEvent(secondEventId, user, TITLE_FOR_FILTER);
+    void testGetEventsByFilter_whenPartiallyPassed_thenReturnFilteredList() {
+        User user = createUser(USER_ID);
+        Event firstEvent = createEvent(FIRST_EVENT_ID, user);
+        Event secondEvent = createEvent(SECOND_EVENT_ID, user, TITLE_FOR_FILTER);
         secondEvent.setStatus(STATUS_FOR_FILTER);
-        EventDto firstEventDto = createEventDto(firstEventId, userId);
-        EventDto secondEventDto = createEventDto(secondEventId, userId, TITLE_FOR_FILTER);
+        EventDto firstEventDto = createEventDto(FIRST_EVENT_ID, USER_ID);
+        EventDto secondEventDto = createEventDto(SECOND_EVENT_ID, USER_ID, TITLE_FOR_FILTER);
         secondEventDto.setEventStatus(STATUS_FOR_FILTER);
         when(eventRepository.findAll()).thenReturn(List.of(firstEvent, secondEvent));
 
@@ -144,63 +136,53 @@ class EventServiceImplTest {
 
     @Test
     void testDeleteEvent() {
-        long eventId = 1L;
-
-        assertDoesNotThrow(() -> eventService.deleteEvent(eventId));
-        verify(eventRepository, times(1)).deleteById(eventId);
+        assertDoesNotThrow(() -> eventService.deleteEvent(FIRST_EVENT_ID));
+        verify(eventRepository, times(1)).deleteById(FIRST_EVENT_ID);
     }
 
     @Test
-    void testUpdateEvent() {
-        long userId = 1L;
-        long eventId = 2L;
+    void testUpdateEvent_whenValid_thenReturnUpdatedEvent() {
         String eventTitle = "Updated event";
-        User user = createUser(userId);
-        Event event = createEvent(eventId, user, eventTitle);
-        EventDto eventDto = createEventDto(eventId, userId, eventTitle);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        User user = createUser(USER_ID);
+        Event event = createEvent(FIRST_EVENT_ID, user, eventTitle);
+        EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, eventTitle);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(eventRepository.save(any())).thenReturn(event);
 
         EventDto savedEventDto = eventService.create(eventDto);
 
-        assertEquals(eventId, savedEventDto.getId());
-        assertEquals(userId, savedEventDto.getOwnerId());
+        assertEquals(FIRST_EVENT_ID, savedEventDto.getId());
+        assertEquals(USER_ID, savedEventDto.getOwnerId());
         assertEquals(eventTitle, savedEventDto.getTitle());
     }
 
     @Test
-    void testGetOwnedEvents() {
-        long userId = 1L;
-        long firstEventId = 2L;
-        long secondEventId = 3L;
-        User user = createUser(userId);
-        Event firstEvent = createEvent(firstEventId, user);
-        Event secondEvent = createEvent(secondEventId, user);
-        when(eventRepository.findAllByUserId(userId)).thenReturn(List.of(firstEvent, secondEvent));
+    void testGetOwnedEvents_whenEventsExists_thenReturnList() {
+        User user = createUser(USER_ID);
+        Event firstEvent = createEvent(FIRST_EVENT_ID, user);
+        Event secondEvent = createEvent(SECOND_EVENT_ID, user);
+        when(eventRepository.findAllByUserId(USER_ID)).thenReturn(List.of(firstEvent, secondEvent));
 
-        List<EventDto> ownedEvents = eventService.getOwnedEvents(userId);
-        verify(eventRepository, times(1)).findAllByUserId(userId);
+        List<EventDto> ownedEvents = eventService.getOwnedEvents(USER_ID);
 
+        verify(eventRepository, times(1)).findAllByUserId(USER_ID);
         assertEquals(2, ownedEvents.size());
         assertTrue(ownedEvents.contains(eventMapper.toEventDto(firstEvent)));
         assertTrue(ownedEvents.contains(eventMapper.toEventDto(secondEvent)));
     }
 
     @Test
-    void testGetParticipatedEvents() {
-        long userId = 1L;
-        long firstEventId = 2L;
-        long secondEventId = 3L;
-        User user = createUser(userId);
-        Event firstEvent = createEvent(firstEventId, user);
+    void testGetParticipatedEvents_whenEventsExists_thenReturnList() {
+        User user = createUser(USER_ID);
+        Event firstEvent = createEvent(FIRST_EVENT_ID, user);
         firstEvent.setAttendees(List.of(user));
-        Event secondEvent = createEvent(secondEventId, user);
+        Event secondEvent = createEvent(SECOND_EVENT_ID, user);
         secondEvent.setAttendees(List.of(user));
-        when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(List.of(firstEvent, secondEvent));
+        when(eventRepository.findParticipatedEventsByUserId(USER_ID)).thenReturn(List.of(firstEvent, secondEvent));
 
-        List<EventDto> attendedEvents = eventService.getParticipatedEvents(userId);
-        verify(eventRepository, times(1)).findParticipatedEventsByUserId(userId);
+        List<EventDto> attendedEvents = eventService.getParticipatedEvents(USER_ID);
 
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(USER_ID);
         assertEquals(2, attendedEvents.size());
         assertTrue(attendedEvents.contains(eventMapper.toEventDto(firstEvent)));
         assertTrue(attendedEvents.contains(eventMapper.toEventDto(secondEvent)));

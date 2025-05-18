@@ -15,28 +15,28 @@ class LocationFilterTest {
     private final EventLocationFilter locationFilter = new EventLocationFilter();
 
     @Test
-    void testIsApplicableTrue() {
+    void testIsApplicable_whenCriteriaExists_thenReturnTrue() {
         EventFilterDto filter = EventFilterDto.builder().location("Location").build();
 
         assertTrue(locationFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableFalse() {
+    void testIsApplicable_whenCriteriaIsNull_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().location(null).build();
 
         assertFalse(locationFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableBlank() {
+    void testIsApplicable_whenCriteriaIsBlank_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().location(" ").build();
 
         assertFalse(locationFilter.isApplicable(filter));
     }
 
     @Test
-    void testApply() {
+    void testApply_whenPartiallyPassed_thenReturnFilteredList() {
         String moscow = "Moscow";
         String novgorod = "Novgorod";
         Stream<EventDto> eventStream = Stream.of(EventDto.builder().location(moscow).build(), EventDto.builder().location(novgorod).build());

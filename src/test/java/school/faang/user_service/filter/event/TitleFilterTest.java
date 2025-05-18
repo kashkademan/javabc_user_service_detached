@@ -15,21 +15,21 @@ class TitleFilterTest {
     private final EventTitleFilter titleFilter = new EventTitleFilter();
 
     @Test
-    void testIsApplicableTrue() {
+    void testIsApplicable_whenCriteriaExists_thenReturnTrue() {
         EventFilterDto filter = EventFilterDto.builder().title("Event title").build();
 
         assertTrue(titleFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableFalse() {
+    void testIsApplicable_whenCriteriaIsNull_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().title(null).build();
 
         assertFalse(titleFilter.isApplicable(filter));
     }
 
     @Test
-    void testApply() {
+    void testApply_whenPartiallyPassed_thenReturnFilteredList() {
         String firstEventTitle = "First title";
         String secondEventTitle = "Second title";
         Stream<EventDto> eventStream = Stream.of(EventDto.builder().title(firstEventTitle).build(),

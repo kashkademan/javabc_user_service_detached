@@ -15,21 +15,21 @@ class OwnerFilterTest {
     private final EventOwnerFilter ownerFilter = new EventOwnerFilter();
 
     @Test
-    void testIsApplicableTrue() {
+    void testIsApplicable_whenCriteriaExists_thenReturnTrue() {
         EventFilterDto filter = EventFilterDto.builder().ownerId(1L).build();
 
         assertTrue(ownerFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableFalse() {
+    void testIsApplicable_whenCriteriaIsNull_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().ownerId(null).build();
 
         assertFalse(ownerFilter.isApplicable(filter));
     }
 
     @Test
-    void testApply() {
+    void testApply_whenPartiallyPassed_thenReturnFilteredList() {
         long firstUserId = 1L;
         long secondUserId = 2L;
         Stream<EventDto> eventStream = Stream.of(EventDto.builder().ownerId(firstUserId).build(), EventDto.builder().ownerId(secondUserId).build());

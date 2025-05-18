@@ -16,21 +16,21 @@ class StatusFilterTest {
     private final EventStatusFilter statusFilter = new EventStatusFilter();
 
     @Test
-    void testIsApplicableTrue() {
+    void testIsApplicable_whenCriteriaExists_thenReturnTrue() {
         EventFilterDto filter = EventFilterDto.builder().eventStatus(EventStatus.IN_PROGRESS).build();
 
         assertTrue(statusFilter.isApplicable(filter));
     }
 
     @Test
-    void testIsApplicableFalse() {
+    void testIsApplicable_whenCriteriaIsNull_thenReturnFalse() {
         EventFilterDto filter = EventFilterDto.builder().eventStatus(null).build();
 
         assertFalse(statusFilter.isApplicable(filter));
     }
 
     @Test
-    void testApply() {
+    void testApply_whenPartiallyPassed_thenReturnFilteredList() {
         EventStatus firstEventStatus = EventStatus.IN_PROGRESS;
         EventStatus secondEventStatus = EventStatus.PLANNED;
         Stream<EventDto> eventStream = Stream.of(EventDto.builder().eventStatus(firstEventStatus).build(),
