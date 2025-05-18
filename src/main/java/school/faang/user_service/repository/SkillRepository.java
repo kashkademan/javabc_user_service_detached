@@ -44,7 +44,9 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     @Modifying
     void assignSkillToGoal(long goalId, long skillId);
 
-    @Query(value = "DELETE FROM goal_skill WHERE goal_id = :goalId", nativeQuery = true)
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal_skill
+            WHERE goal_id = :goalId""")
     @Modifying
     void removeSkillsFromGoal(Long goalId);
 
