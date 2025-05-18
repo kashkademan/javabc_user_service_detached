@@ -10,19 +10,19 @@ public class ExperienceMinFilterTest {
     private final ExperienceMinFilter filter = new ExperienceMinFilter();
 
     @Test
-    public void testIsApplicableWhenZero() {
+    public void testIsApplicable_WhenZero() {
         boolean result = filter.isApplicable(new UserDtoFilter("NN","947",0,2));
         Assertions.assertFalse(result);
     }
 
     @Test
-    public void testIsApplicableWhenOk() {
+    public void testIsApplicable_CorrectParams() {
         boolean result = filter.isApplicable(new UserDtoFilter("NN","947",1,2));
         Assertions.assertTrue(result);
     }
 
     @Test
-    public void testFilterUsersSuccess() {
+    public void testFilterUsers_Success() {
         User user = new User();
         user.setExperience(100);
         UserDtoFilter userDtoFilter = new UserDtoFilter("NN","947",1,2);
@@ -30,7 +30,7 @@ public class ExperienceMinFilterTest {
         Assertions.assertTrue(result);
     }
     @Test
-    public void testFilterUsersFailure() {
+    public void testFilterUsers_Failure() {
         User user = new User();
         user.setExperience(2);
         UserDtoFilter userDtoFilter = new UserDtoFilter("NN","947",6,5);

@@ -10,25 +10,25 @@ public class PhonePatternFilterTest {
     private final PhonePatternFilter filter = new PhonePatternFilter();
 
     @Test
-    public void testIsApplicableIfPhoneNull(){
+    public void testIsApplicable_PhoneNull(){
         boolean result = filter.isApplicable(new UserDtoFilter());
         Assertions.assertFalse(result);
     }
 
     @Test
-    public void testIsApplicableIfPhoneBlank(){
+    public void testIsApplicable_PhoneBlank(){
         boolean result = filter.isApplicable(new UserDtoFilter("nn"," ",1,2));
         Assertions.assertFalse(result);
     }
 
     @Test
-    public void testIsApplicableIfPhoneOk(){
+    public void testIsApplicable_PhoneOk(){
         boolean result = filter.isApplicable(new UserDtoFilter("nn","111",1,2));
         Assertions.assertTrue(result);
     }
 
     @Test
-    public void testFilterUsersSuccess(){
+    public void testFilterUsers_Success(){
         UserDtoFilter userDtoFilter = new UserDtoFilter("nn","947",1,2);
         User user = new User();
         user.setPhone("947");
@@ -37,7 +37,7 @@ public class PhonePatternFilterTest {
     }
 
     @Test
-    public void testFilterUsersFailure(){
+    public void testFilterUsers_Failure(){
         UserDtoFilter userDtoFilter = new UserDtoFilter("nn","948",1,2);
         User user = new User();
         user.setPhone("947");

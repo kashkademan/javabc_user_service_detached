@@ -32,19 +32,19 @@ public class SubscriptionControllerTest {
 
 
     @Test
-    void testFollowUserSuccess() {
+    void testFollowUser_Success() {
         subscriptionController.followUser(FOLLOWER_ID, FOLLOWEE_ID);
         verify(subscriptionService, times(1)).followUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
-    void testUnfollowUserSuccess() {
+    void testUnfollowUser_Success() {
         subscriptionController.unfollowUser(FOLLOWER_ID, FOLLOWEE_ID);
         verify(subscriptionService, times(1)).unfollowUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
-    void testGetFollowersSuccess() {
+    void testGetFollowers_Success() {
         userDtoFilter = new UserDtoFilter("NN","947",1,10);
         List<UserDto> expected = List.of(
                 new UserDto(),
@@ -57,7 +57,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    void testGetFollowerCountSuccess() {
+    void testGetFollowerCount_Success() {
         subscriptionController.getFollowerCount(FOLLOWER_ID);
         verify(subscriptionService, times(1)).getFollowerCount(FOLLOWER_ID);
     }

@@ -10,25 +10,25 @@ public class NamePatternFilterTest {
     private final NamePatternFilter namePatternFilter = new NamePatternFilter();
 
     @Test
-    public void testIsApplicableWhenNull() {
+    public void testIsApplicable_WhenNull() {
        boolean result = namePatternFilter.isApplicable(new UserDtoFilter());
         Assertions.assertFalse(result);
     }
 
     @Test
-    public void testIsApplicableWhenNameBlank() {
+    public void testIsApplicable_WhenNameBlank() {
         boolean result = namePatternFilter.isApplicable(new UserDtoFilter(""," ",1,2));
         Assertions.assertFalse(result);
     }
 
     @Test
-    public void testIsApplicableWhenOk() {
+    public void testIsApplicable_WhenCorrectParams() {
         boolean result = namePatternFilter.isApplicable(new UserDtoFilter("NN","947",1,2));
         Assertions.assertTrue(result);
     }
 
     @Test
-    public void testFilterUsersSuccess() {
+    public void testFilterUsers_Success() {
         UserDtoFilter userDtoFilter = new UserDtoFilter("NN","947",1,2);
         User user = new User();
         user.setAboutMe("NN");
@@ -37,7 +37,7 @@ public class NamePatternFilterTest {
     }
 
     @Test
-    public void testFilterUsersFailure() {
+    public void testFilterUsers_Failure() {
         UserDtoFilter userDtoFilter = new UserDtoFilter("M","947",1,2);
         User user = new User();
         user.setAboutMe("NN");
