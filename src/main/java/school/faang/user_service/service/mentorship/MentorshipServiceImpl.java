@@ -28,6 +28,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     @Override
+    @Transactional
     public List<MenteeDto> getMentees(long userId) {
         User user = getUserById(userId);
         return Optional.ofNullable(user.getMentees())
@@ -38,6 +39,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     @Override
+    @Transactional
     public List<MentorDto> getMentors(long userId) {
         User user = getUserById(userId);
         return Optional.ofNullable(user.getMentors())
