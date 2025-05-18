@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,33 +17,31 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/event-participation")
+@RequestMapping("/api/v1/events")
 public class EventParticipationController {
     private final EventParticipationService eventService;
-
     private final UserMapper userMapper;
 
-    @PutMapping("/{eventId}")
-    public void registerParticipant(@PathVariable("eventId") long eventId) {
-        eventService.eventParticipant(eventId);
+    @PutMapping("/register/{eventId}")
+    public ResponseEntity<UserDto> registerParticipant(@PathVariable("eventId") long eventId) {
+        User registerUser = eventService.registerParticipant(eventId);
+        return ResponseEntity.ok(userMapper.userToDto(registerUser));
     }
 
-    @DeleteMapping("/{eventId}")
-    public void unregisterParticipant(@PathVariable("eventId") long eventId) {
+    @DeleteMapping("/unregister/{eventId}")
+    public ResponseEntity<Void> unregisterParticipant(@PathVariable("eventId") long eventId) {
         eventService.unregisterParticipant(eventId);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{eventId}")
+    @GetMapping("/all-register/{eventId}")
     public ResponseEntity<List<UserDto>> getParticipant(@PathVariable("eventId") long eventId) {
         List<User> participants = eventService.getParticipant(eventId);
-        if (participants == null || participants.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204 No Content
-        }
         return ResponseEntity.ok(userMapper.toEventResponses(participants));
     }
 
-    @GetMapping("/count-user/{eventId}")
-    public int getParticipantCount(@PathVariable("eventId") long eventId) {
-        return eventService.getParticipantsCount(eventId);
+    @GetMapping("/count-register/{eventId}")
+    public ResponseEntity<Integer> getParticipantCount(@PathVariable("eventId") long eventId) {
+        return ResponseEntity.ok(eventService.getParticipantsCount(eventId));
     }
 }

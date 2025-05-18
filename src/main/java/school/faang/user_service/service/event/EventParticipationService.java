@@ -5,8 +5,7 @@ import school.faang.user_service.entity.User;
 import java.util.List;
 
 public interface EventParticipationService {
-
-    void eventParticipant(long eventId);
+    User registerParticipant(long eventId);
 
     void unregisterParticipant(long eventId);
 

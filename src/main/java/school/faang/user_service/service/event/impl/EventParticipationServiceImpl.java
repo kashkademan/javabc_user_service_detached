@@ -19,43 +19,41 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class EventParticipationServiceImpl implements EventParticipationService {
-
     private final EventParticipationRepository eventRepository;
     private final UserContext userContext;
     private final UserRepository userRepository;
 
     @Override
     @Transactional
-    public void eventParticipant(long eventId) {
+    public User registerParticipant(long eventId) {
         List<User> userRegisterEvent = getParticipant(eventId);
         if (!userRegisterEvent.contains(findUserById())) {
             eventRepository.register(eventId, findUserById().getId());
             log.info("User register");
-        } else {
-            throw new EventRegisterException("User is already register");
+            return findUserById();
         }
+        throw new EventRegisterException("User is already register");
     }
 
     @Override
     @Transactional
     public void unregisterParticipant(long eventId) {
         List<User> userRegisterEvent = getParticipant(eventId);
-        if (userRegisterEvent.contains(findUserById())) {
-            eventRepository.unregister(eventId, findUserById().getId());
-            log.info("User unregister");
-        } else {
+        if (!userRegisterEvent.contains(findUserById())) {
             throw new EventRegisterException("User is not Register");
         }
+        eventRepository.unregister(eventId, findUserById().getId());
+        log.info("User unregister");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> getParticipant(long eventId) {
-        List<User> participants = eventRepository.findAllParticipantsByEventId(eventId);
-        return participants != null ? participants : Collections.emptyList();
+        return eventRepository.findAllParticipantsByEventId(eventId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getParticipantsCount(long eventId) {
         return eventRepository.countParticipants(eventId);
     }
