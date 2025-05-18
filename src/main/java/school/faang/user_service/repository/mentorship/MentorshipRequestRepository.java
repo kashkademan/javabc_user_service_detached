@@ -1,13 +1,10 @@
 package school.faang.user_service.repository.mentorship;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import school.faang.user_service.entity.MentorshipRequest;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface MentorshipRequestRepository extends JpaRepository<MentorshipRequest, Long> {

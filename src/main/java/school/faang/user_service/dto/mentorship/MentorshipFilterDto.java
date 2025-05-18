@@ -5,7 +5,7 @@ import school.faang.user_service.entity.RequestStatus;
 @Data
 public class MentorshipFilterDto{
     private String description;
-    private Long requester;
-    private Long receiver;
+    private Long requesterId;
+    private Long receiverId;
     private RequestStatus status;
 }

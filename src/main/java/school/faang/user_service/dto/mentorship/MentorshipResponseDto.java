@@ -1,26 +1,22 @@
 package school.faang.user_service.dto.mentorship;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
-public class MentorshipResponseDto {
+public record MentorshipResponseDto(
+        int id,
 
-    private int id;
+        Long requesterId,
+        
+        Long receiverId,
 
-    @JsonProperty("requesterId")
-    private Long requester;
+        String status,
 
-    @JsonProperty("receiverId")
-    private Long receiver;
+        String description,
 
-    private String status;
-
-    private String description;
-
-    private LocalDateTime createdAt;
+        LocalDateTime createdAt
+) {
 }
+
+
