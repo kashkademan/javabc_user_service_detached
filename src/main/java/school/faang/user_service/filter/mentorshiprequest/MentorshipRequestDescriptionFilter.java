@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class MentorshipRequestDescriptionFilter implements MentorshipRequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto requestFilterDto) {
-        return requestFilterDto.getDescriptionPattern() != null;
+        return requestFilterDto.getDescriptionPattern() != null && !requestFilterDto.getDescriptionPattern().isBlank();
     }
 
     @Override
