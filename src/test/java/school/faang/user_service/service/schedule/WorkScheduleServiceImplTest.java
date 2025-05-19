@@ -85,11 +85,12 @@ class WorkScheduleServiceImplTest {
     public void testAddWorkScheduleHavingRightId() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        service.addWorkSchedule(userId, workScheduleDto);
+        WorkScheduleDto result = service.addWorkSchedule(userId, workScheduleDto);
 
         verify(userRepository, times(1)).findById(userId);
         verify(workScheduleRepository, times(1)).save(workScheduleCaptor.capture());
         assertEquals(user, workScheduleCaptor.getValue().getUser());
+        assertEquals(WorkScheduleDto.class, result.getClass());
     }
 
     @Test
@@ -126,9 +127,10 @@ class WorkScheduleServiceImplTest {
         when(workScheduleRepository.findById(workScheduleId))
                 .thenReturn(Optional.of(workScheduleEntity));
 
-        service.updateWorkSchedule(userId, newWorkScheduleDto);
+        WorkScheduleDto result = service.updateWorkSchedule(userId, newWorkScheduleDto);
         verify(workScheduleRepository, times(1)).save(workScheduleCaptor.capture());
         assertEquals(newWorkScheduleDto.getStartTime(), workScheduleCaptor.getValue().getStartTime());
+        assertEquals(WorkScheduleDto.class, result.getClass());
     }
 
     @Test
@@ -136,19 +138,9 @@ class WorkScheduleServiceImplTest {
         WorkSchedule workSchedule = WorkSchedule.builder().build();
         when(workScheduleRepository.findById(workScheduleId)).thenReturn(Optional.of(workSchedule));
 
-        service.getById(workScheduleId);
-
-        verify(workScheduleRepository, times(1)).findById(workScheduleId);
-    }
-
-
-    @Test
-    void testGetByIdReturnsDto(){
-        when(workScheduleRepository.findById(workScheduleId))
-                .thenReturn(Optional.of(WorkSchedule.builder().build()));
-
         WorkScheduleDto result = service.getById(workScheduleId);
 
+        verify(workScheduleRepository, times(1)).findById(workScheduleId);
         assertEquals(WorkScheduleDto.class, result.getClass());
     }
 }
