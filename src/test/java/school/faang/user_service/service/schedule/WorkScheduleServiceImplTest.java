@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,8 +72,8 @@ class WorkScheduleServiceImplTest {
 
     @Test
     public void testAddWorkScheduleHavingWrongId() {
-        when(userRepository.findById(userId)).thenThrow(new EntityNotFoundException(String
-                .format("User with id %d was not found", userId)));
+        when(userRepository.findById(userId)).thenThrow(new EntityNotFoundException(String.format
+                ("User with id %d was not found", userId)));
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             service.addWorkSchedule(userId, workScheduleDto);
@@ -94,8 +95,8 @@ class WorkScheduleServiceImplTest {
     @Test
     void testUpdateWorkScheduleWithoutPreviousVersion() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(workScheduleRepository.findById(workScheduleId)).thenThrow(new EntityNotFoundException(String
-                .format("WorkSchedule with id %d was not found", workScheduleId)));
+        when(workScheduleRepository.findById(workScheduleId)).thenThrow(new EntityNotFoundException(String.format
+                ("WorkSchedule with id %d was not found", workScheduleId)));
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             service.updateWorkSchedule(userId, workScheduleDto);
@@ -131,11 +132,15 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    void testGetByIdUsesScheduleRepository(){
+    void testGetByIdUsesScheduleRepository() {
+        WorkSchedule workSchedule = WorkSchedule.builder().build();
+        when(workScheduleRepository.findById(workScheduleId)).thenReturn(Optional.of(workSchedule));
+
         service.getById(workScheduleId);
 
         verify(workScheduleRepository, times(1)).findById(workScheduleId);
     }
+
 
     @Test
     void testGetByIdReturnsDto(){

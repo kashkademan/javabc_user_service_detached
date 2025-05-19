@@ -10,9 +10,11 @@ import school.faang.user_service.dto.WorkScheduleDto;
 import school.faang.user_service.service.WorkScheduleService;
 import school.faang.user_service.util.WorkScheduleDtoValidator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class WorkScheduleControllerTest {
@@ -39,9 +41,11 @@ class WorkScheduleControllerTest {
 
     @Test
     void testAddWorkScheduleCorrect() {
-        doNothing().when(validator).validateDto(workScheduleDto);
+        when(workScheduleService.addWorkSchedule(userId, workScheduleDto)).thenReturn(workScheduleDto);
 
-        controller.addWorkSchedule(userId, workScheduleDto);
+        WorkScheduleDto result = controller.addWorkSchedule(userId, workScheduleDto);
+
+        assertEquals(workScheduleDto, result);
         verify(workScheduleService, times(1)).addWorkSchedule(userId, workScheduleDto);
     }
 
@@ -49,13 +53,17 @@ class WorkScheduleControllerTest {
     void testUpdateWorkSchedule() {
         doNothing().when(validator).validateDto(workScheduleDto);
 
-        controller.updateWorkSchedule(userId, workScheduleDto);
+        WorkScheduleDto result = controller.updateWorkSchedule(userId, workScheduleDto);
+
+        assertEquals(workScheduleDto, result);
         verify(workScheduleService, times(1)).updateWorkSchedule(userId, workScheduleDto);
     }
 
     @Test
     void testGetById() {
-        controller.getById(workScheduleId);
+        WorkScheduleDto result = controller.getById(workScheduleId);
+
+        assertEquals(workScheduleId, result.getId());
         verify(workScheduleService, times(1)).getById(workScheduleId);
     }
 }
