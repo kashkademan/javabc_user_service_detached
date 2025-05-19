@@ -27,15 +27,17 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    public ResponseEntity<MentorshipResponseDto> requestMentorship(@RequestBody @Valid MentorshipRequestDto mentorshipRequestDto) {
+    public ResponseEntity<MentorshipResponseDto> requestMentorship(
+            @RequestBody @Valid MentorshipRequestDto mentorshipRequestDto) {
         MentorshipResponseDto response = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<MentorshipResponseDto>> getMentorshipRequests(@ModelAttribute MentorshipFilterDto filterDto){
-         List<MentorshipResponseDto> response = mentorshipRequestService.getRequests(filterDto);
-         return ResponseEntity.status(HttpStatus.OK).body(response);
+    public ResponseEntity<List<MentorshipResponseDto>> getMentorshipRequests(
+            @ModelAttribute MentorshipFilterDto filterDto) {
+        List<MentorshipResponseDto> response = mentorshipRequestService.getRequests(filterDto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/{id}/accept")

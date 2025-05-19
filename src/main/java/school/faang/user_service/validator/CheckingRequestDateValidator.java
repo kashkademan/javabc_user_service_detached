@@ -23,7 +23,8 @@ public class CheckingRequestDateValidator implements MentorshipValidator<Mentors
                 .map(MentorshipRequest::getCreatedAt)
                 .ifPresent(createdAt -> {
                     if (createdAt.isAfter(LocalDateTime.now().minusMonths(TIME_FOR_REQUEST))) {
-                        throw new ResponseStatusException(BAD_REQUEST, "You have already made a request during this period");
+                        throw new ResponseStatusException(BAD_REQUEST,
+                                "You have already made a request during this period");
                     }
                 });
     }

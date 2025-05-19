@@ -58,7 +58,8 @@ public class MentorshipRequestService {
 
     @Transactional
     public void acceptRequest(Long requestId) {
-        MentorshipRequest request = mentorshipRequestRepository.findById(requestId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Id not found"));
+        MentorshipRequest request = mentorshipRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Id not found"));
         if (request.getStatus().equals(RequestStatus.ACCEPTED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user is already a mentor of the requester.");
         }
@@ -68,7 +69,8 @@ public class MentorshipRequestService {
 
     @Transactional
     public void rejectRequest(Long id, RejectionDto dto) {
-        MentorshipRequest request = mentorshipRequestRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Id not found"));
+        MentorshipRequest request = mentorshipRequestRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Id not found"));
         if (request.getStatus().equals(RequestStatus.REJECTED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The request is already rejected.");
         }

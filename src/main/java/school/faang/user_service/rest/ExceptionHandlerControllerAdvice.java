@@ -20,7 +20,8 @@ public class ExceptionHandlerControllerAdvice {
                 .status(e.getStatusCode())
                 .body(new ErrorResponseDto(e.getReason()));
     }
-@ExceptionHandler(MethodArgumentNotValidException.class)
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult()
                 .getFieldErrors()
