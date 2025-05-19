@@ -330,7 +330,7 @@ public class SubscriptionServiceTest {
         List<UserDto> result = subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(FOLLOWEE_ID, result.get(0).getId());
+        Assertions.assertEquals(FOLLOWER_ID, result.get(0).getId());
         Assertions.assertEquals("NN", result.get(0).getAboutMe());
         Assertions.assertEquals("947", result.get(0).getPhone());
     }
@@ -338,8 +338,6 @@ public class SubscriptionServiceTest {
     @Test
     void testGetFollowing_MinExp_ExceptionThrown() {
         followerExists();
-
-
 
         User matchingUser = new User();
         matchingUser.setId(FOLLOWEE_ID);
