@@ -88,14 +88,18 @@ tasks.jacocoTestReport {
     }
 
     classDirectories.setFrom(
-        files(
-            fileTree("${buildDir}/classes/java/main") {
-                include("school/faang/user_service/service/**/*.class")
-            },
-            fileTree("${buildDir}/classes/kotlin/main") {
-                include("school/faang/user_service/service/**/*.class")
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/controller/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/repository/**",
+                    "**/exception/**",
+                )
             }
-        )
+        })
     )
 }
 
