@@ -2,17 +2,14 @@ package school.faang.user_service.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class UserDto {
-
     @NotNull(message = "ID must not be null")
     private Long id;
     @NotNull(message = "Name must not be null")
@@ -28,4 +25,5 @@ public class UserDto {
     @NotNull
     private String phone;
 }
+
 
