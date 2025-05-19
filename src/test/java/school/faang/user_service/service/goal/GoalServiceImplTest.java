@@ -17,6 +17,7 @@ import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.time.LocalDateTime;
@@ -37,6 +38,8 @@ class GoalServiceImplTest {
     private SkillRepository skillRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private GoalInvitationRepository goalInvitationRepository;
 
     private GoalFilter titleStubFilter = new GoalFilter() {
         @Override
@@ -74,6 +77,7 @@ class GoalServiceImplTest {
                 goalRepository,
                 skillRepository,
                 userRepository,
+                goalInvitationRepository,
                 List.of(titleStubFilter, skillTitlesStubFilter)
         );
         ReflectionTestUtils.setField(goalService, "maximumAllowedActiveGoals", 3);
