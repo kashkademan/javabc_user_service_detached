@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
 
-@FeignClient(name = "payment-service", url = "http://localhost:9080", configuration = FeignConfig.class)
+@FeignClient(name = "payment-service", url = "${payment.service.url}", configuration = FeignConfig.class)
 public interface PaymentServiceClient {
     @PostMapping("/api/payment")
     PaymentResponse sendPayment(@RequestBody PaymentRequest request);

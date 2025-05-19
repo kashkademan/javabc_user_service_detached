@@ -13,7 +13,7 @@ import school.faang.user_service.service.PremiumService;
 
 @Slf4j
 @RestController
-@RequestMapping("/users/{userId}/premium")
+@RequestMapping("/api/v1/users/{userId}/premium")
 @RequiredArgsConstructor
 public class PremiumController {
     private final PremiumService premiumService;

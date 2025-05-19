@@ -2,7 +2,6 @@ package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.PaymentRequest;
@@ -26,7 +25,6 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PremiumServiceImpl implements PremiumService {
     private final UserService userService;
     private final PremiumRepository premiumRepository;
@@ -42,22 +40,22 @@ public class PremiumServiceImpl implements PremiumService {
         }
         UserDto userDto = userService.findUserById(userId);
         userContext.setUserId(userId);
-        PaymentResponse response = paymentServiceClient.sendPayment(
-                PaymentRequest.builder()
-                        .paymentNumber(System.currentTimeMillis())
-                        .amount(BigDecimal.valueOf(period.getPrice()))
-                        .currency(Currency.USD)
-                        .build());
-        if (!response.status().equals(PaymentStatus.SUCCESS)) {
+        PaymentRequest buyPremiumRequest = PaymentRequest.builder()
+                .paymentNumber(System.currentTimeMillis())
+                .amount(BigDecimal.valueOf(period.getPrice()))
+                .currency(Currency.USD)
+                .build();
+        PaymentResponse paymentResult = paymentServiceClient.sendPayment(buyPremiumRequest);
+        if (!paymentResult.status().equals(PaymentStatus.SUCCESS)) {
             throw new PaymentFailedException("Failed to buy premium for %d days by user with id %d"
                     .formatted(period.getDays(), userId));
         }
-        Premium entityToSave = Premium.builder()
+        Premium boughtPremium = Premium.builder()
                 .user(userMapper.toUser(userDto))
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusDays(period.getDays()))
                 .build();
-        Premium savedPremium = premiumRepository.save(entityToSave);
+        Premium savedPremium = premiumRepository.save(boughtPremium);
         return premiumMapper.toPremiumDto(savedPremium);
     }
 }

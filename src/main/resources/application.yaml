@@ -42,3 +42,9 @@ payment-service:
 logic:
   constants:
     max_active_goals: 3
+
+feign:
+  client:
+    config:
+      payment-service:
+        url: http://localhost:9080
