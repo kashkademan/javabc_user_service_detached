@@ -27,17 +27,12 @@ public class EducationService {
         throw new DataValidationException("Your year is greater than the current year.");
     }    //However, the yearFrom can be equal to the current year.
 
-    public Optional<User> checkUserIdEmpty(Long userId) throws DataValidationException {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new DataValidationException("User with ID " + userId + " not found");
-        }
-        return userOptional;
+    public User checkUserIdEmpty(Long userId) throws DataValidationException {
+        return userRepository.findById(userId).orElseThrow(() -> new DataValidationException("User with ID " + userId + " not found"));
     }
 
     public void checkUserIdNull(Long userId) throws DataValidationException {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
+        if (userId == null) {
             throw new DataValidationException("User ID is null.");
         }
     }
@@ -45,24 +40,20 @@ public class EducationService {
     public EducationDto saveEducation(Long userId, EducationDto educationDto) throws DataValidationException {
         checkYearFrom(educationDto);
         checkUserIdNull(userId);
-        Optional<User> userOptional = checkUserIdEmpty(userId);
+        User user = checkUserIdEmpty(userId);
 
         Education education = educationMapper.toEducation(educationDto);
-        education.setUser(userOptional.get());
+        education.setUser(user);
 
         Education resultEducation = educationRepository.save(education);
         return educationMapper.toEducationDto(resultEducation);
     }
 
     public EducationDto addEducation(Long userId, EducationDto educationDto) throws DataValidationException {
-        checkYearFrom(educationDto);
-        checkUserIdNull(userId);
-
         return saveEducation(userId, educationDto);
     }
 
     public EducationDto updateEducation(Long userId, EducationDto educationDto) throws DataValidationException {
-        checkYearFrom(educationDto);
         checkUserIdNull(userId);
 
         if (userId != educationDto.getId()) {
