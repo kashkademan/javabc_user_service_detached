@@ -20,7 +20,7 @@ import school.faang.user_service.service.subscriptions.SubscriptionService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/user/education")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class SubscriptionController {
 
