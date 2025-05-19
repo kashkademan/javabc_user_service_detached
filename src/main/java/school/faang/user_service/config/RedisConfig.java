@@ -19,11 +19,11 @@ import school.faang.user_service.messaging.RedisEventPublisher;
 public class RedisConfig {
 
     String achievementEventsTopic = "achievement_topic";
-    @Value("${data.redis.host}")
+    @Value("${spring.data.redis.host}")
     private String redisHost;
-    @Value("${data.redis.port}")
+    @Value("${spring.data.redis.port}")
     private Integer redisPort;
-    @Value("${data.redis.channel.follower}")
+    @Value("${spring.data.redis.channel.follower}")
     private String followEventsTopic;
 
     @Bean
