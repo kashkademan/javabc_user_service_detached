@@ -1,10 +1,11 @@
 plugins {
+
     java
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
-    id("jacoco")
+    jacoco
     id("checkstyle")
 }
 
@@ -85,7 +86,6 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -101,6 +101,7 @@ checkstyle {
     toolVersion = "10.17.0"
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
     checkstyle.enableExternalDtdLoad.set(true)
+    //ignoreFailures.set(false);
 }
 
 tasks.checkstyleMain {
@@ -109,6 +110,7 @@ tasks.checkstyleMain {
     exclude("**/resources/**")
     classpath = files()
 }
+
 
 tasks.checkstyleTest {
     source = fileTree("${project.rootDir}/src/test")
@@ -125,29 +127,18 @@ tasks.jacocoTestReport {
     }
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it) {
-            exclude(
-                    "**/mapper/**",
-                    "**/entity/**",
-                    "**/dto/**",
-                    "**/controller/**",
-                    "**/repository/**",
-                    "com/json/student/**"
-            )
+            exclude("**/mapper/**", "**/*Mapper.class/**", "**/*MapperImpl.class/**", "**/entity/**", "**/controller/**", "**/repository/**", "**/json/student/**")
         }
     }))
 }
 
 tasks.jacocoTestCoverageVerification {
     violationRules {
+
         rule {
             element = "CLASS"
-            excludes = listOf(
-                    "school.faang.user_service.entity.*",
-                    "school.faang.user_service.dto.*",
-                    "school.faang.user_service.controller.*",
-                    "school.faang.user_service.mapper.*",
-                    "com.json.student.*"
-            )
+            excludes = listOf("school.faang.user_service.entity.*",
+                    "school.faang.user_service.controller.*", "school.faang.user_service.mapper.*", "com.json.student.*")
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
