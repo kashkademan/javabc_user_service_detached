@@ -1,7 +1,6 @@
 package school.faang.user_service.entity;
 
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -22,7 +21,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -42,11 +40,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"country", "followers", "followees", "ownedEvents", "mentees", "mentors",
-        "receivedMentorshipRequests", "sentMentorshipRequests", "sentGoalInvitations",
-        "receivedGoalInvitations", "setGoals", "goals", "skills", "participatedEvents",
-        "recommendationsGiven", "recommendationsReceived", "contacts", "ratings",
-        "userProfilePic", "contactPreference", "premium", "education", "career", "workSchedule"})
 @Entity
 @Table(name = "users")
 public class User {

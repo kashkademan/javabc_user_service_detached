@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 
-import static school.faang.user_service.util.LogsConstants.BLANK_SKILL_TITLE;
 import static school.faang.user_service.util.LogsConstants.SKILL_ALREADY_EXIST;
 import static school.faang.user_service.util.LogsConstants.USER_HAS_SKILL;
 
@@ -18,21 +17,14 @@ public class SkillValidator {
 
     public void validateTitleUnique(String title) {
         if (skillRepository.existsByTitle(title)) {
-            log.error("Навык '{}' уже существует", title);
+            log.error("Skill '{}' is already existed", title);
             throw new DataValidationException(String.format(SKILL_ALREADY_EXIST, title));
-        }
-    }
-
-    public void validateTitleBlank(String title) {
-        if (title == null || title.isBlank()) {
-            log.error(BLANK_SKILL_TITLE);
-            throw new DataValidationException(BLANK_SKILL_TITLE);
         }
     }
 
     public void validateUserHasSkill(long userId, long skillId) {
         if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
-            log.error("У пользователя {} уже есть навык {}", userId, skillId);
+            log.error("User {} already has skill {}", userId, skillId);
             throw new DataValidationException(String.format(USER_HAS_SKILL, userId, skillId));
         }
     }
