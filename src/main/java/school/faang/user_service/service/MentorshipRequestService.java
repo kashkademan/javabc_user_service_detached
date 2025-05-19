@@ -34,7 +34,11 @@ public class MentorshipRequestService {
         validators.forEach(validator -> validator.validate(dto));
 
         MentorshipRequest request = mentorshipResponseMapper.toRequestEntity(dto);
-        MentorshipRequest savedRequest = mentorshipRequestRepository.save(request);
+        MentorshipRequest savedRequest = mentorshipRequestRepository.create(
+                request.getRequester().getId(),
+                request.getReceiver().getId(),
+                request.getDescription()
+        );
 
         return mentorshipResponseMapper.toResponseDto(savedRequest);
     }
@@ -69,7 +73,7 @@ public class MentorshipRequestService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The request is already rejected.");
         }
         request.setStatus(RequestStatus.REJECTED);
-        request.setRejectionReason(dto.getReason());
+        request.setRejectionReason(dto.reason());
         mentorshipRequestRepository.save(request);
     }
 }

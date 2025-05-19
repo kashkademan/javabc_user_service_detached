@@ -9,12 +9,12 @@ import java.util.stream.Stream;
 public class DescriptionFilter implements MentorshipFilter {
     @Override
     public boolean isApplicable(MentorshipFilterDto filterDto) {
-        return filterDto.getDescription() != null;
+        return filterDto.description() != null;
     }
 
     @Override
     public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequests, MentorshipFilterDto filterDto) {
         return mentorshipRequests
-                .filter(request -> filterDto.getDescription().contains(request.getDescription()));
+                .filter(request -> filterDto.description().contains(request.getDescription()));
     }
 }

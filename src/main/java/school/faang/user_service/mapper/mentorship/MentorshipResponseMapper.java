@@ -12,16 +12,16 @@ import school.faang.user_service.entity.User;
 public interface MentorshipResponseMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "requester", expression = "java(buildUser(requestDto.getRequester()))")
-    @Mapping(target = "receiver", expression = "java(buildUser(requestDto.getReceiver()))")
+    @Mapping(target = "requester", expression = "java(buildUser(requestDto.requesterId()))")
+    @Mapping(target = "receiver", expression = "java(buildUser(requestDto.receiverId()))")
     @Mapping(target = "status", expression = "java(RequestStatus.PENDING)")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "rejectionReason", ignore = true)
     MentorshipRequest toRequestEntity(MentorshipRequestDto requestDto);
 
-    @Mapping(source = "requester.id", target = "requester")
-    @Mapping(source = "receiver.id", target = "receiver")
+    @Mapping(source = "requester.id", target = "requesterId")
+    @Mapping(source = "receiver.id", target = "receiverId")
     MentorshipResponseDto toResponseDto(MentorshipRequest mentorshipRequest);
 
     default User buildUser(Long id) {

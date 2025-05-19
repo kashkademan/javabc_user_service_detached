@@ -10,12 +10,12 @@ import java.util.stream.Stream;
 public class ReceiverIdFilter implements MentorshipFilter {
     @Override
     public boolean isApplicable(MentorshipFilterDto filterDto) {
-        return filterDto.getReceiver() != null;
+        return filterDto.receiverId() != null;
     }
 
     @Override
     public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequests, MentorshipFilterDto filterDto) {
         return mentorshipRequests
-                .filter(request -> filterDto.getReceiver().equals(request.getReceiver()));
+                .filter(request -> filterDto.receiverId().equals(request.getReceiver()));
     }
 }
