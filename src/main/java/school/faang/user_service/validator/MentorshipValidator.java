@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 
 @Component
-public interface MentorshipValidator {
+public interface MentorshipValidator<T> {
 
-    void validate(MentorshipRequestDto dto);
+    void validate(T t);
 }

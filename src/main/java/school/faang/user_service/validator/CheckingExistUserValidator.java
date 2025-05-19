@@ -9,13 +9,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor
-public class CheckingExistUserValidator implements MentorshipValidator {
+public class CheckingExistUserValidator implements MentorshipValidator<MentorshipRequestDto> {
 
     public final MentorshipRepository mentorshipRepository;
 
     @Override
     public void validate(MentorshipRequestDto dto) {
-        if (!mentorshipRepository.existsById(dto.getRequester()) || !mentorshipRepository.existsById(dto.getReceiver())
+        if (!mentorshipRepository.existsById(dto.requesterId()) || !mentorshipRepository.existsById(dto.receiverId())
         ) {
             throw new ResponseStatusException(NOT_FOUND, "RequesterId or receiverId not found");
         }
