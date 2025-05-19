@@ -27,6 +27,10 @@ public class SubscriptionControllerTest {
 
     private static final long FOLLOWER_ID = 1L;
     private static final long FOLLOWEE_ID = 2L;
+    private static final List <UserDto> dtoList = List.of(
+            UserDto.builder().build(),
+            UserDto.builder().build()
+    );
 
     private UserDtoFilter userDtoFilter;
 
@@ -46,13 +50,9 @@ public class SubscriptionControllerTest {
     @Test
     void testGetFollowers_Success() {
         userDtoFilter = new UserDtoFilter("NN","947",1,10);
-        List<UserDto> expected = List.of(
-                new UserDto(),
-                new UserDto()
-        );
-        when(subscriptionService.getFollowers(FOLLOWEE_ID,userDtoFilter)).thenReturn(expected);
+        when(subscriptionService.getFollowers(FOLLOWEE_ID,userDtoFilter)).thenReturn(dtoList);
         List<UserDto> result = subscriptionController.getFollowers(FOLLOWEE_ID,userDtoFilter);
-        assertEquals(expected, result);
+        assertEquals(dtoList, result);
         verify(subscriptionService, times(1)).getFollowers(FOLLOWEE_ID,userDtoFilter);
     }
 
@@ -73,13 +73,9 @@ public class SubscriptionControllerTest {
     @Test
     void getFollowingTest(){
         userDtoFilter = new UserDtoFilter("NN","947",1,10);
-        List<UserDto> expected = List.of(
-                new UserDto(),
-                new UserDto()
-        );
-        when(subscriptionService.getFollowing(FOLLOWER_ID,userDtoFilter)).thenReturn(expected);
+        when(subscriptionService.getFollowing(FOLLOWER_ID,userDtoFilter)).thenReturn(dtoList);
         List<UserDto> result = subscriptionController.getFollowing(FOLLOWER_ID,userDtoFilter);
-        assertEquals(expected, result);
+        assertEquals(dtoList, result);
         verify(subscriptionService, times(1)).getFollowing(FOLLOWER_ID,userDtoFilter);
     }
 

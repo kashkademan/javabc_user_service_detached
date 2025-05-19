@@ -200,8 +200,14 @@ public class SubscriptionServiceTest {
         matchingUser.setPhone("947");
         matchingUser.setExperience(5);
 
-        UserDto userDto = new UserDto(FOLLOWER_ID, "username", "username@mail.ru",
-                new ArrayList<>(), "NN", 5, "947");
+        UserDto userDto = UserDto.builder().id(FOLLOWER_ID)
+                .username("username")
+                .email("username@mail.ru")
+                .mentors(new ArrayList<>())
+                .aboutMe("NN")
+                .phone("947")
+                .experience(5)
+                .build();
 
         when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID))
                 .thenReturn(Stream.of(matchingUser));
@@ -271,8 +277,14 @@ public class SubscriptionServiceTest {
         matchingUser.setPhone("947");
         matchingUser.setExperience(5);
 
-        UserDto userDto = new UserDto(FOLLOWEE_ID, "username", "username@mail.ru",
-                new ArrayList<>(), "NN", 5, "947");
+        UserDto userDto = UserDto.builder().id(FOLLOWER_ID)
+                .username("username")
+                .email("username@mail.ru")
+                .mentors(new ArrayList<>())
+                .aboutMe("NN")
+                .phone("947")
+                .experience(5)
+                .build();
 
         when(subscriptionRepository.findByFollowerId(FOLLOWER_ID))
                 .thenReturn(Stream.of(matchingUser));
