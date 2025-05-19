@@ -10,6 +10,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.PreConditionFailedException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -17,11 +18,12 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
-import java.util.Optional;
 
-import static school.faang.user_service.util.LogsConstants.MIN_SKILL_OFFERS;
+import static school.faang.user_service.util.LogsConstants.CONDITION_FOR_OFFERS_AMOUNT_FAILED;
+import static school.faang.user_service.util.LogsConstants.RECOMMENDATION_NOT_FOUND;
 import static school.faang.user_service.util.LogsConstants.SKILL_NOT_FOUND;
 import static school.faang.user_service.util.LogsConstants.USER_NOT_FOUND;
+import static school.faang.user_service.util.SettingsConstants.MIN_SKILL_OFFERS;
 
 @Service
 @RequiredArgsConstructor
@@ -35,56 +37,59 @@ public class SkillService {
 
     @Transactional
     public Skill create(Skill skill) {
-        skillValidator.validateTitleBlank(skill.getTitle());
+        log.info("Create skill: {}", skill);
         skillValidator.validateTitleUnique(skill.getTitle());
         Skill createdSkill = skillRepository.save(skill);
-        log.info("Созданный навык {}", createdSkill);
+        log.info("Created Skill: {}", createdSkill);
         return createdSkill;
     }
 
     @Transactional(readOnly = true)
     public List<Skill> getUserSkills(long userId) {
         List<Skill> userSkills = skillRepository.findAllByUserId(userId);
-        log.info("У пользователя {} есть навыки {}", userId, userSkills);
+        log.info("User {} has skills {}", userId, userSkills);
         return userSkills;
     }
 
     @Transactional(readOnly = true)
     public List<Skill> getOfferedSkills(long userId) {
         List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
-        log.info("У пользователя {} есть предложенные навыки {}", userId, offeredSkills);
+        log.info("User {} has offered skills {}", userId, offeredSkills);
         return offeredSkills;
     }
 
     @Transactional
-    public Optional<Skill> acquireSkillFromOffers(long userId, long skillId) {
-        Skill skill;
+    public Skill acquireSkillFromOffers(long userId, long skillId) {
+        log.info("acquireSkillFromOffers userId = {}, skillId = {}", userId, skillId);
+        Skill skill = skillRepository.findById(skillId).
+                orElseThrow(() -> new EntityNotFoundException(String.format(SKILL_NOT_FOUND, skillId)));
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new EntityNotFoundException(String.format(USER_NOT_FOUND, userId)));
         skillValidator.validateUserHasSkill(userId, skillId);
         List<SkillOffer> skillOfferList = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
+        log.info("acquireSkillFromOffers skillOfferList = {}", skillOfferList);
         int offeredAmount = skillOfferList.size();
-        if (offeredAmount >= MIN_SKILL_OFFERS) {
-            skill = skillRepository.findById(skillId).
-                    orElseThrow(() -> new EntityNotFoundException(String.format(SKILL_NOT_FOUND, skillId)));
-            User user = userRepository.findById(userId).
-                    orElseThrow(() -> new EntityNotFoundException(String.format(USER_NOT_FOUND, userId)));
-            skillRepository.assignSkillToUser(skillId, userId);
-            skillOfferList.forEach((skillOffer) -> fillUserSkillGuarantee(skillOffer, user, skill));
-            return Optional.ofNullable(skill);
-        } else {
-            return Optional.empty();
+        if (offeredAmount < MIN_SKILL_OFFERS) {
+            log.error(CONDITION_FOR_OFFERS_AMOUNT_FAILED);
+            throw new PreConditionFailedException(CONDITION_FOR_OFFERS_AMOUNT_FAILED);
         }
+        skillRepository.assignSkillToUser(skillId, userId);
+        skillOfferList.forEach((skillOffer) -> fillUserSkillGuarantee(skillOffer, user, skill));
+        log.info("acquireSkillFromOffers skill = {}", skill);
+        return skill;
     }
 
     private void fillUserSkillGuarantee(SkillOffer skillOffer, User user, Skill skill) {
         Recommendation recommendation = skillOffer.getRecommendation();
-        if (recommendation != null) {
-            UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
-                    .user(user)
-                    .skill(skill)
-                    .guarantor(recommendation.getAuthor())
-                    .build();
-            userSkillGuaranteeRepository.save(userSkillGuarantee);
+        if (recommendation == null) {
+            log.error(RECOMMENDATION_NOT_FOUND);
+            throw new EntityNotFoundException(RECOMMENDATION_NOT_FOUND);
         }
+        UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
+                .user(user)
+                .skill(skill)
+                .guarantor(recommendation.getAuthor())
+                .build();
+        userSkillGuaranteeRepository.save(userSkillGuarantee);
     }
-
 }
