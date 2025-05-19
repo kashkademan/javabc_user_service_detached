@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -26,7 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Stream<User> findPremiumUsers();
 
-    List<User> findByUsernameLike(String username);
+    Optional<User> findByUsernameLike(String username);
+
     boolean existsByEmail(String email);
+
     boolean existsByPhone(String phone);
 }

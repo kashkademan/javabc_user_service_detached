@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.user.UserAuthDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserRegistrationDto;
 import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.service.external.S3Service;
 import school.faang.user_service.service.user.UserService;
@@ -74,5 +74,10 @@ public class UserController {
         User user = userService.findById(id).orElseThrow(()-> new EntityNotFoundException("User not found"));
         UserDto dto = userMapper.toDto(user);
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/users/auth/{username}")
+    public ResponseEntity<UserAuthDto> getUserAuth(@PathVariable String username) {
+        return ResponseEntity.ok(userService.findAuthByUsername(username));
     }
 }
