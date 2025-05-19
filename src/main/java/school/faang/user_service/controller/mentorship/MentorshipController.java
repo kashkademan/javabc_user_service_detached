@@ -19,26 +19,26 @@ import java.util.List;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-    @GetMapping("/mentorship/mentees/{userId}/search")
+    @GetMapping("/mentorship/mentees/{userId}")
     public ResponseEntity<List<MenteeDto>> getMentees(@PathVariable long userId) {
         List<MenteeDto> mentees = mentorshipService.getMentees(userId);
         return ResponseEntity.ok(mentees);
     }
 
-    @GetMapping("/mentorship/mentors{userId}/search")
+    @GetMapping("/mentorship/mentors/{userId}")
     public ResponseEntity<List<MentorDto>> getMentors(@PathVariable long userId) {
         List<MentorDto> mentors = mentorshipService.getMentors(userId);
         return ResponseEntity.ok(mentors);
     }
 
-    @DeleteMapping("/mentorship/{mentorId}/mentee/delete/{menteeId}")
+    @DeleteMapping("/mentorship/{mentorId}/{menteeId}")
     public ResponseEntity<Void> deleteMentee(@PathVariable long mentorId,
                                              @PathVariable long menteeId) {
         mentorshipService.deleteMentee(mentorId, menteeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/mentorship/{menteeId}/mentor/delete/{mentorId}")
+    @DeleteMapping("/mentorship/{menteeId}/{mentorId}")
     public ResponseEntity<Void> deleteMentor(@PathVariable long mentorId,
                                              @PathVariable long menteeId) {
         mentorshipService.deleteMentor(mentorId, menteeId);

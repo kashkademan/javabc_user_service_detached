@@ -1,5 +1,6 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,11 +78,11 @@ public class MentorshipService {
 
     private User findUserIntoMentorshipRepository(long userId) {
         return mentorshipRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Такого пользователя нет в базе"));
+                .orElseThrow(() -> new EntityNotFoundException("Такого пользователя нет в базе"));
     }
 
     private User findUserIntoUserRepository(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Такого пользователя нет в базе"));
+                .orElseThrow(() -> new EntityNotFoundException("Такого пользователя нет в базе"));
     }
 }
