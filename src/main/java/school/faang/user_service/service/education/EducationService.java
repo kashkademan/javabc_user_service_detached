@@ -28,8 +28,8 @@ public class EducationService {
     }
 
     public User checkUserIdEmpty(Long userId) throws DataValidationException {
-        return userRepository.findById(userId).
-                orElseThrow(() -> new DataValidationException("User with ID " + userId + " not found"));
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new DataValidationException("User with ID " + userId + " not found"));
     }
 
     public void checkUserIdNull(Long userId) throws DataValidationException {
