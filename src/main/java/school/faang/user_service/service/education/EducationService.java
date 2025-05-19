@@ -1,29 +1,28 @@
 package school.faang.user_service.service.education;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.EducationDto.EducationDto;
 import school.faang.user_service.entity.Education;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mappers.EducationMapper.EducationMapper;
 import school.faang.user_service.repository.EducationRepository;
 import school.faang.user_service.repository.UserRepository;
 
 import java.time.Year;
+import java.util.Objects;
 
+import static school.faang.user_service.validation.ValidationUtils.executeIfNotNull;
+
+@RequiredArgsConstructor
 @Service
 public class EducationService {
     private final UserRepository userRepository;
     private final EducationRepository educationRepository;
     private final EducationMapper educationMapper;
+    private final UserContext userContext;
 
-    @Autowired
-    public EducationService(UserRepository userRepository, EducationRepository educationRepository,
-                            EducationMapper educationMapper) {
-        this.userRepository = userRepository;
-        this.educationRepository = educationRepository;
-        this.educationMapper = educationMapper;
-    }
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         if (educationDto.getYearFrom() > Year.now().getValue()) {
@@ -38,22 +37,34 @@ public class EducationService {
         return educationMapper.toEducationDto(educationRepository.save(education));
     }
 
-    public EducationDto updateEducation(long userId, EducationDto educationDto) {
-        if (educationDto.getYearFrom() > Year.now().getValue()) {
+    public Education updateEducation(long educationId, Education newEducationData) {
+        if (newEducationData.getYearFrom() > Year.now().getValue()) {
             throw new DataValidationException("YearFrom cannot be greater than the current year.");
         }
 
-        Education education = educationRepository.findById(educationDto.getId())
+        Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new DataValidationException("Education not found"));
 
-        if (education.getUser().getId() != userId) {
+        if (Objects.nonNull(education.getUser()) && education.getUser().getId() != userContext.getUserId()) {
             throw new DataValidationException("User does not have permission to update this education record.");
         }
 
-        education = educationMapper.toEducation(educationDto);
-        education.setUser(education.getUser());
+        executeIfNotNull(newEducationData.getYearFrom(),
+                () -> education.setYearFrom(newEducationData.getYearFrom()));
 
-        return educationMapper.toEducationDto(educationRepository.save(education));
+        executeIfNotNull(newEducationData.getYearTo(),
+                () -> education.setInstitution(newEducationData.getInstitution()));
+
+        executeIfNotNull(newEducationData.getEducationLevel(),
+                () -> education.setEducationLevel(newEducationData.getEducationLevel()));
+
+        executeIfNotNull(newEducationData.getYearTo(),
+                () -> education.setYearTo(newEducationData.getYearTo()));
+
+        executeIfNotNull(newEducationData.getSpecialization(),
+                () -> education.setSpecialization(newEducationData.getSpecialization()));
+
+        return educationRepository.save(education);
     }
 
     public EducationDto getById(long educationId) {
