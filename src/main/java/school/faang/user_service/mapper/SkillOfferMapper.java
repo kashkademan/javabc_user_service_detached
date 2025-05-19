@@ -13,7 +13,7 @@ public interface SkillOfferMapper {
     @Mapping(target = "recommendation", ignore = true)
     SkillOffer toEntity(SkillOfferDto skillOfferDto);
 
-    @Mapping(target = "skillId", source = "skill", expression = "java(skillOffer.getSkill().getId()")
-    @Mapping(target = "recommendationId", source = "recommendation", expression = "java(skillOffer.getRecommendation().getId()")
+    @Mapping(target = "skillId", source = "skill.id")
+    @Mapping(target = "recommendationId", source = "recommendation.id")
     SkillOfferDto toDto(SkillOffer skillOffer);
 }
