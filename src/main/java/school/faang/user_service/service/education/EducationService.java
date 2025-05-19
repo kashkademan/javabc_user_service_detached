@@ -22,13 +22,14 @@ public class EducationService {
 
     public void checkYearFrom(EducationDto educationDto) throws DataValidationException {
         if (!(educationDto.getYearFrom().compareTo(LocalDate.now().getYear()) > 0)) {
-            return;//The task is to check if the yearFrom is less than the current year.
+            return;
         }
         throw new DataValidationException("Your year is greater than the current year.");
-    }    //However, the yearFrom can be equal to the current year.
+    }
 
     public User checkUserIdEmpty(Long userId) throws DataValidationException {
-        return userRepository.findById(userId).orElseThrow(() -> new DataValidationException("User with ID " + userId + " not found"));
+        return userRepository.findById(userId).
+                orElseThrow(() -> new DataValidationException("User with ID " + userId + " not found"));
     }
 
     public void checkUserIdNull(Long userId) throws DataValidationException {
