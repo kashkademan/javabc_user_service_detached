@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +9,13 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.RecordNotFoundException;
 import school.faang.user_service.exception.PreConditionFailedException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.List;
 
@@ -62,9 +62,9 @@ public class SkillService {
     public Skill acquireSkillFromOffers(long userId, long skillId) {
         log.info("acquireSkillFromOffers userId = {}, skillId = {}", userId, skillId);
         Skill skill = skillRepository.findById(skillId).
-                orElseThrow(() -> new EntityNotFoundException(String.format(SKILL_NOT_FOUND, skillId)));
+                orElseThrow(() -> new RecordNotFoundException(String.format(SKILL_NOT_FOUND, skillId)));
         User user = userRepository.findById(userId).
-                orElseThrow(() -> new EntityNotFoundException(String.format(USER_NOT_FOUND, userId)));
+                orElseThrow(() -> new RecordNotFoundException(String.format(USER_NOT_FOUND, userId)));
         skillValidator.validateUserHasSkill(userId, skillId);
         List<SkillOffer> skillOfferList = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         log.info("acquireSkillFromOffers skillOfferList = {}", skillOfferList);
@@ -83,7 +83,7 @@ public class SkillService {
         Recommendation recommendation = skillOffer.getRecommendation();
         if (recommendation == null) {
             log.error(RECOMMENDATION_NOT_FOUND);
-            throw new EntityNotFoundException(RECOMMENDATION_NOT_FOUND);
+            throw new RecordNotFoundException(RECOMMENDATION_NOT_FOUND);
         }
         UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
                 .user(user)

@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.EventCreationNotAllowedException;
 import school.faang.user_service.exception.PreConditionFailedException;
 import school.faang.user_service.exception.RecordNotFoundException;
+import school.faang.user_service.exception.event.EventRegisterException;
 import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.exception.work_schedule.WorkScheduleNotFoundException;
 
@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DataValidationException.class)
+    @ExceptionHandler({
+            DataValidationException.class,
+            EventRegisterException.class
+    })
     public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
@@ -31,7 +34,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             UserNotFoundException.class,
             WorkScheduleNotFoundException.class,
-            EntityNotFoundException.class,
             RecordNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFoundExceptions(RuntimeException e) {
