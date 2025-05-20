@@ -19,7 +19,6 @@ import school.faang.user_service.validator.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -103,9 +102,8 @@ public class EventService {
 
     @Transactional
     public EventDto getEvent(long eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        event.orElseThrow(() -> new EventNotFoundException(EVENT_NOT_FOUND));
-        return eventMapper.toDto(event.get());
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(EVENT_NOT_FOUND));
+        return eventMapper.toDto(event);
     }
 
     @Transactional
