@@ -1,4 +1,4 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validation.skill;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

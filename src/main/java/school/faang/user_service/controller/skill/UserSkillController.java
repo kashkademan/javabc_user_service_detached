@@ -12,7 +12,7 @@ import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.skill.SkillService;
 
 import java.util.List;
 

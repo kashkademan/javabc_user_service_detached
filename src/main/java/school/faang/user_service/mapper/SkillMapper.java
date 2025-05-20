@@ -6,7 +6,7 @@ import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.RecordNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SkillMapper {
     public Skill toSkill(SkillCreateDto dto) {
         if (dto == null) {
             log.error("SkillMapper toSkill: skillCreateDto is null");
-            throw new EntityNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
+            throw new RecordNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
         }
         return Skill.builder()
                 .title(dto.getTitle())
@@ -33,7 +33,7 @@ public class SkillMapper {
     public List<SkillDto> toSkillDtos(List<Skill> skills) {
         if (skills == null) {
             log.error("SkillMapper toSkillDtos: skills is null");
-            throw new EntityNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
+            throw new RecordNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
         }
         List<SkillDto> list = new ArrayList<>(skills.size());
         skills.forEach(skill -> list.add(toDto(skill)));
@@ -43,7 +43,7 @@ public class SkillMapper {
     public SkillDto toDto(Skill skill) {
         if (skill == null) {
             log.error("SkillMapper toDto: skill is null");
-            throw new EntityNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
+            throw new RecordNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
         }
         return SkillDto.builder()
                 .id(skill.getId())
@@ -54,7 +54,7 @@ public class SkillMapper {
     public SkillCandidateDto toCandidateDto(SkillDto skill, int count) {
         if (skill == null) {
             log.error("SkillMapper toCandidateDto: skill is null");
-            throw new EntityNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
+            throw new RecordNotFoundException(NULL_OBJECT_IN_SKILL_MAPPER);
         }
         return SkillCandidateDto.builder()
                 .skill(skill)
