@@ -22,7 +22,7 @@ class WorkScheduleDtoValidatorTest {
     }
 
     @Test
-    void testValidateDtoWithWrongTimeLine() {
+    void testValidateDto_WithWrongTimeLine() {
         WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
                 .id(1L)
                 .startTime(LocalTime.of(8, 0))
@@ -42,7 +42,7 @@ class WorkScheduleDtoValidatorTest {
     }
 
     @Test
-    void testValidateDtoHavingEmptyFields() {
+    void testValidateDto_HavingEmptyFields() {
         WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
                 .id(1L)
                 .startTime(LocalTime.of(8, 0))
@@ -57,7 +57,7 @@ class WorkScheduleDtoValidatorTest {
     }
 
     @Test
-    void testValidateRightDto(){
+    void testValidate_RightDto(){
         WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
                 .id(1L)
                 .startTime(LocalTime.of(8, 0))

@@ -71,7 +71,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    public void testAddWorkScheduleHavingWrongId() {
+    public void testAddWorkSchedule_HavingWrongId() {
         when(userRepository.findById(userId)).thenThrow(new EntityNotFoundException(String.format
                 ("User with id %d was not found", userId)));
 
@@ -82,7 +82,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    public void testAddWorkScheduleHavingRightId() {
+    public void testAddWorkSchedule_HavingRightId() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         WorkScheduleDto result = service.addWorkSchedule(userId, workScheduleDto);
@@ -94,7 +94,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    void testUpdateWorkScheduleWithoutPreviousVersion() {
+    void testUpdate_WorkScheduleWithoutPreviousVersion() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(workScheduleRepository.findById(workScheduleId)).thenThrow(new EntityNotFoundException(String.format
                 ("WorkSchedule with id %d was not found", workScheduleId)));
@@ -106,7 +106,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    void testUpdateNotTheirOwnWorkSchedule() {
+    void testUpdate_NotTheirOwnWorkSchedule() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         WorkSchedule workScheduleEntity = workScheduleMapper.toWorkScheduleEntity(workScheduleDto);
         workScheduleEntity.setUser(anotheruser);
@@ -120,7 +120,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    void testUpdateRightWorkSchedule() {
+    void testUpdate_RightWorkSchedule() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         WorkSchedule workScheduleEntity = workScheduleMapper.toWorkScheduleEntity(workScheduleDto);
         workScheduleEntity.setUser(user);
@@ -134,7 +134,7 @@ class WorkScheduleServiceImplTest {
     }
 
     @Test
-    void testGetByIdUsesScheduleRepository() {
+    void testGetById_UsesScheduleRepository() {
         WorkSchedule workSchedule = WorkSchedule.builder().build();
         when(workScheduleRepository.findById(workScheduleId)).thenReturn(Optional.of(workSchedule));
 

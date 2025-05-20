@@ -36,11 +36,12 @@ class WorkScheduleControllerTest {
     public void setUp() {
         userId = 1L;
         workScheduleId = 133L;
-        workScheduleDto = WorkScheduleDto.builder().build();
+        workScheduleDto = WorkScheduleDto.builder().
+                id(workScheduleId).build();
     }
 
     @Test
-    void testAddWorkScheduleCorrect() {
+    void testAddWorkSchedule_Correct() {
         when(workScheduleService.addWorkSchedule(userId, workScheduleDto)).thenReturn(workScheduleDto);
 
         WorkScheduleDto result = controller.addWorkSchedule(userId, workScheduleDto);
@@ -52,6 +53,7 @@ class WorkScheduleControllerTest {
     @Test
     void testUpdateWorkSchedule() {
         doNothing().when(validator).validateDto(workScheduleDto);
+        when(workScheduleService.updateWorkSchedule(userId, workScheduleDto)).thenReturn(workScheduleDto);
 
         WorkScheduleDto result = controller.updateWorkSchedule(userId, workScheduleDto);
 
@@ -61,6 +63,7 @@ class WorkScheduleControllerTest {
 
     @Test
     void testGetById() {
+        when(workScheduleService.getById(workScheduleId)).thenReturn(workScheduleDto);
         WorkScheduleDto result = controller.getById(workScheduleId);
 
         assertEquals(workScheduleId, result.getId());
