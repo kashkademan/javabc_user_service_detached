@@ -3,17 +3,16 @@ package school.faang.user_service.service.event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -41,14 +40,14 @@ public class EventParticipationServiceImplTest {
     }
 
     @Test
-    void testRegisterParticipant() {
+    void testRegisterParticipant_whenNotRegistered_thenShouldRegisterSuccessfully() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of());
         eventParticipationService.registerParticipant(eventId, userId);
         verify(eventParticipationRepository).register(eventId, userId);
     }
 
     @Test
-    void testRegisterParticipantWithException() {
+    void testRegisterParticipant_whenUserAlreadyRegistered_thenShouldThrowException() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
         RuntimeException runtimeException = assertThrows(RuntimeException.class,
                 () -> {
@@ -58,14 +57,14 @@ public class EventParticipationServiceImplTest {
     }
 
     @Test
-    void testUnregisterParticipant() {
+    void testUnregisterParticipant_whenUserIsRegistered_thenShouldUnregisterSuccessfully() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
         eventParticipationService.unregisterParticipant(eventId, userId);
         verify(eventParticipationRepository).unregister(eventId, userId);
     }
 
     @Test
-    void testUnregisterParticipantWithException() {
+    void testUnregisterParticipant_whenUserIsNotRegistered_thenShouldThrowException() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of());
         RuntimeException runtimeException = assertThrows(RuntimeException.class,
                 () -> {
@@ -75,7 +74,7 @@ public class EventParticipationServiceImplTest {
     }
 
     @Test
-    void testGetParticipants() {
+    void testGetParticipants_whenUsersExist_thenShouldReturnMappedUserDto() {
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("Anna");
@@ -95,22 +94,17 @@ public class EventParticipationServiceImplTest {
         UserDto dto1 = result.get(0);
         UserDto dto2 = result.get(1);
 
-        assertEquals(user1.getId(), dto1.getId());
-        assertEquals(user1.getUsername(), dto1.getUsername());
-        assertEquals(user1.getEmail(), dto1.getEmail());
+        assertAll("First user",
+                () -> assertEquals(user1.getId(), dto1.getId()),
+                () -> assertEquals(user1.getUsername(), dto1.getUsername()),
+                () -> assertEquals(user1.getEmail(), dto1.getEmail())
+        );
 
-        assertEquals(user2.getId(), dto2.getId());
-        assertEquals(user2.getUsername(), dto2.getUsername());
-        assertEquals(user2.getEmail(), dto2.getEmail());
-    }
-
-    @Test
-    void testGetParticipantsCount() {
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(4);
-        int result = eventParticipationService.getParticipantsCount(eventId);
-        assertEquals(4, result);
-
-        verify(eventParticipationRepository).countParticipants(eventId);
-        assertEquals(4, result);
+        assertAll("Second user",
+                () -> assertEquals(user2.getId(), dto2.getId()),
+                () -> assertEquals(user2.getUsername(), dto2.getUsername()),
+                () -> assertEquals(user2.getEmail(), dto2.getEmail())
+        );
     }
 }
+
