@@ -18,4 +18,19 @@ public final class LogsConstants {
 
     // Сообщения об ошибках при работе с Event
     public static final String EVENT_NOT_FOUND = "Ивент с id %d не найден";
+
+    // Сообщения об ошибках при работе с User
+    public static final String USER_NOT_FOUND = "User with id = %s is not found";
+
+    // Сообщения об ошибках при работе с Skill
+    public static final String SKILL_ALREADY_EXIST = "Skill '%s' is already existed";
+    public static final String BLANK_SKILL_TITLE = "Skill title can not be blank";
+    public static final String USER_HAS_SKILL = "User %s already has skill %s";
+    public static final String SKILL_NOT_FOUND = "Skill with id = %s is not found";
+    public static final String CONDITION_FOR_OFFERS_AMOUNT_FAILED = "Condition for offers amount failed";
+    public static final String NULL_OBJECT_IN_SKILL_MAPPER = "There is null object in SkillMapper";
+
+    // Сообщения об ошибках при работе с Recommendation
+    public static final String RECOMMENDATION_NOT_FOUND = "Recommendation is not found";
+
 }

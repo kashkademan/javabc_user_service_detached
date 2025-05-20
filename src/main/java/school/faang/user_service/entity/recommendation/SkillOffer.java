@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import school.faang.user_service.entity.Skill;
 
 @Getter
@@ -19,6 +20,7 @@ import school.faang.user_service.entity.Skill;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString(exclude = {"recommendation"})
 @Entity
 @Table(name = "skill_offer")
 public class SkillOffer {
