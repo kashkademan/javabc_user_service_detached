@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,13 @@ public class UserServiceImpl implements UserService {
         existingUser.setMentors(userDto.getMentors());
         User user = userRepository.save(userMapper.toUser(existingUser));
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUsersByIds(List<Long> userIds) {
+        List<User> users = userRepository.findAllById(userIds);
+        return users.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 }
