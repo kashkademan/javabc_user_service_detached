@@ -38,7 +38,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Transactional
     public List<MentorDto> getMentors(long userId) {
         User user = getUserById(userId);
-        List<User> mentors = user.getMentees();
+        List<User> mentors = user.getMentors();
         if (mentors == null || mentors.isEmpty()) {
             return Collections.emptyList();
         }
