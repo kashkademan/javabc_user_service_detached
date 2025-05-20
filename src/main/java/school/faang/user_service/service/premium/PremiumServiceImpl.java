@@ -39,7 +39,6 @@ public class PremiumServiceImpl implements PremiumService {
             throw new AlreadyPremiumUserException("User with id %d already has premium".formatted(userId));
         }
         UserDto userDto = userService.findUserById(userId);
-        userContext.setUserId(userId);
         PaymentRequest buyPremiumRequest = PaymentRequest.builder()
                 .paymentNumber(System.currentTimeMillis())
                 .amount(BigDecimal.valueOf(period.getPrice()))
