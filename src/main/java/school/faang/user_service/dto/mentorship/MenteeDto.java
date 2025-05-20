@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class MenteeDto {
-    private String name;
+    private String username;
 }

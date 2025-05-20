@@ -23,12 +23,12 @@ import java.util.List;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-    @GetMapping("/mentee/{userId}")
+    @GetMapping("/menteeOfUser/{userId}")
     public List<MenteeDto> getMentees(@PathVariable @NotNull @Positive Long userId) {
         return mentorshipService.getMentees(userId);
     }
 
-    @GetMapping("/mentor/{userId}")
+    @GetMapping("/mentorOfUser/{userId}")
     public List<MentorDto> getMentors(@PathVariable @NotNull @Positive Long userId) {
         return mentorshipService.getMentors(userId);
     }

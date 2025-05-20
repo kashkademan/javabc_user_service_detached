@@ -13,7 +13,6 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,18 +21,15 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MenteeMapper menteeMapper;
     private final MentorMapper mentorMapper;
 
-    public User getUserById(long userId) {
-        return mentorshipRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("User not found."));
-    }
-
     @Override
     @Transactional
     public List<MenteeDto> getMentees(long userId) {
         User user = getUserById(userId);
-        return Optional.ofNullable(user.getMentees())
-                .orElse(Collections.emptyList())
-                .stream()
+        List<User> mentees = user.getMentees();
+        if (mentees == null || mentees.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return mentees.stream()
                 .map(menteeMapper::toDto)
                 .toList();
     }
@@ -42,9 +38,11 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Transactional
     public List<MentorDto> getMentors(long userId) {
         User user = getUserById(userId);
-        return Optional.ofNullable(user.getMentors())
-                .orElse(Collections.emptyList())
-                .stream()
+        List<User> mentors = user.getMentees();
+        if (mentors == null || mentors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return mentors.stream()
                 .map(mentorMapper::toDto)
                 .toList();
     }
@@ -58,5 +56,10 @@ public class MentorshipServiceImpl implements MentorshipService {
         mentee.getMentors().removeIf(user -> user.getId().equals(mentorId));
         mentorshipRepository.save(mentor);
         mentorshipRepository.save(mentee);
+    }
+
+    private User getUserById(long userId) {
+        return mentorshipRepository.findById(userId)
+                .orElseThrow(() -> new DataValidationException("User not found."));
     }
 }
