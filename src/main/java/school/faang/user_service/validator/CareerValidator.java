@@ -11,6 +11,10 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class CareerValidator {
     public void validateDate(CareerDto careerDto) {
+        if (careerDto.getDateFrom() == null) {
+            throw new DataValidationException("Start date cannot be null");
+        }
+
         if (careerDto.getDateFrom() != null && careerDto.getDateFrom().isAfter(LocalDate.now())) {
             throw new DataValidationException(
                     String.format("Start date cannot be in future. Provided: %s", careerDto.getDateFrom())
@@ -23,7 +27,7 @@ public class CareerValidator {
             );
         }
 
-        if (careerDto.getDateTo().isBefore(careerDto.getDateFrom())) {
+        if (careerDto.getDateTo() != null && careerDto.getDateTo().isBefore(careerDto.getDateFrom())) {
             throw new DataValidationException(
                     String.format("End date (%s) cannot be before start date (%s)",
                             careerDto.getDateTo(), careerDto.getDateFrom())
