@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,10 @@ public class RecommendationRequestServiceTest {
 
     private RecommendationRequestServiceImpl recommendationRequestService;
 
+    private long requesterId;
+    private long receiverId;
+    private RecommendationRequestDto recommendationRequestDto;
+
     @BeforeEach
     public void setUp() {
         recommendationRequestService = new RecommendationRequestServiceImpl(
@@ -70,50 +75,51 @@ public class RecommendationRequestServiceTest {
                 ),
                 recommendationRequestMapper
         );
+
+        requesterId = 1L;
+        receiverId = 2L;
+
+        recommendationRequestDto = new RecommendationRequestDto();
     }
 
     @Test
-    public void testCreateThrowsRequesterIsNotFound() {
-        long requesterId = 1L;
-
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(requesterId);
+    public void testCreate_ThrowsRequesterIsNotFound() {
+        recommendationRequestDto.setRequesterId(requesterId);
 
         when(userRepository.findById(requesterId))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(dto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.create(recommendationRequestDto));
+
+        assertEquals("Requester with id %s was not found".formatted(requesterId), exception.getMessage());
     }
 
     @Test
-    public void testCreateThrowsReceiverIsNotFound() {
-        long requesterId = 1L;
-        long receiverId = 2L;
-
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(requesterId);
-        dto.setReceiverId(receiverId);
+    public void testCreate_ThrowsReceiverIsNotFound() {
+        recommendationRequestDto.setRequesterId(requesterId);
+        recommendationRequestDto.setReceiverId(receiverId);
 
         when(userRepository.findById(requesterId))
                 .thenReturn(Optional.of(new User()));
         when(userRepository.findById(receiverId))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(dto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.create(recommendationRequestDto));
+
+        assertEquals("Receiver with id %s was not found".formatted(receiverId), exception.getMessage());
     }
 
     @Test
-    public void testCreateThrowsRequestHasAlreadyBeenUpdated() {
-        long requesterId = 1L;
-        long receiverId = 2L;
+    public void testCreate_ThrowsRequestHasAlreadyBeenUpdated() {
         LocalDateTime date = LocalDateTime.now().minus(Period.ofMonths(1));
 
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(requesterId);
-        dto.setReceiverId(receiverId);
-        dto.setUpdatedAt(date);
+        recommendationRequestDto.setRequesterId(requesterId);
+        recommendationRequestDto.setReceiverId(receiverId);
+        recommendationRequestDto.setUpdatedAt(date);
 
-        RecommendationRequest entity = recommendationRequestMapper.toEntity(dto);
+        RecommendationRequest entity = recommendationRequestMapper.toEntity(recommendationRequestDto);
 
         when(userRepository.findById(requesterId))
                 .thenReturn(Optional.of(new User()));
@@ -123,22 +129,20 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
                 .thenReturn(Optional.of(entity));
 
-        assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(dto));
+        assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(recommendationRequestDto));
     }
 
     @Test
-    public void testCreateThrowsNotAllRequiredSkillsExist() {
-        long requesterId = 1L;
-        long receiverId = 2L;
+    public void testCreate_ThrowsNotAllRequiredSkillsExist() {
         LocalDateTime date = LocalDateTime.now().minus(Period.ofMonths(10));
 
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(requesterId);
-        dto.setReceiverId(receiverId);
-        dto.setUpdatedAt(date);
-        dto.setSkillIds(List.of(1L));
+        recommendationRequestDto.setRequesterId(requesterId);
+        recommendationRequestDto.setReceiverId(receiverId);
 
-        RecommendationRequest entity = recommendationRequestMapper.toEntity(dto);
+        recommendationRequestDto.setUpdatedAt(date);
+        recommendationRequestDto.setSkillIds(List.of(1L));
+
+        RecommendationRequest entity = recommendationRequestMapper.toEntity(recommendationRequestDto);
 
         when(userRepository.findById(requesterId))
                 .thenReturn(Optional.of(new User()));
@@ -149,13 +153,14 @@ public class RecommendationRequestServiceTest {
         when(skillRepository.existsById(1L))
                 .thenReturn(false);
 
-        assertThrows(NoSuchElementException.class, () -> recommendationRequestService.create(dto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.create(recommendationRequestDto));
+
+        assertEquals("Not all required skills exist in data base", exception.getMessage());
     }
 
     @Test
-    public void testCreateReturnsRecommendationRequestDto() {
-        long requesterId = 1L;
-        long receiverId = 2L;
+    public void testCreate_ReturnsRecommendationRequestDto() {
         LocalDateTime date = LocalDateTime.now().minus(Period.ofMonths(10));
         long skillId = 1L;
         long skillRequestId = 1L;
@@ -165,19 +170,12 @@ public class RecommendationRequestServiceTest {
         skill.setId(skillId);
         long entityId = 1L;
 
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(requesterId);
-        dto.setReceiverId(receiverId);
-        dto.setUpdatedAt(date);
-        dto.setSkillIds(List.of(skillId));
+        recommendationRequestDto.setRequesterId(requesterId);
+        recommendationRequestDto.setReceiverId(receiverId);
+        recommendationRequestDto.setUpdatedAt(date);
+        recommendationRequestDto.setSkillIds(List.of(skillId));
 
-        RecommendationRequestDto expectedDto = new RecommendationRequestDto();
-        expectedDto.setRequesterId(requesterId);
-        expectedDto.setReceiverId(receiverId);
-        expectedDto.setCreatedAt(date);
-
-
-        RecommendationRequest entity = recommendationRequestMapper.toEntity(dto);
+        RecommendationRequest entity = recommendationRequestMapper.toEntity(recommendationRequestDto);
         entity.setSkills(List.of(skillRequest));
         entity.setId(entityId);
 
@@ -196,11 +194,11 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.save(entity))
                 .thenReturn(entity);
 
-        assertEquals(recommendationRequestMapper.toDto(entity), recommendationRequestService.create(dto));
+        assertEquals(recommendationRequestMapper.toDto(entity), recommendationRequestService.create(recommendationRequestDto));
     }
 
     @Test
-    public void testGetRequestsEmptyFilter() {
+    public void testGetRequests_EmptyFilter() {
         long recommendationRequestId1 = 1L;
         long recommendationRequestId2 = 2L;
 
@@ -223,21 +221,16 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findAll())
                 .thenReturn(List.of(entity1, entity2));
 
-        when(requesterIdFilter.isApplicable(any())).thenReturn(false);
-        when(receiverIdFilter.isApplicable(any())).thenReturn(false);
-
         assertEquals(listOfExpectedDtos, recommendationRequestService.getRequests(requestFilterDto));
     }
 
     @Test
-    public void testGetRequestsFilterOneParam() {
+    public void testGetRequests_FilterOneParam() {
         long recommendationRequestId1 = 1L;
         long recommendationRequestId2 = 2L;
 
-        User requester = new User();
-        requester.setId(10L);
-        User receiver = new User();
-        receiver.setId(20L);
+        User requester = User.builder().id(10L).build();
+        User receiver = User.builder().id(20L).build();
 
         RecommendationRequest entity1 = new RecommendationRequest();
         entity1.setId(recommendationRequestId1);
@@ -270,69 +263,15 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRequestsFilterTwoParam() {
-        long recommendationRequestId1 = 1L;
-        long recommendationRequestId2 = 2L;
-
-        User requester = new User();
-        requester.setId(10L);
-        User receiver = new User();
-        receiver.setId(20L);
-
-        RecommendationRequest entity1 = new RecommendationRequest();
-        entity1.setId(recommendationRequestId1);
-        entity1.setRequester(requester);
-        entity1.setReceiver(receiver);
-        RecommendationRequest entity2 = new RecommendationRequest();
-        entity2.setId(recommendationRequestId2);
-        entity2.setRequester(requester);
-        entity2.setReceiver(receiver);
-
-        RecommendationRequestDto dto1 = recommendationRequestMapper.toDto(entity1);
-        RecommendationRequestDto dto2 = recommendationRequestMapper.toDto(entity2);
-
-        List<RecommendationRequestDto> listOfExpectedDtos = List.of(dto1, dto2);
-
-        RequestFilterDto requestFilterDto = new RequestFilterDto();
-
-        when(recommendationRequestRepository.findAll())
-                .thenReturn(List.of(entity1, entity2));
-
-        when(requesterIdFilter.isApplicable(any())).thenReturn(true);
-        when(receiverIdFilter.isApplicable(any())).thenReturn(true);
-
-        when(requesterIdFilter.apply(any(), any()))
-                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
-                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
-
-                    return stream.filter(recommendationRequest ->
-                            recommendationRequest.getRequester().getId().equals(requester.getId()));
-                });
-
-        when(receiverIdFilter.apply(any(), any()))
-                .thenAnswer((Answer<Stream<RecommendationRequest>>) invocations -> {
-                    Stream<RecommendationRequest> stream = invocations.getArgument(0);
-
-                    return stream.filter(recommendationRequest ->
-                            recommendationRequest.getReceiver().getId().equals(receiver.getId()));
-                });
-
-        assertEquals(listOfExpectedDtos, recommendationRequestService.getRequests(requestFilterDto));
-    }
-
-    @Test
-    public void testGetRequestsPassSeparateFiltersReturnEmpty() {
-        User requester1 = new User();
-        requester1.setId(10L);
-        User requester2 = new User();
-        requester2.setId(20L);
-        User receiver1 = new User();
-        receiver1.setId(30L);
-        User receiver2 = new User();
-        receiver2.setId(40L);
+    public void testGetRequests_PassSeparateFilters_ReturnOneDto() {
+        User requester1 = User.builder().id(10L).build();
+        User requester2 = User.builder().id(20L).build();
+        User receiver1 = User.builder().id(30L).build();
+        User receiver2 = User.builder().id(40L).build();
 
         long recommendationRequestId1 = 1L;
         long recommendationRequestId2 = 2L;
+        long recommendationRequestId3 = 3L;
 
         RecommendationRequest entity1 = new RecommendationRequest();
         entity1.setId(recommendationRequestId1);
@@ -342,11 +281,15 @@ public class RecommendationRequestServiceTest {
         entity2.setId(recommendationRequestId2);
         entity2.setRequester(requester2);
         entity2.setReceiver(receiver2);
+        RecommendationRequest entity3 = new RecommendationRequest();
+        entity3.setId(recommendationRequestId3);
+        entity3.setRequester(requester1);
+        entity3.setReceiver(receiver2);
 
         RequestFilterDto requestFilterDto = new RequestFilterDto();
 
         when(recommendationRequestRepository.findAll())
-                .thenReturn(List.of(entity1, entity2));
+                .thenReturn(List.of(entity1, entity2, entity3));
 
         when(requesterIdFilter.isApplicable(any())).thenReturn(true);
         when(receiverIdFilter.isApplicable(any())).thenReturn(true);
@@ -367,7 +310,7 @@ public class RecommendationRequestServiceTest {
                             recommendationRequest.getReceiver().getId().equals(receiver2.getId()));
                 });
 
-        assertEquals(List.of(), recommendationRequestService.getRequests(requestFilterDto));
+        assertEquals(List.of(recommendationRequestMapper.toDto(entity3)), recommendationRequestService.getRequests(requestFilterDto));
     }
 
     @Test
@@ -377,7 +320,9 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findById(id))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> recommendationRequestService.getRequest(id));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> recommendationRequestService.getRequest(id));
+
+        assertEquals("Recommendation request with id %s doesn't exist".formatted(id), exception.getMessage());
     }
 
     @Test
@@ -385,7 +330,7 @@ public class RecommendationRequestServiceTest {
         long id = 1L;
         RecommendationRequest recommendationRequest = new RecommendationRequest();
         recommendationRequest.setId(id);
-        recommendationRequest.setSkills(List.of()); // Стоит ли добавлять в логику проверку что бы тест не зависел от того пуст лист или нет?
+        recommendationRequest.setSkills(List.of());
 
         RecommendationRequestDto expectedDto = recommendationRequestMapper.toDto(recommendationRequest);
 
@@ -403,7 +348,10 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findById(id))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+
+        assertEquals("Recommendation request with id %s doesn't exist".formatted(id), exception.getMessage());
     }
 
     @Test
@@ -417,7 +365,10 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestRepository.findById(id))
                 .thenReturn(Optional.of(recommendationRequest));
 
-        assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> recommendationRequestService.rejectRequest(id, rejectionDto));
+
+        assertEquals("Unable to reject request due to %s status".formatted(RequestStatus.REJECTED), exception.getMessage());
     }
 
     @Test

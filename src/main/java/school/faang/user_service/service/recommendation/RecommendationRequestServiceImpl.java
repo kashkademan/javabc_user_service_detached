@@ -99,7 +99,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request with id %s doesn't exist".formatted(id)));
 
         if (recommendationRequest.getStatus() != RequestStatus.PENDING) {
-            throw new IllegalArgumentException("Unable to reject request");
+            throw new IllegalArgumentException("Unable to reject request due to %s status".formatted(recommendationRequest.getStatus()));
         }
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);
