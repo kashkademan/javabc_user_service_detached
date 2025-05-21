@@ -48,3 +48,11 @@ feign:
     config:
       payment-service:
         url: http://localhost:9080
+
+# OpenApi configs
+springdoc:
+    swagger-ui:
+        path: /swagger-ui
+        enabled: true
+    api-docs:
+        path: /api-docs
