@@ -12,4 +12,3 @@ public interface UserMapper {
     User toUser(UserDto uSerDto);
     List<UserDto> mapListOfUsers(List<User> subscriptions);
 }
-
