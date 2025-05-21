@@ -68,7 +68,7 @@ public class Transaction {
 
     @Column(name = "type", length = 64, nullable = false)
     @Enumerated(EnumType.STRING)
-    private TransactionPurpose purpose;
+    private TransactionPurpose  purpose;
 
     @Column(name = "product_code", length = 64, nullable = false)
     private String purchaseItem;

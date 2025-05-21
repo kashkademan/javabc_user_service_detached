@@ -6,6 +6,7 @@ import school.faang.user_service.dto.transaction.TransactionResultDto;
 import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.entity.transaction.TransactionStatus;
 import school.faang.user_service.service.transaction.TransactionService;
+import school.faang.user_service.service.utils.PremiumServiceUtils;
 
 @Service
 @RequiredArgsConstructor

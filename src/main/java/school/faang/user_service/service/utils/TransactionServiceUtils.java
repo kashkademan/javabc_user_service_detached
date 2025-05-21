@@ -1,4 +1,4 @@
-package school.faang.user_service.service.transaction;
+package school.faang.user_service.service.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

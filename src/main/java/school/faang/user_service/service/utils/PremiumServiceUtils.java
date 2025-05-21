@@ -1,13 +1,9 @@
-package school.faang.user_service.service.premium;
+package school.faang.user_service.service.utils;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.payment.PaymentRequestDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.entity.premium.PremiumPeriod;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.user.UserService;
 
