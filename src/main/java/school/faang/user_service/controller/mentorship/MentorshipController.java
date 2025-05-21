@@ -19,21 +19,21 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/mentorship")
+@RequestMapping("/api/v1/mentorship")
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-    @GetMapping("/menteeOfUser/{userId}")
+    @GetMapping("/mentee-of-user/{userId}")
     public List<MenteeDto> getMentees(@PathVariable @NotNull @Positive Long userId) {
         return mentorshipService.getMentees(userId);
     }
 
-    @GetMapping("/mentorOfUser/{userId}")
+    @GetMapping("/mentor-of-user/{userId}")
     public List<MentorDto> getMentors(@PathVariable @NotNull @Positive Long userId) {
         return mentorshipService.getMentors(userId);
     }
 
-    @DeleteMapping("/delete/mentee/{menteeId}/forMentor/{mentorId}")
+    @DeleteMapping("/mentee/{menteeId}/forMentor/{mentorId}")
     public ResponseEntity<Void> deleteMentee(
             @PathVariable @NotNull @Positive Long menteeId,
             @PathVariable @NotNull @Positive Long mentorId
@@ -42,7 +42,7 @@ public class MentorshipController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/mentor/{mentorId}/forMentee/{menteeId}")
+    @DeleteMapping("/mentor/{mentorId}/forMentee/{menteeId}")
     public ResponseEntity<Void> deleteMentor(
             @PathVariable @NotNull @Positive Long mentorId,
             @PathVariable @NotNull @Positive Long menteeId

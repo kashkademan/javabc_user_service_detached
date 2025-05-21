@@ -1,12 +1,12 @@
 package school.faang.user_service.service.mentorship;
 
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.mentorship.MenteeDto;
 import school.faang.user_service.dto.mentorship.MentorDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.MenteeMapper;
 import school.faang.user_service.mapper.MentorMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
@@ -22,11 +22,11 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MentorMapper mentorMapper;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<MenteeDto> getMentees(long userId) {
         User user = getUserById(userId);
         List<User> mentees = user.getMentees();
-        if (mentees == null || mentees.isEmpty()) {
+        if (mentees.isEmpty()) {
             return Collections.emptyList();
         }
         return mentees.stream()
@@ -35,11 +35,11 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<MentorDto> getMentors(long userId) {
         User user = getUserById(userId);
         List<User> mentors = user.getMentors();
-        if (mentors == null || mentors.isEmpty()) {
+        if (mentors.isEmpty()) {
             return Collections.emptyList();
         }
         return mentors.stream()
@@ -60,6 +60,6 @@ public class MentorshipServiceImpl implements MentorshipService {
 
     private User getUserById(long userId) {
         return mentorshipRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("User not found."));
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
 }
