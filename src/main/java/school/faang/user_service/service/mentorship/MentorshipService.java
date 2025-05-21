@@ -1,15 +1,10 @@
 package school.faang.user_service.service.mentorship;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.mentorship.MenteeDto;
-import school.faang.user_service.dto.mentorship.MentorDto;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.mentorship.MenteesMapper;
-import school.faang.user_service.mapper.mentorship.MentorsMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.validation.mentorship.MentorshipValidation;
@@ -20,36 +15,26 @@ import static school.faang.user_service.validation.mentorship.MentorshipValidati
 import static school.faang.user_service.validation.mentorship.MentorshipValidation.validateIsMentorOf;
 import static school.faang.user_service.validation.mentorship.MentorshipValidation.validateMentorshipUsers;
 
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
     private final MentorshipRepository mentorshipRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public List<MenteeDto> getMentees(long mentorId) {
+    @Transactional(readOnly = true)
+    public List<User> getMentees(long mentorId) {
         User mentor = findUserIntoUserRepository(mentorId);
         List<User> mentees = mentor.getMentees();
-
-        MentorshipValidation.validateMenteesNonEmpty(mentees);
-
-        return mentees.stream()
-                .map(MenteesMapper::toDto)
-                .toList();
+        MentorshipValidation.validateListUsersNotNull(mentees);
+        return mentees;
     }
 
-    @Transactional
-    public List<MentorDto> getMentors(long menteeId) {
+    @Transactional(readOnly = true)
+    public List<User> getMentors(long menteeId) {
         User mentee = findUserIntoUserRepository(menteeId);
         List<User> mentors = mentee.getMentors();
-
-        MentorshipValidation.validateMentorsNonEmpty(mentors);
-
-        return mentors.stream()
-                .map(MentorsMapper::toDto)
-                .toList();
+        MentorshipValidation.validateListUsersNotNull(mentors);
+        return mentors;
     }
 
     @Transactional
@@ -73,16 +58,16 @@ public class MentorshipService {
         validateIsMentorOf(mentor, mentee);
 
         mentee.getMentors().remove(mentor);
-        userRepository.save(mentor);
+        userRepository.save(mentee);
     }
 
     private User findUserIntoMentorshipRepository(long userId) {
         return mentorshipRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Такого пользователя нет в базе"));
+                .orElseThrow(() -> new EntityNotFoundException("User does not exist in the database"));
     }
 
     private User findUserIntoUserRepository(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Такого пользователя нет в базе"));
+                .orElseThrow(() -> new EntityNotFoundException("User does not exist in the database"));
     }
 }

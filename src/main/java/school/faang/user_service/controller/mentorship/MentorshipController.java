@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorship.MenteeDto;
 import school.faang.user_service.dto.mentorship.MentorDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.mentorship.MentorshipServiceFacade;
 
 import java.util.List;
 
@@ -18,16 +19,17 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class MentorshipController {
     private final MentorshipService mentorshipService;
+    private final MentorshipServiceFacade mentorshipServiceF;
 
     @GetMapping("/mentorship/mentees/{userId}")
     public ResponseEntity<List<MenteeDto>> getMentees(@PathVariable long userId) {
-        List<MenteeDto> mentees = mentorshipService.getMentees(userId);
+        List<MenteeDto> mentees = mentorshipServiceF.getMentees(userId);
         return ResponseEntity.ok(mentees);
     }
 
     @GetMapping("/mentorship/mentors/{userId}")
     public ResponseEntity<List<MentorDto>> getMentors(@PathVariable long userId) {
-        List<MentorDto> mentors = mentorshipService.getMentors(userId);
+        List<MentorDto> mentors = mentorshipServiceF.getMentors(userId);
         return ResponseEntity.ok(mentors);
     }
 
