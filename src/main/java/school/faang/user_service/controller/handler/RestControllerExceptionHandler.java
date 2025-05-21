@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.NotFoundException;
+import school.faang.user_service.exception.UserNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -20,8 +20,8 @@ public class RestControllerExceptionHandler {
                 .body(new ErrorResponse("validation_error", e.getMessage()));
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(UserNotFoundException e) {
         log.warn("Not found: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

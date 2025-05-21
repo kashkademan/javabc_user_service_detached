@@ -3,8 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.NotFoundException;
+import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
@@ -19,16 +18,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден: " + id));
-        return userMapper.toUserDTO(user);
+        return userRepository.findById(id)
+                .map(userMapper::toUserDto)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден: " + id));
     }
 
     @Override
     public List<UserDto> getUsersByIds(List<Long> ids) {
         return userRepository.findAllById(ids)
                 .stream()
-                .map(userMapper::toUserDTO)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 }
