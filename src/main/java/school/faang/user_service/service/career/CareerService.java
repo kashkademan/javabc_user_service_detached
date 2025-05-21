@@ -11,12 +11,25 @@ import school.faang.user_service.repository.CareerRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validation.career.CareerValidation;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 @Service
 @RequiredArgsConstructor
 public class CareerService {
     private final UserRepository userRepository;
     private final CareerRepository careerRepository;
     private final UserContext userContext;
+
+    private <T> void updateField(T newValue, Career existingCareer,
+                                 Consumer<Career> validator,
+                                 Consumer<T> setter) {
+        Optional.ofNullable(newValue).ifPresent(newFieldValue -> {
+            Optional.ofNullable(validator)
+                    .ifPresent(fieldValidator -> fieldValidator.accept(existingCareer));
+            setter.accept(newFieldValue);
+        });
+    }
 
     @Transactional
     public Career addCareer(Career career) {
@@ -43,20 +56,10 @@ public class CareerService {
             throw new SecurityException("Вы не можете редактировать записи о карьере другого пользователя.");
         }
 
-        if (career.getDateFrom() != null) {
-            CareerValidation.validateDateFrom(existingCareer);
-            existingCareer.setDateFrom(career.getDateFrom());
-        }
-        if (career.getDateTo() != null) {
-            CareerValidation.validateDateTo(existingCareer);
-            existingCareer.setDateTo(career.getDateTo());
-        }
-        if (career.getCompany() != null) {
-            existingCareer.setCompany(career.getCompany());
-        }
-        if (career.getPosition() != null) {
-            existingCareer.setPosition(career.getPosition());
-        }
+        updateField(career.getDateFrom(), existingCareer, CareerValidation::validateDateFrom, existingCareer::setDateFrom);
+        updateField(career.getDateTo(), existingCareer, CareerValidation::validateDateTo, existingCareer::setDateTo);
+        updateField(career.getCompany(), existingCareer, null, existingCareer::setCompany);
+        updateField(career.getPosition(), existingCareer, null, existingCareer::setPosition);
 
         return careerRepository.save(existingCareer);
     }

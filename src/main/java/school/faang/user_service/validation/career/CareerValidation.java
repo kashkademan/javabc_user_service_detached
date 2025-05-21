@@ -1,7 +1,7 @@
 package school.faang.user_service.validation.career;
 
 import school.faang.user_service.entity.Career;
-import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,12 +21,15 @@ public class CareerValidation {
     }
 
     public static void validateDateRanges(Career career) {
-        LocalDate minDate = LocalDate.of(1970, 1, 1);
+        LocalDate minDate = LocalDate.ofEpochDay(0);
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-        if (Stream.of(career.getDateFrom(), career.getDateTo())
-                .anyMatch(date -> date.isBefore(minDate) || date.isAfter(currentDate))) {
+        boolean hasInvalidDates = Stream.of(career.getDateFrom(), career.getDateTo())
+                .anyMatch(date -> date.isBefore(minDate) || date.isAfter(currentDate));
+
+
+        if (hasInvalidDates) {
             throw new DataValidationException("Дата не может быть меньше " +
                     minDate.format(formatter) + " и больше текущей даты.");
         }

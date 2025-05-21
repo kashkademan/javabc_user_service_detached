@@ -25,7 +25,7 @@ public class CareerController {
     private final CareerService careerService;
     private final CareerMapper careerMapper;
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<CareerResponseDto> addCareer(
             @Valid @RequestBody CareerCreateDto careerCreateDto) {
         Career career = careerMapper.toCareer(careerCreateDto);
@@ -35,7 +35,7 @@ public class CareerController {
                 HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update")
+    @PatchMapping
     public ResponseEntity<CareerResponseDto> updateCareer(
             @Valid @RequestBody CareerUpdateDto careerUpdateDto) {
         Career career = careerMapper.toCareer(careerUpdateDto);
