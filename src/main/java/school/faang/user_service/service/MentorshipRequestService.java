@@ -10,7 +10,6 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.mapper.RequestToResponseDto;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship_request.RequestFilter;
@@ -27,8 +26,6 @@ import java.util.stream.Stream;
 public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final RequestToResponseDto responseMapper;
-    private final MentorshipRequestMapper requestMapper;
-    private final UserService userService;
     private final List<RequestFilter> filters;
 
     @Transactional
@@ -37,22 +34,15 @@ public class MentorshipRequestService {
             throw new IllegalArgumentException("The user cannot send a request to himself");
         }
 
-        User requester = userService.getUserById(request.requesterId());
-        User receiver = userService.getUserById(request.receiverId());
-
         Optional<MentorshipRequest> optionalMentorshipRequest = mentorshipRequestRepository
                 .findLatestRequest(request.requesterId(), request.receiverId());
 
         if (optionalMentorshipRequest.isPresent()) {
             MentorshipRequest mentorshipRequest = optionalMentorshipRequest.get();
-            if (LocalDateTime.now().minusMonths(3L).isBefore(mentorshipRequest.getUpdatedAt())) {
+            if (LocalDateTime.now().minusMonths(3L).isAfter(mentorshipRequest.getUpdatedAt())) {
                 throw new IllegalArgumentException("It's been less than three months since the last request");
             }
         }
-
-        requester.getSentMentorshipRequests().add(requestMapper.toEntity(request));
-        receiver.getReceivedMentorshipRequests().add(requestMapper.toEntity(request));
-        //Будут ли изменения выше сохраняться в базе?
 
         MentorshipRequest newMentorshipRequest = mentorshipRequestRepository
                 .create(request.requesterId(), request.receiverId(), request.description());
@@ -69,23 +59,12 @@ public class MentorshipRequestService {
         return getFilteredRequest(listRequest, filter).map(responseMapper::toDto).toList();
     }
 
-    public Stream<MentorshipRequest> getFilteredRequest
-            (List<MentorshipRequest> listRequest, RequestFilterDto filterDto) {
-        Stream<MentorshipRequest> requestStream = listRequest.stream();
-        for (RequestFilter filter : filters) {
-            if (filter.isApplicable(filterDto)) {
-                requestStream = filter.apply(requestStream, filterDto);
-            }
-        }
-        return requestStream;
-    }
-
     @Transactional
     public void acceptRequest(Long id) {
         MentorshipRequest request = getMentorshipRequestById(id);
 
-        User requester = userService.getUserById(request.getRequester().getId());
-        User receiver = userService.getUserById(request.getReceiver().getId());
+        User requester = request.getRequester();
+        User receiver = request.getReceiver();
 
         if (receiver.getMentees().contains(requester)) {
             throw new IllegalArgumentException("You already have such a mentor.");
@@ -107,6 +86,17 @@ public class MentorshipRequestService {
         }
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.reason());
+    }
+
+    private Stream<MentorshipRequest> getFilteredRequest
+            (List<MentorshipRequest> listRequest, RequestFilterDto filterDto) {
+        Stream<MentorshipRequest> requestStream = listRequest.stream();
+        for (RequestFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
+                requestStream = filter.apply(requestStream, filterDto);
+            }
+        }
+        return requestStream;
     }
 
     private MentorshipRequest getMentorshipRequestById(Long id) {
