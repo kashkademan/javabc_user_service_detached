@@ -13,18 +13,15 @@ import java.util.List;
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public RecommendationDto giveRecommendation(RecommendationDto recommendation) throws DataValidationException {
-        if (!recommendation.content().isEmpty()) {
-            return recommendationService.create(recommendation);
-        }
-        throw new DataValidationException("Empty content");
+    public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
+        validate(recommendationDto);
+        return recommendationService.create(recommendationDto);
     }
 
-    public RecommendationDto updateRecommendation(RecommendationDto recommendation)  throws DataValidationException {
-        if (!recommendation.content().isEmpty()) {
-            return recommendationService.update(recommendation);
-        }
-        throw new DataValidationException("Empty content");
+    public RecommendationDto updateRecommendation(RecommendationDto recommendationDto) {
+        validate(recommendationDto);
+
+        return recommendationService.update(recommendationDto);
     }
 
     public void deleteRecommendation(long id) {
@@ -37,5 +34,11 @@ public class RecommendationController {
 
     public List<RecommendationDto> getAllGivenRecommendations(long id) {
         return recommendationService.getAllGivenRecommendations(id);
+    }
+
+    private void validate(RecommendationDto recommendationDto) {
+        if (recommendationDto.content().isEmpty()) {
+            throw new DataValidationException("Empty content");
+        }
     }
 }

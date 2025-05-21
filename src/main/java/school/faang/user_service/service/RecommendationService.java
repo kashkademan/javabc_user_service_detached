@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -39,12 +40,7 @@ public class RecommendationService {
         Long id = recommendationRepository
                 .create(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
 
-        return new RecommendationDto(id,
-                recommendationDto.authorId(),
-                recommendationDto.receiverId(),
-                recommendationDto.content(),
-                recommendationDto.skillOffers(),
-                recommendationDto.createdAt());
+        return recommendationMapper.toDto(recommendationRepository.findById(id).get());
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
@@ -69,27 +65,28 @@ public class RecommendationService {
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        List<RecommendationDto> userRecommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable).getContent()
-                .stream()
-                .map(recommendationMapper::toDto)
-                .toList();
+        Page<Recommendation> userRecommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable);
         if (userRecommendations.isEmpty()) {
             throw new IllegalArgumentException("NonexistentId");
         }
 
-        return userRecommendations;
-    }
-
-    public List<RecommendationDto> getAllGivenRecommendations(long id) {
-        List<RecommendationDto> givenRecommendations = recommendationRepository.findAllByAuthorId(id, pageable).getContent()
+        return userRecommendations.getContent()
                 .stream()
                 .map(recommendationMapper::toDto)
                 .toList();
+    }
 
+    public List<RecommendationDto> getAllGivenRecommendations(long id) {
+        Page<Recommendation> givenRecommendations = recommendationRepository.findAllByAuthorId(id, pageable);
         if (givenRecommendations.isEmpty()) {
             throw new IllegalArgumentException("Nonexistent id");
         }
-        return givenRecommendations;
+
+        return givenRecommendations
+                .getContent()
+                .stream()
+                .map(recommendationMapper::toDto)
+                .toList();
     }
 
     private void checkForGuarantee(Recommendation recommendation, SkillOfferDto skillOfferDto) {

@@ -13,12 +13,13 @@ public interface RecommendationMapper {
 
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "receiver", ignore = true)
-    @Mapping(target = "recommendationRequest", ignore = true)
+    @Mapping(target = "request", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Recommendation toEntity(RecommendationDto recommendationDto);
 
     @Mapping(target = "authorId", source = "author.id")
-    @Mapping(target = "receiverId", source = "receive.id")
-    @Mapping(target = "skillOffers", source = "skillOffers", expression = "java(toSkillOfferDtoList(recommendation))")
+    @Mapping(target = "receiverId", source = "receiver.id")
+    @Mapping(target = "skillOffers", expression = "java(toSkillOfferDtoList(recommendation))")
     RecommendationDto toDto(Recommendation recommendation);
 
     default List<SkillOfferDto> toSkillOfferDtoList(Recommendation recommendation) {
