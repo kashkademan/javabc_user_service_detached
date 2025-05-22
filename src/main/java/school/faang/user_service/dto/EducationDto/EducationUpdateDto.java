@@ -7,11 +7,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class EducationDto {
+@NoArgsConstructor
+public class EducationUpdateDto {
 
-    private long id;
     private Integer yearFrom;
     private Integer yearTo;
     private String institution;

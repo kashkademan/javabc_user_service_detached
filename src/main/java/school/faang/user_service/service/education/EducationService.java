@@ -3,6 +3,7 @@ package school.faang.user_service.service.education;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.EducationDto.AddEducationDto;
 import school.faang.user_service.dto.EducationDto.EducationDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.exception.DataValidationException;
@@ -18,20 +19,22 @@ import static school.faang.user_service.validation.ValidationUtils.executeIfNotN
 @RequiredArgsConstructor
 @Service
 public class EducationService {
+
+
     private final UserRepository userRepository;
     private final EducationRepository educationRepository;
     private final EducationMapper educationMapper;
     private final UserContext userContext;
 
 
-    public EducationDto addEducation(long userId, EducationDto educationDto) {
-        if (educationDto.getYearFrom() > Year.now().getValue()) {
+    public EducationDto addEducation(AddEducationDto addEducationDto) {
+        if (addEducationDto.getYearFrom() > Year.now().getValue()) {
             throw new DataValidationException("YearFrom cannot be greater than the current year.");
         }
-
+        long userId = userContext.getUserId();
         var user = userRepository.findById(userId).orElseThrow(() -> new DataValidationException("User not found"));
 
-        Education education = educationMapper.toEducation(educationDto);
+        Education education = educationMapper.toEducation(addEducationDto);
         education.setUser(user);
 
         return educationMapper.toEducationDto(educationRepository.save(education));
@@ -44,6 +47,7 @@ public class EducationService {
 
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new DataValidationException("Education not found"));
+
 
         if (Objects.nonNull(education.getUser()) && education.getUser().getId() != userContext.getUserId()) {
             throw new DataValidationException("User does not have permission to update this education record.");
