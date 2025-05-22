@@ -36,5 +36,16 @@ payment-service:
   host: localhost
   port: 9080
 
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    docExpansion: none
+    displayRequestDuration: true
+    defaultModelsExpandDepth: -1
+
 goal:
   maxLimit: 3

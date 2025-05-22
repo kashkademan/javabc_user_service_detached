@@ -1,78 +1,137 @@
 package school.faang.user_service.controller.goal;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.entity.filter.GoalFilterDto;
-import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.dto.request.CreateGoalDto;
 import school.faang.user_service.entity.goal.dto.request.UpdateGoalDto;
 import school.faang.user_service.entity.goal.dto.response.GoalDto;
-import school.faang.user_service.entity.goal.mapper.GoalMapper;
-import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/goals")
-@RequiredArgsConstructor
-public class GoalController {
+@Tag(name = "Goals", description = "Управление целями")
+public interface GoalController {
 
-    private final GoalService goalService;
-    private final GoalMapper goalMapper;
+    @Operation(
+            summary = "Получить цель по ID",
+            description = "Возвращает информацию о цели по её идентификатору"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Цель найдена"),
+            @ApiResponse(responseCode = "404", description = "Цель не найдена")
+    })
+    ResponseEntity<GoalDto> getGoal(
+            @Parameter(description = "ID цели", example = "1")
+            long goalId);
 
-    @GetMapping("/{goalId}")
-    public ResponseEntity<GoalDto> getGoal(@PathVariable long goalId) {
-        Goal goal = goalService.getGoalById(goalId);
-        return ResponseEntity.ok(goalMapper.toGoalDto(goal));
-    }
+    @Operation(
+            summary = "Получить фильтрованный список целей",
+            description = "Возвращает список целей, который содержит цели удовлетворяющие переданному фильтру",
+            requestBody = @RequestBody(
+                    description = "JSON с параметрами фильтра",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = GoalFilterDto.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Получен список целей")
+    })
+    ResponseEntity<List<GoalDto>> getGoals(GoalFilterDto goalFilterDto);
 
-    @PostMapping("/filter")
-    public ResponseEntity<List<GoalDto>> getGoals(@RequestBody GoalFilterDto goalFilterDto) {
-        List<Goal> filteredGoals = goalService.getGoalsByFilter(goalFilterDto);
-        return ResponseEntity.ok(goalMapper.toGoalDtoList(filteredGoals));
-    }
+    @Operation(
+            summary = "Получить фильтрованный список дочерних целей",
+            description = """
+                    Возвращает список дочерних целей заданной цели,
+                    который содержит цели удовлетворяющие переданному фильтру""",
+            requestBody = @RequestBody(
+                    description = "JSON с параметрами фильтра",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = GoalFilterDto.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Получен список дочерних целей"),
+            @ApiResponse(responseCode = "404", description = "Цель не найдена")
 
-    @PostMapping("/{parentId}/subGoals/filter")
-    public ResponseEntity<List<GoalDto>> getSubGoals(@PathVariable long parentId, @RequestBody GoalFilterDto goalFilterDto) {
-        List<Goal> filteredSubGoals = goalService.getSubGoalsByFilter(parentId, goalFilterDto);
-        return ResponseEntity.ok(goalMapper.toGoalDtoList(filteredSubGoals));
-    }
+    })
+    ResponseEntity<List<GoalDto>> getSubGoals(
+            @Parameter(description = "ID цели родителя", example = "1")
+            @PathVariable long parentId,
+            @RequestBody GoalFilterDto goalFilterDto
+    );
 
-    @PostMapping
-    public ResponseEntity<GoalDto> createGoal(@RequestBody @Valid CreateGoalDto goalDto) {
-        Goal createdGoal = goalService.createGoal(
-                goalMapper.toGoal(goalDto),
-                goalDto.skillsId(),
-                goalDto.parentId()
-        );
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(goalMapper.toGoalDto(createdGoal));
-    }
+    @Operation(
+            summary = "Создать новую цель",
+            description = "Создает новую цель с заданными параметрами и назначает текущему пользователю",
+            requestBody = @RequestBody(
+                    description = "JSON с параметрами цели",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = CreateGoalDto.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Цель создана"),
+            @ApiResponse(responseCode = "400", description = "Параметры цели не валидные"),
+            @ApiResponse(responseCode = "401", description = "Не задан id пользователя"),
+            @ApiResponse(responseCode = "404", description = "Передан не существующий навык"),
+            @ApiResponse(responseCode = "412", description = "Пользователь имеет максимальное количество активных целей")
+    })
+    @SecurityRequirement(name = "userIdHeader")
+    ResponseEntity<GoalDto> createGoal(CreateGoalDto goalDto);
 
-    @PatchMapping("/{goalId}")
-    public ResponseEntity<GoalDto> updateGoal(@PathVariable long goalId, @RequestBody @Valid UpdateGoalDto goalDto) {
-        Goal createdGoal = goalService.update(
-                goalId,
-                goalMapper.toGoal(goalDto),
-                goalDto.skillsId()
-        );
-        return ResponseEntity.ok(goalMapper.toGoalDto(createdGoal));
-    }
+    @Operation(
+            operationId = "updateGoalId",
+            summary = "Обновить заданную цель",
+            description = "Обновить существующую цель заданными параметрами",
+            requestBody = @RequestBody(
+                    description = "JSON с новыми параметрами цели",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = UpdateGoalDto.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Цель обновлена"),
+            @ApiResponse(responseCode = "400", description = "Параметры цели не валидные"),
+            @ApiResponse(responseCode = "401", description = "Не задан id пользователя"),
+            @ApiResponse(responseCode = "403", description = "Пользователь не является владельцем цели"),
+            @ApiResponse(responseCode = "404", description = "Цель не найдена или передан не существующий навык"),
+            @ApiResponse(responseCode = "412", description = "Не выполнено условие обновления цели")
+    })
+    @SecurityRequirement(name = "userIdHeader")
+    ResponseEntity<GoalDto> updateGoal(
+            @Parameter(description = "ID цели", example = "1")
+            long goalId,
+            UpdateGoalDto goalDto);
 
-    @DeleteMapping("/{goalId}")
-    public ResponseEntity<Void> deleteGoal(@PathVariable long goalId) {
-        goalService.delete(goalId);
-        return ResponseEntity.noContent().build();
-    }
+    @Operation(
+            summary = "Удалить заданную цель",
+            description = "Удаляет связь пользователя с целью и цель, если у нее не осталось владельцев"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Цель удалена"),
+            @ApiResponse(responseCode = "401", description = "Не задан id пользователя"),
+            @ApiResponse(responseCode = "403", description = "Пользователь не является владельцем цели"),
+            @ApiResponse(responseCode = "404", description = "Цель не найдена")
+    })
+    @SecurityRequirement(name = "userIdHeader")
+    ResponseEntity<Void> deleteGoal(
+            @Parameter(description = "ID цели", example = "1")
+            long goalId);
 }
