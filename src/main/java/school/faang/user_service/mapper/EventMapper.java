@@ -6,6 +6,9 @@ import school.faang.user_service.entity.event.Event;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
+    @Mapping(source = "ownerId", target = "owner.id")
     Event toEntity(EventDto eventDto);
+
+    @Mapping(source = "owner.id", target = "ownerId")
     EventDto toDto(Event event);
 }
