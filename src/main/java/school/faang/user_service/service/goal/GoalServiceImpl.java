@@ -10,10 +10,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalService;
 
@@ -34,6 +36,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
+    private final GoalInvitationRepository goalInvitationRepository;
     private final List<GoalFilter> goalFilters;
 
     @Override
@@ -43,8 +46,10 @@ public class GoalServiceImpl implements GoalService {
                 .count();
 
         if (usersActiveGoals >= maximumAllowedActiveGoals) {
-            throw new IllegalArgumentException("User exceeded maximum allowed number or active goals "
-                    + usersActiveGoals);
+            throw new UserServiceException(
+                    String.format("User id: %d has Maximum allowed active goals - %d",
+                            userId,
+                            maximumAllowedActiveGoals));
         }
 
         List<Skill> skillsOfUser = skillRepository.findAllByUserId(userId);
@@ -84,7 +89,7 @@ public class GoalServiceImpl implements GoalService {
                 .filter(skillId -> !existingSkillIds.contains(skillId))
                 .toList();
         if (!missingSkillIds.isEmpty())
-            throw new IllegalArgumentException("Skill ids not exists: ".formatted(missingSkillIds.toArray()));
+            throw new IllegalArgumentException("Skill ids not exists: %s".formatted(missingSkillIds));
 
         goalMapper.updateGoalFromDto(goalDto, goalToUpdate);
         goalToUpdate.setUpdatedAt(LocalDateTime.now());
@@ -135,7 +140,8 @@ public class GoalServiceImpl implements GoalService {
         skillRepository.saveAllAndFlush(skills);
 
         List<GoalInvitation> invitations = goalToDelete.getInvitations();
-        //todo on next task with invitations
+        invitations.forEach(invitation -> invitation.setGoal(null));
+        goalInvitationRepository.saveAllAndFlush(invitations);
     }
 
     @Override
@@ -156,6 +162,7 @@ public class GoalServiceImpl implements GoalService {
         List<GoalFilter> applicableFilters = goalFilters.stream()
                 .filter(goalFilter -> goalFilter.isApplicable(filterDto))
                 .toList();
+
         return goalStream
                 .filter(goal -> applicableFilters.stream().allMatch(goalFilter -> goalFilter.doFilter(goal, filterDto)))
                 .toList();
