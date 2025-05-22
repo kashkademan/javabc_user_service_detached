@@ -3,10 +3,10 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.MentorshipResponseDto;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipResponseDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -51,7 +51,7 @@ public class MentorshipRequestService {
         return responseMapper.toDto(newMentorshipRequest);
     }
 
-    public List<MentorshipResponseDto> getRequests(RequestFilterDto filter) {
+    public List<MentorshipResponseDto> getRequests(MentorshipRequestFilterDto filter) {
         List<MentorshipRequest> listRequest = new ArrayList<>();
         Iterable<MentorshipRequest> iterable = mentorshipRequestRepository.findAll();
         iterable.forEach(listRequest::add);
@@ -89,7 +89,7 @@ public class MentorshipRequestService {
     }
 
     private Stream<MentorshipRequest> getFilteredRequest
-            (List<MentorshipRequest> listRequest, RequestFilterDto filterDto) {
+            (List<MentorshipRequest> listRequest, MentorshipRequestFilterDto filterDto) {
         Stream<MentorshipRequest> requestStream = listRequest.stream();
         for (RequestFilter filter : filters) {
             if (filter.isApplicable(filterDto)) {

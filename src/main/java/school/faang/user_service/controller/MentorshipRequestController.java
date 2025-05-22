@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.MentorshipResponseDto;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipResponseDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
-    public List<MentorshipResponseDto> getRequests(@RequestBody RequestFilterDto filter) {
+    public List<MentorshipResponseDto> getRequests(@RequestBody MentorshipRequestFilterDto filter) {
         return service.getRequests(filter);
     }
 
