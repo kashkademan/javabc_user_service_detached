@@ -1,13 +1,14 @@
 package school.faang.user_service.dto.EducationDto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class EducationDto {
+@AllArgsConstructor
+public class EducationUpdateDto {
 
-    private long id;
     private Integer yearFrom;
     private Integer yearTo;
     private String institution;
