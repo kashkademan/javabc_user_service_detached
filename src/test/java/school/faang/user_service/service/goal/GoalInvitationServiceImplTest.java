@@ -22,7 +22,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.QGoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserRepositoryAdapter;
+import school.faang.user_service.repository.user.UserRepositoryAdapter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

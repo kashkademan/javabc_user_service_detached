@@ -18,7 +18,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.NotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.user.UserRepositoryAdapter;
+import school.faang.user_service.repository.user.UserRepositoryAdapter;
 
 import java.util.Comparator;
 import java.util.List;
