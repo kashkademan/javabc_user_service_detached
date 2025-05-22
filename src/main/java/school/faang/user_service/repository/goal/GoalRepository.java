@@ -51,7 +51,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """)
     List<User> findUsersByGoalId(long goalId);
 
-    @Transactional
     @Modifying
     @Query(value = "DELETE FROM goal_skill WHERE goal_id = :goalId", nativeQuery = true)
     void removeSkillsFromGoal(long goalId);

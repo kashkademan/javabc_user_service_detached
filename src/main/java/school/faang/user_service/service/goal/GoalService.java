@@ -3,6 +3,7 @@ package school.faang.user_service.service.goal;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import school.faang.user_service.dto.CreateGoalRequestDto;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -19,7 +20,6 @@ import java.util.stream.Stream;
 
 @Controller
 @RequiredArgsConstructor
-@Transactional
 public class GoalService {
     private final int MAX_ACTIVE_GOALS = 3;
     private final GoalRepository goalRepository;
@@ -27,58 +27,79 @@ public class GoalService {
     private final List<GoalFilter> filters;
     private final GoalMapper goalMapper;
 
-    public void createGoal(Long userId, Goal goal) {
-        if (goalRepository.countActiveGoalsPerUser(userId) >= MAX_ACTIVE_GOALS) {
+    @Transactional
+    public GoalDto createGoal(CreateGoalRequestDto request) {
+        if (goalRepository.countActiveGoalsPerUser(request.userId()) >= MAX_ACTIVE_GOALS) {
             throw new IllegalArgumentException("You can't have more than 3 active goals!");
         }
 
-        goal.getSkillsToAchieve().forEach(skill -> {
-                    if (skill.getId() == 0 || !skillRepository.existsById(skill.getId())) {
-                        throw new IllegalArgumentException("Skill doesn't exist!");
-                    }});
-
-        Goal savedGoal = goalRepository.create(goal.getTitle(), goal.getDescription(), goal.getParent() != null ? goal.getParent().getId() : null);
-
-        for (Skill skill : goal.getSkillsToAchieve()) {
-            goalRepository.addSkillToGoal(skill.getId(), savedGoal.getId());
+        for (Long skillId : request.skillIds()) {
+            if (!skillRepository.existsById(skillId)) {
+                throw new IllegalArgumentException("Skill doesn't exist!");
+            }
         }
+
+        Goal savedGoal = goalRepository.create(request.title(), request.description(), request.parentId() != null ? request.parentId() : null);
+
+        for (Long skill : request.skillIds()) {
+            goalRepository.addSkillToGoal(skill, savedGoal.getId());
+        }
+
+        return new GoalDto(
+                savedGoal.getId(),
+                savedGoal.getDescription(),
+                savedGoal.getParent() != null ? savedGoal.getParent().getId() : null,
+                savedGoal.getTitle(),
+                savedGoal.getStatus(),
+                request.skillIds()
+        );
     }
 
-    public void updateGoal(Long goalId, Goal goal) {
+    @Transactional
+    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
        Goal existingGoal = getGoalOrThrow(goalId);
 
         if (existingGoal.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalArgumentException("You can't update a completed goal");
         }
 
-        goal.getSkillsToAchieve().forEach(skill -> {
-            if (skill.getId() == 0 || !skillRepository.existsById(skill.getId())) {
+        for (Long skillId : goalDto.skillIds()) {
+            if (!skillRepository.existsById(skillId)) {
                 throw new IllegalArgumentException("Skill doesn't exist!");
             }
-        });
+        }
 
-        existingGoal.setTitle(goal.getTitle());
-        existingGoal.setDescription(goal.getDescription());
-        existingGoal.setStatus(goal.getStatus());
+        existingGoal.setTitle(goalDto.title());
+        existingGoal.setDescription(goalDto.description());
+        existingGoal.setStatus(goalDto.status());
 
         goalRepository.removeSkillsFromGoal(goalId);
-        for (Skill skill : goal.getSkillsToAchieve()) {
-            goalRepository.addSkillToGoal(skill.getId(), goalId);
+        for (Long skill : goalDto.skillIds()) {
+            goalRepository.addSkillToGoal(skill, goalId);
         }
 
         goalRepository.save(existingGoal);
 
-        if (goal.getStatus() == GoalStatus.COMPLETED) {
+        if (goalDto.status() == GoalStatus.COMPLETED) {
             List<User> users = goalRepository.findUsersByGoalId(goalId);
-
             for (User user : users) {
-                for (Skill skill : goal.getSkillsToAchieve()) {
-                    skillRepository.assignSkillToUser(skill.getId(), user.getId());
+                for (Long skill : goalDto.skillIds()) {
+                    skillRepository.assignSkillToUser(skill, user.getId());
                 }
             }
         }
+
+        return new GoalDto(
+                existingGoal.getId(),
+                existingGoal.getDescription(),
+                existingGoal.getParent() != null ? existingGoal.getParent().getId() : null,
+                existingGoal.getTitle(),
+                existingGoal.getStatus(),
+                goalDto.skillIds()
+        );
     }
 
+    @Transactional
     public void deleteGoal(long goalId) {
         Goal goal = getGoalOrThrow(goalId);
 
