@@ -49,7 +49,7 @@ public class GoalService {
         int countActiveGoalForUser = goalRepository.countActiveGoalsPerUser(userId);
         goalValidator.checkCountGoalForUser(userId, countActiveGoalForUser);
 
-        User owner = userService.getUserByIdOrThrow(userId);
+        User owner = userService.getUserById(userId);
         List<User> users = new ArrayList<>();
         users.add(owner);
         goal.setUsers(users);
