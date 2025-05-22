@@ -14,5 +14,4 @@ public interface EducationMapper {
     Education toEducation(EducationUpdateDto educationUpdateDto);
     Education toEducation(AddEducationDto addEducationDto);
     EducationDto toEducationDto(Education education);
-//    Education toEducation(EducationDto educationDto);
 }

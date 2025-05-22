@@ -48,11 +48,3 @@ public class EducationController {
         return new ResponseEntity<>(educationDto, HttpStatus.OK);
     }
 }
-
-//@PatchMapping("/{educationId}")
-//public ResponseEntity<EducationDto> updateEducation(@PathVariable long educationId,
-//                                                    @RequestBody EducationDto educationDto) {
-//    Education newEducationData = educationMapper.toEducation(educationDto);
-//    Education updatedEducation = educationService.updateEducation(educationId, newEducationData);
-//    EducationDto updatedEducationDto = educationMapper.toEducationDto(updatedEducation);
-//    return new ResponseEntity<>(updatedEducationDto, HttpStatus.OK);
