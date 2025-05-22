@@ -6,11 +6,18 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EventCreationNotAllowedException;
-import school.faang.user_service.exception.PreConditionFailedException;
-import school.faang.user_service.exception.RecordNotFoundException;
+import school.faang.user_service.exception.common.DataValidationException;
+import school.faang.user_service.exception.event.EventCreationNotAllowedException;
+import school.faang.user_service.exception.common.PreConditionFailedException;
+import school.faang.user_service.exception.common.RecordNotFoundException;
 import school.faang.user_service.exception.event.EventRegisterException;
+import school.faang.user_service.exception.goal.GoalNotExistException;
+import school.faang.user_service.exception.goal.MaxActiveGoalPerUserException;
+import school.faang.user_service.exception.goal.UpdateComleteGoalException;
+import school.faang.user_service.exception.goal.UpdateGoalWithActiveSubGoalsException;
+import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
+import school.faang.user_service.exception.skill.SkillNotExistException;
+import school.faang.user_service.exception.users.UserIdNotFoundException;
 import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.exception.work_schedule.WorkScheduleNotFoundException;
 
@@ -34,7 +41,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             UserNotFoundException.class,
             WorkScheduleNotFoundException.class,
-            RecordNotFoundException.class
+            RecordNotFoundException.class,
+            GoalNotExistException.class,
+            SkillNotExistException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFoundExceptions(RuntimeException e) {
         ErrorResponse error = new ErrorResponse(
@@ -44,7 +53,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(PreConditionFailedException.class)
+    @ExceptionHandler({
+            PreConditionFailedException.class,
+            MaxActiveGoalPerUserException.class,
+            UpdateComleteGoalException.class,
+            UpdateGoalWithActiveSubGoalsException.class
+    })
     public ResponseEntity<ErrorResponse> handlePreConditionFailedExceptions(RuntimeException e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.PRECONDITION_FAILED.value(),
@@ -53,13 +67,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.PRECONDITION_FAILED);
     }
 
-    @ExceptionHandler(EventCreationNotAllowedException.class)
+    @ExceptionHandler({
+            EventCreationNotAllowedException.class,
+            UserNotGoalOwnerException.class
+    })
     public ResponseEntity<ErrorResponse> handleForbiddenExceptions(RuntimeException e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 e.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UserIdNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedExceptions(RuntimeException e) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

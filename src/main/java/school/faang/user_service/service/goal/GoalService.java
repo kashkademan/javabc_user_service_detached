@@ -13,17 +13,17 @@ import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.goal.GoalValidator;
-import school.faang.user_service.validator.goal.SkillValidator;
+import school.faang.user_service.validation.goal.GoalValidator;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static school.faang.user_service.validation.ValidationUtils.setIfNotNull;
+import static school.faang.user_service.util.ValidationUtils.setIfNotNull;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +58,14 @@ public class GoalService {
     @Transactional
     public Goal update(long goalId, Goal newGoalData, List<Long> skillsId) {
         Goal dbGoal = getGoalById(goalId);
+
+        boolean userNotOwner = dbGoal.getUsers()
+                .stream()
+                .noneMatch(user -> Objects.equals(user.getId(), userContext.getUserId()));
+
+        if (userNotOwner) {
+            throw new UserNotGoalOwnerException(userContext.getUserId(), goalId);
+        }
 
         if (dbGoal.getStatus() == GoalStatus.COMPLETED) {
             throw new UpdateComleteGoalException(goalId);
