@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -173,13 +172,27 @@ public class MentorshipServiceImplTest {
 
     @Test
     public void testDeleteMentorship_whenUsersNotLinked_shouldDoNothing() {
-        userMentor.setMentees(new ArrayList<>());
-        userMentee.setMentors(new ArrayList<>());
+        User anotherMentee = User.builder()
+                .id(3L)
+                .username("Kate")
+                .build();
+        User anotherMentor = User.builder()
+                .id(4L)
+                .username("Anna")
+                .build();
+        userMentor.setMentees(new ArrayList<>(List.of(anotherMentee)));
+        userMentee.setMentors(new ArrayList<>(List.of(anotherMentor)));
 
         when(mentorshipRepository.findById(USER_MENTOR_ID)).thenReturn(Optional.of(userMentor));
         when(mentorshipRepository.findById(USER_MENTEE_ID)).thenReturn(Optional.of(userMentee));
 
         mentorshipService.deleteMentorship(USER_MENTOR_ID, USER_MENTEE_ID);
+
+        assertEquals(1, userMentor.getMentees().size());
+        assertTrue(userMentor.getMentees().contains(anotherMentee));
+
+        assertEquals(1, userMentee.getMentors().size());
+        assertTrue(userMentee.getMentors().contains(anotherMentor));
 
         verify(mentorshipRepository).save(userMentor);
         verify(mentorshipRepository).save(userMentee);
