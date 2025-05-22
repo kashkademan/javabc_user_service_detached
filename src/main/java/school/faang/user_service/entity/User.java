@@ -167,4 +167,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
+
+    public User orElse(Object o) {
+    }
 }

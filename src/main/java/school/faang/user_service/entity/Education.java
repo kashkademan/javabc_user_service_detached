@@ -1,5 +1,6 @@
 package school.faang.user_service.entity;
 
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "education")
 public class Education {
 
+    public Object get;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,4 +45,16 @@ public class Education {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static void updateEducation(long userId) {
+    }
+
+    public static void save(long educationDto) {
+    }
+
+    public void setUser(User user) {
+
+    }
 }
+
+
