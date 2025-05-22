@@ -1,0 +1,23 @@
+package school.faang.user_service.filter.goal;
+
+import org.springframework.stereotype.Component;
+import school.faang.user_service.entity.filter.GoalFilterDto;
+import school.faang.user_service.entity.goal.Goal;
+
+import java.util.Objects;
+import java.util.stream.Stream;
+
+@Component
+public class GoalFilterByStatus implements GoalFilter {
+
+    @Override
+    public boolean isApplicable(GoalFilterDto filterDto) {
+        return Objects.nonNull(filterDto.status());
+    }
+
+    @Override
+    public Stream<Goal> apply(Stream<Goal> filteredData, GoalFilterDto filterDto) {
+        return filteredData.filter(goal -> Objects.nonNull(goal.getStatus())
+                && goal.getStatus() == filterDto.status());
+    }
+}

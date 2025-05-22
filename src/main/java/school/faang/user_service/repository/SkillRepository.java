@@ -40,6 +40,16 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     @Modifying
     void assignSkillToUser(long skillId, long userId);
 
+    @Query(nativeQuery = true, value = "INSERT INTO goal_skill (goal_id, skill_id) VALUES (:goalId, :skillId)")
+    @Modifying
+    void assignSkillToGoal(long goalId, long skillId);
+
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal_skill
+            WHERE goal_id = :goalId""")
+    @Modifying
+    void removeSkillsFromGoal(Long goalId);
+
     @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s
             WHERE s.id IN (SELECT gs.skill_id FROM goal_skill gs
