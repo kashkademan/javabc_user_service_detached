@@ -105,7 +105,7 @@ class EventParticipationServiceImplTest {
         assertNotNull(userDtoList);
         assertEquals(2, userDtoList.size());
         assertEquals(expectedDtoList, userDtoList);
-        verify(userMapper, times(userDtoList.size())).toUserDTO(any(User.class));
+        verify(userMapper, times(userDtoList.size())).toUserDto(any(User.class));
     }
 
     @Test
