@@ -63,6 +63,15 @@ public class UserService {
         return response;
     }
 
+    public List<UserDto> getUsersByPage(int page, int size) {
+        int offset = page * size;
+        List<User> users = userRepository.findUsersByPage(size, offset);
+
+        return users.stream()
+                .map(user -> new UserDto(user.getId(), user.getUsername(), user.getEmail()))
+                .toList();
+    }
+
     private Country getOldOrNewCountry(String countryName) {
         return countryRepository.findAll().stream()
                 .filter(c -> c.getTitle().equalsIgnoreCase(countryName))

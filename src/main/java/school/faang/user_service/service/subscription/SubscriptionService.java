@@ -102,6 +102,11 @@ public class SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
+    public List<Long> getFollowerIds(long followeeId) {
+        validateUserExists(followeeId);
+        return subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
+    }
+
     private void validateSubscriptionOnYourself(long followerId, long followeeId, boolean isFollow) {
         if (followerId == followeeId) {
             ErrorMessage errorMessage = isFollow

@@ -32,4 +32,11 @@ public class UserController {
     public ResponseEntity<Map<String, String>> uploadUsers(@RequestParam("file") MultipartFile file) {
             return ResponseEntity.ok(userService.uploadUsersFromCsv(file));
     }
+
+    @GetMapping("/page")
+    public ResponseEntity<List<UserDto>> getUsersByPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1000") int size) {
+        return ResponseEntity.ok(userService.getUsersByPage(page, size));
+    }
 }
