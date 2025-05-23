@@ -11,7 +11,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.CareerRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.CareerValidator;
 
 import java.util.Objects;
@@ -21,15 +20,16 @@ import java.util.Objects;
 @Transactional
 public class CareerService {
 
-    private final UserRepository userRepository;
     private final CareerRepository careerRepository;
     private final CareerMapper careerMapper;
     private final CareerValidator careerValidator;
+    private final CareerRepositoryAdapter careerRepositoryAdapter;
+    private final UserRepositoryAdapter userRepositoryAdapter;
 
     public CareerDto addCareer(long userId, CareerDto careerDto) {
 
         careerValidator.validate(careerDto);
-        User user = UserRepositoryAdapter.userFromRepository(userRepository,userId);
+        User user = userRepositoryAdapter.getUserById(userId);
         Career career = Career.builder()
                 .dateFrom(careerDto.getFrom())
                 .dateTo(careerDto.getTo())
@@ -43,7 +43,7 @@ public class CareerService {
     public CareerDto updateCareer(long userId, CareerDto careerDto) {
 
         careerValidator.validate(careerDto);
-        Career career = CareerRepositoryAdapter.CareerFromRepository(careerRepository,careerDto.getId());
+        Career career = careerRepositoryAdapter.getCareerById(careerDto.getId());
         if(!Objects.equals(career.getUser().getId(), userId)) {
             throw new DataValidationException("Users do not match");
         }
@@ -58,7 +58,7 @@ public class CareerService {
 
     public CareerDto getById(long careerId) {
 
-        Career career = CareerRepositoryAdapter.CareerFromRepository(careerRepository,careerId);
+        Career career = careerRepositoryAdapter.getCareerById(careerId);
         return careerMapper.toCareerDto(career);
     }
 }
