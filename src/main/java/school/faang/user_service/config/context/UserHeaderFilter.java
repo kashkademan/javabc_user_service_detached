@@ -7,12 +7,14 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UserHeaderFilter implements Filter {
 
     private final UserContext userContext;
@@ -23,14 +25,16 @@ public class UserHeaderFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         String userId = req.getHeader("x-user-id");
         if (userId != null) {
-            userId = userId.replace("Optional[", "").replace("]", "");
-            userContext.setUserId(Long.parseLong(userId));
-        }
-
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            userContext.clear();
+            try {
+                userContext.setUserId(Long.parseLong(userId));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid x-user-id header: {}", userId);
+            }
+            try {
+                chain.doFilter(request, response);
+            } finally {
+                userContext.clear();
+            }
         }
     }
 }
