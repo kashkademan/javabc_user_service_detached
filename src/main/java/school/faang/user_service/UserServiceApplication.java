@@ -40,3 +40,6 @@ public class UserServiceApplication implements CommandLineRunner {
         EducationController.addEducation();
     }
 }
+
+
+
