@@ -20,7 +20,7 @@ import school.faang.user_service.filter.recommendation.MessagePatternFilter;
 import school.faang.user_service.filter.recommendation.ReceiverIdFilter;
 import school.faang.user_service.filter.recommendation.RecommendationFilter;
 import school.faang.user_service.filter.recommendation.RequesterIdFilter;
-import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
-    private final RecommendationMapper recommendationMapper;
+    private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final SkillRequestRepository skillRequestRepository;
@@ -69,7 +69,7 @@ public class RecommendationRequestService {
                 throw new DataValidationException("Skills list must not be empty!");
             }
 
-            RecommendationRequest newRequest = recommendationMapper.toEntity(recommendationRequest);
+            RecommendationRequest newRequest = recommendationRequestMapper.toEntity(recommendationRequest);
             newRequest.setRequester(requester);
             newRequest.setReceiver(receiver);
             newRequest.setStatus(RequestStatus.PENDING);
@@ -86,7 +86,7 @@ public class RecommendationRequestService {
                 skillRequestRepository.save(skillRequest);
             });
 
-            return recommendationMapper.toDto(savedRequest);
+            return recommendationRequestMapper.toDto(savedRequest);
         } catch (Exception e) {
             log.error("Failed to create recommendation request", e);
             throw new DataValidationException("Failed to create recommendation request: " + e.getMessage());
@@ -108,14 +108,14 @@ public class RecommendationRequestService {
         }
 
         return requestStream
-                .map(recommendationMapper::toDto)
+                .map(recommendationRequestMapper::toDto)
                 .toList();
     }
 
     public RecommendationResponseDto getRequest(long id) {
         RecommendationRequest request = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request not found with id: " + id));
-        return recommendationMapper.toDto(request);
+        return recommendationRequestMapper.toDto(request);
     }
 
     @Transactional
@@ -131,7 +131,7 @@ public class RecommendationRequestService {
         request.setStatus(RequestStatus.REJECTED);
         RecommendationRequest updatedRequest = recommendationRequestRepository.save(request);
 
-        return recommendationMapper.toDto(updatedRequest);
+        return recommendationRequestMapper.toDto(updatedRequest);
     }
     private boolean filterByRequesterId(RecommendationRequest request, Long requesterId) {
         return requesterId == null || request.getRequester().getId().equals(requesterId);
