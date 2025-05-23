@@ -3,7 +3,7 @@ package school.faang.user_service.validation.event;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EventCreationNotAllowedException;
+import school.faang.user_service.exception.event.EventCreationNotAllowedException;
 
 import java.util.HashSet;
 import java.util.List;

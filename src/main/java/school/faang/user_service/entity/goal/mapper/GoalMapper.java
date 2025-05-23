@@ -5,9 +5,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.dto.request.CreateGoalDto;
-import school.faang.user_service.entity.goal.dto.request.UpdateGoalDto;
-import school.faang.user_service.entity.goal.dto.response.GoalDto;
+import school.faang.user_service.dto.goal.request.CreateGoalDto;
+import school.faang.user_service.dto.goal.request.UpdateGoalDto;
+import school.faang.user_service.dto.goal.response.GoalDto;
 
 import java.util.List;
 

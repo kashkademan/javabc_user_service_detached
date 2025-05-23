@@ -1,7 +1,7 @@
 package school.faang.user_service.validation.work_schedule_validation;
 
 import school.faang.user_service.entity.WorkSchedule;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
 
 import java.time.LocalTime;
 

@@ -1,7 +1,7 @@
 package school.faang.user_service.validator.subscription;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
 import school.faang.user_service.validation.subscription.SubscriptionValidation;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
