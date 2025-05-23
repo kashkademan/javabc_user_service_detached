@@ -13,6 +13,7 @@ import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.user.UserUnauthorizedException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceExceptionHandler {
     private static final Map<Class<? extends Exception>, HttpStatus> httpStatusMap = Map.of(
+            UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED,
             GoalNotFoundException.class, HttpStatus.NOT_FOUND,
             UserNotFoundException.class, HttpStatus.NOT_FOUND,
             SkillNotFoundException.class, HttpStatus.NOT_FOUND,
@@ -35,6 +37,7 @@ public class UserServiceExceptionHandler {
     );
 
     @ExceptionHandler({
+            UserUnauthorizedException.class,
             GoalNotFoundException.class,
             UserNotFoundException.class,
             SkillNotFoundException.class,

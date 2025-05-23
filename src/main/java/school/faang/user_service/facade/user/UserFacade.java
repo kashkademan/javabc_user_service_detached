@@ -3,7 +3,7 @@ package school.faang.user_service.facade.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.UserResponseDto;
+import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.service.user.UserService;
