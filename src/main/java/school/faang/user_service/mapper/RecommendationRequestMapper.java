@@ -9,7 +9,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
 @Mapper(componentModel = "spring")
-public interface RecommendationMapper {
+public interface RecommendationRequestMapper {
 
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
