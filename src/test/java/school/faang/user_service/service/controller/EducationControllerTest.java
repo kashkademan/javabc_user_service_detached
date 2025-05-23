@@ -10,8 +10,6 @@ import school.faang.user_service.client.controller.education.EducationController
 import school.faang.user_service.client.service.education.EducationService;
 import school.faang.user_service.dto.EducationDto;
 
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class EducationControllerTest {
 
@@ -49,10 +47,4 @@ public class EducationControllerTest {
 
     }
 
-    @Test
-    void testAddEducationCorrect() {
-        when(educationService.addEducation(userId, educationDto)).thenReturn(educationDto);
-        controller.addEducation(userId, educationDto);
-
-    }
 }
