@@ -169,5 +169,6 @@ public class User {
     private WorkSchedule workSchedule;
 
     public User orElse(Object o) {
+        return null;
     }
 }
