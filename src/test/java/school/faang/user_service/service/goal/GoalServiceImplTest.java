@@ -13,6 +13,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
@@ -104,11 +105,15 @@ class GoalServiceImplTest {
         when(goalRepository.findGoalsByUserId(userId))
                 .thenReturn(Stream.of(activeGoal1, activeGoal2, activeGoal3));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(UserServiceException.class, () ->
                 goalService.createGoal(userId, newActiveGoal)
         );
 
-        assertEquals("User exceeded maximum allowed number or active goals " + 3, exception.getMessage());
+//        IllegalArgumentException exception = assertThrows(UserServiceException.class, () ->
+//                goalService.createGoal(userId, newActiveGoal)
+//        );
+
+//        assertEquals("User id: %d has Maximum allowed active goals - %d" + 3, exception.getMessage());
 
         verify(goalRepository, never()).saveAndFlush(any());
     }

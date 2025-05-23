@@ -1,4 +1,4 @@
-name: Kelpie CI
+name: Kelpie User Service CI
 
 on:
   push:
