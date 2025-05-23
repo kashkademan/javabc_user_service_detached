@@ -12,7 +12,3 @@ public interface EducationMapper {
     Education toEntity(EducationDto educationDto);
 
 }
-
-
-
-

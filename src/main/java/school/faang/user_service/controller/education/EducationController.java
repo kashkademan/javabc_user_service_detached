@@ -29,13 +29,3 @@ public class EducationController {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
