@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.goal;
+package school.faang.user_service.dto.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoalErrorResponseDto {
+public class UserServiceErrorResponseDto {
     private String errorMsg;
     private LocalDateTime timestamp;
     private int codeResponse;
