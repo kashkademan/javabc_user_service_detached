@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +34,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserByIdOrThrow_successfully() {
+    public void testGetUserById_successfully() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         User returnUser = userService.getUserById(user.getId());
@@ -43,10 +44,22 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserByIdOrThrow_userNotFound() {
+    public void testGetUserById_userNotFound() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(user.getId()));
         verify(userRepository, times(1)).findById(user.getId());
+    }
+
+    @Test
+    public void testGetUsersByIds() {
+        List<Long> userIds = List.of(user.getId());
+        when(userRepository.findAllById(userIds)).thenReturn(List.of(user));
+
+        List<User> returnUsers = userService.getUsersByIds(userIds);
+
+        verify(userRepository, times(1)).findAllById(userIds);
+        assertEquals(userIds, returnUsers.stream().map(User::getId).toList());
+        assertEquals(userIds.size(), returnUsers.size());
     }
 }

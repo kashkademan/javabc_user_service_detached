@@ -8,6 +8,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,5 +23,10 @@ public class UserService {
                     log.error("User with id {} not found", userId);
                     return new UserNotFoundException(userId);
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> getUsersByIds(List<Long> userIds) {
+        return userRepository.findAllById(userIds);
     }
 }
