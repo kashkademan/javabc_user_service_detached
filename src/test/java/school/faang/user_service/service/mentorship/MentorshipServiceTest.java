@@ -11,11 +11,15 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,6 +81,19 @@ class MentorshipServiceTest {
         verify(userRepository, times(1)).findById(MENTOR_ONE_ID);
     }
 
+    @Test
+    void testGetMenteesWhenListMenteesIsEmpty() {
+        mentorOne.setMentees(Collections.emptyList());
+
+        when(userRepository.findById(MENTOR_ONE_ID)).thenReturn(Optional.of(mentorOne));
+
+        List<User> actual = mentorshipService.getMentees(MENTOR_ONE_ID);
+        List<User> expected = Collections.emptyList();
+
+        assertEquals(expected, actual);
+        verify(userRepository, times(1)).findById(MENTOR_ONE_ID);
+    }
+
 
     @Test
     void testGetMentorsWhenMenteeIsDatabase() {
@@ -101,5 +118,94 @@ class MentorshipServiceTest {
         verify(userRepository, times(1)).findById(MENTEE_ONE_ID);
     }
 
+    @Test
+    void testGetMentorsWhenListMentorsIsEmpty() {
+        menteeOne.setMentors(Collections.emptyList());
 
+        when(userRepository.findById(MENTEE_ONE_ID)).thenReturn(Optional.of(menteeOne));
+
+        List<User> actual = mentorshipService.getMentors(MENTEE_ONE_ID);
+        List<User> expected = Collections.emptyList();
+
+        assertEquals(expected, actual);
+        verify(userRepository, times(1)).findById(MENTEE_ONE_ID);
+    }
+
+    @Test
+    void testDeleteMenteeWhenMentorAndMenteeHasIsDatabase() {
+        mentorOne.setMentees(new ArrayList<>(List.of(menteeOne, menteeTwo)));
+
+        when(mentorshipRepository.findById(MENTOR_ONE_ID)).thenReturn(Optional.of(mentorOne));
+        when(mentorshipRepository.findById(MENTEE_ONE_ID)).thenReturn(Optional.of(menteeOne));
+
+        mentorshipService.deleteMentee(MENTOR_ONE_ID, MENTEE_ONE_ID);
+
+        List<User> actual = mentorOne.getMentees();
+        List<User> expected = List.of(menteeTwo);
+
+        assertEquals(expected, actual);
+        verify(userRepository, times(1)).save(mentorOne);
+    }
+
+    @Test
+    void testDeleteMenteeWhenMentorNotHasIsDatabase() {
+        when(mentorshipRepository.findById(MENTOR_ONE_ID))
+                .thenThrow(new EntityNotFoundException("User does not exist in the database"));
+
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(MENTOR_ONE_ID, MENTEE_ONE_ID));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testDeleteMenteeWhenMenteeNotHasIsDatabase() {
+        mentorOne.setMentees(new ArrayList<>(List.of(menteeTwo)));
+
+        when(mentorshipRepository.findById(MENTOR_ONE_ID)).thenReturn(Optional.of(mentorOne));
+        when(mentorshipRepository.findById(MENTEE_ONE_ID))
+                .thenThrow(new EntityNotFoundException("User does not exist in the database"));
+
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentee(MENTOR_ONE_ID, MENTEE_ONE_ID));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testDeleteMentorWhenMentorAndMenteeHasIsDatabase() {
+        menteeOne.setMentors(new ArrayList<>(List.of(mentorOne, mentorTwo)));
+
+        when(mentorshipRepository.findById(MENTOR_ONE_ID)).thenReturn(Optional.of(mentorOne));
+        when(mentorshipRepository.findById(MENTEE_ONE_ID)).thenReturn(Optional.of(menteeOne));
+
+        mentorshipService.deleteMentor(MENTOR_ONE_ID, MENTEE_ONE_ID);
+
+        List<User> actual = menteeOne.getMentors();
+        List<User> expected = List.of(mentorTwo);
+
+        assertEquals(expected, actual);
+        verify(userRepository, times(1)).save(menteeOne);
+    }
+
+    @Test
+    void testDeleteMentorWhenMentorNotHasIsDatabase() {
+        menteeOne.setMentors(new ArrayList<>(List.of(mentorTwo)));
+
+        when(mentorshipRepository.findById(MENTOR_ONE_ID))
+                .thenThrow(new EntityNotFoundException("User does not exist in the database"));
+
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentor(MENTOR_ONE_ID, MENTEE_ONE_ID));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testDeleteMentorWhenMenteeNotHasIsDatabase() {
+        when(mentorshipRepository.findById(MENTOR_ONE_ID)).thenReturn(Optional.of(mentorOne));
+        when(mentorshipRepository.findById(MENTEE_ONE_ID))
+                .thenThrow(new EntityNotFoundException("User does not exist in the database"));
+
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipService.deleteMentor(MENTOR_ONE_ID, MENTEE_ONE_ID));
+        verify(userRepository, never()).save(any());
+    }
 }
