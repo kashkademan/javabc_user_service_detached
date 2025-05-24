@@ -7,7 +7,7 @@ import school.faang.user_service.dto.EducationDto.EducationDto;
 import school.faang.user_service.dto.EducationDto.EducationUpdateDto;
 import school.faang.user_service.entity.Education;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface EducationMapper {
     EducationMapper INSTANCE = Mappers.getMapper(EducationMapper.class);
 
