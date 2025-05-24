@@ -107,6 +107,10 @@ public class CareerServiceImplTest {
 
     @Test
     void shouldThrowException_whenUpdateCareerUserMismatch() {
+        User otherUser = new User();
+        otherUser.setId(5L);
+        testCareerEntity.setUser(otherUser);
+
         when(careerRepository.findById(CAREER_ID)).thenReturn(Optional.of(testCareerEntity));
 
         assertThrows(DataValidationException.class,
