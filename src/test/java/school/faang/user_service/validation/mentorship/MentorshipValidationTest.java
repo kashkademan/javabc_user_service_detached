@@ -12,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MentorshipValidationTest {
+    private static final long MENTOR_ID = 1L;
+    private static final long MENTEE_ID = 2L;
 
     @Test
     void testValidateListUsersWhenListNull() {
@@ -53,8 +55,8 @@ class MentorshipValidationTest {
     void testValidateMentorshipUsersWhenMentorAndMenteeNotNull() {
         User mentor = new User();
         User mentee = new User();
-        mentor.setId(1L);
-        mentee.setId(2L);
+        mentor.setId(MENTOR_ID);
+        mentee.setId(MENTEE_ID);
 
         assertDoesNotThrow(
                 () -> MentorshipValidation.validateMentorshipUsers(mentor, mentee));
@@ -64,8 +66,8 @@ class MentorshipValidationTest {
     void testValidateMentorshipUsersWhenMentorEqualsMentee() {
         User mentor = new User();
         User mentee = new User();
-        mentor.setId(1L);
-        mentee.setId(1L);
+        mentor.setId(MENTOR_ID);
+        mentee.setId(MENTOR_ID);
 
         assertThrows(
                 DataValidationException.class,
