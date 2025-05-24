@@ -78,7 +78,6 @@ public class CareerServiceImplTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> careerService.addCareer(USER_ID, testCareerDto));
-
         verify(careerValidator).validateDate(testCareerDto);
     }
 
