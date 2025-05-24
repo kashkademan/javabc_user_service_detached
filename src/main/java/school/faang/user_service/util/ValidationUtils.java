@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.util;
 
 import lombok.experimental.UtilityClass;
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.entity.goal.dto.request;
+package school.faang.user_service.dto.goal.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;

@@ -10,6 +10,8 @@ import school.faang.user_service.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static school.faang.user_service.util.LogsConstants.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -19,7 +21,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
        return userRepository.findById(userId)
-               .orElseThrow(() -> new UserNotFoundException(String.format("User with id %d not Found", userId)));
+               .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, userId)));
     }
 
     @Transactional(readOnly = true)
@@ -28,5 +30,4 @@ public class UserService {
                 .map(this::getUserById)
                 .collect(Collectors.toList());
     }
-
 }

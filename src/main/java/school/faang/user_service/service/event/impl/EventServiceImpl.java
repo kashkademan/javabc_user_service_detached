@@ -10,7 +10,7 @@ import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.RecordNotFoundException;
+import school.faang.user_service.exception.common.RecordNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static school.faang.user_service.util.LogsConstants.EVENT_NOT_FOUND;
-import static school.faang.user_service.validation.ValidationUtils.executeIfNotNull;
+import static school.faang.user_service.util.ValidationUtils.executeIfNotNull;
 
 @Slf4j
 @RequiredArgsConstructor

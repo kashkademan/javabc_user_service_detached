@@ -9,8 +9,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.RecordNotFoundException;
-import school.faang.user_service.exception.PreConditionFailedException;
+import school.faang.user_service.exception.common.RecordNotFoundException;
+import school.faang.user_service.exception.common.PreConditionFailedException;
+import school.faang.user_service.exception.skill.SkillNotExistException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -18,6 +19,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static school.faang.user_service.util.LogsConstants.CONDITION_FOR_OFFERS_AMOUNT_FAILED;
 import static school.faang.user_service.util.LogsConstants.RECOMMENDATION_NOT_FOUND;
@@ -77,6 +79,33 @@ public class SkillService {
         skillOfferList.forEach((skillOffer) -> fillUserSkillGuarantee(skillOffer, user, skill));
         log.info("acquireSkillFromOffers skill = {}", skill);
         return skill;
+    }
+
+    @Transactional(readOnly = true)
+    public Skill getSkillById(long skillId) {
+        return skillRepository.findById(skillId)
+                .orElseThrow(() -> new SkillNotExistException(skillId));
+    }
+
+    @Transactional
+    public void removeSkillForGoal(long goalId) {
+        skillRepository.removeSkillsFromGoal(goalId);
+    }
+
+    @Transactional
+    public void assignSkillsToUser(long userId, List<Skill> skills) {
+        List<Skill> ownedSkills = skillRepository.findAllByUserId(userId);
+        skills
+                .stream()
+                .filter(skill -> !ownedSkills.contains(skill))
+                .forEach(skill -> skillRepository.assignSkillToUser(skill.getId(), userId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Skill> getSkillsById(List<Long> skillsId) {
+        return skillsId.stream()
+                .map(this::getSkillById)
+                .collect(Collectors.toList());
     }
 
     private void fillUserSkillGuarantee(SkillOffer skillOffer, User user, Skill skill) {
