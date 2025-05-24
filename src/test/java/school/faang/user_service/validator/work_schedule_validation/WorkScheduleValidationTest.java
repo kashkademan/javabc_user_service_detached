@@ -22,8 +22,7 @@ public class WorkScheduleValidationTest {
         LocalTime startWork = workSchedule.getStartTime();
         LocalTime startLunch = workSchedule.getStartLunch();
 
-        assertTrue(startWork.isAfter(startLunch) || startWork.equals(startLunch),
-                "Start to work after start to Lunch ");
+        assertTrue(startWork.isAfter(startLunch) || startWork.equals(startLunch));
     }
 
     @Test
@@ -35,8 +34,7 @@ public class WorkScheduleValidationTest {
         LocalTime startWork = workSchedule.getStartTime();
         LocalTime endWork = workSchedule.getEndTime();
 
-        assertTrue(startWork.isAfter(endWork) || startWork.equals(endWork),
-                "Start to work after start to Lunch ");
+        assertTrue(startWork.isAfter(endWork) || startWork.equals(endWork));
     }
     @Test
     public void testAddWorkScheduleWhenStartLunchAfterEndLunch(){
@@ -47,8 +45,7 @@ public class WorkScheduleValidationTest {
         LocalTime startLunch = workSchedule.getStartLunch();
         LocalTime endLunch = workSchedule.getEndLunch();
 
-        assertTrue(startLunch.isAfter(endLunch) || startLunch.equals(endLunch),
-                "Start to work after start to Lunch ");
+        assertTrue(startLunch.isAfter(endLunch) || startLunch.equals(endLunch));
     }
 
     @Test
@@ -60,8 +57,7 @@ public class WorkScheduleValidationTest {
         LocalTime endLunch = workSchedule.getEndLunch();
         LocalTime endWork = workSchedule.getEndTime();
 
-        assertTrue(endLunch.isAfter(endWork) || endLunch.equals(endWork),
-                "Start to work after start to Lunch ");
+        assertTrue(endLunch.isAfter(endWork) || endLunch.equals(endWork));
     }
 
     @Test
@@ -73,8 +69,7 @@ public class WorkScheduleValidationTest {
         LocalTime startWork = workSchedule.getStartTime();
         LocalTime endLunch = workSchedule.getEndLunch();
 
-        assertTrue(startWork.isAfter(endLunch) || startWork.equals(endLunch),
-                "Start to work after start to Lunch ");
+        assertTrue(startWork.isAfter(endLunch) || startWork.equals(endLunch));
     }
 
     @Test
@@ -86,7 +81,6 @@ public class WorkScheduleValidationTest {
         LocalTime endWork = workSchedule.getEndTime();
         LocalTime startLunch = workSchedule.getStartLunch();
 
-        assertTrue(startLunch.isAfter(endWork) || startLunch.equals(endWork),
-                "Start to work after start to Lunch ");
+        assertTrue(startLunch.isAfter(endWork) || startLunch.equals(endWork));
     }
 }

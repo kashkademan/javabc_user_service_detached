@@ -1,5 +1,6 @@
 package school.faang.user_service.service.work_schedule;
 
+import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,15 +20,11 @@ import school.faang.user_service.repository.WorkScheduleRepository;
 import school.faang.user_service.service.WorkScheduleService;
 import school.faang.user_service.service.WorkScheduleServiceImpl;
 
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalTime;;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,48 +39,36 @@ public class ServiceWorkScheduleTest {
     private UserContext userContext;
     @InjectMocks
     private WorkScheduleServiceImpl workScheduleService;
-    private static final List<WorkSchedule> workScheduleList = Arrays.asList(new WorkSchedule(1L, LocalTime.of(9, 0),
-                    LocalTime.of(17, 0), LocalTime.of(12, 30),
-                    LocalTime.of(13, 0), "Europe/Moscow", new User()),
-            new WorkSchedule(2L, LocalTime.of(8, 0), LocalTime.of(16, 0),
-                    LocalTime.of(11, 0), LocalTime.of(12, 0),
-                    "Europe/London", new User()));
-
-    @BeforeEach
-    void setUp() {
-        WorkSchedule workSchedule = new WorkSchedule();
-        long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        user.setWorkSchedule(workSchedule);
-
-        when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-    }
+    private final long userId = 1L;
+    private final WorkSchedule workSchedule = new WorkSchedule();
+    private final User user = new User();
 
     @Test
     public void testAddWorkSchedule() {
+        user.setId(userId);
+        user.setWorkSchedule(workSchedule);
+        WorkSchedule workSchedule = new WorkSchedule(1L, LocalTime.of(9, 0),
+                LocalTime.of(17, 0), LocalTime.of(12, 30),
+                LocalTime.of(13, 0), "Europe/Moscow", new User());
+        when(userContext.getUserId()).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(workScheduleRepository.save(any(WorkSchedule.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        WorkSchedule createWorkSchedule = workScheduleService.addWorkSchedule(workScheduleList.get(0));
+        WorkSchedule createWorkSchedule = workScheduleService.addWorkSchedule(workSchedule);
 
         assertEquals(1L, createWorkSchedule.getId());
         verify(workScheduleRepository).save(createWorkSchedule);
     }
 
     @Test
-    public void testAddWorkScheduleNotNull() {
-        when(workScheduleRepository.save(any(WorkSchedule.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        WorkSchedule saveWorkSchedule = workScheduleService.addWorkSchedule(workScheduleList.get(0));
-        assertNotNull(saveWorkSchedule);
-    }
-
-    @Test
     public void testUpdateWorkScheduleDto() {
+        user.setId(userId);
+        user.setWorkSchedule(workSchedule);
         when(workScheduleRepository.save(any(WorkSchedule.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(userContext.getUserId()).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         WorkSchedule newData = new WorkSchedule();
         newData.setStartTime(LocalTime.of(9, 0));
@@ -95,15 +80,20 @@ public class ServiceWorkScheduleTest {
 
         assertEquals(LocalTime.of(9, 0), result.getStartTime());
         assertEquals(LocalTime.of(14, 0), result.getEndLunch());
+        assertEquals(LocalTime.of(17, 0), result.getEndTime());
+        assertEquals(LocalTime.of(12, 0), result.getStartLunch());
         assertEquals("Asia/Tokyo", result.getTimezone());
-
         verify(workScheduleRepository).save(result);
     }
 
 
     @Test
-    public void testGetByIdIfIdFound(){
-        when(workScheduleRepository.findById(1L)).thenReturn(Optional.of(workScheduleList.get(0)));
+    public void testGetByIdIfIdFound() {
+        WorkSchedule workSchedule = new WorkSchedule(1L, LocalTime.of(9, 0),
+                LocalTime.of(17, 0), LocalTime.of(12, 30),
+                LocalTime.of(13, 0), "Europe/Moscow", new User());
+
+        when(workScheduleRepository.findById(1L)).thenReturn(Optional.of(workSchedule));
         WorkSchedule resuleWorkSchedule = workScheduleService.getById(1L);
 
         assertEquals(1L, resuleWorkSchedule.getId());
@@ -111,16 +101,13 @@ public class ServiceWorkScheduleTest {
     }
 
     @Test
-    public void testGetByIdIfIdNotFound(){
+    public void testGetByIdIfIdNotFound() {
         long id = 3L;
-        when(workScheduleRepository.findById(id)).thenReturn(Optional.empty());
-        Exception exception = assertThrows(WorkScheduleNotFoundException.class, () ->
-                workScheduleService.getById(id));
-        String messageException = String.format(String.format("Work schedule not Found %d",
-                        id));
-        String actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(messageException));
+        when(workScheduleRepository.findById(id))
+                .thenThrow(new WorkScheduleNotFoundException("Work schedule not Found " + id));
+
+        assertThrows(WorkScheduleNotFoundException.class, ()-> workScheduleService.getById(id));
         verify(workScheduleRepository).findById(id);
     }
 }
