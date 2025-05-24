@@ -6,7 +6,7 @@ import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.exception.RecordNotFoundException;
+import school.faang.user_service.exception.common.RecordNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package school.faang.user_service.validation.subscription;
 
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
 
 public class SubscriptionValidation {
 

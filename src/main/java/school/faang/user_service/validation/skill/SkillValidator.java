@@ -3,8 +3,12 @@ package school.faang.user_service.validation.skill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
+import school.faang.user_service.exception.skill.SkillNotExistException;
 import school.faang.user_service.repository.SkillRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static school.faang.user_service.util.LogsConstants.SKILL_ALREADY_EXIST;
 import static school.faang.user_service.util.LogsConstants.USER_HAS_SKILL;
@@ -26,6 +30,22 @@ public class SkillValidator {
         if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
             log.error("User {} already has skill {}", userId, skillId);
             throw new DataValidationException(String.format(USER_HAS_SKILL, userId, skillId));
+        }
+    }
+
+    public void validateExistingSkills(List<Long> skillsId) {
+        if (skillsId.isEmpty()) {
+            return;
+        }
+        List<Long> absentSkillsId = skillsId.stream()
+                .filter(skillId -> !skillRepository.existsById(skillId))
+                .toList();
+
+        if (!absentSkillsId.isEmpty()) {
+            String notExistingSkillsId = absentSkillsId.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(", "));
+            throw new SkillNotExistException(notExistingSkillsId);
         }
     }
 }

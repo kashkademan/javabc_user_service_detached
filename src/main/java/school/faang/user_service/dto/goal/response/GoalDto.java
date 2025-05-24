@@ -1,4 +1,4 @@
-package school.faang.user_service.entity.goal.dto.response;
+package school.faang.user_service.dto.goal.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import school.faang.user_service.entity.goal.GoalStatus;

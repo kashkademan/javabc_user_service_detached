@@ -1,6 +1,7 @@
 package school.faang.user_service.config.context;
 
 import org.springframework.stereotype.Component;
+import school.faang.user_service.exception.users.UserIdNotFoundException;
 
 @Component
 public class UserContext {
@@ -14,7 +15,7 @@ public class UserContext {
     public long getUserId() {
         Long userId = userIdHolder.get();
         if (userId == null) {
-            throw new IllegalArgumentException("User ID is missing. Please make sure 'x-user-id' header is included in the request.");
+            throw new UserIdNotFoundException("User ID is missing. Please make sure 'x-user-id' header is included in the request.");
         }
         return userId;
     }

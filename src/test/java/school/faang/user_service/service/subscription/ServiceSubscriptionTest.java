@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
 import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
 import school.faang.user_service.filter.subscription.SubscriptionFilter;
 import school.faang.user_service.filter.subscription.SubscriptionUsernameFilter;
 import school.faang.user_service.repository.SubscriptionRepository;

@@ -2,7 +2,7 @@ package school.faang.user_service.validation.mentorship;
 
 import jakarta.persistence.EntityNotFoundException;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.common.DataValidationException;
 
 import java.util.List;
 import java.util.Objects;
