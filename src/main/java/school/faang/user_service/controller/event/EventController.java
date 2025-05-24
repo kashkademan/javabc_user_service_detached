@@ -2,8 +2,9 @@ package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.RequestEventDto;
+import school.faang.user_service.dto.event.ResponseEventDto;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
@@ -13,15 +14,15 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
 
-    public EventDto create(EventDto eventDto) {
+    public ResponseEventDto create(RequestEventDto eventDto) {
         return eventService.create(eventDto);
     }
 
-    public EventDto getEvent(long eventId) {
+    public ResponseEventDto getEvent(long eventId) {
         return eventService.getEvent(eventId);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
+    public List<ResponseEventDto> getEventsByFilter(EventFilterDto filter) {
         return eventService.getEventsByFilter(filter);
     }
 
@@ -29,15 +30,15 @@ public class EventController {
         eventService.deleteEvent(eventId);
     }
 
-    public EventDto updateEvent(EventDto eventDto) {
+    public ResponseEventDto updateEvent(RequestEventDto eventDto) {
         return eventService.updateEvent(eventDto);
     }
 
-    public List<EventDto> getOwnedEvents(long userId) {
+    public List<ResponseEventDto> getOwnedEvents(long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
-    public List<EventDto> getParticipatedEvents(long userId) {
+    public List<ResponseEventDto> getParticipatedEvents(long userId) {
         return eventService.getParticipatedEvents(userId);
     }
 }

@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.RequestEventDto;
+import school.faang.user_service.dto.event.ResponseEventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -15,11 +16,13 @@ import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.UserService;
-import school.faang.user_service.validator.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import static java.lang.String.format;
 
 @Service
 @RequiredArgsConstructor
@@ -27,87 +30,50 @@ import java.util.stream.Stream;
 public class EventService {
     private static final String USER_VALIDATE_SKILLS = "The user %s cannot create an event '%s' because his " +
             "skills do not match the declared ones";
-    private static final String EVENT_NOT_FOUND = "Event not found";
+    private static final String EVENT_NOT_FOUND = "Event by ID=%d is not found";
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final UserService userService;
-    private final List<Validator<EventDto>> eventValidator;
     private final List<Filter<EventFilterDto, Event>> eventFilters;
 
     @Transactional
-    public EventDto create(EventDto eventDto) {
-        validate(eventDto);
+    public ResponseEventDto create(RequestEventDto requestEventDto) {
+        Event event = eventMapper.toEntity(requestEventDto);
 
-        Event event = eventMapper.toEntity(eventDto);
+        validateUserSkills(requestEventDto, event);
 
-        validateUserSkills(eventDto, event);
-
-        event = eventRepository.save(event);
+        eventRepository.save(event);
         return eventMapper.toDto(event);
     }
 
     @Transactional
-    public EventDto updateEvent(EventDto eventDto) {
-        validate(eventDto);
-
-        Event eventDb = eventRepository.findById(eventDto.getId())
+    public ResponseEventDto updateEvent(RequestEventDto requestEventDto) {
+        Event eventFromDb = eventRepository.findById(requestEventDto.getId())
                 .orElseThrow(() -> new EventNotFoundException(EVENT_NOT_FOUND));
 
-        Event event = eventMapper.toEntity(eventDto);
-        event.setCreatedAt(eventDb.getCreatedAt());
+        eventMapper.update(eventFromDb, requestEventDto);
 
-        validateUserSkills(eventDto, event);
+        validateUserSkills(requestEventDto, eventFromDb);
 
-        event = eventRepository.save(event);
-        return eventMapper.toDto(event);
-    }
-
-    private void validate(EventDto eventDto) {
-        for (Validator<EventDto> validator : eventValidator) {
-            validator.validate(eventDto);
-        }
-    }
-
-    private void validateUserSkills(EventDto eventDto, Event event) {
-        User user = userService.getUserById(eventDto.getOwnerId());
-
-        List<Long> userSkillsIdList;
-        if (user.getSkills() == null) {
-            userSkillsIdList = new ArrayList<>();
-        } else {
-            userSkillsIdList = user.getSkills().stream().map(Skill::getId).toList();
-        }
-
-        List<Long> eventSkillIdList;
-        if (event.getRelatedSkills() == null) {
-            eventSkillIdList = new ArrayList<>();
-        } else {
-            eventSkillIdList = event.getRelatedSkills().stream().map(Skill::getId).toList();
-        }
-
-        List<Long> differences = userSkillsIdList.stream()
-                .filter(element -> !eventSkillIdList.contains(element))
-                .toList();
-
-        if (!differences.isEmpty()) {
-            throw new DataValidationException(
-                    String.format(USER_VALIDATE_SKILLS, user.getUsername(), event.getTitle()));
-        }
-
-        event.setOwner(user);
-        event.setType(eventDto.getEventType());
-        event.setStatus(eventDto.getEventStatus());
+        eventRepository.save(eventFromDb);
+        return eventMapper.toDto(eventFromDb);
     }
 
     @Transactional
-    public EventDto getEvent(long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(EVENT_NOT_FOUND));
+    public ResponseEventDto getEvent(long eventId) {
+        Event event = getEventById(eventId);
         return eventMapper.toDto(event);
     }
 
+    public Event getEventById(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(
+                        String.format(EVENT_NOT_FOUND, eventId)));
+    }
+
     @Transactional
-    public List<EventDto> getEventsByFilter(EventFilterDto eventFilterDto) {
+    public List<ResponseEventDto> getEventsByFilter(EventFilterDto eventFilterDto) {
         Stream<Event> allEvents = eventRepository.findAll().stream();
 
         for (var eventFilter : eventFilters) {
@@ -125,14 +91,39 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventDto> getOwnedEvents(long userId) {
+    public List<ResponseEventDto> getOwnedEvents(long userId) {
         List<Event> allEvents = eventRepository.findAllByUserId(userId);
         return allEvents.stream().map(eventMapper::toDto).toList();
     }
 
     @Transactional
-    public List<EventDto> getParticipatedEvents(long userId) {
+    public List<ResponseEventDto> getParticipatedEvents(long userId) {
         List<Event> allEvents = eventRepository.findParticipatedEventsByUserId(userId);
         return allEvents.stream().map(eventMapper::toDto).toList();
+    }
+
+    private void validateUserSkills(RequestEventDto requestEventDto, Event event) {
+        User user = userService.getUserById(requestEventDto.getOwnerId());
+
+        List<Long> userSkillsIdList = Optional.ofNullable(user.getSkills())
+                .map(skills -> skills.stream().map(Skill::getId).toList())
+                .orElseGet(ArrayList::new);
+
+        List<Long> eventSkillIdList = Optional.ofNullable(event.getRelatedSkills())
+                .map(skills -> skills.stream().map(Skill::getId).toList())
+                .orElseGet(ArrayList::new);
+
+        List<Long> differences = userSkillsIdList.stream()
+                .filter(element -> !eventSkillIdList.contains(element))
+                .toList();
+
+        if (!differences.isEmpty()) {
+            throw new DataValidationException(
+                    format(USER_VALIDATE_SKILLS, user.getUsername(), event.getTitle()));
+        }
+
+        event.setOwner(user);
+        event.setType(requestEventDto.getEventType());
+        event.setStatus(requestEventDto.getEventStatus());
     }
 }

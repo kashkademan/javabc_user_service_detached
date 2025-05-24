@@ -2,7 +2,9 @@ package school.faang.user_service.mapper.event;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import school.faang.user_service.dto.event.EventDto;
+import org.mapstruct.MappingTarget;
+import school.faang.user_service.dto.event.RequestEventDto;
+import school.faang.user_service.dto.event.ResponseEventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 
@@ -15,7 +17,7 @@ public interface EventMapper {
     @Mapping(target = "ownerId", expression = "java(mappingOwnerId(event))")
     @Mapping(target = "eventType", source = "type")
     @Mapping(target = "eventStatus", source = "status")
-    EventDto toDto(Event event);
+    ResponseEventDto toDto(Event event);
 
     @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(target = "owner", ignore = true)
@@ -25,7 +27,10 @@ public interface EventMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Event toEntity(EventDto eventDto);
+    Event toEntity(RequestEventDto eventDto);
+
+    @Mapping(target = "relatedSkills", ignore = true)
+    void update(@MappingTarget Event event, RequestEventDto updateResponseEventDto);
 
     default List<Long> mappingRelatedSkills(Event event) {
         if (event.getRelatedSkills() != null) {
