@@ -69,6 +69,10 @@ public class SubscriptionService {
         return repository.findFolloweesAmountByFollowerId(followerId);
     }
 
+    public List<Long> getFollowerIds(long followeeId) {
+        return repository.findFollowerIdsByFolloweeId(followeeId);
+    }
+
     private Stream<User> filterUsers(Stream<User> users, UserFilterDto filters) {
         List<UserFilter> applicableFilters = userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
