@@ -1,7 +1,7 @@
 package school.faang.user_service.validation.career;
 
 import school.faang.user_service.entity.Career;
-import school.faang.user_service.exception.common.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
