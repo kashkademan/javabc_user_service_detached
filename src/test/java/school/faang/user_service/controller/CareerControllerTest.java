@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,8 +28,11 @@ public class CareerControllerTest {
     private final String COMPANY = "Test Company";
     private final String POSITION = "Test Position";
 
-    private CareerDto createTestCareerDto() {
-        return CareerDto.builder()
+    private CareerDto testCareerDto;
+
+    @BeforeEach
+    void setUp() {
+        testCareerDto = CareerDto.builder()
                 .id(CAREER_ID)
                 .company(COMPANY)
                 .position(POSITION)
@@ -38,44 +42,34 @@ public class CareerControllerTest {
     }
 
     @Test
-    void shouldReturnsCreatedCareer_whenAddCareer() {
-        CareerDto input = createTestCareerDto();
-        CareerDto expected = createTestCareerDto();
+    void shouldReturnCareerDto_whenAddCareer() {
+        when(careerService.addCareer(USER_ID, testCareerDto)).thenReturn(testCareerDto);
 
-        when(careerService.addCareer(USER_ID, input)).thenReturn(expected);
+        CareerDto result = careerController.addCareer(USER_ID, testCareerDto);
 
-        CareerDto result = careerController.addCareer(USER_ID, input);
+        assertEquals(testCareerDto, result);
 
-        assertEquals(expected.getId(), result.getId());
-        assertEquals(expected.getCompany(), result.getCompany());
-        assertEquals(expected.getPosition(), result.getPosition());
-
-        verify(careerService).addCareer(USER_ID, input);
+        verify(careerService).addCareer(USER_ID, testCareerDto);
     }
 
     @Test
-    void shouldReturnsUpdatedCareer_whenUpdateCareer() {
-        CareerDto input = createTestCareerDto();
-        CareerDto expected = createTestCareerDto();
+    void shouldReturnUpdatedCareer_whenUpdateCareer() {
+        when(careerService.updateCareer(USER_ID, testCareerDto)).thenReturn(testCareerDto);
 
-        when(careerService.updateCareer(USER_ID, input)).thenReturn(expected);
+        CareerDto result = careerController.updateCareer(USER_ID, testCareerDto);
 
-        CareerDto result = careerController.updateCareer(USER_ID, input);
+        assertEquals(testCareerDto, result);
 
-        assertEquals(expected.getId(), result.getId());
-        assertEquals(expected.getCompany(), result.getCompany());
-
-        verify(careerService).updateCareer(USER_ID, input);
+        verify(careerService).updateCareer(USER_ID, testCareerDto);
     }
 
     @Test
     void shouldReturnCareer_whenGetById() {
-        CareerDto expected = createTestCareerDto();
-        when(careerService.getById(CAREER_ID)).thenReturn(expected);
+        when(careerService.getById(CAREER_ID)).thenReturn(testCareerDto);
 
         CareerDto result = careerController.getById(CAREER_ID);
 
-        assertEquals(expected, result);
+        assertEquals(testCareerDto, result);
 
         verify(careerService).getById(CAREER_ID);
     }
