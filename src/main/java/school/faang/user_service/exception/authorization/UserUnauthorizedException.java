@@ -1,4 +1,4 @@
-package school.faang.user_service.exception.user;
+package school.faang.user_service.exception.authorization;
 
 public class UserUnauthorizedException extends RuntimeException {
     public UserUnauthorizedException(String msg) {

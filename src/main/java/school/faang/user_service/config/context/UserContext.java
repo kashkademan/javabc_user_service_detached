@@ -2,7 +2,7 @@ package school.faang.user_service.config.context;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exception.user.UserUnauthorizedException;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 
 @Component
 @Slf4j

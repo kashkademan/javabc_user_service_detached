@@ -13,7 +13,7 @@ import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.exception.user.UserUnauthorizedException;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
