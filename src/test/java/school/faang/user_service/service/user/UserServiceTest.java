@@ -69,7 +69,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetCurrentUser_userInContentNotFound() {
+    public void testGetCurrentUser_userInContextNotFound() {
         when(userContext.getUserId()).thenThrow(UserUnauthorizedException.class);
 
         assertThrows(UserUnauthorizedException.class, () -> userService.getCurrentUser());

@@ -25,7 +25,7 @@ public class UserController {
         log.info("User controller accepted request get current user");
 
         UserResponseDto response = userFacade.getCurrentUser();
-        log.info("User controller return response get user {}", response);
+        log.info("User controller return response get current user {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -33,7 +33,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable long userId) {
         log.info("User controller accepted request get user with id {}", userId);
 
-        UserResponseDto response = userFacade.getCurrentUser();
+        UserResponseDto response = userFacade.getUserById(userId);
         log.info("User controller return response get user {}", response);
         return ResponseEntity.ok(response);
     }
