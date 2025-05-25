@@ -17,6 +17,15 @@ public class UserFacade {
     private final UserMapper userMapper;
     private final UserService userService;
 
+    public UserResponseDto getCurrentUser() {
+        User user = userService.getCurrentUser();
+
+        UserResponseDto userResponseDto = userMapper.toUserResponseDto(user);
+        log.debug("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
+                user, userResponseDto);
+        return userResponseDto;
+    }
+
     public UserResponseDto getUserById(long userId) {
         User user = userService.getUserById(userId);
 

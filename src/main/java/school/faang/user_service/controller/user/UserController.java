@@ -20,11 +20,20 @@ import java.util.List;
 public class UserController {
     private final UserFacade userFacade;
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getCurrentUser() {
+        log.info("User controller accepted request get current user");
+
+        UserResponseDto response = userFacade.getCurrentUser();
+        log.info("User controller return response get user {}", response);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable long userId) {
         log.info("User controller accepted request get user with id {}", userId);
 
-        UserResponseDto response = userFacade.getUserById(userId);
+        UserResponseDto response = userFacade.getCurrentUser();
         log.info("User controller return response get user {}", response);
         return ResponseEntity.ok(response);
     }

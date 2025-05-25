@@ -6,7 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
@@ -15,6 +17,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +27,8 @@ import static org.mockito.Mockito.when;
 public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserContext userContext;
     @InjectMocks
     private UserService userService;
     private User user;
@@ -52,13 +58,41 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testGetCurrentUser_successfully() {
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        User returnUser = userService.getCurrentUser();
+
+        verify(userRepository, times(1)).findById(eq(user.getId()));
+        assertEquals(user.getId(), returnUser.getId());
+    }
+
+    @Test
+    public void testGetCurrentUser_userInContentNotFound() {
+        when(userContext.getUserId()).thenThrow(UserUnauthorizedException.class);
+
+        assertThrows(UserUnauthorizedException.class, () -> userService.getCurrentUser());
+        verify(userRepository, never()).findById(eq(user.getId()));
+    }
+
+    @Test
+    public void testGetCurrentUser_userNotFound() {
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.getCurrentUser());
+        verify(userRepository, times(1)).findById(eq(user.getId()));
+    }
+
+    @Test
     public void testGetUsersByIds() {
         List<Long> userIds = List.of(user.getId());
         when(userRepository.findAllById(userIds)).thenReturn(List.of(user));
 
         List<User> returnUsers = userService.getUsersByIds(userIds);
 
-        verify(userRepository, times(1)).findAllById(userIds);
+        verify(userRepository, times(1)).findAllById(eq(userIds));
         assertEquals(userIds, returnUsers.stream().map(User::getId).toList());
         assertEquals(userIds.size(), returnUsers.size());
     }
