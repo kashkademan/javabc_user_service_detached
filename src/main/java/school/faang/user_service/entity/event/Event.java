@@ -90,4 +90,24 @@ public class Event {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public String toString() {
+        long var10000 = this.getId();
+        return "Event(id=" + var10000 +
+                ", title=" + this.getTitle() +
+                ", description=" + this.getDescription() +
+                ", startDate=" + this.getStartDate() +
+                ", endDate=" + this.getEndDate() +
+                ", location=" + this.getLocation() +
+                ", maxAttendees=" + this.getMaxAttendees() +
+                ", attendees=" + this.getAttendees() +
+                ", ratings=" + this.getRatings() +
+                ", owner=" + this.getOwner().getUsername() +
+                ", relatedSkills=" + this.getRelatedSkills() +
+                ", type=" + this.getType() +
+                ", status=" + this.getStatus() +
+                ", createdAt=" + this.getCreatedAt() +
+                ", updatedAt=" + this.getUpdatedAt() +
+                ")";
+    }
 }
