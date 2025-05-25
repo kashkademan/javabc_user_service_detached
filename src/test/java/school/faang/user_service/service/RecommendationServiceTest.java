@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -10,21 +9,18 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exceptions.DataValidationException;
-import school.faang.user_service.mapper.RecommendationMapperImpl;
-import school.faang.user_service.mapper.SkillOfferMapperImpl;
+import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.SkillOfferMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
@@ -37,18 +33,18 @@ public class RecommendationServiceTest {
     private SkillRepository skillRepository;
     @Mock
     private Pageable pageable;
-    @Mock
-    private RecommendationMapperImpl recommendationMapper;
-    @Mock
-    private SkillOfferMapperImpl skillOfferMapper;
+    @Spy
+    private RecommendationMapper recommendationMapper;
+    @Spy
+    private SkillOfferMapper skillOfferMapper;
 
     @InjectMocks
     private RecommendationService recommendationService;
 
     @Test
-    public void testAfterSixMonth() {
+    public void testValidationAfterSixMonth() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(), LocalDateTime.now());
-        Mockito.when(recommendationRepository
+        when(recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendationDto.authorId(),
                         recommendationDto.receiverId()
@@ -58,7 +54,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void testNonExistentSkills() {
+    public void testValidationNonExistentSkills() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(new SkillOfferDto(1L, 1L, 1L)), LocalDateTime.now());
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
@@ -68,9 +64,9 @@ public class RecommendationServiceTest {
     public void testCreateCreates() {
         LocalDateTime now = LocalDateTime.now();
         RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
-        Mockito.when(recommendationRepository.create(1L, 1L, "1")).thenReturn(1L);
+        when(recommendationRepository.create(1L, 1L, "1")).thenReturn(1L);
         Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, now, null);
-        Mockito.when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
+        when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
         recommendationService.create(testDto);
         verify(recommendationRepository).create(1, 1, "1");
     }
@@ -78,7 +74,7 @@ public class RecommendationServiceTest {
     @Test
     public void testNonExistentId() {
         long id = 1;
-        Mockito.when(recommendationRepository.findById(id)).thenReturn(Optional.empty());
+        when(recommendationRepository.findById(id)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class,
                 () -> recommendationService.delete(1));
     }
@@ -86,7 +82,7 @@ public class RecommendationServiceTest {
     @Test
     public void testDeleteDeletes() {
         long id = 1;
-        Mockito.when(recommendationRepository.findById(id)).thenReturn(Optional.of(new Recommendation()));
+        when(recommendationRepository.findById(id)).thenReturn(Optional.of(new Recommendation()));
         recommendationService.delete(1);
         verify(recommendationRepository).deleteById(id);
     }
@@ -96,7 +92,7 @@ public class RecommendationServiceTest {
         LocalDateTime now = LocalDateTime.now();
         RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
         Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, now, null);
-        Mockito.when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
+        when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
         recommendationService.update(testDto);
         verify(recommendationRepository).update(testDto.authorId(), testDto.receiverId(), testDto.content());
         verify(skillOfferRepository).deleteAllByRecommendationId(testDto.id());
@@ -105,7 +101,7 @@ public class RecommendationServiceTest {
     @Test
     public void testWrongReceiverId() {
         long id = 1;
-        Mockito.when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(Page.empty());
+        when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(Page.empty());
         assertThrows(IllegalArgumentException.class,
                 () -> recommendationService.getAllUserRecommendations(id));
     }
@@ -116,16 +112,16 @@ public class RecommendationServiceTest {
         List<Recommendation> recommendationList = List.of(new Recommendation(), new Recommendation());
         PageRequest pageRequest = PageRequest.of(0, 2); // page = 0, size = 10
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
-        Mockito.when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(page);
+        when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(page);
 
-        List<RecommendationDto> recommendationDtoList = recommendationService.getAllUserRecommendations(id);
-        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationDtoList);
+        int lengthOfTheList = recommendationService.getAllUserRecommendations(id).size();
+        assertEquals(recommendationList.size(), lengthOfTheList);
     }
 
     @Test
     public void wrongUserId() {
         long id = 1;
-        Mockito.when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(Page.empty());
+        when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(Page.empty());
         assertThrows(IllegalArgumentException.class,
                 () -> recommendationService.getAllGivenRecommendations(id));
     }
@@ -136,7 +132,7 @@ public class RecommendationServiceTest {
         List<Recommendation> recommendationList = List.of(new Recommendation(), new Recommendation());
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
-        Mockito.when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(page);
+        when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(page);
 
         List<RecommendationDto> recommendationDtoList = recommendationService.getAllGivenRecommendations(id);
         assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationDtoList);

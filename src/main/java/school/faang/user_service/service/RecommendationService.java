@@ -43,6 +43,7 @@ public class RecommendationService {
         return recommendationMapper.toDto(recommendationRepository.findById(id).get());
     }
 
+    @Transactional
     public RecommendationDto update(RecommendationDto recommendationDto) {
         validation(recommendationDto);
         recommendationRepository.update(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
@@ -56,6 +57,7 @@ public class RecommendationService {
         return recommendationMapper.toDto(recommendationRepository.findById(recommendationDto.id()).get());
     }
 
+    @Transactional
     public void delete(long id) {
         if (recommendationRepository.findById(id).isEmpty()) {
             throw new IllegalArgumentException("Nonexistent id");

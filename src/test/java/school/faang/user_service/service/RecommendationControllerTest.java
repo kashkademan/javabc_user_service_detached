@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -14,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -35,34 +36,34 @@ public class RecommendationControllerTest {
     public void testGiveRecommendationGives() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "12", List.of(), LocalDateTime.now());
         recommendationController.giveRecommendation(recommendationDto);
-        Mockito.verify(recommendationService).create(recommendationDto);
+        verify(recommendationService, times(1)).create(recommendationDto);
     }
 
     @Test
     public void testUpdateRecommendationUpdates() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "12", List.of(), LocalDateTime.now());
         recommendationController.updateRecommendation(recommendationDto);
-        Mockito.verify(recommendationService).update(recommendationDto);
+        verify(recommendationService, times(1)).update(recommendationDto);
     }
 
     @Test
     public void testDeleteRecommendationDeletes() {
         long id = 1;
         recommendationController.deleteRecommendation(id);
-        Mockito.verify(recommendationService).delete(id);
+        verify(recommendationService, times(1)).delete(id);
     }
 
     @Test
     public void testGetAllUserRecommendations() {
         long id = 1;
         recommendationController.getAllUserRecommendations(id);
-        Mockito.verify(recommendationService).getAllUserRecommendations(id);
+        verify(recommendationService, times(1)).getAllUserRecommendations(id);
     }
 
     @Test
     public void testAllGivenRecommendations() {
         long id = 1;
         recommendationController.getAllGivenRecommendations(id);
-        Mockito.verify(recommendationService).getAllGivenRecommendations(id);
+        verify(recommendationService, times(1)).getAllGivenRecommendations(id);
     }
 }
