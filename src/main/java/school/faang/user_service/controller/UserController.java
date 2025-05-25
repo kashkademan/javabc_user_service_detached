@@ -23,11 +23,9 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-
 @RequestMapping("api/v1/users")
 @Tag(name = "User API", description = "Super API to interact with users table")
 public class UserController {
-
     private final UserService userService;
 
     @PutMapping("/deactivate")

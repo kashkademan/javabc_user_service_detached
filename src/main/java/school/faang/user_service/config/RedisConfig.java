@@ -1,6 +1,8 @@
 package school.faang.user_service.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +18,10 @@ import school.faang.user_service.messaging.EventPublisher;
 import school.faang.user_service.messaging.RedisEventPublisher;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
 
+    private final ObjectMapper objectMapper;
     String achievementEventsTopic = "achievement_topic";
     @Value("${spring.data.redis.host}")
     private String redisHost;
@@ -33,10 +37,11 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(
+            JedisConnectionFactory jedisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory);
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer()); //проблема из-за того, что GenericJackson2JsonRedisSerializer использует @JsonTypeInfo внутри — он добавляет @class метаданные.
         template.setKeySerializer(new StringRedisSerializer());
         return template;
     }

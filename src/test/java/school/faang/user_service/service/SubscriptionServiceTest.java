@@ -1,23 +1,21 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.FollowEventDto;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.messaging.EventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
@@ -30,22 +28,11 @@ public class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionServiceImpl service;
 
-    private User user1;
-    private User user2;
-
-    @BeforeEach
-    void init() {
-        user1 = User.builder().id(1L).followees(new ArrayList<>()).followers(new ArrayList<>()).build();
-        user2 = User.builder().id(2L).followees(new ArrayList<>()).followers(new ArrayList<>()).build();
-    }
-
     @Test
     public void testFollowUser() {
         long followerId = 1L;
         long followeeId = 2L;
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
         doNothing().when(eventPublisher).publish(any());
 
         service.followUser(followerId, followeeId);

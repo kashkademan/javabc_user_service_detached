@@ -2,12 +2,11 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.event.FollowEventDto;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.UserFilterMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.messaging.EventPublisher;
@@ -19,22 +18,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
-    private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final UserFilterMapper userFilterMapper;
     private final UserMapper userMapper;
     private final EventPublisher<FollowEventDto> eventPublisher;
 
     @Override
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         ensureSubscriptionStateValidation(followerId, followeeId, false);
         subscriptionRepository.followUser(followerId, followeeId);
-        User follower = userRepository.findById(followerId).orElseThrow(() ->
-                new UserNotFoundException("User with id %d not found".formatted(followerId)));
-        User followee = userRepository.findById(followeeId).orElseThrow(() ->
-                new UserNotFoundException("User with id %d not found".formatted(followeeId)));
-        follower.getFollowees().add(followee);
-        followee.getFollowers().add(follower);
 
         FollowEventDto followEvent = new FollowEventDto(followeeId, followerId);
         eventPublisher.publish(followEvent);
