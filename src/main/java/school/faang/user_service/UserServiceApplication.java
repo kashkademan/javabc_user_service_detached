@@ -19,7 +19,7 @@ import static java.lang.Long.parseLong;
 @EnableFeignClients("school.faang.user_service.client")
 @RequiredArgsConstructor
 @Data
-public class UserServiceApplication implements CommandLineRunner {
+public class UserServiceApplication  {
 
     public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
@@ -33,14 +33,4 @@ public class UserServiceApplication implements CommandLineRunner {
         return objectMapper;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        EducationDto educationDto = new EducationDto();
-        EducationDto.setId();
-        EducationController.addEducation();
-    }
 }
-
-
-
-

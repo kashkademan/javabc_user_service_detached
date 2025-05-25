@@ -46,15 +46,6 @@ public class Education {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static void updateEducation(long userId) {
-    }
-
-    public static void save(long educationDto) {
-    }
-
     public void setUser(User user) {
-
     }
 }
-
-

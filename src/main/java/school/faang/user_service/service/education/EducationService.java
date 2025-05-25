@@ -1,7 +1,6 @@
 package school.faang.user_service.service.education;
 
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EducationDto;
@@ -17,30 +16,53 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Data
 public class EducationService {
 
     private final UserRepository userRepository;
     private final EducationRepository educationRepository;
     private final EducationMapper educationMapper;
-    private EducationDto dto;
 
-
-    public void addEducation(long userId, EducationDto educationDto) {
+    public EducationDto addEducation(long userId, EducationDto educationDto) {
         if (educationDto.getYearFrom() >= Year.now().getValue()) {
-            throw new DataValidationException("yearFrom должно быть меньше текущего года");
+            throw new DataValidationException("yearFrom must be less than current year");
         }
 
-        Optional<User> user = userRepository.findById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataValidationException("User with id=" + userId + " not found"));
 
-        EducationDto education = null;
-        Education entity = educationMapper.toEntity(education);
-        entity = educationRepository.save((entity));
-        educationMapper.toDto(entity);
+        Education education = educationMapper.toEntity(educationDto);
+        education.setUser(user);
+
+        return educationMapper.toDto(educationRepository.save(education));
     }
 
-    public EducationDto updateEducation(long userId) {
-        throw new IllegalArgumentException("Пользователь с ID " + userId + " не найден");
+    public EducationDto updateEducation(long userId, EducationDto educationDto) {
+        if (educationDto.getYearFrom() == null || educationDto.getYearFrom() > Year.now().getValue()) {
+            throw new DataValidationException("yearFrom must be less than current year");
+        }
 
+        Optional<Education> existingEducation = educationRepository.findById(educationDto.getId());
+        if (existingEducation == null) {
+            throw new DataValidationException("Образование не найдено");
+        }
+
+        if (!(existingEducation.get().getId() == userId)) {
+            throw new DataValidationException("Нельзя обновлять чужие данные");
+        }
+
+        User user = existingEducation.get().getUser();
+        Education updatedEducation = educationMapper.toEducation(educationDto);
+        updatedEducation.setUser(user);
+
+        Education savedEducation = educationRepository.save(updatedEducation);
+        return educationMapper.toEducationDto(savedEducation);
+    }
+
+    public EducationDto getById(long educationId) {
+        Optional<Education> education = educationRepository.findById(educationId);
+        if (education.isEmpty()) {
+            throw new DataValidationException("Образование не найдено");
+        }
+        return educationMapper.toEducationDto(education.orElse(null));
     }
 }

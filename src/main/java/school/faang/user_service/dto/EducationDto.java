@@ -12,8 +12,4 @@ public class EducationDto {
     private String educationLevel;
     private String specialization;
 
-    public static void setId() {
-    }
 }
-
-
