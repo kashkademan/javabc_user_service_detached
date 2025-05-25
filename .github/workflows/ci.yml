@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
     branches:
-    - feature/pipline-BJS2-78027
+    - hippogriff-master-stream10
 
 jobs:
   build:
