@@ -32,7 +32,9 @@ public class ScoreTrackingAspect {
 
         ActionType type = trackActionScore.value();
         switch (type) {
-            case FINISH_GOAL -> ...
+            case FINISH_GOAL -> {
+                return 0;
+            }
         }
 
         int score = actionScores.getOrDefault(type, 0);
