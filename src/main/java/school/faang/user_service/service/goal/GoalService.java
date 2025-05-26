@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.model.goal.GoalFilter;
+import school.faang.user_service.model.redis.ActionType;
+import school.faang.user_service.model.redis.TrackActionScore;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
@@ -82,6 +84,7 @@ public class GoalService {
     }
 
     @Transactional
+    @TrackActionScore(ActionType.FINISH_GOAL)
     public void deleteGoalById(long goalId) {
         getGoalByIdOrThrow(goalId);
 

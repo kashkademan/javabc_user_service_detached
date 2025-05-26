@@ -13,5 +13,3 @@ public class UserScores {
     private long userId;
     private int scoreDelta;
 }
-
-

@@ -1,4 +1,4 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.user;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -23,6 +23,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.Career;
+import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.Education;
+import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.WorkSchedule;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
@@ -167,4 +173,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
+
+    @OneToOne(mappedBy = "user")
+    private UserScore score;
 }
