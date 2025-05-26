@@ -101,7 +101,7 @@ kotlin {
     jvmToolchain(17)
 }
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.13"
 }
 
 tasks.jacocoTestReport {
@@ -109,6 +109,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
         html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
 }
 
@@ -128,4 +129,23 @@ tasks.build {
 
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it).apply {
+            exclude(
+                "**/mapper/**",
+                "**/entity/**",
+                "**/client/**",
+                "**/config/**",
+                "**/dto/**",
+                "**/model/**",
+                "**/controller/**",
+                "**/repository/**",
+                "**/**Test.class",
+                "**/ProjectServiceApplication.class",
+                "**/**Impl.class",
+            )
+        }
+    }))
 }
