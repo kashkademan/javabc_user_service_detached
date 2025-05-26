@@ -6,6 +6,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -24,6 +25,9 @@ public interface RecommendationRequestMapper {
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
 
     default List<Long> convertSkillsToIds(RecommendationRequest recommendationRequest) {
+        if (recommendationRequest.getSkills() == null) {
+            return new ArrayList<>();
+        }
         return recommendationRequest.getSkills()
                 .stream()
                 .map(SkillRequest::getId)

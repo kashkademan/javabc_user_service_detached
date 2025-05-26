@@ -1,5 +1,10 @@
 package school.faang.user_service.controller.event;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,46 +21,62 @@ import school.faang.user_service.service.EventService;
 
 import java.util.List;
 
+@Tag(name = "Event controller", description = "All the ways you can user events")
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
 
-    @PostMapping(value = {"", "/"})
+    @Operation(summary = "Create a new event", description = "Create a new event")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Created successfully")
+    })
+    @PostMapping(value = {""})
     public EventDto create(@RequestBody EventDto event) {
         validateEventDto(event);
         return eventService.create(event);
     }
 
-    @GetMapping(value = {"/{eventId}", "/{eventId}/"})
+    @Operation(summary = "Get event by id", description = "Get event by id")
+    @GetMapping(value = "/{eventId}")
     public EventDto getEvent(@PathVariable("eventId") long eventId) {
         return eventService.getEvent(eventId);
     }
 
-    @PostMapping(value = {"/partial", "/partial/"})
+    @Operation(summary = "Get event by filter", description = "Get event by filter")
+    @PostMapping(value = "/partial")
     public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto eventFilterDto) {
         return eventService.getEventsByFilter(eventFilterDto);
     }
 
-    @DeleteMapping(value = {"/{eventId}", "/{eventId}/"})
+    @Operation(summary = "Delete event by id", description = "Delete event by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Deleted successfully")
+    })
+    @DeleteMapping(value = "/{eventId}")
     public void deleteEvent(@PathVariable("eventId") long eventId) {
         eventService.deleteEvent(eventId);
     }
 
-    @PatchMapping(value = {"/{eventId}", "/{eventId}/"})
+    @Operation(summary = "Update event", description = "Update event")
+    @PatchMapping(value = "/{eventId}")
     public EventDto updateEvent(@RequestBody EventDto event) {
         validateEventDto(event);
 
         return eventService.updateEvent(event);
     }
 
-    @GetMapping(value = {"/owner/{userId}", "/owner/{userId}/"})
+    @Operation(summary = "Get events for owner",
+            description = "Get events for owner",
+            parameters = {@Parameter(name = "userId", example = "1", description = "Owner ID", required = true)})
+    @GetMapping(value = "/owner/{userId}")
     public List<EventDto> getOwnedEvents(@PathVariable("userId") long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
-    @GetMapping(value = {"/participant/{userId}", "/participant/{userId}/"})
+    @Operation(summary = "Get events for participant", description = "Get events for participant")
+    @GetMapping(value = "/participant/{userId}")
     public List<EventDto> getParticipatedEvents(@PathVariable("userId") long userId) {
         return eventService.getParticipatedEvents(userId);
     }
