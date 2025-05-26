@@ -1,18 +1,12 @@
 package school.faang.user_service.service.payment;
 
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.dto.payment.PaymentRequestDto;
 import school.faang.user_service.dto.payment.PaymentResponseDto;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 
 @Slf4j
 @Service
@@ -21,13 +15,6 @@ import java.net.SocketTimeoutException;
 public class PaymentService {
     private final PaymentServiceClient paymentServiceClient;
 
-    @Retryable(
-            retryFor = { SocketTimeoutException.class,
-                    ConnectException.class,
-                    FeignException.ServiceUnavailable.class,
-                    FeignException.GatewayTimeout.class },
-            backoff = @Backoff(delay = 1000, multiplier = 2)
-    )
     public PaymentResponseDto buyItem(PaymentRequestDto request) {
         log.info("Attempting to buy premium for transaction: {}", request.getPaymentNumber());
         PaymentResponseDto response = paymentServiceClient.buyPremium(request);

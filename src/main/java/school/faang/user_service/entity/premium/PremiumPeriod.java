@@ -8,6 +8,7 @@ import school.faang.user_service.entity.transaction.TransactionPurpose;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Currency;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public enum PremiumPeriod implements Payable {
 
     public static PremiumPeriod fromDays(Integer days) {
       return Arrays.stream(values())
-              .filter(period -> period.getDays().equals(days))
+              .filter(period -> Objects.equals(period.getDays(), days))
               .findFirst()
               .orElseThrow(() -> new IllegalArgumentException("No such premium period for " + days + " days"));
     }
