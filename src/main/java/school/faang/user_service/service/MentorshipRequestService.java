@@ -14,7 +14,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.filter.mentorship.MentorshipFilter;
 import school.faang.user_service.mapper.mentorship.MentorshipResponseMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.validator.MentorshipValidator;
+import school.faang.user_service.validator.Validator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +25,7 @@ public class MentorshipRequestService {
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipResponseMapper mentorshipResponseMapper;
-    private final List<MentorshipValidator<MentorshipRequestDto>> validators;
+    private final List<Validator<MentorshipRequestDto>> validators;
     private final List<MentorshipFilter> filters;
 
     @Transactional

@@ -1,12 +1,14 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validator.mentorship;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.validator.Validator;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Component
-public class RequesterIdNotBeEqualReceiverIdValidator implements MentorshipValidator<MentorshipRequestDto> {
+public class RequesterIdNotBeEqualReceiverIdValidator implements Validator<MentorshipRequestDto> {
 
     @Override
     public void validate(MentorshipRequestDto dto) {
