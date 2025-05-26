@@ -156,7 +156,7 @@ public class EducationServiceTest {
         expectedDto.setEducationLevel("Master");
         expectedDto.setSpecialization("Software Engineering");
 
-        when(userService.getUserById(educationDto.getId())).thenReturn(user);
+        when(educationRepositoryAdapter.getById(educationDto.getId())).thenReturn(existingEducation);
         when(educationMapper.toEducation(educationDto)).thenReturn(updatedEducationEntity);
         when(educationRepositoryAdapter.save(any(Education.class))).thenReturn(savedEducation);
         when(educationMapper.toEducationDto(savedEducation)).thenReturn(expectedDto);
