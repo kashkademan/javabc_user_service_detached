@@ -8,7 +8,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.adapter.EducationRepositoryAdapter;
-import school.faang.user_service.repository.adapter.UserRepositoryAdapter;
+import school.faang.user_service.repository.user.UserRepositoryAdapter;
 
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ public class EducationService {
     private final EducationMapper educationMapper;
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
-        User user = userRepositoryAdapter.getById(userId);
+        User user = userRepositoryAdapter.findById(userId);
 
         Education education = educationMapper.toEducation(educationDto)
                 .toBuilder()

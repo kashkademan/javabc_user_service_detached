@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.controller.utils.EventControllerUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.data.Required;
 
@@ -31,9 +31,12 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
 
+    private final EventControllerUtils eventControllerUtils;
+
     @PostMapping
     public EventDto create(@Valid @RequestBody EventDto event) {
-        isValidDataRange(event);
+        eventControllerUtils.isValidDateRange(event);
+
         return eventService.create(event);
     }
 
@@ -44,6 +47,7 @@ public class EventController {
 
     @PostMapping(value = "/filter")
     public List<EventDto> getEventsByFilter(@Valid @RequestBody EventFilterDto filter) {
+        eventControllerUtils.isValidDateRange(filter);
         return eventService.getEventsByFilter(filter);
     }
 
@@ -55,7 +59,7 @@ public class EventController {
 
     @PutMapping
     public EventDto updateEvent(@Valid @RequestBody EventDto eventDto) {
-        isValidDataRange(eventDto);
+        eventControllerUtils.isValidDateRange(eventDto);
         return eventService.updateEvent(eventDto);
     }
 
@@ -67,13 +71,5 @@ public class EventController {
     @GetMapping(value = "/participated/{id}")
     public List<EventDto> getParticipatedEvents(@PathVariable("id") @Required Long userId) {
         return eventService.getParticipatedEvents(userId);
-    }
-
-    private void isValidDataRange(EventDto event) {
-        if (event.getEndDate() != null) {
-            if (event.getStartDate().isBefore(event.getEndDate())) {
-                throw new DataValidationException("The end date must be after the start date");
-            }
-        }
     }
 }
