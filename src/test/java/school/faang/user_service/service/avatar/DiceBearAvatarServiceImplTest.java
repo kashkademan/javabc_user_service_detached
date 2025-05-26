@@ -87,7 +87,7 @@ public class DiceBearAvatarServiceImplTest {
     }
 
     @Test
-    @DisplayName("Генерация аватара: когда style пуст, используется значение по умолчанию 'pixelated'")
+    @DisplayName("Генерация аватара: когда style пуст, используется значение по умолчанию 'pixel-art'")
     void givenEmptyStyle_whenGenerateAvatarUrl_thenUseFallbackValue() {
         diceBearConfig.setStyle("");
         User user = new User();
@@ -95,7 +95,7 @@ public class DiceBearAvatarServiceImplTest {
 
         String generatedUrl = diceBearAvatarService.generateAvatarUrl(user);
         String expectedSeed = URLEncoder.encode("testUser", StandardCharsets.UTF_8);
-        String expectedStyle = "pixelated";
+        String expectedStyle = "pixel-art";
         String expectedUrl = String.format(
                 "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), expectedStyle, expectedSeed);
         assertEquals(expectedUrl, generatedUrl);

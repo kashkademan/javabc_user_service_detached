@@ -29,7 +29,7 @@ public class DiceBearAvatarServiceImpl implements DiceBearAvatarService {
         String style = diceBearConfig.getStyle();
 
         if (style == null || style.isEmpty()) {
-            style = "pixelated";
+            style = "pixel-art";
             log.warn("DiceBearConfig.style is missing; using default: {}", style);
         }
         if (apiUrl == null || apiUrl.isEmpty()) {
