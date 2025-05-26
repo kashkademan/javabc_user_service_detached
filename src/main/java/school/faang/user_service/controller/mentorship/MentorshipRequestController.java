@@ -47,7 +47,7 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<Void> rejectRequest(@PathVariable @RequestBody Long id,
+    public ResponseEntity<Void> rejectRequest(@PathVariable Long id,
                                               @RequestBody RejectionDto dto) {
         mentorshipRequestService.rejectRequest(id, dto);
         return ResponseEntity.status(HttpStatus.OK).build();

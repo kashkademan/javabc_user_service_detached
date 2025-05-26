@@ -1,4 +1,4 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validator.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -7,12 +7,14 @@ import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.validator.Validator;
+
 import java.time.LocalDateTime;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Component
 @RequiredArgsConstructor
-public class CheckingRequestDateValidator implements MentorshipValidator<MentorshipRequestDto> {
+public class CheckingRequestDateValidator implements Validator<MentorshipRequestDto> {
     private static final long TIME_FOR_REQUEST = 3;
     public final MentorshipRepository mentorshipRepository;
     public final MentorshipRequestRepository mentorshipRequestRepository;
