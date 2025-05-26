@@ -1,11 +1,11 @@
 package school.faang.user_service.controller.career;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.CareerDto;
 import school.faang.user_service.service.CareerService;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class CareerController {
     private final CareerService careerService;
