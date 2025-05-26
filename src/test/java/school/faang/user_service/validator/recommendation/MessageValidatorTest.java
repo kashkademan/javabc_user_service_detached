@@ -5,6 +5,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.validator.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MessageValidatorTest {
@@ -12,20 +13,23 @@ class MessageValidatorTest {
 
     @Test
     public void testValidatorWithNullMessage() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto(null)));
+        assertEquals(MessageValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testValidatorWithBlankMessage() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto("   ")));
+        assertEquals(MessageValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test
     public void testValidatorWithEmptyMessage() {
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException result = assertThrows(IllegalArgumentException.class,
                 () -> validator.validate(getDto("")));
+        assertEquals(MessageValidator.MESSAGE_IS_EMPTY, result.getMessage());
     }
 
     @Test

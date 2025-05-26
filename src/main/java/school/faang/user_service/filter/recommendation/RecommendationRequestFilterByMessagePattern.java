@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class RecommendationRequestFilterByMessagePattern implements Filter<RequestFilterDto, RecommendationRequest> {
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
-        return filterDto.messagePattern() != null;
+        return filterDto.messagePattern() != null && !filterDto.messagePattern().isBlank();
     }
 
     @Override

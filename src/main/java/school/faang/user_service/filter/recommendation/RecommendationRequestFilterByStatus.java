@@ -22,6 +22,6 @@ public class RecommendationRequestFilterByStatus implements Filter<RequestFilter
             RequestFilterDto filterDto
     ) {
         return recommendationRequest
-                .filter(request -> request.getStatus() == filterDto.status());
+                .filter(request -> request.getStatus().equals(filterDto.status()));
     }
 }

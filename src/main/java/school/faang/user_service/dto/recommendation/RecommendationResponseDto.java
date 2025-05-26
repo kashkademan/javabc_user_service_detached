@@ -16,6 +16,7 @@ public class RecommendationResponseDto {
     private Long receiverId;
     private String message;
     private RequestStatus status;
+    private String rejectionReason;
     private final List<Long> skills = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

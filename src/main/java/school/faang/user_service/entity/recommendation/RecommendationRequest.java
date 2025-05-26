@@ -84,8 +84,25 @@ public class RecommendationRequest {
         final StringBuilder sb = new StringBuilder("RecommendationRequest{");
         sb.append("id=").append(id);
         sb.append(", message='").append(message).append('\'');
-        sb.append(", status=").append(status.toString());
+        sb.append(", status=");
+        if (status == null) {
+            sb.append("null");
+        } else {
+            sb.append(status);
+        }
         sb.append(", rejectionReason='").append(rejectionReason).append('\'');
+        if (requester != null) {
+            sb.append(", requester='[id=%d, userName=%s]".formatted(requester.getId(), requester.getUsername()))
+                    .append('\'');
+        } else {
+            sb.append(", requester=[null]");
+        }
+        if (receiver != null) {
+            sb.append(", receiver='[id=%d, userName=%s]".formatted(receiver.getId(), receiver.getUsername()))
+                    .append('\'');
+        } else {
+            sb.append(", receiver=[null]");
+        }
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
         sb.append('}');

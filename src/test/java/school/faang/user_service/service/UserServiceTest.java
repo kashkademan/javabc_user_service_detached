@@ -14,10 +14,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.utils.Utils.format;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-    private static final Long USER_ID = 1L;
     @Mock
     private UserRepository userRepository;
 
@@ -27,10 +27,11 @@ class UserServiceTest {
     @Test
     @DisplayName("testing get existing user entity by id")
     public void testGetExistUserById() {
-        User user = getUser();
+        Long userId = 1L;
+        User user = getUser(userId);
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
 
-        User resultUser = userService.getUserById(USER_ID);
+        User resultUser = userService.getUserById(userId);
 
         assertNotNull(resultUser);
         assertEquals("Name", resultUser.getUsername());
@@ -39,13 +40,18 @@ class UserServiceTest {
     @Test
     @DisplayName("testing get NOT existing user entity by id")
     public void testGetAnAbsentUserById() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+        Long userId = 1L;
+        String expected = format(UserService.USER_NOT_FOUND, userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserNotFoundException result = assertThrows(
+                UserNotFoundException.class, () -> userService.getUserById(1L));
+        assertEquals(expected, result.getMessage());
     }
 
-    private User getUser() {
+    private User getUser(Long userId) {
         return User.builder()
-                .id(USER_ID)
+                .id(userId)
                 .username("Name")
                 .build();
     }
