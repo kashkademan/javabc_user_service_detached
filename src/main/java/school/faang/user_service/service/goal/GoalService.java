@@ -10,10 +10,10 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.filter.goal.*;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.filter.goal.GoalFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,7 +24,15 @@ public class GoalService {
     private final int MAX_ACTIVE_GOALS = 3;
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
-    private final List<GoalFilter> filters;
+    private final List<GoalFilter> filters = List.of(
+            new CreatedAtFilter(),
+            new DeadlineFilter(),
+            new GoalStatusFilter(),
+            new MentorIdFilter(),
+            new TittleFilter(),
+            new UpdatedAtFilter()
+    );
+
     private final GoalMapper goalMapper;
 
     @Transactional
@@ -45,14 +53,7 @@ public class GoalService {
             goalRepository.addSkillToGoal(skill, savedGoal.getId());
         }
 
-        return new GoalDto(
-                savedGoal.getId(),
-                savedGoal.getDescription(),
-                savedGoal.getParent() != null ? savedGoal.getParent().getId() : null,
-                savedGoal.getTitle(),
-                savedGoal.getStatus(),
-                request.skillIds()
-        );
+        return goalMapper.toDto(savedGoal);
     }
 
     @Transactional
@@ -89,14 +90,7 @@ public class GoalService {
             }
         }
 
-        return new GoalDto(
-                existingGoal.getId(),
-                existingGoal.getDescription(),
-                existingGoal.getParent() != null ? existingGoal.getParent().getId() : null,
-                existingGoal.getTitle(),
-                existingGoal.getStatus(),
-                goalDto.skillIds()
-        );
+        return goalMapper.toDto(existingGoal);
     }
 
     @Transactional
