@@ -79,6 +79,18 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseDto entityNotFoundHandler(EntityNotFoundException e) {
+        log.error("EntityNotFoundException {}", e.getMessage());
+        return new ErrorResponseDto(
+                HttpStatus.NOT_FOUND.name(),
+                "Entity not found",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponseDto illegalStateHandler(IllegalStateException e) {
