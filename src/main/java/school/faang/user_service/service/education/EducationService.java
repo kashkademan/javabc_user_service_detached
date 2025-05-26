@@ -8,7 +8,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.adapter.EducationRepositoryAdapter;
-import school.faang.user_service.repository.user.UserRepositoryAdapter;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.Objects;
