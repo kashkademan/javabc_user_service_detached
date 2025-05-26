@@ -1,6 +1,5 @@
 package school.faang.user_service.service.event;
 
-import com.amazonaws.services.s3.model.Owner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +12,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
-import school.faang.user_service.service.skill.SkillService;
 
 import java.util.List;
 import java.util.stream.Stream;
