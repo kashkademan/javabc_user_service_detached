@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -337,7 +338,7 @@ class GoalServiceImplTest {
         assertTrue(existingGoal.getUpdatedAt().isAfter(LocalDateTime.of(2025, 1, 1, 0, 0)));
 
         verify(goalRepository).findById(goalId);
-        verify(skillRepository).findAllById(updateDto.getSkillIds());
+        verify(skillRepository, times(2)).findAllById(updateDto.getSkillIds());
         verify(goalMapper).updateGoalFromDto(updateDto, existingGoal);
         verify(goalRepository).save(existingGoal);
         verify(userRepository, never()).saveAllAndFlush(any());
@@ -385,7 +386,7 @@ class GoalServiceImplTest {
         long goalId = 42L;
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> goalService.deleteGoal(goalId));
+        assertThrows(EntityNotFoundException.class, () -> goalService.deleteGoal(goalId));
 
         verify(goalRepository).findById(goalId);
         verify(goalRepository, never()).delete(any());

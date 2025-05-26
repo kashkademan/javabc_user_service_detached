@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,10 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalService;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -71,7 +75,7 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
         Goal goalToUpdate = goalRepository.findById(goalId)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         boolean goalWasCompleted = goalToUpdate.getStatus() == GoalStatus.COMPLETED;
         boolean goalSetCompleted = goalDto.getStatus() == GoalStatus.COMPLETED;
@@ -129,7 +133,7 @@ public class GoalServiceImpl implements GoalService {
     @Transactional
     public GoalDto deleteGoal(long goalId) {
         Goal goalToDelete = goalRepository.findById(goalId)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(EntityNotFoundException::new);
         deleteGoalCascade(goalToDelete);
         goalRepository.delete(goalToDelete);
 
@@ -178,7 +182,7 @@ public class GoalServiceImpl implements GoalService {
 
     private User addGoalToUser(Long userId, Goal createdGoal) {
         User userById = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User id: " + userId));
         return addGoalToUser(userById, createdGoal);
     }
 
