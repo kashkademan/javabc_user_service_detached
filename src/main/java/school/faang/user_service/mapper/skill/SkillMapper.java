@@ -6,9 +6,9 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillCreateRequestDto;
 import school.faang.user_service.dto.skill.SkillResponseDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.skill.UserSkillGuarantee;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 

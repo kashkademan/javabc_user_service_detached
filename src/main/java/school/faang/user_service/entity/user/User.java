@@ -1,10 +1,11 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.user;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,8 +22,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.Career;
+import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.Education;
+import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.WorkSchedule;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
@@ -33,6 +42,7 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -167,4 +177,8 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<Promotion> promotions = new ArrayList<>();
 }

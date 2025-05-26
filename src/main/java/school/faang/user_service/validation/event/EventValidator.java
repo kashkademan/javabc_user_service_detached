@@ -2,7 +2,7 @@ package school.faang.user_service.validation.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.service.skill.SkillService;
 

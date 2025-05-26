@@ -11,7 +11,7 @@ import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.model.event.EventFilter;
 

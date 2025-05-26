@@ -3,7 +3,7 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 
 import java.util.List;
 import java.util.Optional;

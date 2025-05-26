@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillCreateRequestDto;
 import school.faang.user_service.dto.skill.SkillResponseDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.service.skill.SkillService;
 

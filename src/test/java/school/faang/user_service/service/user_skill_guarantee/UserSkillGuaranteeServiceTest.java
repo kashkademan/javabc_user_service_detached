@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.skill.UserSkillGuarantee;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
 import java.util.ArrayList;
