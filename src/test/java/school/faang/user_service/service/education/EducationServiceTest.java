@@ -180,7 +180,7 @@ public class EducationServiceTest {
         educationDto.setEducationLevel("Bachelor");
         educationDto.setSpecialization("Computer Science");
 
-        when(userService.getUserById(educationDto.getId()))
+        when(educationRepositoryAdapter.getById(educationDto.getId()))
                 .thenThrow(new EntityNotFoundException("Education not found with id:" + educationDto.getId()));
 
         assertThrows(EntityNotFoundException.class,
@@ -212,9 +212,9 @@ public class EducationServiceTest {
                 .educationLevel("Bachelor")
                 .specialization("Computer Science")
                 .user(owner).build();
+        when(educationRepositoryAdapter.getById(educationDto.getId()))
+                .thenReturn(existingEducation);
 
-        when(userService.getUserById(educationDto.getId()))
-                .thenThrow(new DataValidationException("Education not owned by user with id:" + userId));
 
         assertThrows(DataValidationException.class,
                 () -> educationService.updateEducation(userId, educationDto));
