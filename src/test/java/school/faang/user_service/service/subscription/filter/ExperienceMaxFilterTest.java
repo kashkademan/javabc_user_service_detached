@@ -11,13 +11,13 @@ public class ExperienceMaxFilterTest {
 
     @Test
     public void testIsApplicable_WhenZero() {
-        boolean result = filter.isApplicable(new UserDtoFilter("NN","947",0,0));
+        boolean result = filter.isApplicable(new UserDtoFilter("NN", "947", 0, 0));
         Assertions.assertFalse(result);
     }
 
     @Test
     public void testIsApplicable_CorrectParams() {
-        boolean result = filter.isApplicable(new UserDtoFilter("NN","947",1,2));
+        boolean result = filter.isApplicable(new UserDtoFilter("NN", "947", 1, 2));
         Assertions.assertTrue(result);
     }
 
@@ -25,17 +25,18 @@ public class ExperienceMaxFilterTest {
     public void testFilterUsers_Success() {
         User user = new User();
         user.setExperience(5);
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN","947",1,10);
-        boolean result = filter.filterUsers(user,userDtoFilter);
+        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 1, 10);
+        boolean result = filter.filterUsers(user, userDtoFilter);
         Assertions.assertTrue(result);
     }
+
     @Test
     public void testFilterUsers_Failure() {
         User user = new User();
         user.setExperience(10);
-        UserDtoFilter userDtoFilter = new UserDtoFilter("NN","947",6,2);
-        boolean result = filter.filterUsers(user,userDtoFilter);
+        UserDtoFilter userDtoFilter = new UserDtoFilter("NN", "947", 6, 2);
+        boolean result = filter.filterUsers(user, userDtoFilter);
         Assertions.assertFalse(result);
     }
-    
+
 }

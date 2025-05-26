@@ -21,11 +21,11 @@ public class UserDto {
     private String email;
     @NotNull
     private List<UserDto> mentors;
-    @NotNull
+
     private String aboutMe;
-    @NotNull
+
     private Integer experience;
-    @NotNull
+
     private String phone;
 }
 

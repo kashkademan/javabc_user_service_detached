@@ -47,7 +47,8 @@ public class SubscriptionServiceTest {
 
     private static final long FOLLOWER_ID = 1L;
     private static final long FOLLOWEE_ID = 2L;
-    private final  UserDtoFilter userDtoFilterCorrect = new UserDtoFilter("NN", "947", 3, 10);
+    private final UserDtoFilter userDtoFilterCorrect = new UserDtoFilter("NN", "947", 3, 10);
+
     @Test
     void testUserFollowed_BothExist() {
         bothExist();
@@ -103,7 +104,7 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()>filter.getExperienceMin();
+            return user.getExperience() > filter.getExperienceMin();
         });
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
@@ -130,7 +131,7 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()<filter.getExperienceMax();
+            return user.getExperience() < filter.getExperienceMax();
         });
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilterCorrect));
     }
@@ -227,13 +228,13 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()>filter.getExperienceMin();
+            return user.getExperience() > filter.getExperienceMin();
         });
 
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()<filter.getExperienceMax();
+            return user.getExperience() < filter.getExperienceMax();
         });
 
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
@@ -243,8 +244,8 @@ public class SubscriptionServiceTest {
         });
 
         when(userFilterStrategyForPhoneNumber.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
-          User user = invocation.getArgument(0);
-          UserDtoFilter filter = invocation.getArgument(1);
+            User user = invocation.getArgument(0);
+            UserDtoFilter filter = invocation.getArgument(1);
             return user.getPhone().equals(filter.getPhonePattern());
         });
 
@@ -304,13 +305,13 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()>filter.getExperienceMin();
+            return user.getExperience() > filter.getExperienceMin();
         });
 
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()<filter.getExperienceMax();
+            return user.getExperience() < filter.getExperienceMax();
         });
 
         when(userFilterStrategyForName.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
@@ -357,7 +358,7 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMin.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()>filter.getExperienceMin();
+            return user.getExperience() > filter.getExperienceMin();
         });
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
@@ -385,7 +386,7 @@ public class SubscriptionServiceTest {
         when(userFilterStrategyForExpMax.filterUsers(any(User.class), any(UserDtoFilter.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             UserDtoFilter filter = invocation.getArgument(1);
-            return user.getExperience()<filter.getExperienceMax();
+            return user.getExperience() < filter.getExperienceMax();
         });
         Assertions.assertThrows(DataValidationException.class, () -> subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilterCorrect));
     }
@@ -446,7 +447,7 @@ public class SubscriptionServiceTest {
     }
 
     @Test
-    public void testGetFollowingCount(){
+    public void testGetFollowingCount() {
         followerExists();
         when(subscriptionRepository.findFolloweesAmountByFollowerId(FOLLOWER_ID)).thenReturn(5);
         int count = subscriptionService.getFollowingCount(FOLLOWER_ID);

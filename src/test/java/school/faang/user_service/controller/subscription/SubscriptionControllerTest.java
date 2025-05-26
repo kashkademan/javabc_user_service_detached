@@ -1,11 +1,11 @@
-package school.faang.user_service.service.subscription.controller;
+package school.faang.user_service.controller.subscription;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.controller.subscription.SubscriptionController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserDtoFilter;
 import school.faang.user_service.service.SubscriptionService;
@@ -27,13 +27,17 @@ public class SubscriptionControllerTest {
 
     private static final long FOLLOWER_ID = 1L;
     private static final long FOLLOWEE_ID = 2L;
-    private static final List <UserDto> dtoList = List.of(
+    private static final List<UserDto> dtoList = List.of(
             UserDto.builder().build(),
             UserDto.builder().build()
     );
 
     private UserDtoFilter userDtoFilter;
 
+    @BeforeEach
+    void setUp() {
+        userDtoFilter = new UserDtoFilter("NN", "947", 1, 10);
+    }
 
     @Test
     void testFollowUser_Success() {
@@ -49,11 +53,10 @@ public class SubscriptionControllerTest {
 
     @Test
     void testGetFollowers_Success() {
-        userDtoFilter = new UserDtoFilter("NN","947",1,10);
-        when(subscriptionService.getFollowers(FOLLOWEE_ID,userDtoFilter)).thenReturn(dtoList);
-        List<UserDto> result = subscriptionController.getFollowers(FOLLOWEE_ID,userDtoFilter);
+        when(subscriptionService.getFollowers(FOLLOWEE_ID, userDtoFilter)).thenReturn(dtoList);
+        List<UserDto> result = subscriptionController.getFollowers(FOLLOWEE_ID, userDtoFilter);
         assertEquals(dtoList, result);
-        verify(subscriptionService, times(1)).getFollowers(FOLLOWEE_ID,userDtoFilter);
+        verify(subscriptionService, times(1)).getFollowers(FOLLOWEE_ID, userDtoFilter);
     }
 
     @Test
@@ -63,7 +66,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    void getFollowerCountTest(){
+    void test_getFollowersCount_whenOneFromRepo_thenOneFromService() {
         int expected = 1;
         when(subscriptionService.getFollowerCount(FOLLOWER_ID)).thenReturn(expected);
         int result = subscriptionController.getFollowerCount(FOLLOWER_ID);
@@ -71,16 +74,15 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    void getFollowingTest(){
-        userDtoFilter = new UserDtoFilter("NN","947",1,10);
-        when(subscriptionService.getFollowing(FOLLOWER_ID,userDtoFilter)).thenReturn(dtoList);
-        List<UserDto> result = subscriptionController.getFollowing(FOLLOWER_ID,userDtoFilter);
+    void test_getFollowing_when_TwoEmptyDTOsGivenInTheList_ListOfTwoReturned() {
+        when(subscriptionService.getFollowing(FOLLOWER_ID, userDtoFilter)).thenReturn(dtoList);
+        List<UserDto> result = subscriptionController.getFollowing(FOLLOWER_ID, userDtoFilter);
         assertEquals(dtoList, result);
-        verify(subscriptionService, times(1)).getFollowing(FOLLOWER_ID,userDtoFilter);
+        verify(subscriptionService, times(1)).getFollowing(FOLLOWER_ID, userDtoFilter);
     }
 
     @Test
-    void getFollowingCountTest(){
+    void test_GetFollowing_whenOneFromRepo_ThenOneFromService() {
         int expected = 1;
         when(subscriptionService.getFollowingCount(FOLLOWER_ID)).thenReturn(expected);
         int result = subscriptionController.getFollowingCount(FOLLOWER_ID);
