@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.service.GoalService;
 
 import java.util.List;
@@ -14,9 +13,9 @@ import java.util.List;
 public class GoalController {
     private final GoalService goalService;
 
-    public GoalDto createGoal(Long userId, Goal goal) {
-        if (goal.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
-        return goalService.createGoal(userId, goal);
+    public GoalDto createGoal(Long userId, GoalDto goalDto) {
+        if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
+        return goalService.createGoal(userId, goalDto);
     }
 
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {

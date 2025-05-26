@@ -12,6 +12,7 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
@@ -92,8 +93,8 @@ class GoalServiceImplTest {
         user.setId(userId);
         user.setUsername("test_user");
 
-        Goal newActiveGoal = new Goal();
-        newActiveGoal.setStatus(GoalStatus.ACTIVE);
+        GoalDto newActiveGoalDto = new GoalDto();
+        newActiveGoalDto.setStatus(GoalStatus.ACTIVE);
 
         Goal activeGoal1 = new Goal();
         activeGoal1.setStatus(GoalStatus.ACTIVE);
@@ -105,15 +106,11 @@ class GoalServiceImplTest {
         when(goalRepository.findGoalsByUserId(userId))
                 .thenReturn(Stream.of(activeGoal1, activeGoal2, activeGoal3));
 
-        assertThrows(UserServiceException.class, () ->
-                goalService.createGoal(userId, newActiveGoal)
+        UserServiceException exception = assertThrows(UserServiceException.class, () ->
+                goalService.createGoal(userId, newActiveGoalDto)
         );
 
-//        IllegalArgumentException exception = assertThrows(UserServiceException.class, () ->
-//                goalService.createGoal(userId, newActiveGoal)
-//        );
-
-//        assertEquals("User id: %d has Maximum allowed active goals - %d" + 3, exception.getMessage());
+        assertEquals("User id: %d has Maximum allowed active goals - %d".formatted(userId, 3), exception.getMessage());
 
         verify(goalRepository, never()).saveAndFlush(any());
     }
@@ -131,30 +128,33 @@ class GoalServiceImplTest {
         Goal parent = new Goal();
         parent.setId(parentId);
 
+        List<Long> skillsIds = List.of(1L, 2L, 3L);
+
         String title = "New Goal";
         String description = "Description";
-        Goal newGoal = new Goal();
-        newGoal.setTitle(title);
-        newGoal.setDescription(description);
-        newGoal.setStatus(GoalStatus.ACTIVE);
-        newGoal.setParent(parent);
-        newGoal.setSkillsToAchieve(new ArrayList<>());
+        GoalDto newGoalDto = new GoalDto();
+        newGoalDto.setTitle(title);
+        newGoalDto.setDescription(description);
+        newGoalDto.setStatus(GoalStatus.ACTIVE);
+        newGoalDto.setParentId(parentId);
+        newGoalDto.setSkillIds(skillsIds);
 
         Goal savedGoal = new Goal();
         savedGoal.setId(100L);
         savedGoal.setTitle("New Goal");
         savedGoal.setDescription("Description");
         savedGoal.setStatus(GoalStatus.ACTIVE);
-        newGoal.setParent(parent);
+        savedGoal.setParent(parent);
         savedGoal.setUsers(List.of(user));
         savedGoal.setSkillsToAchieve(new ArrayList<>());
 
         when(goalRepository.findGoalsByUserId(userId)).thenReturn(Stream.of());
         when(goalRepository.create(title, description, parentId)).thenReturn(savedGoal);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(skillRepository.countExisting(skillsIds)).thenReturn(skillsIds.size());
         when(skillRepository.saveAllAndFlush(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        GoalDto result = goalService.createGoal(userId, newGoal);
+        GoalDto result = goalService.createGoal(userId, newGoalDto);
 
         assertEquals(savedGoal.getId(), result.getId());
 
@@ -180,24 +180,23 @@ class GoalServiceImplTest {
         Goal parent = new Goal();
         parent.setId(parentId);
 
-        Goal goalWithUnknownSkills = new Goal();
+        GoalDto goalWithUnknownSkills = new GoalDto();
         goalWithUnknownSkills.setTitle("Test Goal");
         goalWithUnknownSkills.setDescription("Testing skill validation");
         goalWithUnknownSkills.setStatus(GoalStatus.ACTIVE);
-        goalWithUnknownSkills.setParent(parent);
-        goalWithUnknownSkills.setSkillsToAchieve(List.of(skill1, skill2));
+        goalWithUnknownSkills.setParentId(parentId);
+        goalWithUnknownSkills.setSkillIds(List.of(1L, 2L));
 
         when(goalRepository.findGoalsByUserId(userId)).thenReturn(Stream.of());
-        when(skillRepository.findAllByUserId(userId)).thenReturn(List.of(skill1)); // skill2 отсутствует
+        when(skillRepository.countExisting(List.of(1L, 2L))).thenReturn(1); // skill2 отсутствует
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 goalService.createGoal(userId, goalWithUnknownSkills)
         );
-
-        assertTrue(exception.getMessage().contains("User hasn't required skills for the goal: "));
+        assertTrue(exception.getMessage().contains("Not existing skill ids provided"));
 
         verify(goalRepository, never()).create(anyString(), anyString(), any());
-        verify(skillRepository, times(1)).findAllByUserId(userId);
+        verify(skillRepository, times(1)).countExisting(List.of(1L, 2L));
     }
 
     @Test
@@ -213,12 +212,12 @@ class GoalServiceImplTest {
         Goal parent = new Goal();
         parent.setId(parentId);
 
-        Goal newGoal = new Goal();
-        newGoal.setTitle("Test Goal");
-        newGoal.setDescription("Test Description");
-        newGoal.setStatus(GoalStatus.ACTIVE);
-        newGoal.setParent(parent);
-        newGoal.setSkillsToAchieve(Collections.emptyList());
+        GoalDto newGoalDto = new GoalDto();
+        newGoalDto.setTitle("Test Goal");
+        newGoalDto.setDescription("Test Description");
+        newGoalDto.setStatus(GoalStatus.ACTIVE);
+        newGoalDto.setParentId(parentId);
+        newGoalDto.setSkillIds(Collections.emptyList());
 
         Goal createdGoal = new Goal();
         createdGoal.setId(10L);
@@ -231,15 +230,15 @@ class GoalServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(goalRepository.findGoalsByUserId(userId)).thenReturn(Stream.of());
-        when(goalRepository.create(newGoal.getTitle(), newGoal.getDescription(), parentId)).thenReturn(createdGoal);
+        when(goalRepository.create(newGoalDto.getTitle(), newGoalDto.getDescription(), parentId)).thenReturn(createdGoal);
         when(skillRepository.saveAllAndFlush(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        goalService.createGoal(userId, newGoal);
+        goalService.createGoal(userId, newGoalDto);
 
         assertEquals(createdGoal, user.getGoals().get(0));
 
         verify(userRepository).findById(userId);
-        verify(goalRepository).create(newGoal.getTitle(), newGoal.getDescription(), parentId);
+        verify(goalRepository).create(newGoalDto.getTitle(), newGoalDto.getDescription(), parentId);
         verify(skillRepository).saveAllAndFlush(Collections.emptyList());
     }
 
@@ -414,7 +413,9 @@ class GoalServiceImplTest {
         skill.setGoals(new ArrayList<>(List.of(goal)));
         goal.setSkillsToAchieve(List.of(skill));
 
-        goal.setInvitations(new ArrayList<>()); //TODO после мерджа 77371
+        GoalInvitation invitation = new GoalInvitation();
+        invitation.setGoal(goal);
+        goal.setInvitations(List.of(invitation));
 
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
         when(goalMapper.toGoalDTO(goal)).thenReturn(expectedToDelete);
@@ -423,12 +424,14 @@ class GoalServiceImplTest {
 
         assertFalse(user.getGoals().contains(goal));
         assertFalse(skill.getGoals().contains(goal));
+        assertNull(invitation.getGoal());
         assertEquals(expectedToDelete, result);
 
         verify(goalRepository).findById(goalId);
         verify(goalRepository).delete(goal);
         verify(userRepository).saveAllAndFlush(List.of(user));
         verify(skillRepository).saveAllAndFlush(List.of(skill));
+        verify(goalInvitationRepository).saveAllAndFlush(List.of(invitation));
         verify(goalMapper, atLeastOnce()).toGoalDTO(goal);
     }
 

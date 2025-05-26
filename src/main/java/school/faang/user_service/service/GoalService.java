@@ -2,12 +2,11 @@ package school.faang.user_service.service;
 
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.goal.Goal;
 
 import java.util.List;
 
 public interface GoalService {
-    GoalDto createGoal(Long userId, Goal goal);
+    GoalDto createGoal(Long userId, GoalDto goalDto);
 
     GoalDto updateGoal(Long goalId, GoalDto goalDto);
 

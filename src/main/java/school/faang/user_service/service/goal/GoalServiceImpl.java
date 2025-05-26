@@ -40,7 +40,7 @@ public class GoalServiceImpl implements GoalService {
     private final List<GoalFilter> goalFilters;
 
     @Override
-    public GoalDto createGoal(Long userId, Goal goal) {
+    public GoalDto createGoal(Long userId, GoalDto goalDto) {
         long usersActiveGoals = goalRepository.findGoalsByUserId(userId)
                 .filter(g -> GoalStatus.ACTIVE == g.getStatus())
                 .count();
@@ -52,18 +52,15 @@ public class GoalServiceImpl implements GoalService {
                             maximumAllowedActiveGoals));
         }
 
-        List<Skill> skillsOfUser = skillRepository.findAllByUserId(userId);
-        List<Skill> missingSkills = goal.getSkillsToAchieve().stream()
-                .filter(skillsOfUser::contains)
-                .toList();
-
-        if (!missingSkills.isEmpty()) {
-            throw new IllegalArgumentException("User hasn't required skills for the goal: " + missingSkills);
+        int existing = skillRepository.countExisting(goalDto.getSkillIds());
+        if (existing < goalDto.getSkillIds().size()) {
+            throw new IllegalArgumentException("Not existing skill ids provided");
         }
+
         Goal createdGoal = goalRepository.create(
-                goal.getTitle(),
-                goal.getDescription(),
-                goal.getParent().getId()
+                goalDto.getTitle(),
+                goalDto.getDescription(),
+                goalDto.getParentId()
         );
 
         addGoalToUser(userId, createdGoal);
