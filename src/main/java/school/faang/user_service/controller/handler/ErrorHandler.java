@@ -84,7 +84,7 @@ public class ErrorHandler {
     public ErrorResponseDto illegalStateHandler(IllegalStateException e) {
         log.error("IllegalStateException {}", e.getMessage());
         return new ErrorResponseDto(
-                HttpStatus.CREATED.name(),
+                HttpStatus.CONFLICT.name(),
                 "Invalid operation state",
                 e.getMessage(),
                 LocalDateTime.now().format(formatter)
