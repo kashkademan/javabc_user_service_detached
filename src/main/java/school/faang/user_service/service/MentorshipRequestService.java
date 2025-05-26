@@ -25,7 +25,7 @@ public class MentorshipRequestService {
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipResponseMapper mentorshipResponseMapper;
-    private final List<MentorshipValidator> validators;
+    private final List<MentorshipValidator<MentorshipRequestDto>> validators;
     private final List<MentorshipFilter> filters;
 
     @Transactional
