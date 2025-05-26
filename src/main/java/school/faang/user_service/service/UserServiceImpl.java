@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.AchievementEventDto;
 import school.faang.user_service.dto.CreateUserDto;
+import school.faang.user_service.dto.NotificationUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.event.FollowEventDto;
 import school.faang.user_service.entity.User;
@@ -113,6 +114,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public NotificationUserDto getNotificationUser(long userId) {
+        var user = findUserById(userId);
+
+        return userMapper.toNotificationUserDto(user);
+    }
+
+    @Override
     public List<UserDto> getUsersByIds(List<Long> ids) {
         var users = userRepository.findAllById(ids);
 
@@ -149,7 +157,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(savedUser);
     }
 
-    @Override
+    /*@Override
     @Transactional
     public void followUser(long followeeId, long followerId) {
         User follower = userRepository.findById(followerId).orElseThrow(() ->
@@ -161,7 +169,7 @@ public class UserServiceImpl implements UserService {
 
         FollowEventDto followEvent = new FollowEventDto(followeeId, followerId);
         eventPublisher.publish(followEvent);
-    }
+    }*/
 
     private void uploadFileToS3Storage(String resourceKey) {
         var imageData = avatarGeneratorService.getRandomAvatar();

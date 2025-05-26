@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.CreateUserDto;
+import school.faang.user_service.dto.NotificationUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ExternalResourceNotFoundException;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+
 @RequestMapping("api/v1/users")
 @Tag(name = "User API", description = "Super API to interact with users table")
 public class UserController {
@@ -37,6 +39,12 @@ public class UserController {
     @Operation(summary = "Get user by id", description = "Returns a user DTO")
     public UserDto getUser(@PathVariable long userId) {
         return userService.getUser(userId);
+    }
+
+    @GetMapping("/{userId}/notification")
+    @Operation(summary = "Get user by id", description = "Returns a user DTO")
+    public NotificationUserDto getNotificationUser(@PathVariable long userId) {
+        return userService.getNotificationUser(userId);
     }
 
     @PostMapping("/by-ids")

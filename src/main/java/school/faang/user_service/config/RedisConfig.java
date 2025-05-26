@@ -36,13 +36,26 @@ public class RedisConfig {
         return new JedisConnectionFactory(configuration);
     }
 
-    @Bean
+ /*   @Bean
     public RedisTemplate<String, Object> redisTemplate(
             JedisConnectionFactory jedisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory);
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer()); //проблема из-за того, что GenericJackson2JsonRedisSerializer использует @JsonTypeInfo внутри — он добавляет @class метаданные.
         template.setKeySerializer(new StringRedisSerializer());
+        return template;
+    }*/
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory,
+                                                       ObjectMapper objectMapper) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(jedisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        template.setValueSerializer(serializer);
+
+        template.afterPropertiesSet();
         return template;
     }
 

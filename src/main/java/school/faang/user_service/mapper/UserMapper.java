@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.CreateUserDto;
+import school.faang.user_service.dto.NotificationUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
@@ -17,6 +18,9 @@ public interface UserMapper {
 
     @Mapping(target = "fileId", source = "userProfilePic.fileId")
     UserDto toDto(User user);
+
+    @Mapping(target = "preference", source = "contactPreference.preference")
+    NotificationUserDto toNotificationUserDto (User user);
 
     User toEntity(CreateUserDto createUserDto);
 

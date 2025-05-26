@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import school.faang.user_service.dto.CreateUserDto;
+import school.faang.user_service.dto.NotificationUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
@@ -8,6 +9,8 @@ import java.util.List;
 
 public interface UserService {
     User getReferenceById(long userId);
+
+    NotificationUserDto getNotificationUser(long userId);
 
     long findUniqueIdByUsername(String username);
 
@@ -25,5 +28,5 @@ public interface UserService {
 
     UserDto createUser(CreateUserDto createUserDto);
 
-    void followUser(long followerId, long followeeId);
+   // void followUser(long followerId, long followeeId);
 }
