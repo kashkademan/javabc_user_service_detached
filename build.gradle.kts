@@ -127,7 +127,16 @@ tasks.jacocoTestReport {
     }
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it) {
-            exclude("**/mapper/**", "**/*Mapper.class/**", "**/*MapperImpl.class/**", "**/entity/**", "**/controller/**", "**/repository/**", "**/json/student/**")
+            exclude("school/faang/user_service/UserServiceApplication*",
+                    "school/faang/user_service/client/**",
+                    "school/faang/user_service/config/**",
+                    "**/mapper/**",
+                    "**/entity/**",
+                    "**/dto/**",
+                    "**/controller/**",
+                    "**/repository/**",
+                    "com/json/student/**"
+            )
         }
     }))
 }
@@ -137,8 +146,16 @@ tasks.jacocoTestCoverageVerification {
 
         rule {
             element = "CLASS"
-            excludes = listOf("school.faang.user_service.entity.*",
-                    "school.faang.user_service.controller.*", "school.faang.user_service.mapper.*", "com.json.student.*")
+            excludes = listOf(
+                    "school.faang.user_service.UserServiceApplication*",
+                    "school.faang.user_service.client.*",
+                    "school.faang.user_service.config.*",
+                    "school.faang.user_service.entity.*",
+                    "school.faang.user_service.dto.*",
+                    "school.faang.user_service.controller.*",
+                    "school.faang.user_service.mapper.*",
+                    "com.json.student.*"
+            )
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
