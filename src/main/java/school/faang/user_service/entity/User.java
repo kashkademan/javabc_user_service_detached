@@ -65,6 +65,9 @@ public class User {
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
