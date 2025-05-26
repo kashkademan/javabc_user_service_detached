@@ -3,6 +3,7 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -20,10 +21,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Service
@@ -40,6 +38,7 @@ public class GoalServiceImpl implements GoalService {
     private final List<GoalFilter> goalFilters;
 
     @Override
+    @Transactional
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
         long usersActiveGoals = goalRepository.findGoalsByUserId(userId)
                 .filter(g -> GoalStatus.ACTIVE == g.getStatus())
@@ -89,6 +88,15 @@ public class GoalServiceImpl implements GoalService {
             throw new IllegalArgumentException("Skill ids not exists: %s".formatted(missingSkillIds));
 
         goalMapper.updateGoalFromDto(goalDto, goalToUpdate);
+        Long parentId = goalDto.getParentId();
+        if (parentId != null) {
+            Optional<Goal> updatedParentOpt = goalRepository.findById(parentId);
+            updatedParentOpt.ifPresent(goalToUpdate::setParent);
+        }
+        List<Long> updatedSkillIds = goalDto.getSkillIds();
+        if (null != updatedSkillIds && !updatedSkillIds.isEmpty()) {
+            goalToUpdate.setSkillsToAchieve(skillRepository.findAllById(updatedSkillIds));
+        }
         goalToUpdate.setUpdatedAt(LocalDateTime.now());
         goalRepository.save(goalToUpdate);
 
@@ -118,11 +126,12 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public GoalDto deleteGoal(long goalId) {
         Goal goalToDelete = goalRepository.findById(goalId)
                 .orElseThrow(NoSuchElementException::new);
-        goalRepository.delete(goalToDelete);
         deleteGoalCascade(goalToDelete);
+        goalRepository.delete(goalToDelete);
 
         return goalMapper.toGoalDTO(goalToDelete);
     }
@@ -142,6 +151,7 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public List<GoalDto> findSubtasksByGoalId(long goalId, GoalFilterDto filter) {
         Stream<Goal> goalsByParent = goalRepository.findByParent(goalId);
         List<Goal> goals = filterGoals(goalsByParent, filter);
@@ -149,6 +159,7 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public List<GoalDto> findGoalsByUserId(Long userId, GoalFilterDto filter) {
         Stream<Goal> goalsByUserId = goalRepository.findGoalsByUserId(userId);
         List<Goal> goals = filterGoals(goalsByUserId, filter);

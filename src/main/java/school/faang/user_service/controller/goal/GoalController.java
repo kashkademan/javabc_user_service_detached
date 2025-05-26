@@ -1,37 +1,51 @@
 package school.faang.user_service.controller.goal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.GoalService;
 
 import java.util.List;
 
-@Controller
+@Slf4j
+@RestController
+@RequestMapping("/goal")
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
 
-    public GoalDto createGoal(Long userId, GoalDto goalDto) {
+    @PostMapping("/{userId}/create")
+    public GoalDto createGoal(@PathVariable Long userId, @RequestBody GoalDto goalDto) {
         if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
-        return goalService.createGoal(userId, goalDto);
+        GoalDto created = goalService.createGoal(userId, goalDto);
+        log.info("Goal was created for user {}. Id {}, title {}", userId, created.getId(), created.getTitle());
+        return created;
     }
 
-    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
+    @PutMapping("/{goalId}/update")
+    public GoalDto updateGoal(@PathVariable Long goalId, @RequestBody GoalDto goalDto) {
         if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
-        return goalService.updateGoal(goalId, goalDto);
+        GoalDto updated = goalService.updateGoal(goalId, goalDto);
+        log.info("Goal id {} was updated", updated.getId());
+        return updated;
     }
 
-    public GoalDto deleteGoal(long goalId) {
-        return goalService.deleteGoal(goalId);
+    @DeleteMapping("/{goalId}")
+    public GoalDto deleteGoal(@PathVariable Long goalId) {
+        GoalDto deleted = goalService.deleteGoal(goalId);
+        log.info("Goal was deleted, id {}, title {}", deleted.getId(), deleted.getTitle());
+        return deleted;
     }
 
-    public List<GoalDto> findSubtasksByGoalId(long goalId, GoalFilterDto filter) {
+    @PostMapping("/{goalId}/subtasks")
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable Long goalId, @RequestBody GoalFilterDto filter) {
         return goalService.findSubtasksByGoalId(goalId, filter);
     }
 
-    public List<GoalDto> getGoalsByUser(Long userId, GoalFilterDto filter) {
+    @PostMapping("/ofuser/{userId}")
+    public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @RequestBody GoalFilterDto filter) {
         return goalService.findGoalsByUserId(userId, filter);
     }
 }
