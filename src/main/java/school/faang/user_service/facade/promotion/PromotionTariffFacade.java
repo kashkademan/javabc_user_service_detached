@@ -21,7 +21,7 @@ public class PromotionTariffFacade {
 
         List<PromotionTariffResponseDto> promotionTariffResponseDtoList =
                 promotionTariffMapper.toPromotionTariffResponseDtoList(promotionTariffList);
-        log.debug("Mapping Promotion Tariff entity list to PromotionTariffResponseDto list." +
+        log.debug("Mapping Promotion tariff entity list to PromotionTariffResponseDto list." +
                         "Entity content: {}. DTO content: {}.", promotionTariffList, promotionTariffResponseDtoList);
         return promotionTariffResponseDtoList;
     }
