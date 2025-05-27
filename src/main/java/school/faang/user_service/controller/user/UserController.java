@@ -1,9 +1,11 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
@@ -27,5 +29,10 @@ public class UserController {
     @GetMapping("/{userId}/personal")
     public UserPersonalDto getUserPersonal(@PathVariable Long userId) {
         return userService.getUserPersonals(userId);
+    }
+
+    @PatchMapping("/{userId}/refresh")
+    public UserPersonalDto refreshUsersAvatar(@PathVariable Long userId){
+        return userService.refreshUsersAvatar(userId);
     }
 }

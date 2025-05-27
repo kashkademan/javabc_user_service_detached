@@ -10,4 +10,5 @@ public interface UserService {
     UserDto updateUser(UserDto userDto);
     List<UserDto> getUsersByIds(List<Long> userIds);
     UserPersonalDto getUserPersonals(Long userId);
+    UserPersonalDto refreshUsersAvatar(Long userId);
 }

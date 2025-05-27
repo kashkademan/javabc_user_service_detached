@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserPictureService;
@@ -54,14 +55,25 @@ public class UserServiceImpl implements UserService {
         User foundById = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
         UserPersonalDto userPersonalDto = userMapper.toUserPersonalDto(foundById);
-        if (null != foundById.getUserProfilePic()) {
-            userPersonalDto.setPictureFileId(foundById.getUserProfilePic().getFileId());
-            userPersonalDto.setPictureSmallFileId(foundById.getUserProfilePic().getSmallFileId());
-        }
+
         if (null == userPersonalDto.getPictureSmallFileId() || userPersonalDto.getPictureSmallFileId().isBlank()) {
             userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureSeed());
         }
 
         return userPersonalDto;
+    }
+
+    @Override
+    @Transactional
+    public UserPersonalDto refreshUsersAvatar(Long userId) {
+        User foundById = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+
+        UserProfilePic newProfilePic = pictureService.generateNewPictureAndReturn();
+        foundById.setUserProfilePic(newProfilePic);
+
+        User savedUser = userRepository.saveAndFlush(foundById);
+
+        return userMapper.toUserPersonalDto(savedUser);
     }
 }
