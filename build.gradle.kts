@@ -164,3 +164,8 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
+
+tasks.withType <Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
+}
