@@ -86,6 +86,7 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
