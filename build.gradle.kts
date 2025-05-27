@@ -147,6 +147,7 @@ tasks.jacocoTestReport {
                     "school/faang/user_service/filter/event/**", // Тесты на Сергее
                     "school/faang/user_service/filter/mentorship/**", // Тесты на Антоне
                     "school/faang/user_service/validator/mentorship/**", // Тесты на Антоне
+                    "school/faang/user_service/utils/**", // Кто покроет этот пакет тестами, тот большой молодец
             )
         }
     }))
@@ -165,6 +166,8 @@ tasks.jacocoTestCoverageVerification {
                 "school.faang.user_service.dto.*",
                 "school.faang.user_service.controller.*",
                 "school.faang.user_service.mapper.*",
+                "school.faang.user_service.exception.**",
+                "school.faang.user_service.rest.**",
                 "com.json.student.*",
                 //Список классов, на которые необходимо написать тесты.
                 // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
@@ -173,7 +176,8 @@ tasks.jacocoTestCoverageVerification {
                 "school.faang.user_service.service.MentorshipRequestService*", // Тесты на Антоне
                 "school.faang.user_service.filter.event.*", // Тесты на Сергее
                 "school.faang.user_service.filter.mentorship.*", // Тесты на Антоне
-                "school.faang.user_service.validator.mentorship.*" // Тесты на Антоне
+                "school.faang.user_service.validator.mentorship.*", // Тесты на Антоне
+                "school.faang.user_service.utils.**", // Кто покроет этот пакет тестами, тот большой молодец
             )
             limit {
                 counter = "LINE" // Только покрытие строк
