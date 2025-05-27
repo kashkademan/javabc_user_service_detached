@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -12,7 +13,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -26,44 +27,44 @@ public class RecommendationControllerTest {
     private RecommendationController recommendationController;
 
     @Test
-    public void testEmptyContent() {
+    public void validationTestEmptyContent() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(), LocalDateTime.now());
         assertThrows(DataValidationException.class,
                 () -> recommendationController.giveRecommendation(recommendationDto));
     }
 
     @Test
-    public void testGiveRecommendationGives() {
+    public void giveRecommendationTestGives() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "12", List.of(), LocalDateTime.now());
-        recommendationController.giveRecommendation(recommendationDto);
-        verify(recommendationService, times(1)).create(recommendationDto);
+        Mockito.when(recommendationService.create(recommendationDto)).thenReturn(recommendationDto);
+        assertEquals(recommendationDto, recommendationController.giveRecommendation(recommendationDto));
     }
 
     @Test
-    public void testUpdateRecommendationUpdates() {
+    public void updateRecommendationTestUpdates() {
         RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "12", List.of(), LocalDateTime.now());
-        recommendationController.updateRecommendation(recommendationDto);
-        verify(recommendationService, times(1)).update(recommendationDto);
+        Mockito.when(recommendationService.update(recommendationDto)).thenReturn(recommendationDto);
+        assertEquals(recommendationDto, recommendationController.updateRecommendation(recommendationDto));
     }
 
     @Test
-    public void testDeleteRecommendationDeletes() {
+    public void deleteRecommendationTestDeletes() {
         long id = 1;
         recommendationController.deleteRecommendation(id);
         verify(recommendationService, times(1)).delete(id);
     }
 
     @Test
-    public void testGetAllUserRecommendations() {
+    public void getAllUserRecommendationsTestGets() {
         long id = 1;
-        recommendationController.getAllUserRecommendations(id);
-        verify(recommendationService, times(1)).getAllUserRecommendations(id);
+        Mockito.when(recommendationService.getAllUserRecommendations(id)).thenReturn(List.of());
+        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id));
     }
 
     @Test
-    public void testAllGivenRecommendations() {
+    public void getAllGivenRecommendationsTestGets() {
         long id = 1;
-        recommendationController.getAllGivenRecommendations(id);
-        verify(recommendationService, times(1)).getAllGivenRecommendations(id);
+        Mockito.when(recommendationService.getAllGivenRecommendations(id)).thenReturn(List.of());
+        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id));
     }
 }
