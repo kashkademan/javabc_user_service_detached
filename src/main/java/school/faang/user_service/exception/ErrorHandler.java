@@ -14,16 +14,23 @@ import java.time.format.DateTimeFormatter;
 public class ErrorHandler {
     private static final DateTimeFormatter TIME_PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @ExceptionHandler
+    @ExceptionHandler({IllegalArgumentException.class, DataValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(IllegalArgumentException e) {
+    public ErrorResponse handleBadRequest(RuntimeException e) {
         log.error("Exception thrown: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now().format(TIME_PATTERN));
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(NotFoundException e) {
+        log.error("Exception thrown: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage(), LocalDateTime.now().format(TIME_PATTERN));
+    }
+
+    @ExceptionHandler({ConflictPlanException.class, RelatednessNotConfirmedException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflict(RuntimeException e) {
         log.error("Exception thrown: {}", e.getMessage());
         return new ErrorResponse(e.getMessage(), LocalDateTime.now().format(TIME_PATTERN));
     }
