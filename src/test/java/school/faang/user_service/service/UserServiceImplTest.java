@@ -5,28 +5,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user.UserServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
+    @Spy
+    private UserMapperImpl userMapper;
     @Mock
-    private UserMapper userMapper;
+    private UserPictureService pictureService;
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -99,10 +101,47 @@ public class UserServiceImplTest {
         intermediatePersonalDto.setId(userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
-        when(userMapper.toUserPersonalDto(testUser)).thenReturn(intermediatePersonalDto);
 
         assertEquals(expectedPersonalDto, userService.getUserPersonals(userId));
 
         verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    void testGetUserPersonalWithDefaultNotNull() {
+        long userId = 1L;
+
+        User testUser = new User();
+        testUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(pictureService.getDefaultPictureLink()).thenReturn("notNullValue");
+
+        UserPersonalDto userPersonals = userService.getUserPersonals(userId);
+        assertNotNull(userPersonals.getPictureSmallFileId());
+
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    void testPictureRefresh() {
+        long userId = 1L;
+
+        User testUser = new User();
+        testUser.setId(userId);
+
+        String notNullNewValue = "notNullNewValue";
+        UserProfilePic profilePic = new UserProfilePic();
+        profilePic.setSmallFileId(notNullNewValue);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(pictureService.generateNewPictureAndReturn()).thenReturn(profilePic);
+        when(userRepository.saveAndFlush(testUser)).thenReturn(testUser);
+
+        UserPersonalDto returnedDto = userService.refreshUsersAvatar(userId);
+        assertEquals(notNullNewValue, returnedDto.getPictureSmallFileId());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).saveAndFlush(any());
     }
 }

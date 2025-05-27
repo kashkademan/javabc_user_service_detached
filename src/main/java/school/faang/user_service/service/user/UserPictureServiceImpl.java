@@ -16,7 +16,7 @@ public class UserPictureServiceImpl implements UserPictureService {
     private String defaultSmallAvatarSeed;
 
     @Override
-    public String getDefaultPictureSeed() {
+    public String getDefaultPictureLink() {
         return smallPictureProviderRoot + '?' + defaultSmallAvatarSeed;
     }
 

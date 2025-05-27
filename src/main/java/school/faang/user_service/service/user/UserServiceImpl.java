@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         UserPersonalDto userPersonalDto = userMapper.toUserPersonalDto(foundById);
 
         if (null == userPersonalDto.getPictureSmallFileId() || userPersonalDto.getPictureSmallFileId().isBlank()) {
-            userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureSeed());
+            userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureLink());
         }
 
         return userPersonalDto;

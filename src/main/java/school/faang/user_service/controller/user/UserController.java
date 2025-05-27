@@ -1,15 +1,15 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
-import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -28,11 +28,18 @@ public class UserController {
 
     @GetMapping("/{userId}/personal")
     public UserPersonalDto getUserPersonal(@PathVariable Long userId) {
-        return userService.getUserPersonals(userId);
+        UserPersonalDto userPersonals = userService.getUserPersonals(userId);
+        log.debug("Personal info was provided for userid {}", userId);
+
+        return userPersonals;
     }
 
     @PatchMapping("/{userId}/refresh")
-    public UserPersonalDto refreshUsersAvatar(@PathVariable Long userId){
-        return userService.refreshUsersAvatar(userId);
+    public UserPersonalDto refreshUsersAvatar(@PathVariable Long userId) {
+        UserPersonalDto personalDto = userService.refreshUsersAvatar(userId);
+        log.debug("Personal photo was refreshed for userid {}, new avatar is {}",
+                userId, personalDto.getPictureSmallFileId());
+
+        return personalDto;
     }
 }
