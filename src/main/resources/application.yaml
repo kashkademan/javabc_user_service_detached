@@ -31,9 +31,31 @@ spring:
         skill-acquired: skill_acquired_channel
     kafka:
       bootstrap-servers: localhost:9092
-      group-id: user-service-group
       topic:
         userBan: user_ban
+        followers-request:
+          name: "post-followers-topic"
+          partitions: 3
+          replicas: 1
+        posts:
+          name: "posts-topic"
+          partitions: 3
+          replicas: 1
+        author-request:
+          name: "author-request-topic"
+          partitions: 3
+          replicas: 1
+        author-response:
+          name: "author-response-topic"
+          partitions: 3
+          replicas: 1
+      producer:
+        retry-backoff-ms: 1000
+        acks: all
+        enable-idempotence: true
+      consumer:
+        group-id: user-group
+        auto-offset-reset: earliest
 
   profiles:
     active: local

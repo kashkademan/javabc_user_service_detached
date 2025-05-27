@@ -29,7 +29,9 @@ public class GlobalExceptionHandler {
             FileSizeException.class,
             InvalidImageFormatException.class,
             MultipartException.class,
-            ConvertingDataException.class
+            ConvertingDataException.class,
+            JsonSerializationException.class,
+            JsonDeserializationException.class
     })
     public ResponseEntity<ErrorResponse> handleExceptionsWithStatusBadRequest(Exception ex) {
         return ResponseEntity.status(BAD_REQUEST).body(getErrorResponse(ex));

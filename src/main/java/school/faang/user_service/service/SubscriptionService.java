@@ -69,6 +69,7 @@ public class SubscriptionService {
         return repository.findFolloweesAmountByFollowerId(followerId);
     }
 
+    //TODO: этот метод нужно вызывать
     public List<Long> getFollowerIds(long followeeId) {
         return repository.findFollowerIdsByFolloweeId(followeeId);
     }
