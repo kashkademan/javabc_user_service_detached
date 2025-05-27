@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class NameFilter implements UserFilter {
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        return filters.namePattern() != null;
+        return filters.namePattern() != null && !filters.namePattern().isBlank();
     }
 
     @Override
