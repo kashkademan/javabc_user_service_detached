@@ -3,7 +3,10 @@ package school.faang.user_service.dto.event;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
@@ -12,6 +15,9 @@ import java.util.List;
 
 @Schema(description = "Event entity")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventDto {
     @Schema(description = "Unique id of event", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;

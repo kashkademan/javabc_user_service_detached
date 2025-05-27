@@ -7,7 +7,7 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exeption.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -67,7 +67,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDto> getOwnedEvents(long userId) {
-        return eventRepository.findAll().stream()
+        return eventRepository.findAllByUserId(userId).stream()
                 .map(eventMapper::toEventDto)
                 .toList();
     }
