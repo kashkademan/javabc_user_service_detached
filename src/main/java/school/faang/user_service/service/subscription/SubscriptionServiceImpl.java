@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserDtoFilter;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.subscription.UserFilterStrategy;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.SubscriptionService;
-import school.faang.user_service.filter.UserFilterCombination;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final UserFilterCombination filters;
+    private final List<UserFilterStrategy> strategies;
 
 
     @Override
@@ -41,7 +41,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void unfollowUser(long followerId, long followeeId) {
         validateUserExistance(followerId, followeeId);
         if (followerId == followeeId) {
-            throw new DataValidationException("You cannot subscribe to yourself");
+            throw new DataValidationException("You cannot unsubscribe from yourself");
         } else {
             subscriptionRepository.unfollowUser(followerId, followeeId);
         }
@@ -60,9 +60,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public int getFollowerCount(long followerId) {
-        validateUserExistance(followerId);
-        return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
+    public int getFollowerCount(long followeeId) {
+        validateUserExistance(followeeId);
+        return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
     @Override
@@ -100,8 +100,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private boolean filterUser(User user, UserDtoFilter userDtoFilter) {
-        return filters.getUserFilterStrategies().stream()
+        return strategies.stream()
                 .filter(strategy -> strategy.isApplicable(userDtoFilter))
                 .allMatch(strat -> strat.filterUsers(user, userDtoFilter));
     }
+
 }

@@ -1,18 +1,18 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filter.subscription;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDtoFilter;
 import school.faang.user_service.entity.User;
 
 @Component
-public class NamePatternFilter implements UserFilterStrategy {
+public class ExperienceMinFilter implements UserFilterStrategy {
     @Override
     public boolean filterUsers(User user, UserDtoFilter filter) {
-        return user.getAboutMe().contains(filter.getNamePattern());
+        return user.getExperience() >= filter.getExperienceMin();
     }
 
     @Override
     public boolean isApplicable(UserDtoFilter filter) {
-        return filter.getNamePattern() != null && !filter.getNamePattern().isEmpty();
+        return filter.getExperienceMin() != 0;
     }
 }
