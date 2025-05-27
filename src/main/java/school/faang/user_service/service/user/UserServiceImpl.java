@@ -9,6 +9,7 @@ import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
+    private final UserPictureService pictureService;
 
     @Override
     public UserDto findUserById(Long userId) {
@@ -54,6 +57,9 @@ public class UserServiceImpl implements UserService {
         if (null != foundById.getUserProfilePic()) {
             userPersonalDto.setPictureFileId(foundById.getUserProfilePic().getFileId());
             userPersonalDto.setPictureSmallFileId(foundById.getUserProfilePic().getSmallFileId());
+        }
+        if (null == userPersonalDto.getPictureSmallFileId() || userPersonalDto.getPictureSmallFileId().isBlank()) {
+            userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureSeed());
         }
 
         return userPersonalDto;
