@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +15,8 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.EventFilter;
+import school.faang.user_service.filter.event.EventStatusFilter;
+import school.faang.user_service.filter.event.EventTitleFilter;
 import school.faang.user_service.mapper.EventMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -37,7 +40,6 @@ import static org.mockito.Mockito.when;
 class EventServiceImplTest {
     public final static EventStatus STATUS_FOR_FILTER = EventStatus.COMPLETED;
     public final static String TITLE_FOR_FILTER = "Filtered title";
-
     private final static String DEFAULT_EVENT_TITLE = "Event title";
     private final static long USER_ID = 1L;
     private final static long FIRST_EVENT_ID = 2L;
@@ -49,8 +51,10 @@ class EventServiceImplTest {
     private UserRepository userRepository;
     @Spy
     private EventMapperImpl eventMapper;
-    private final EventFilter titleFilter = new TestTitleFilter();
-    private final EventFilter statusFilter = new TestStatusFilter();
+    @Spy
+    private EventTitleFilter titleFilter;
+    @Spy
+    private EventStatusFilter statusFilter;
     private EventService eventService;
 
     @BeforeEach
@@ -127,7 +131,7 @@ class EventServiceImplTest {
         secondEventDto.setEventStatus(STATUS_FOR_FILTER);
         when(eventRepository.findAll()).thenReturn(List.of(firstEvent, secondEvent));
 
-        List<EventDto> events = eventService.getEventsByFilter(EventFilterDto.builder().build());
+        List<EventDto> events = eventService.getEventsByFilter(EventFilterDto.builder().eventStatus(STATUS_FOR_FILTER).build());
 
         assertEquals(1, events.size());
         assertTrue(events.contains(secondEventDto));
