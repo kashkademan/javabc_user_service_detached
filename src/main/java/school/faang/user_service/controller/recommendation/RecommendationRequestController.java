@@ -1,7 +1,9 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
@@ -9,17 +11,14 @@ import school.faang.user_service.service.recommendation.RecommendationRequestSer
 
 import java.util.List;
 
+@Validated
 @Controller
 @RequiredArgsConstructor
 public class RecommendationRequestController {
 
     private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequestDto) {
-        if (recommendationRequestDto.getMessage().isEmpty()) {
-            throw new IllegalArgumentException("Recommendation request has empty message.");
-        }
-
+    public RecommendationRequestDto requestRecommendation(@Valid RecommendationRequestDto recommendationRequestDto) {
         return recommendationRequestService.create(recommendationRequestDto);
     }
 

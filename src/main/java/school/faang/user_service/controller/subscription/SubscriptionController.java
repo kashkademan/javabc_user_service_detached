@@ -1,6 +1,8 @@
 package school.faang.user_service.controller.subscription;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,7 @@ import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/followers/{followeeId}")
-    public List<UserDto> getFollowers(@PathVariable("followeeId") long followeeId, UserDtoFilter userDtoFilter) {
+    public List<UserDto> getFollowers(@PathVariable("followeeId") long followeeId, @Valid UserDtoFilter userDtoFilter) {
         return subscriptionService.getFollowers(followeeId, userDtoFilter);
     }
 
@@ -43,7 +46,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/{followerId}")
-    public List<UserDto> getFollowing(@PathVariable("followerId") long followerId, UserDtoFilter userDtoFilter) {
+    public List<UserDto> getFollowing(@PathVariable("followerId") long followerId, @Valid UserDtoFilter userDtoFilter) {
         return subscriptionService.getFollowing(followerId, userDtoFilter);
     }
 

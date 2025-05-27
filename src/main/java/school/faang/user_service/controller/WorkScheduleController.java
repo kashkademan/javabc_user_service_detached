@@ -1,11 +1,14 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.WorkScheduleDto;
 import school.faang.user_service.service.WorkScheduleService;
 import school.faang.user_service.util.WorkScheduleDtoValidator;
 
+@Validated
 @Controller
 @RequiredArgsConstructor
 public class WorkScheduleController {
@@ -13,12 +16,12 @@ public class WorkScheduleController {
     private final WorkScheduleService workScheduleService;
     private final WorkScheduleDtoValidator validator;
 
-    public WorkScheduleDto addWorkSchedule(Long userId, WorkScheduleDto workScheduleDto) {
+    public WorkScheduleDto addWorkSchedule(Long userId, @Valid WorkScheduleDto workScheduleDto) {
         validator.validateDto(workScheduleDto);
         return workScheduleService.addWorkSchedule(userId, workScheduleDto);
     }
 
-    public WorkScheduleDto updateWorkSchedule(Long userId, WorkScheduleDto workScheduleDto) {
+    public WorkScheduleDto updateWorkSchedule(Long userId, @Valid WorkScheduleDto workScheduleDto) {
         validator.validateDto(workScheduleDto);
         return workScheduleService.updateWorkSchedule(userId, workScheduleDto);
     }

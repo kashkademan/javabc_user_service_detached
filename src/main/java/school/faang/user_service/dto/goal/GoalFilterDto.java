@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.goal;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class GoalFilterDto {
 
+    @Size(max = 255)
     private String description;
+    @Size(max = 255)
     private String title;
     private GoalStatus status;
     private List<String> skillTitles;

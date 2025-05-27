@@ -50,35 +50,6 @@ class EventControllerTest {
     }
 
     @Test
-    void testCreate_whenEmptyTitle_thenThrowException() {
-        EventDto eventDto = createEventDto(null, USER_ID, null);
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
-
-        assertEquals("Title is required.", exception.getMessage());
-    }
-
-    @Test
-    void testCreate_withEmptyOwner_thenThrowException() {
-        String title = "Event title";
-        EventDto eventDto = createEventDto(null, null, title);
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
-
-        assertEquals("Owner is required.", exception.getMessage());
-    }
-
-    @Test
-    void testCreate_whenEmptyStartDate_thenThrowException() {
-        String title = "Event title";
-        EventDto eventDto = createEventDto(null, USER_ID, title, null);
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> eventController.create(eventDto));
-
-        assertEquals("Start date is required.", exception.getMessage());
-    }
-
-    @Test
     void testGetEvent_whenEventExists_thenReturnEvent() {
         String title = "Event title";
         EventDto eventDto = createEventDto(FIRST_EVENT_ID, USER_ID, title);

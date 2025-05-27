@@ -1,6 +1,8 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.util.recommendation.RecommendationValidatorUtil;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/recommendations")
 @RequiredArgsConstructor
@@ -22,16 +24,12 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public RecommendationDto giveRecommendation(@RequestBody RecommendationDto recommendation) {
-        RecommendationValidatorUtil.validate(recommendation);
-
+    public RecommendationDto giveRecommendation(@RequestBody @Valid RecommendationDto recommendation) {
         return recommendationService.create(recommendation);
     }
 
     @PutMapping
-    public RecommendationDto updateRecommendation(@RequestBody RecommendationDto updated) {
-        RecommendationValidatorUtil.validate(updated);
-
+    public RecommendationDto updateRecommendation(@RequestBody @Valid RecommendationDto updated) {
         return recommendationService.update(updated);
     }
 

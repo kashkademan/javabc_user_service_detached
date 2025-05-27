@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.EventService;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
+@Validated
 public class EventController {
     private final EventService eventService;
 
@@ -33,8 +35,7 @@ public class EventController {
             @ApiResponse(responseCode = "200", description = "Created successfully")
     })
     @PostMapping(value = {""})
-    public EventDto create(@RequestBody EventDto event) {
-        validateEventDto(event);
+    public EventDto create(@RequestBody @Valid EventDto event) {
         return eventService.create(event);
     }
 
@@ -46,7 +47,7 @@ public class EventController {
 
     @Operation(summary = "Get event by filter", description = "Get event by filter")
     @PostMapping(value = "/partial")
-    public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto eventFilterDto) {
+    public List<EventDto> getEventsByFilter(@RequestBody @Valid EventFilterDto eventFilterDto) {
         return eventService.getEventsByFilter(eventFilterDto);
     }
 
@@ -61,9 +62,7 @@ public class EventController {
 
     @Operation(summary = "Update event", description = "Update event")
     @PatchMapping(value = "/{eventId}")
-    public EventDto updateEvent(@RequestBody EventDto event) {
-        validateEventDto(event);
-
+    public EventDto updateEvent(@RequestBody @Valid EventDto event) {
         return eventService.updateEvent(event);
     }
 
@@ -79,19 +78,5 @@ public class EventController {
     @GetMapping(value = "/participant/{userId}")
     public List<EventDto> getParticipatedEvents(@PathVariable("userId") long userId) {
         return eventService.getParticipatedEvents(userId);
-    }
-
-    private void validateEventDto(EventDto event) {
-        if (event.getOwnerId() == null) {
-            throw new DataValidationException("Owner is required.");
-        }
-
-        if (event.getStartDate() == null) {
-            throw new DataValidationException("Start date is required.");
-        }
-
-        if (event.getTitle() == null) {
-            throw new DataValidationException("Title is required.");
-        }
     }
 }
