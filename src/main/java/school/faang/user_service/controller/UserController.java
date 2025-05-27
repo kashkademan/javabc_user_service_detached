@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/notification")
-    @Operation(summary = "Get user by id", description = "Returns a user DTO")
+    @Operation(summary = "Get user by id", description = "Returns NotificationUserDto type for NotificationService")
     public NotificationUserDto getNotificationUser(@PathVariable long userId) {
         return userService.getNotificationUser(userId);
     }
