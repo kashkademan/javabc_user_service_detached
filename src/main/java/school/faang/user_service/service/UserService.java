@@ -3,8 +3,10 @@ package school.faang.user_service.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.csv.model.person.Person;
@@ -61,6 +63,12 @@ public class UserService {
                 .forEach(this::createUserFromCsvDto);
 
         return response;
+    }
+
+    public Page<UserDto> getUsersByPage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findAll(pageable)
+                .map(userMapper::toUser);
     }
 
     private Country getOldOrNewCountry(String countryName) {

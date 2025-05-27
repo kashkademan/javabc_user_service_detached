@@ -102,6 +102,14 @@ public class SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
+    public List<Long> getFollowerIds(long followeeId) {
+        List<Long> followerIds = subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
+        if (followerIds.isEmpty()) {
+            log.warn("No followers found — possible non-existent user with id {}", followeeId);
+        }
+        return followerIds;
+    }
+
     private void validateSubscriptionOnYourself(long followerId, long followeeId, boolean isFollow) {
         if (followerId == followeeId) {
             ErrorMessage errorMessage = isFollow

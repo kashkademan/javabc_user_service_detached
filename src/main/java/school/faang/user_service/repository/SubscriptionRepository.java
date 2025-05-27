@@ -1,10 +1,12 @@
 package school.faang.user_service.repository;
 
+import feign.Param;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import school.faang.user_service.entity.User;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface SubscriptionRepository extends CrudRepository<User, Long> {
@@ -39,4 +41,7 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :followerId")
     int findFolloweesAmountByFollowerId(long followerId);
+
+    @Query(value = "SELECT follower_id FROM subscription WHERE followee_id = :followeeId", nativeQuery = true)
+    List<Long> findFollowerIdsByFolloweeId(@Param("followeeId") long followeeId);
 }

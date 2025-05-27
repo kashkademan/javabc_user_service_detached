@@ -68,4 +68,9 @@ public class SubscriptionController {
         int count = subscriptionService.getFollowingCount(followerId);
         return ResponseEntity.ok(count);
     }
+
+    @GetMapping("/{followeeId}/followers/ids")
+    public ResponseEntity<List<Long>> getFollowerIds(@PathVariable long followeeId) {
+        return ResponseEntity.ok(subscriptionService.getFollowerIds(followeeId));
+    }
 }

@@ -86,3 +86,7 @@ user-avatar:
   sizes:
     large: 1080
     small: 170
+
+pagination:
+  default-page: 0
+  default-size: 100
