@@ -20,7 +20,7 @@ public class MentorshipValidation {
             throw new DataValidationException("The mentor and the student cannot be null");
         }
 
-        if (Objects.equals(mentor, mentee)) {
+        if (Objects.equals(mentor.getId(), mentee.getId())) {
             throw new DataValidationException(
                     String.format("A user with ID=%d cannot be their own mentor", mentor.getId())
             );

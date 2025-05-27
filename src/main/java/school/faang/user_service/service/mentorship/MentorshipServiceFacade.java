@@ -27,5 +27,13 @@ public class MentorshipServiceFacade {
                 .map(MentorshipMapper::toMentorDto)
                 .toList();
     }
+
+    public void deleteMentee(long mentorId, long menteeId) {
+        mentorshipService.deleteMentee(mentorId,menteeId);
+    }
+
+    public void deleteMentor(long mentorId, long menteeId) {
+        mentorshipService.deleteMentor(mentorId, menteeId);
+    }
 }
 
