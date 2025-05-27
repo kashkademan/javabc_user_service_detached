@@ -8,7 +8,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RegisterParticipantRequestDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class EventParticipationServiceTest {
     private EventParticipationRepository eventParticipationRepository;
 
     @Spy
-    private UserMapper registerParticipantRequestMapper;
+    private UserMapperImpl registerParticipantRequestMapper;
 
     @InjectMocks
     private EventParticipationService eventParticipationService;
@@ -87,38 +87,34 @@ public class EventParticipationServiceTest {
 
     @Test
     public void testGetParticipantSuccess() {
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setUsername("user1");
-
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setUsername("user2");
+        User user1 = createUser(1L, "user1");
+        User user2 = createUser(2L, "user2");
 
         List<User> users = List.of(user1, user2);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
-
-        RegisterParticipantRequestDto dto1 = new RegisterParticipantRequestDto();
-        dto1.setId(1L);
-        RegisterParticipantRequestDto dto2 = new RegisterParticipantRequestDto();
-        dto2.setId(2L);
-
-        List<RegisterParticipantRequestDto> expectedDtoList = List.of(dto1, dto2);
-
-        when(registerParticipantRequestMapper.toRegisterParticipantRequestDtoList(users))
-                .thenReturn(expectedDtoList);
 
         List<RegisterParticipantRequestDto> actualDtoList = eventParticipationService.getParticipant(eventId);
 
         assertNotNull(actualDtoList);
         assertEquals(2, actualDtoList.size());
-        assertEquals(expectedDtoList, actualDtoList);
-        verify(eventParticipationRepository, times(1))
-                .findAllParticipantsByEventId(eventId);
-        verify(registerParticipantRequestMapper, times(1))
-                .toRegisterParticipantRequestDtoList(users);
+
+        assertEquals(user1.getId(), actualDtoList.get(0).getId());
+        assertEquals(user2.getId(), actualDtoList.get(1).getId());
+
         verifyNoMoreInteractions(eventParticipationRepository);
-        verifyNoMoreInteractions(registerParticipantRequestMapper);
+    }
+
+    private User createUser(Long id, String username) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(username);
+        return user;
+    }
+
+    private RegisterParticipantRequestDto createRegisterParticipantRequestDto(long id) {
+        RegisterParticipantRequestDto dto = new RegisterParticipantRequestDto();
+        dto.setId(id);
+        return dto;
     }
 
     @Test
