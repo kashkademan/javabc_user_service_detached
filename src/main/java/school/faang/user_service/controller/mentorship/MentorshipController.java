@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorship.MenteeDto;
 import school.faang.user_service.dto.mentorship.MentorDto;
-import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.mentorship.MentorshipServiceFacade;
 
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class MentorshipController {
-    private final MentorshipService mentorshipService;
     private final MentorshipServiceFacade mentorshipServiceF;
 
     @GetMapping("/mentorship/mentees/{userId}")
@@ -36,14 +34,14 @@ public class MentorshipController {
     @DeleteMapping("/mentorship/{mentorId}/{menteeId}")
     public ResponseEntity<Void> deleteMentee(@PathVariable long mentorId,
                                              @PathVariable long menteeId) {
-        mentorshipService.deleteMentee(mentorId, menteeId);
+        mentorshipServiceF.deleteMentee(mentorId, menteeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/mentorship/{menteeId}/{mentorId}")
     public ResponseEntity<Void> deleteMentor(@PathVariable long mentorId,
                                              @PathVariable long menteeId) {
-        mentorshipService.deleteMentor(mentorId, menteeId);
+        mentorshipServiceF.deleteMentor(mentorId, menteeId);
         return ResponseEntity.ok().build();
     }
 }
