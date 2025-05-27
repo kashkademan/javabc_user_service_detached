@@ -1,14 +1,11 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.service.UserService;
+
 import java.util.List;
 
 @RestController
@@ -25,5 +22,10 @@ public class UserController {
     @PostMapping
     public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
         return userService.getUsersByIds(ids);
+    }
+
+    @GetMapping("/{userId}/personal")
+    public UserPersonalDto getUserPersonal(@PathVariable Long userId) {
+        return userService.getUserPersonals(userId);
     }
 }
