@@ -1,0 +1,3 @@
+package school.faang.user_service.dto.mentorship;
+
+public record GetMentorsResponseDto(long id, String username){}
