@@ -21,8 +21,8 @@ public class AbstractEventListener {
         try {
             log.debug("Received new event: {}", message);
             T event = objectMapper.readValue(message, eventType);
-            handler.accept(event);
             ack.acknowledge();
+            handler.accept(event);
         } catch (JsonProcessingException e) {
             throw new JsonDeserializationException("Deserialization json %s to event object error", message);
         } catch (Exception e) {

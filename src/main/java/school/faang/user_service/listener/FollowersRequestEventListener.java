@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.event.PostPublishEvent;
 import school.faang.user_service.service.SubscriptionService;
 
 @Component
@@ -18,7 +19,7 @@ public class FollowersRequestEventListener {
             groupId = "${spring.data.kafka.consumer.group-id}"
     )
     public void receiveAndHandle(String message, Acknowledgment ack) {
-        //TODO: сменить метод на получение UserDto
-        abstractEventListener.receiveAndHandle(message, Long.class, subscriptionService::getFollowerIds, ack);
+        abstractEventListener.receiveAndHandle(message, PostPublishEvent.class,
+                subscriptionService::findFollowerIdsForPostAuthor, ack);
     }
 }

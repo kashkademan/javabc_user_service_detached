@@ -6,12 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.event.PostFollowersEvent;
+import school.faang.user_service.dto.event.PostPublishEvent;
 import school.faang.user_service.dto.pubsub.FollowerEvent;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.FollowerEventPublisher;
+import school.faang.user_service.publisher.PostEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.time.LocalDateTime;
@@ -27,6 +30,7 @@ public class SubscriptionService {
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
     private final FollowerEventPublisher followerEventPublisher;
+    private final PostEventPublisher postEventPublisher;
 
     @Transactional
     public void followUser(long followerId, long followeeId) {
@@ -69,7 +73,10 @@ public class SubscriptionService {
         return repository.findFolloweesAmountByFollowerId(followerId);
     }
 
-    //TODO: этот метод нужно вызывать
+    public void findFollowerIdsForPostAuthor(PostPublishEvent event) {
+        postEventPublisher.publish(createPostFollowersEvent(event));
+    }
+
     public List<Long> getFollowerIds(long followeeId) {
         return repository.findFollowerIdsByFolloweeId(followeeId);
     }
@@ -101,5 +108,14 @@ public class SubscriptionService {
         if (isItSub != shouldExist) {
             throw new DataValidationException(errorMessage);
         }
+    }
+
+    private PostFollowersEvent createPostFollowersEvent(PostPublishEvent event) {
+        return PostFollowersEvent.builder()
+                .postId(event.postId())
+                .authorId(event.authorId())
+                .followerIds(getFollowerIds(event.authorId()))
+                .publishedAt(event.publishedAt())
+                .build();
     }
 }
