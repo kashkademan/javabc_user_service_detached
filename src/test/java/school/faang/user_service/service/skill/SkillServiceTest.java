@@ -51,12 +51,12 @@ public class SkillServiceTest {
     private SkillValidator skillValidator;
     @InjectMocks
     private SkillService skillService;
-    private static final String title = "Java";
-    private static final long skillId = 1L;
-    private static final long userId = 2L;
-    private static final long SkillOfferId = 3L;
-    private static final long SkillOfferIdWithoutRecommendation = 4L;
-    private static final long RecommendationId = 5L;
+    private static final String TITLE = "Java";
+    private static final long SKILL_ID = 1L;
+    private static final long USER_ID = 2L;
+    private static final long SKILL_OFFER_ID = 3L;
+    private static final long SKILL_OFFER_ID_WITHOUT_RECOMMENDATION = 4L;
+    private static final long RECOMMENDATION_ID = 5L;
 
     private Skill skill;
     private List<Skill> skills;
@@ -67,140 +67,141 @@ public class SkillServiceTest {
     @BeforeEach
     public void setUp() {
         skill = Skill.builder()
-                .id(skillId)
-                .title(title)
+                .id(SKILL_ID)
+                .title(TITLE)
                 .build();
         skills = List.of(skill);
 
         user = new User();
-        user.setId(userId);
+        user.setId(USER_ID);
 
         recommendation = new Recommendation();
-        recommendation.setId(RecommendationId);
+        recommendation.setId(RECOMMENDATION_ID);
         skillOffer = SkillOffer.builder()
-                .id(SkillOfferId)
+                .id(SKILL_OFFER_ID)
                 .skill(skill)
                 .recommendation(recommendation)
                 .build();
     }
 
     @Test
-    public void createSkillShouldBeSuccessful() {
+    public void testCreateSkillShouldBeSuccessful() {
         Skill skillWithoutId = new Skill();
-        skillWithoutId.setTitle(title);
+        skillWithoutId.setTitle(TITLE);
         when(skillRepository.save(skillWithoutId)).thenReturn(skill);
 
         Skill createdSkill = skillService.create(skillWithoutId);
 
-        assertEquals(skillId, createdSkill.getId());
-        assertEquals(title, createdSkill.getTitle());
-        verify(skillValidator).validateTitleUnique(title);
+        assertEquals(SKILL_ID, createdSkill.getId());
+        assertEquals(TITLE, createdSkill.getTitle());
+        verify(skillValidator).validateTitleUnique(TITLE);
+        verify(skillRepository).save(skillWithoutId);
     }
 
     @Test
-    public void getUserSkillsShouldBeSuccessful() {
-        when(skillRepository.findAllByUserId(userId)).thenReturn(skills);
+    public void testGetUserSkillsShouldBeSuccessful() {
+        when(skillRepository.findAllByUserId(USER_ID)).thenReturn(skills);
 
-        List<Skill> userSkills = skillService.getUserSkills(userId);
+        List<Skill> userSkills = skillService.getUserSkills(USER_ID);
 
         assertEquals(skills, userSkills);
-        verify(skillRepository).findAllByUserId(userId);
+        verify(skillRepository).findAllByUserId(USER_ID);
     }
 
     @Test
-    public void getUserSkillsShouldReturnEmptyList() {
-        when(skillRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+    public void testGetUserSkillsShouldReturnEmptyList() {
+        when(skillRepository.findAllByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-        List<Skill> userSkills = skillService.getUserSkills(userId);
+        List<Skill> userSkills = skillService.getUserSkills(USER_ID);
 
         assertTrue(userSkills.isEmpty());
-        verify(skillRepository).findAllByUserId(userId);
+        verify(skillRepository).findAllByUserId(USER_ID);
     }
 
     @Test
-    public void getOfferedSkillsShouldBeSuccessful() {
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(skills);
+    public void testGetOfferedSkillsShouldBeSuccessful() {
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(skills);
 
-        List<Skill> offeredSkills = skillService.getOfferedSkills(userId);
+        List<Skill> offeredSkills = skillService.getOfferedSkills(USER_ID);
 
         assertEquals(skills, offeredSkills);
-        verify(skillRepository).findSkillsOfferedToUser(userId);
+        verify(skillRepository).findSkillsOfferedToUser(USER_ID);
     }
 
     @Test
-    public void getOfferedSkillsShouldReturnEmptyList() {
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(Collections.emptyList());
+    public void testGetOfferedSkillsShouldReturnEmptyList() {
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(Collections.emptyList());
 
-        List<Skill> offeredSkills = skillService.getOfferedSkills(userId);
+        List<Skill> offeredSkills = skillService.getOfferedSkills(USER_ID);
 
         assertTrue(offeredSkills.isEmpty());
-        verify(skillRepository).findSkillsOfferedToUser(userId);
+        verify(skillRepository).findSkillsOfferedToUser(USER_ID);
     }
 
 
     @Test
-    public void acquireSkillFromOffersShouldBeSuccessful() {
+    public void testAcquireSkillFromOffersShouldBeSuccessful() {
         List<SkillOffer> skillOfferListSizeMinValid = Collections.nCopies(MIN_SKILL_OFFERS, skillOffer);
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(skillOfferListSizeMinValid);
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(skillOfferListSizeMinValid);
 
-        Skill resultSkill = skillService.acquireSkillFromOffers(userId, skillId);
+        Skill resultSkill = skillService.acquireSkillFromOffers(USER_ID, SKILL_ID);
 
         assertEquals(skill, resultSkill);
-        verify(skillValidator).validateUserHasSkill(userId, skillId);
-        verify(skillRepository).assignSkillToUser(skillId, userId);
+        verify(skillValidator).validateUserHasSkill(USER_ID, SKILL_ID);
+        verify(skillRepository).assignSkillToUser(SKILL_ID, USER_ID);
         verify(userSkillGuaranteeRepository, times(MIN_SKILL_OFFERS)).save(any(UserSkillGuarantee.class));
     }
 
     @Test
-    public void acquireSkillFromOffersWhenSkillNotFound() {
-        when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
+    public void testAcquireSkillFromOffersWhenSkillNotFound() {
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.empty());
 
         RecordNotFoundException recordNotFoundException =
-                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(userId, skillId));
-        assertEquals(String.format(SKILL_NOT_FOUND, skillId), recordNotFoundException.getMessage());
+                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(USER_ID, SKILL_ID));
+        assertEquals(String.format(SKILL_NOT_FOUND, SKILL_ID), recordNotFoundException.getMessage());
     }
 
     @Test
-    public void acquireSkillFromOffersWhenUserNotFound() {
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    public void testAcquireSkillFromOffersWhenUserNotFound() {
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         RecordNotFoundException recordNotFoundException =
-                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(userId, skillId));
-        assertEquals(String.format(USER_NOT_FOUND, userId), recordNotFoundException.getMessage());
+                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(USER_ID, SKILL_ID));
+        assertEquals(String.format(USER_NOT_FOUND, USER_ID), recordNotFoundException.getMessage());
     }
 
     @Test
-    public void acquireSkillFromOffersWhenRecommendationIsNull() {
+    public void testAcquireSkillFromOffersWhenRecommendationIsNull() {
         SkillOffer skillOfferWithoutRecommendation;
         skillOfferWithoutRecommendation = SkillOffer.builder()
-                .id(SkillOfferIdWithoutRecommendation)
+                .id(SKILL_OFFER_ID_WITHOUT_RECOMMENDATION)
                 .skill(skill)
                 .build();
         List<SkillOffer> skillOfferListSizeMinValidWithoutRecommendation =
                 new ArrayList<>(Collections.nCopies(MIN_SKILL_OFFERS, skillOffer));
         skillOfferListSizeMinValidWithoutRecommendation.set(MIN_SKILL_OFFERS - 1, skillOfferWithoutRecommendation);
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).
                 thenReturn(skillOfferListSizeMinValidWithoutRecommendation);
 
         RecordNotFoundException recordNotFoundException =
-                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(userId, skillId));
+                assertThrows(RecordNotFoundException.class, () -> skillService.acquireSkillFromOffers(USER_ID, SKILL_ID));
         assertEquals(String.format(RECOMMENDATION_NOT_FOUND), recordNotFoundException.getMessage());
     }
 
     @Test
-    public void acquireSkillFromOffersListSizeIsLessThan3() {
+    public void testAcquireSkillFromOffersListSizeIsLessThan3() {
         List<SkillOffer> skillOfferListSizeNotValid = List.of(skillOffer);
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(skill));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(skillOfferListSizeNotValid);
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(skillOfferListSizeNotValid);
 
         PreConditionFailedException preConditionFailedException =
-                assertThrows(PreConditionFailedException.class, () -> skillService.acquireSkillFromOffers(userId, skillId));
+                assertThrows(PreConditionFailedException.class, () -> skillService.acquireSkillFromOffers(USER_ID, SKILL_ID));
         assertEquals(String.format(CONDITION_FOR_OFFERS_AMOUNT_FAILED), preConditionFailedException.getMessage());
     }
 }

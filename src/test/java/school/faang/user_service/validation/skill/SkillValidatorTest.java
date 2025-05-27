@@ -14,6 +14,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.util.LogsConstants.SKILL_ALREADY_EXIST;
 import static school.faang.user_service.util.LogsConstants.USER_HAS_SKILL;
@@ -25,39 +26,43 @@ public class SkillValidatorTest {
     @InjectMocks
     private SkillValidator validator;
 
-    private static final String title = "Java";
-    private static final long skillId  = 1L;
-    private static final long userId = 2L;
+    private static final String TITLE = "Java";
+    private static final long SKILL_ID = 1L;
+    private static final long USER_ID = 2L;
 
     @Test
-    public void validateTitleUniqueShouldBeSuccessful() {
-        when(skillRepository.existsByTitle(title)).thenReturn(false);
+    public void testValidateTitleUniqueShouldBeSuccessful() {
+        when(skillRepository.existsByTitle(TITLE)).thenReturn(false);
 
-        assertDoesNotThrow(() -> validator.validateTitleUnique(title));
+        assertDoesNotThrow(() -> validator.validateTitleUnique(TITLE));
+        verify(skillRepository).existsByTitle(TITLE);
     }
 
     @Test
-    public void validateTitleUniqueWhenTitleExists() {
-        when(skillRepository.existsByTitle(title)).thenReturn(true);
+    public void testValidateTitleUniqueWhenTitleExists() {
+        when(skillRepository.existsByTitle(TITLE)).thenReturn(true);
 
         DataValidationException dataValidationException =
-                assertThrows(DataValidationException.class, () -> validator.validateTitleUnique(title));
-        assertEquals(String.format(SKILL_ALREADY_EXIST, title), dataValidationException.getMessage());
+                assertThrows(DataValidationException.class, () -> validator.validateTitleUnique(TITLE));
+        assertEquals(String.format(SKILL_ALREADY_EXIST, TITLE), dataValidationException.getMessage());
+        verify(skillRepository).existsByTitle(TITLE);
     }
 
     @Test
-    public void validateUserHasSkillShouldBeSuccessful() {
-        when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
+    public void testValidateUserHasSkillShouldBeSuccessful() {
+        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> validator.validateUserHasSkill(userId, skillId));
+        assertDoesNotThrow(() -> validator.validateUserHasSkill(USER_ID, SKILL_ID));
+        verify(skillRepository).findUserSkill(SKILL_ID, USER_ID);
     }
 
     @Test
-    public void validateUserHasSkillWhenHasSkill() {
-        when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.of(new Skill()));
+    public void testValidateUserHasSkillWhenHasSkill() {
+        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
 
         DataValidationException dataValidationException =
-                assertThrows(DataValidationException.class, () -> validator.validateUserHasSkill(userId, skillId));
-        assertEquals(String.format(USER_HAS_SKILL, userId, skillId), dataValidationException.getMessage());
+                assertThrows(DataValidationException.class, () -> validator.validateUserHasSkill(USER_ID, SKILL_ID));
+        assertEquals(String.format(USER_HAS_SKILL, USER_ID, SKILL_ID), dataValidationException.getMessage());
+        verify(skillRepository).findUserSkill(SKILL_ID, USER_ID);
     }
 }
