@@ -90,6 +90,7 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -116,8 +117,11 @@ tasks.jacocoTestReport {
 tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
+            element = "CLASS"
             limit {
-                minimum = "0.85".toBigDecimal()
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.8".toBigDecimal()
             }
         }
     }
@@ -127,9 +131,6 @@ tasks.build {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
 tasks.jacocoTestReport {
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it).apply {
