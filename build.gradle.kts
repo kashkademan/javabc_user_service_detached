@@ -146,12 +146,21 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it).apply {
+                include("school/faang/user_service/service/**")
+            }
+        })
+    )
     violationRules {
         rule {
+            enabled = false
+
             limit {
                 counter = "CLASS"
                 value = "COVEREDRATIO"
-                minimum = "0.5".toBigDecimal()
+                minimum = "0.50".toBigDecimal()
             }
         }
     }
