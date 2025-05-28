@@ -35,13 +35,13 @@ public class GoalController {
         goalService.deleteGoal(goalId);
     }
 
-    @GetMapping("/{goalId}/subtasks")
-    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") long goalId, @ModelAttribute GoalFilterDto filter) {
+    @PostMapping("/{goalId}/subtasks")
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") long goalId, @RequestBody GoalFilterDto filter) {
         return goalService.findSubtasksByGoalId(goalId, filter);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<GoalDto> getGoalsByUser(@PathVariable("userId") Long userId, @ModelAttribute GoalFilterDto filter) {
+    @PostMapping("/user/{userId}")
+    public List<GoalDto> getGoalsByUser(@PathVariable("userId") Long userId, @RequestBody GoalFilterDto filter) {
         return goalService.getGoalsByUser(userId, filter);
     }
 

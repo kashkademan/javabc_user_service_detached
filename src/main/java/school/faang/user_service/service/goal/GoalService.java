@@ -24,14 +24,7 @@ public class GoalService {
     private final int MAX_ACTIVE_GOALS = 3;
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
-    private final List<GoalFilter> filters = List.of(
-            new CreatedAtFilter(),
-            new DeadlineFilter(),
-            new GoalStatusFilter(),
-            new MentorIdFilter(),
-            new TittleFilter(),
-            new UpdatedAtFilter()
-    );
+    private final List<GoalFilter> filters;
 
     private final GoalMapper goalMapper;
 
@@ -43,7 +36,7 @@ public class GoalService {
 
         for (Long skillId : request.skillIds()) {
             if (!skillRepository.existsById(skillId)) {
-                throw new IllegalArgumentException("Skill doesn't exist!");
+                throw new IllegalArgumentException("Skill with id = " + skillId + " doesn't exist!");
             }
         }
 
@@ -70,9 +63,7 @@ public class GoalService {
             }
         }
 
-        existingGoal.setTitle(goalDto.title());
-        existingGoal.setDescription(goalDto.description());
-        existingGoal.setStatus(goalDto.status());
+        goalMapper.update(existingGoal, goalDto);
 
         goalRepository.removeSkillsFromGoal(goalId);
         for (Long skill : goalDto.skillIds()) {
