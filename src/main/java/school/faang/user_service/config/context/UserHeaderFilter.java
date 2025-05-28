@@ -25,16 +25,13 @@ public class UserHeaderFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         String userId = req.getHeader("x-user-id");
         if (userId != null) {
-            try {
-                userContext.setUserId(Long.parseLong(userId));
-            } catch (NumberFormatException e) {
-                log.warn("Invalid x-user-id header: {}", userId);
-            }
-            try {
-                chain.doFilter(request, response);
-            } finally {
-                userContext.clear();
-            }
+            userContext.setUserId(Long.parseLong(userId));
+        }
+
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            userContext.clear();
         }
     }
 }
