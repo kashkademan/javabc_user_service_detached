@@ -34,7 +34,6 @@ public class TransactionService {
     }
 
     public TransactionResultDto buyItem(Long userId, Payable item) {
-            userContext.setUserId(userId);
             return updateTransaction(
                     transactionMapper.toUpdateTransactionDto(
                             paymentService.buyItem(
