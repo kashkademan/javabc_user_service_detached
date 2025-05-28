@@ -17,9 +17,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,17 +31,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString
 @Table(name = "event")
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "title", length = 64, nullable = false)
     private String title;
@@ -62,20 +63,24 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
-    private List<User> attendees;
+    @ToString.Exclude
+    private List<User> attendees = new ArrayList<>();
 
     @OneToMany(mappedBy = "event")
-    private List<Rating> ratings;
+    @ToString.Exclude
+    private List<Rating> ratings = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User owner;
 
     @ManyToMany
     @JoinTable(name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    private List<Skill> relatedSkills;
+    @ToString.Exclude
+    private List<Skill> relatedSkills = new ArrayList<>();
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
