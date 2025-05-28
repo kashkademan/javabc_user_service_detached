@@ -36,7 +36,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
             """)
     Optional<Skill> findUserSkill(long skillId, long userId);
 
-    @Query(nativeQuery = true, value = "INSERT INTO user_skill (skill_id, user_id) VALUES (:skillId, :userId)")
+    @Query(nativeQuery = true, value = "INSERT INTO user_skill (skill_id, user_id) VALUES (:skillId, :userId) ON CONFLICT DO NOTHING")
     @Modifying
     void assignSkillToUser(long skillId, long userId);
 
