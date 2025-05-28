@@ -23,8 +23,8 @@ import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -53,7 +53,7 @@ public class PromotionTariff {
     // TODO: возможно стоит заменить на SET
     @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private List<Promotion> promotions = new ArrayList<>();
+    private Set<Promotion> promotions = new HashSet<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
