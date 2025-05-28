@@ -91,4 +91,9 @@ public class UserController {
     public UserDto addSkill(@PathVariable Long userId, @PathVariable Long skillId) {
         return userService.addSkill(userId, skillId);
     }
+
+    @GetMapping("/count")
+    public long getUsersCount() {
+        return userService.getUsersCount();
+    }
 }

@@ -4,6 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
@@ -72,7 +76,6 @@ public class UserService {
     private final SkillAcquiredEventPublisher skillAcquiredEventPublisher;
     private final ProfileViewEventPublisher profileViewEventPublisher;
     private final AuthorResponseEventPublisher authorResponseEventPublisher;
-
 
     @Value("${springdoc.app.security.password-length}")
     private int passwordLength;
@@ -234,6 +237,17 @@ public class UserService {
             userRepository.save(user);
             log.info("User [Name: {} id: {}] is successful banned", user.getUsername(), id);
         }
+    }
+
+    public long getUsersCount() {
+        return userRepository.count();
+    }
+
+    public List<Long> getUserIdsByPage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<Long> userIdsPage = userRepository.findAllUserIds(pageable);
+
+        return userIdsPage.getContent();
     }
 
     private UserProfilePic createUserProfilePic(String smallId, String id) {

@@ -1,5 +1,7 @@
 package school.faang.user_service.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,4 +35,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             UPDATE users SET banned = true WHERE id IN (?1)
             """)
     void banUsers(@Param("userIds") List<Long> userIds);
+
+    @Query("SELECT u.id FROM User u")
+    Page<Long> findAllUserIds(Pageable pageable);
 }

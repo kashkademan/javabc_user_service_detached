@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.SubscriptionPair;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.event.PostFollowersEvent;
@@ -19,6 +20,7 @@ import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +28,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class SubscriptionService {
-    private final SubscriptionRepository repository;
+    private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
     private final FollowerEventPublisher followerEventPublisher;
@@ -36,7 +38,7 @@ public class SubscriptionService {
     public void followUser(long followerId, long followeeId) {
         isSelfAction(followerId, followeeId, "Нельзя подписаться на себя");
         checkSubscribe(followerId, followeeId, false, "Вы уже подписаны на этого пользователя");
-        repository.followUser(followerId, followeeId);
+        subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь: {} подписался на пользователя: {}.", followerId, followeeId);
 
         followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
@@ -46,31 +48,31 @@ public class SubscriptionService {
         isSelfAction(followerId, followeeId, "Нельзя отписаться от себя");
         checkSubscribe(followerId, followeeId, true,
                 "Нельзя отписаться от пользователя, на которого вы не подписаны");
-        repository.unfollowUser(followerId, followeeId);
+        subscriptionRepository.unfollowUser(followerId, followeeId);
         log.info("Пользователь: {} отписался от пользователя: {}.", followerId, followeeId);
 
     }
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        Stream<User> followersStream = repository.findByFolloweeId(followeeId);
+        Stream<User> followersStream = subscriptionRepository.findByFolloweeId(followeeId);
         return filterUsers(followersStream, filter)
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public int getFollowersCount(long followerId) {
-        return repository.findFolloweesAmountByFollowerId(followerId);
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
     public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
-        Stream<User> followingStream = repository.findByFollowerId(followerId);
+        Stream<User> followingStream = subscriptionRepository.findByFollowerId(followerId);
         return filterUsers(followingStream, filter)
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public int getFollowingCount(long followerId) {
-        return repository.findFolloweesAmountByFollowerId(followerId);
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
     public void findFollowerIdsForPostAuthor(PostPublishEvent event) {
@@ -78,7 +80,16 @@ public class SubscriptionService {
     }
 
     public List<Long> getFollowerIds(long followeeId) {
-        return repository.findFollowerIdsByFolloweeId(followeeId);
+        return subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
+    }
+
+    public Map<Long, List<Long>> getSubscriptionsIdsByUserIds(List<Long> userIds) {
+        List<SubscriptionPair> result = subscriptionRepository.findSubscriptionsForUsers(userIds);
+        return result.stream()
+                .collect(Collectors.groupingBy(
+                        SubscriptionPair::followerId,
+                        Collectors.mapping(SubscriptionPair::followeeId, Collectors.toList())
+                ));
     }
 
     private Stream<User> filterUsers(Stream<User> users, UserFilterDto filters) {
@@ -104,7 +115,7 @@ public class SubscriptionService {
     }
 
     private void checkSubscribe(long followerId, long followeeId, boolean shouldExist, String errorMessage) {
-        boolean isItSub = repository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
+        boolean isItSub = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
         if (isItSub != shouldExist) {
             throw new DataValidationException(errorMessage);
         }
