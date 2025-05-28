@@ -18,7 +18,7 @@ public class TransactionServiceUtils {
         return Transaction.builder()
                 .transactionNumber(createTransactionNumber())
                 .amount(item.getPrice())
-                .currencyCode(item.getCurrency().toString())
+                .currencyCode(item.getCurrency())
                 .purpose(item.getPurpose())
                 .purchaseItem(item.getName())
                 .user(userService.getUserById(userId))

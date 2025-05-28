@@ -28,6 +28,6 @@ import java.net.SocketTimeoutException;
 )
 public interface PaymentServiceClient {
 
-    @PostMapping("/payment")
+    @PostMapping("/api/payment")
     PaymentResponseDto buyPremium(@RequestBody PaymentRequestDto request);
 }

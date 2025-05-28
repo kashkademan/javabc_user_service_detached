@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Currency;
 
 @Data
 public class PaymentRequestDto {
@@ -16,5 +17,5 @@ public class PaymentRequestDto {
     private BigDecimal amount;
 
     @NotNull
-    private String currency;
+    private Currency currency;
 }

@@ -31,15 +31,15 @@ class PremiumServiceTest {
         Long userId = 1L;
         Integer premiumDuration = 30;
         TransactionResultDto resultDto = new TransactionResultDto();
-        resultDto.setStatus(TransactionStatus.SETTLED.toString());
+        resultDto.setStatus(TransactionStatus.SETTLED);
 
-        doNothing().when(premiumServiceUtils).isUserHasNoPremium(userId);
+        doNothing().when(premiumServiceUtils).checkUserHasNoPremium(userId);
         doNothing().when(premiumServiceUtils).assignPremiumToUser(userId, premiumDuration);
         when(transactionService.buyItem(userId, PremiumPeriod.MONTHLY)).thenReturn(resultDto);
 
         TransactionResultDto actual = premiumService.buyPremium(userId, premiumDuration);
 
-        assertEquals(TransactionStatus.SETTLED.toString(), actual.getStatus());
+        assertEquals(TransactionStatus.SETTLED, actual.getStatus());
     }
 
     @Test
@@ -47,13 +47,13 @@ class PremiumServiceTest {
         Long userId = 1L;
         Integer premiumDuration = 30;
         TransactionResultDto resultDto = new TransactionResultDto();
-        resultDto.setStatus(TransactionStatus.FAILED.toString());
+        resultDto.setStatus(TransactionStatus.FAILED);
 
-        doNothing().when(premiumServiceUtils).isUserHasNoPremium(userId);
+        doNothing().when(premiumServiceUtils).checkUserHasNoPremium(userId);
         when(transactionService.buyItem(userId, PremiumPeriod.MONTHLY)).thenReturn(resultDto);
 
         TransactionResultDto actual = premiumService.buyPremium(userId, premiumDuration);
 
-        assertEquals(TransactionStatus.FAILED.toString(), actual.getStatus());
+        assertEquals(TransactionStatus.FAILED, actual.getStatus());
     }
 }

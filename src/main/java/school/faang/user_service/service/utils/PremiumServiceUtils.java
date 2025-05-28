@@ -14,12 +14,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PremiumServiceUtils {
     private final PremiumRepository premiumRepository;
+
     private final UserService userService;
 
-    public void isUserHasNoPremium(Long userId) {
+    public void checkUserHasNoPremium(Long userId) {
         User user = userService.getUserById(userId);
-        if (user.getPremium() == null
-        || LocalDateTime.now().isAfter(user.getPremium().getEndDate())) {
+        if (user.getPremium() != null
+        && LocalDateTime.now().isBefore(user.getPremium().getEndDate())) {
             throw new RuntimeException("User with id " + userId + " has premium");
         }
     }

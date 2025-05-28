@@ -11,7 +11,7 @@ import java.util.Currency;
 @Data
 public class PaymentResponseDto {
     @NotBlank
-    private String paymentStatus;
+    private String status;
     @NotNull
     private Integer verificationCode;
     @NotNull

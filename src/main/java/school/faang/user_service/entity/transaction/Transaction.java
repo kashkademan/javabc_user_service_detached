@@ -23,6 +23,7 @@ import school.faang.user_service.entity.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Currency;
 
 @Data
 @Builder
@@ -45,9 +46,8 @@ public class Transaction {
     @Column(name = "message")
     private String message;
 
-    @Pattern(regexp = "^[A-Z]{3}$", message = "Currency must be a valid 3-letter ISO code")
     @Column(name = "currency", length = 3, nullable = false)
-    private String currencyCode;
+    private Currency currencyCode;
 
     @Column(name = "verification_code", length = 4)
     private Integer verificationCode;

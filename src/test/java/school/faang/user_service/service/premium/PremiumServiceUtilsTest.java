@@ -27,15 +27,23 @@ class PremiumServiceUtilsTest {
     private PremiumServiceUtils premiumServiceUtils;
 
     @Test
-    void shouldThrowExceptionWhenUserHasNoPremium() {
+    void shouldThrowExceptionWhenUserHasPremium() {
         User user = new User();
+        Premium premium = Premium.builder()
+                .endDate(LocalDateTime.now().plusDays(1))
+                .build();
+        user.setPremium(premium);
         when(userService.getUserById(1L)).thenReturn(user);
 
-        assertThrows(RuntimeException.class, () -> premiumServiceUtils.isUserHasNoPremium(1L));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            premiumServiceUtils.checkUserHasNoPremium(1L);
+        });
+
+        assertEquals("User with id 1 has premium", exception.getMessage());
     }
 
     @Test
-    void shouldThrowExceptionWhenPremiumExpired() {
+    void shouldReturnNothingWhenPremiumExpired() {
         User user = new User();
         Premium premium = Premium.builder()
                 .endDate(LocalDateTime.now().minusDays(1))
@@ -43,8 +51,7 @@ class PremiumServiceUtilsTest {
         user.setPremium(premium);
         when(userService.getUserById(1L)).thenReturn(user);
 
-        assertThrows(RuntimeException.class, () -> premiumServiceUtils.isUserHasNoPremium(1L));
-    }
+        premiumServiceUtils.checkUserHasNoPremium(1L);    }
 
     @Test
     void shouldAssignPremiumToUser() {

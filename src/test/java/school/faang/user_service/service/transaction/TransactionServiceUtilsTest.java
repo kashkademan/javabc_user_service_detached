@@ -34,7 +34,7 @@ class TransactionServiceUtilsTest {
 
         assertNotNull(result);
         assertEquals(payable.getPrice(), result.getAmount());
-        assertEquals(payable.getCurrency().toString(), result.getCurrencyCode());
+        assertEquals(payable.getCurrency(), result.getCurrencyCode());
         assertEquals(payable.getPurpose(), result.getPurpose());
         assertEquals(payable.getName(), result.getPurchaseItem());
         assertEquals(user, result.getUser());

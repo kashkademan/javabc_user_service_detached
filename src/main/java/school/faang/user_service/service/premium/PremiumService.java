@@ -15,11 +15,11 @@ public class PremiumService {
     private final TransactionService transactionService;
 
     public TransactionResultDto buyPremium(Long userId, Integer durationDays) {
-        premiumServiceUtils.isUserHasNoPremium(userId);
+        premiumServiceUtils.checkUserHasNoPremium(userId);
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(durationDays);
         TransactionResultDto transactionResultDto = transactionService.buyItem(userId, premiumPeriod);
         if (transactionResultDto.getStatus()
-                .equals(TransactionStatus.SETTLED.toString())) {
+                .equals(TransactionStatus.SETTLED)) {
             premiumServiceUtils.assignPremiumToUser(userId, durationDays);
         }
         return transactionResultDto;
