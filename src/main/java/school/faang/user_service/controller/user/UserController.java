@@ -22,28 +22,28 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getCurrentUser() {
-        log.info("User controller accepted request get current user");
+        log.debug("User controller accepted request get current user");
 
         UserResponseDto response = userFacade.getCurrentUser();
-        log.info("User controller return response get current user {}", response);
+        log.debug("User controller return response get current user {}", response);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable long userId) {
-        log.info("User controller accepted request get user with id {}", userId);
+        log.debug("User controller accepted request get user with id {}", userId);
 
         UserResponseDto response = userFacade.getUserById(userId);
-        log.info("User controller return response get user {}", response);
+        log.debug("User controller return response get user {}", response);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<UserResponseDto>> getUsersByIds(@RequestParam List<Long> userIds) {
-        log.info("User controller accepted request get users with ids {}", userIds);
+        log.debug("User controller accepted request get users with ids {}", userIds);
 
         List<UserResponseDto> response = userFacade.getUsersByIds(userIds);
-        log.info("User controller return response get users {}", response);
+        log.debug("User controller return response get users {}", response);
         return ResponseEntity.ok(response);
     }
 }
