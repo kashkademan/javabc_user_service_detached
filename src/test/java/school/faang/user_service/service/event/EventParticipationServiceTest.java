@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,14 +33,13 @@ public class EventParticipationServiceTest {
     @InjectMocks
     private EventParticipationService eventParticipationService;
 
-    private final long eventId = 13L;
-    private final long userId = 46L;
+    private static final long eventId = 13L;
+    private static final long userId = 46L;
 
     @Test
     public void testRegisterParticipantSuccess() {
         eventParticipationService.registerParticipant(eventId, userId);
-        verify(eventParticipationRepository, times(1))
-                .register(eventId, userId);
+        verify(eventParticipationRepository).register(eventId, userId);
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 
@@ -56,7 +54,7 @@ public class EventParticipationServiceTest {
 
         assertEquals("Error registering user for event.", actualException.getMessage());
         assertEquals(expectedException, actualException.getCause());
-        verify(eventParticipationRepository, times(1)).register(eventId, userId);
+        verify(eventParticipationRepository).register(eventId, userId);
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 
@@ -65,8 +63,7 @@ public class EventParticipationServiceTest {
 
         eventParticipationService.unregisterParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1))
-                .unregister(eventId, userId);
+        verify(eventParticipationRepository).unregister(eventId, userId);
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 
@@ -81,7 +78,7 @@ public class EventParticipationServiceTest {
 
         assertEquals("Error unregistering user from event.", actualException.getMessage());
         assertEquals(expectedException, actualException.getCause());
-        verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
+        verify(eventParticipationRepository).unregister(eventId, userId);
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 
@@ -105,16 +102,7 @@ public class EventParticipationServiceTest {
     }
 
     private User createUser(Long id, String username) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        return user;
-    }
-
-    private RegisterParticipantRequestDto createRegisterParticipantRequestDto(long id) {
-        RegisterParticipantRequestDto dto = new RegisterParticipantRequestDto();
-        dto.setId(id);
-        return dto;
+        return User.builder().id(id).username(username).build();
     }
 
     @Test
@@ -126,8 +114,7 @@ public class EventParticipationServiceTest {
         int actualCount = eventParticipationService.getParticipantsCount(eventId);
 
         assertEquals(expectedCount, actualCount);
-        verify(eventParticipationRepository, times(1))
-                .countParticipants(eventId);
+        verify(eventParticipationRepository).countParticipants(eventId);
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 }
