@@ -30,7 +30,7 @@ import java.util.Currency;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "Transactions")
+@Table(name = "transactions")
 public class Transaction {
 
     @Id
