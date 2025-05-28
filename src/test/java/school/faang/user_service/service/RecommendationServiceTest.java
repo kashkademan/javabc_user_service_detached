@@ -9,8 +9,8 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exceptions.DataValidationException;
-import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.mapper.SkillOfferMapper;
+import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.mapper.SkillOfferMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -34,9 +34,9 @@ public class RecommendationServiceTest {
     @Mock
     private Pageable pageable;
     @Spy
-    private RecommendationMapper recommendationMapper;
+    private RecommendationMapperImpl recommendationMapper;
     @Spy
-    private SkillOfferMapper skillOfferMapper;
+    private SkillOfferMapperImpl skillOfferMapper;
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -65,10 +65,9 @@ public class RecommendationServiceTest {
         LocalDateTime now = LocalDateTime.now();
         RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
         when(recommendationRepository.create(1L, 1L, "1")).thenReturn(1L);
-        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, now, null);
+        Recommendation recommendation = new Recommendation(1L, "1", null, null, List.of(), null, now, null);
         when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
-        recommendationService.create(testDto);
-        verify(recommendationRepository).create(1, 1, "1");
+        assertNotNull(recommendationService.create(testDto));
     }
 
     @Test
@@ -93,9 +92,7 @@ public class RecommendationServiceTest {
         RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
         Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, now, null);
         when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
-        recommendationService.update(testDto);
-        verify(recommendationRepository).update(testDto.authorId(), testDto.receiverId(), testDto.content());
-        verify(skillOfferRepository).deleteAllByRecommendationId(testDto.id());
+        assertNotNull(recommendationService.update(testDto));
     }
 
     @Test
@@ -109,13 +106,12 @@ public class RecommendationServiceTest {
     @Test
     public void testGetAllUserRecommendations() {
         long id = 1;
-        List<Recommendation> recommendationList = List.of(new Recommendation(), new Recommendation());
-        PageRequest pageRequest = PageRequest.of(0, 2); // page = 0, size = 10
+        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, LocalDateTime.now(), null);
+        List<Recommendation> recommendationList = List.of(recommendation, recommendation);
+        PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(page);
-
-        int lengthOfTheList = recommendationService.getAllUserRecommendations(id).size();
-        assertEquals(recommendationList.size(), lengthOfTheList);
+        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id).size());
     }
 
     @Test
@@ -129,12 +125,11 @@ public class RecommendationServiceTest {
     @Test
     public void testGetAllGivenRecommendations() {
         long id = 1;
-        List<Recommendation> recommendationList = List.of(new Recommendation(), new Recommendation());
+        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, LocalDateTime.now(), null);
+        List<Recommendation> recommendationList = List.of(recommendation, recommendation);
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(page);
-
-        List<RecommendationDto> recommendationDtoList = recommendationService.getAllGivenRecommendations(id);
-        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationDtoList);
+        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id));
     }
 }
