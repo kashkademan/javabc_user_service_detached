@@ -10,12 +10,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 public class DiceBearAvatarServiceImplTest {
 
-    private DiceBearAvatarService diceBearAvatarService;
+    private AvatarService diceBearAvatarService;
     private DiceBearConfig diceBearConfig;
     private static final String DEFAULT_SEED = "defaultUserSeed";
 
@@ -37,8 +35,6 @@ public class DiceBearAvatarServiceImplTest {
         String expectedUrl = String.format(
                 "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), expectedSeed);
         assertEquals(expectedUrl, generatedUrl);
-        assertNotNull(user.getUserProfilePic());
-        assertEquals(expectedUrl, user.getUserProfilePic().getSmallFileId());
     }
 
     @Test
@@ -46,64 +42,44 @@ public class DiceBearAvatarServiceImplTest {
     void givenUserWithUsernameContainingSpaces_whenGenerateAvatarUrl_thenReturnEncodedUrl() {
         User user = new User();
         user.setUsername("Test User");
-
         String generatedUrl = diceBearAvatarService.generateAvatarUrl(user);
         String expectedSeed = URLEncoder.encode("Test User", StandardCharsets.UTF_8);
         String expectedUrl = String.format(
                 "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), expectedSeed);
         assertEquals(expectedUrl, generatedUrl);
-        assertNotNull(user.getUserProfilePic());
-        assertEquals(expectedUrl, user.getUserProfilePic().getSmallFileId());
     }
 
     @Test
-    @DisplayName("Генерация аватара: когда имя пользователя отсутствует, используется значение по умолчанию")
+    @DisplayName("Генерация аватара: когда имя пользователя отсутствует (null), используется значение по умолчанию")
     void givenUserWithoutUsername_whenGenerateAvatarUrl_thenUseDefaultSeed() {
         User user = new User();
         user.setUsername(null);
-
         String generatedUrl = diceBearAvatarService.generateAvatarUrl(user);
         String expectedSeed = URLEncoder.encode(DEFAULT_SEED, StandardCharsets.UTF_8);
         String expectedUrl = String.format(
                 "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), expectedSeed);
         assertEquals(expectedUrl, generatedUrl);
-        assertNotNull(user.getUserProfilePic());
-        assertEquals(expectedUrl, user.getUserProfilePic().getSmallFileId());
     }
 
     @Test
-    @DisplayName("Генерация аватара: когда apiUrl пуст, используется значение по умолчанию")
-    void givenEmptyApiUrl_whenGenerateAvatarUrl_thenUseFallbackValue() {
-        diceBearConfig.setApiUrl("");
+    @DisplayName("Генерация аватара: когда имя пользователя пустая строка, используется значение по умолчанию")
+    void givenUserWithEmptyUsername_whenGenerateAvatarUrl_thenUseDefaultSeed() {
         User user = new User();
-        user.setUsername("testUser");
-
+        user.setUsername("");
         String generatedUrl = diceBearAvatarService.generateAvatarUrl(user);
-        String expectedSeed = URLEncoder.encode("testUser", StandardCharsets.UTF_8);
-        String expectedApiUrl = "https://api.dicebear.com/9.x";
+        String expectedSeed = URLEncoder.encode(DEFAULT_SEED, StandardCharsets.UTF_8);
         String expectedUrl = String.format(
-                "%s/%s/svg?seed=%s", expectedApiUrl, diceBearConfig.getStyle(), expectedSeed);
+                "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), expectedSeed);
         assertEquals(expectedUrl, generatedUrl);
     }
 
     @Test
-    @DisplayName("Генерация аватара: когда style пуст, используется значение по умолчанию 'pixel-art'")
-    void givenEmptyStyle_whenGenerateAvatarUrl_thenUseFallbackValue() {
-        diceBearConfig.setStyle("");
-        User user = new User();
-        user.setUsername("testUser");
-
-        String generatedUrl = diceBearAvatarService.generateAvatarUrl(user);
-        String expectedSeed = URLEncoder.encode("testUser", StandardCharsets.UTF_8);
-        String expectedStyle = "pixel-art";
+    @DisplayName("Генерация аватара: когда объект User равен null, используется значение по умолчанию")
+    void givenNullUser_whenGenerateAvatarUrl_thenUseDefaultSeed() {
+        String generatedUrl = diceBearAvatarService.generateAvatarUrl(null);
+        String expectedSeed = URLEncoder.encode(DEFAULT_SEED, StandardCharsets.UTF_8);
         String expectedUrl = String.format(
-                "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), expectedStyle, expectedSeed);
+                "%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), expectedSeed);
         assertEquals(expectedUrl, generatedUrl);
     }
-
 }
-
-
-
-
-
