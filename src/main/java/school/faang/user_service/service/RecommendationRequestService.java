@@ -133,31 +133,32 @@ public class RecommendationRequestService {
 
         return recommendationMapper.toDto(updatedRequest);
     }
-    private boolean filterByRequesterId(RecommendationRequest request, Long requesterId) {
+
+    public boolean filterByRequesterId(RecommendationRequest request, Long requesterId) {
         return requesterId == null || request.getRequester().getId().equals(requesterId);
     }
 
-    private boolean filterByReceiverId(RecommendationRequest request, Long receiverId) {
+    public boolean filterByReceiverId(RecommendationRequest request, Long receiverId) {
         return receiverId == null || request.getReceiver().getId().equals(receiverId);
     }
 
-    private boolean filterByRecommendationId(RecommendationRequest request, Long recommendationId) {
+    public boolean filterByRecommendationId(RecommendationRequest request, Long recommendationId) {
         return recommendationId == null ||
                 (request.getRecommendation() != null &&
                         request.getRecommendation().getId() == recommendationId);
     }
 
-    private boolean filterByMessagePattern(RecommendationRequest request, String messagePattern) {
+    public boolean filterByMessagePattern(RecommendationRequest request, String messagePattern) {
         return messagePattern == null ||
                 (request.getMessage() != null &&
                         request.getMessage().toLowerCase().contains(messagePattern.toLowerCase()));
     }
 
-    private boolean filterByCreatedAfter(RecommendationRequest request, LocalDateTime createdAfter) {
+    public boolean filterByCreatedAfter(RecommendationRequest request, LocalDateTime createdAfter) {
         return createdAfter == null || request.getCreatedAt().isAfter(createdAfter);
     }
 
-    private boolean filterByCreatedBefore(RecommendationRequest request, LocalDateTime createdBefore) {
+    public boolean filterByCreatedBefore(RecommendationRequest request, LocalDateTime createdBefore) {
         return createdBefore == null || request.getCreatedAt().isBefore(createdBefore);
     }
 }
