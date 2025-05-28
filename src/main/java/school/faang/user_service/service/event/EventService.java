@@ -5,17 +5,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
+    private final SkillRepository skillRepository;
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final EventServiceUtils eventServiceUtils;
@@ -39,7 +46,7 @@ public class EventService {
                 .map(eventMapper::toDto)
                 .toList();
     }
-  
+
     @Transactional
     public void deleteEvent(Long eventId) {
         eventRepository.deleteById(eventId);

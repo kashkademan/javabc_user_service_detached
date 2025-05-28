@@ -41,10 +41,6 @@ public class SkillService {
         throw new DataValidationException("Skill " + skill.getTitle() + " already exists!");
     }
 
-    public List<Skill> findAllByUserId(long userId) {
-        return skillRepository.findAllByUserId(userId);
-    }
-
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         return skillRepository.findSkillsOfferedToUser(userId).stream()
                 .map(skillMapper::toDto)
@@ -70,6 +66,11 @@ public class SkillService {
         }
         return skillMapper.toDto(skillRepository.getReferenceById(skillId));
     }
+
+    public List<Skill> findAllByUserId(long userId) {
+        return skillRepository.findAllByUserId(userId);
+    }
+
 
     public List<SkillDto> getUserSkills(long userId) {
         return skillRepository.findAllByUserId(userId)
