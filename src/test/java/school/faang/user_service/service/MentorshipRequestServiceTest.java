@@ -14,12 +14,16 @@ import school.faang.user_service.dto.mentorship.MentorshipResponseDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.mentorship.MentorshipResponseMapper;
+import school.faang.user_service.mapper.mentorship.MentorshipResponseMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.validator.Validator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
@@ -31,17 +35,17 @@ public class MentorshipRequestServiceTest {
     private MentorshipRequestService mentorshipRequestService;
 
     @Spy
-    private MentorshipResponseMapper mentorshipResponseMapper;
+    private MentorshipResponseMapperImpl mentorshipResponseMapper;
 
-
+    @Mock
+    private List<Validator<MentorshipRequestDto>> validators;
 
     @Test
-    @DisplayName("Проверка сохранения запроса в БД")
+    @DisplayName("Checking request persistence in the database")
     public void testRequestIsSaved() {
 
-        MentorshipRequestDto dto = new MentorshipRequestDto(1L,2L,"Это тестовое описание");
-
-        MentorshipRequest entity = new MentorshipRequest();
+        MentorshipRequestDto dto = new MentorshipRequestDto(1L, 2L, "Test description");
+        //поменять на builder
         User requester = new User();
         requester.setId(1L);
         User receiver = new User();
@@ -49,20 +53,16 @@ public class MentorshipRequestServiceTest {
 
         LocalDateTime fixedTime = LocalDateTime.of(2025, 5, 25, 10, 0);
 
-        entity.setRequester(requester);
-        entity.setReceiver(receiver);
-        entity.setDescription("Это тестовое описание");
-        entity.setStatus(RequestStatus.PENDING);
-
+        //поменять на builder
         MentorshipRequest saved = new MentorshipRequest();
         saved.setId(100L);
         saved.setRequester(requester);
         saved.setReceiver(receiver);
-        saved.setDescription("Это тестовое описание");
+        saved.setDescription("Test description");
         saved.setStatus(RequestStatus.PENDING);
         saved.setCreatedAt(fixedTime);
 
-        Mockito.when(mentorshipRequestRepository.create(1L, 2L, "Это тестовое описание"))
+        Mockito.when(mentorshipRequestRepository.create(1L, 2L, "Test description"))
                 .thenReturn(saved);
 
         MentorshipResponseDto actualResponse = mentorshipRequestService.requestMentorship(dto);
@@ -71,9 +71,12 @@ public class MentorshipRequestServiceTest {
                 1L,
                 2L,
                 "PENDING",
-                "Это тестовое описание",
+                "Test description",
                 fixedTime
         );
+
         Assertions.assertEquals(expectedResponse, actualResponse);
+        verify(mentorshipRequestRepository, times(1)).create(1L, 2L, "Test description");
+        verifyNoMoreInteractions(mentorshipRequestRepository);
     }
 }
