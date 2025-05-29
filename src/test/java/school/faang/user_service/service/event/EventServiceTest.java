@@ -81,7 +81,7 @@ class EventServiceTest {
         event = new Event();
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(userService.getUserByIdOrThrow(userId)).thenReturn(user);
+        when(userService.getUserById(userId)).thenReturn(user);
         when(skillService.getSkillsByIds(skillIds)).thenReturn(skills);
         when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
 
