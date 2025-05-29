@@ -25,6 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
 
+    private final LocalDateTime NOW = LocalDateTime.now();
+
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
@@ -62,12 +64,14 @@ public class RecommendationServiceTest {
 
     @Test
     public void testCreateCreates() {
-        LocalDateTime now = LocalDateTime.now();
-        RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
+        RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), NOW);
         when(recommendationRepository.create(1L, 1L, "1")).thenReturn(1L);
-        Recommendation recommendation = new Recommendation(1L, "1", null, null, List.of(), null, now, null);
+        Recommendation recommendation = new Recommendation(1L, "1", null, null, List.of(), null, NOW, null);
         when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
-        assertNotNull(recommendationService.create(testDto));
+        assertEquals(testDto.id(), recommendationService.create(testDto).id());
+        assertEquals(testDto.skillOffers(), recommendationService.create(testDto).skillOffers());
+        assertEquals(testDto.content(), recommendationService.create(testDto).content());
+        assertEquals(testDto.createdAt(), recommendationService.create(testDto).createdAt());
     }
 
     @Test
@@ -88,11 +92,13 @@ public class RecommendationServiceTest {
 
     @Test
     public void testUpdateUpdates() {
-        LocalDateTime now = LocalDateTime.now();
-        RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), now);
-        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, now, null);
+        RecommendationDto testDto = new RecommendationDto(1L, 1L, 1L, "1", List.of(), NOW);
+        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, NOW, null);
         when(recommendationRepository.findById(testDto.id())).thenReturn(Optional.of(recommendation));
-        assertNotNull(recommendationService.update(testDto));
+        assertEquals(testDto.id(), recommendationService.update(testDto).id());
+        assertEquals(testDto.skillOffers(), recommendationService.update(testDto).skillOffers());
+        assertEquals(testDto.content(), recommendationService.update(testDto).content());
+        assertEquals(testDto.createdAt(), recommendationService.update(testDto).createdAt());
     }
 
     @Test
