@@ -2,7 +2,6 @@ package school.faang.user_service.controller.subscription;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +14,6 @@ import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor

@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Validated
 @Service
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {

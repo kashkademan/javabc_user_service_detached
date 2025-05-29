@@ -3,7 +3,6 @@ package school.faang.user_service.controller.goal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.GoalService;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@Validated
 public class GoalController {
     private final GoalService goalService;
 

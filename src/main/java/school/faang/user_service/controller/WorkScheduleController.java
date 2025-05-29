@@ -3,12 +3,10 @@ package school.faang.user_service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.WorkScheduleDto;
 import school.faang.user_service.service.WorkScheduleService;
 import school.faang.user_service.util.WorkScheduleDtoValidator;
 
-@Validated
 @Controller
 @RequiredArgsConstructor
 public class WorkScheduleController {
