@@ -1,16 +1,17 @@
-package school.faang.user_service.dto.promotion;
+package school.faang.user_service.model.redis.promotion;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PromotionTariffResponseDto {
+public class PromotionTariffRedis implements Serializable {
     private Long id;
     private BigDecimal price;
     private Integer countView;

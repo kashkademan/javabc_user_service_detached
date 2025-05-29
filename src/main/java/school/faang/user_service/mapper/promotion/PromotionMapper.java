@@ -7,6 +7,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.promotion.PromotionCreateRequestDto;
 import school.faang.user_service.dto.promotion.PromotionResponseDto;
 import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.model.redis.promotion.EventPromotionRedis;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -18,4 +19,6 @@ public interface PromotionMapper {
     @Mapping(source = "event.id", target = "eventId")
     @Mapping(source = "tariff.id", target = "tariffId")
     PromotionResponseDto toPromotionResponseDto(final Promotion promotion);
+
+    EventPromotionRedis toEventPromotionRedis(final Promotion promotion);
 }

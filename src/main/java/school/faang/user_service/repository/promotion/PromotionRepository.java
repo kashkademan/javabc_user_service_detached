@@ -8,14 +8,14 @@ import school.faang.user_service.entity.promotion.Promotion;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
-    @Query("""
-    SELECT COUNT(*) > 0
-    FROM Promotion p
-    WHERE p.event_id = :event_id AND p.status = 'ACTIVE'
-    """)
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(*) > 0
+            FROM Promotion p
+            WHERE p.event_id = :event_id AND p.status = 'ACTIVE'
+            """)
     boolean existsActivePromotionByEvent(@Param("event_id") Long eventId);
 
-    @Query("""
+    @Query(nativeQuery = true, value = """
             SELECT COUNT(*) > 0
             FROM Promotion p
             WHERE p.user_id = :user_id AND p.status = 'ACTIVE'

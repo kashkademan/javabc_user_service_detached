@@ -17,3 +17,7 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V008__add_personal_info_tables.sql
   - include:
       file: db/changelog/changeset/user_V009__create_table_promotion.sql
+  - include:
+      file: db/changelog/changeset/user_V010__insert_promotion.sql
+  - include:
+      file: db/changelog/changeset/user_V011__insert_event.sql

@@ -16,6 +16,16 @@ import java.util.List;
 public class PromotionTariffFacade {
     private final PromotionTariffService promotionTariffService;
     private final PromotionTariffMapper promotionTariffMapper;
+
+    public PromotionTariffResponseDto getPromotionTariffById(long tariffId) {
+        PromotionTariff promotionTariff = promotionTariffService.getPromotionTariffById(tariffId);
+
+        PromotionTariffResponseDto promotionTariffResponseDto =
+                promotionTariffMapper.toPromotionTariffResponseDto(promotionTariff);
+        log.debug("Mapping Promotion tariff entity to PromotionTariffResponseDto." +
+                "Entity content: {}. DTO content: {}.", promotionTariff, promotionTariffResponseDto);
+        return promotionTariffResponseDto;
+    }
     public List<PromotionTariffResponseDto> getAllActivePromotionTariff() {
         List<PromotionTariff> promotionTariffList = promotionTariffService.getAllActivePromotionTariff();
 

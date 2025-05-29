@@ -11,9 +11,10 @@ import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
-import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.model.event.EventFilter;
+import school.faang.user_service.model.redis.promotion.EventRedis;
 
 import java.util.List;
 
@@ -42,6 +43,10 @@ public interface EventMapper {
     List<EventDto> toDtoList(List<Event> events);
 
     EventFilter toFilter(EventFilterDto dto);
+
+
+    // TODO: дописать поля для маппинга
+    EventRedis toEventRedis(Event event);
 
     @Named("skillsToIds")
     default List<Long> skillsToIds(List<Skill> skills) {

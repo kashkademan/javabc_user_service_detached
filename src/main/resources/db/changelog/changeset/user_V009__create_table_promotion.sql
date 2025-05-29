@@ -22,10 +22,10 @@ CREATE TABLE promotion (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
 
-    CONSTRAINT fk_promotion_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT fk_promotion_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_promotion_event FOREIGN KEY (event_id) REFERENCES event(id),
     CONSTRAINT fk_promotion_tariff FOREIGN KEY (tariff_id) REFERENCES promotion_tariff(id),
-    CONSTRAINT chk_user_or_event CHECK (
+    CONSTRAINT user_or_event_check CHECK (
         (user_id IS NULL AND event_id IS NOT NULL) OR
         (user_id IS NOT NULL AND event_id IS NULL)
     )

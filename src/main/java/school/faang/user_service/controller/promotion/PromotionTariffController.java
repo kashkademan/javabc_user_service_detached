@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.promotion.PromotionTariffResponseDto;
@@ -18,6 +19,14 @@ import java.util.List;
 public class PromotionTariffController {
     private final PromotionTariffFacade promotionTariffFacade;
 
+    @GetMapping("/{tariffId}")
+    public ResponseEntity<PromotionTariffResponseDto> getPromotionTariffById(@PathVariable long tariffId) {
+        log.info("Promotion tariff controller accepted request get promotion tariff with id {}", tariffId);
+
+        PromotionTariffResponseDto response = promotionTariffFacade.getPromotionTariffById(tariffId);
+        log.info("Promotion tariff controller return response get promotion tariff {}", response);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping
     public ResponseEntity<List<PromotionTariffResponseDto>> getAllActivePromotionTariff() {
         log.info("Promotion tariff controller accepted request get all active promotion tariff");

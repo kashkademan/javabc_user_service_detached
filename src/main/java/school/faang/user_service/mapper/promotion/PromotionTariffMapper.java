@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.promotion.PromotionTariffResponseDto;
 import school.faang.user_service.entity.promotion.PromotionTariff;
+import school.faang.user_service.model.redis.promotion.PromotionTariffRedis;
 
 import java.util.List;
 
@@ -14,5 +15,7 @@ import java.util.List;
 public interface PromotionTariffMapper {
     PromotionTariffResponseDto toPromotionTariffResponseDto(final PromotionTariff promotionTariff);
 
-    List<PromotionTariffResponseDto> toPromotionTariffResponseDtoList(final List<PromotionTariff> promotionTariff);
+    List<PromotionTariffResponseDto> toPromotionTariffResponseDtoList(final List<PromotionTariff> promotionTariffs);
+
+    PromotionTariffRedis toPromotionTariffRedis(final PromotionTariff promotionTariff);
 }

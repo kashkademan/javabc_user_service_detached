@@ -17,11 +17,14 @@ public class PromotionFacade {
     private final PromotionMapper promotionMapper;
 
     public PromotionResponseDto createPromotion(final PromotionCreateRequestDto promotionCreateRequestDto) {
-        Promotion promotion = promotionMapper.toPromotionEntity(promotionCreateRequestDto);
-        log.debug("Mapping PromotionCreateRequestDto to Promotion entity.DTO content: {}. Entity content: {}.",
-                promotionCreateRequestDto, promotion);
+        // TODO: подумать нужен ли маппинг
+//        Promotion promotion = promotionMapper.toPromotionEntity(promotionCreateRequestDto);
+//        log.debug("Mapping PromotionCreateRequestDto to Promotion entity.DTO content: {}. Entity content: {}.",
+//                promotionCreateRequestDto, promotion);
 
-        promotion = promotionService.createPromotion(promotion, promotionCreateRequestDto.getEventId());
+        Promotion promotion = promotionService.createPromotion(
+                promotionCreateRequestDto.getEventId(),
+                promotionCreateRequestDto.getTariffId());
 
         PromotionResponseDto promotionResponseDto = promotionMapper.toPromotionResponseDto(promotion);
         log.debug("Mapping Promotion entity to PromotionResponseDto. Entity content: {}. DTO content: {}.",
