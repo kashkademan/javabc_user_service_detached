@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class EducationService {
-    private UserRepository userRepository;
-    private EducationRepository educationRepository;
-    private EducationMapper educationMapper;
+    private final UserRepository userRepository;
+    private final EducationRepository educationRepository;
+    private final EducationMapper educationMapper;
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         validate(userId, educationDto);
@@ -48,7 +48,7 @@ public class EducationService {
         if (userRepository.findById(userId).isEmpty()) {
             throw new DataValidationException("Wrong user id");
         }
-        if (educationDto.yearFrom() < LocalDateTime.now().getYear()) {
+        if (educationDto.yearFrom() > LocalDateTime.now().getYear()) {
             throw new DataValidationException("Year from can not be later than current year");
         }
     }

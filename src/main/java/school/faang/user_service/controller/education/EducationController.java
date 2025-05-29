@@ -8,7 +8,7 @@ import school.faang.user_service.service.education.EducationService;
 @Controller
 @RequiredArgsConstructor
 public class EducationController {
-    private EducationService educationService;
+    private final EducationService educationService;
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         return educationService.addEducation(userId, educationDto);
