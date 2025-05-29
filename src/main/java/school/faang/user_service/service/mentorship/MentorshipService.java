@@ -40,14 +40,19 @@ public class MentorshipService {
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
-        User mentor = findById(mentorId);
-        User mentee = findById(menteeId);
-        mentor.getMentees().remove(mentee);
-        mentee.getMentors().remove(mentor);
-        mentorshipRepository.save(mentee);
+        deleteMentorAndMentee(menteeId, mentorId);
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        deleteMentee(menteeId, mentorId);
+        deleteMentorAndMentee(menteeId, mentorId);
+    }
+
+    private void deleteMentorAndMentee(long menteeId, long mentorId) {
+        User mentee = findById(menteeId);
+        User mentor = findById(mentorId);
+        mentor.getMentees().remove(mentee);
+        mentee.getMentors().remove(mentor);
+        mentorshipRepository.save(mentee);
+        mentorshipRepository.save(mentor);
     }
 }

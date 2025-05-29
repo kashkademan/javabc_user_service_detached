@@ -64,10 +64,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(miras.getId()))
                 .thenReturn(Optional.of(miras));
 
-        mentorshipService.getMentees(miras.getId());
+        List<GetMenteesResponseDto> result = mentorshipService.getMentees(miras.getId());
 
-        assertNotNull(mentorshipService.getMentees(miras.getId()));
-        assertEquals(menteeList, mentorshipService.getMentees(miras.getId()));
+        assertNotNull(result);
+        assertEquals(menteeList, result);
     }
 
     @Test
@@ -91,10 +91,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(jon.getId()))
                 .thenReturn(Optional.of(jon));
 
-        mentorshipService.getMentors(jon.getId());
+        List<GetMentorsResponseDto> result = mentorshipService.getMentors(jon.getId());
 
-        assertNotNull(mentorshipService.getMentors(jon.getId()));
-        assertEquals(mentorList, mentorshipService.getMentors(jon.getId()));
+        assertNotNull(result);
+        assertEquals(mentorList, result);
     }
 
     @Test
@@ -123,6 +123,29 @@ public class MentorshipServiceTest {
 
         mentorshipService.deleteMentee(2L, 1L);
 
+        verify(mentorshipRepository, times(1)).save(jon);
+        verify(mentorshipRepository, times(1)).save(miras);
+    }
+
+    @Test
+    public void testDeleteMentor() {
+        User miras = createUser(1L, "Miras");
+        User jon = createUser(2L, "Jon");
+        List<User> mentees = new ArrayList<>();
+        List<User> mentors = new ArrayList<>();
+        mentees.add(jon);
+        mentors.add(miras);
+        miras.setMentees(mentees);
+        jon.setMentors(mentors);
+
+        when(mentorshipRepository.findById(miras.getId()))
+                .thenReturn(Optional.of(miras));
+        when(mentorshipRepository.findById(jon.getId()))
+                .thenReturn(Optional.of(jon));
+
+        mentorshipService.deleteMentor(2L, 1L);
+
+        verify(mentorshipRepository, times(1)).save(miras);
         verify(mentorshipRepository, times(1)).save(jon);
     }
 }
