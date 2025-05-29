@@ -19,12 +19,12 @@ public class MentorshipController {
 
     private final MentorshipService mentorshipService;
 
-    @GetMapping("/mentors/{mentorId}/mentees")
+    @GetMapping("/mentor/{mentorId}/mentees")
     public List<GetMenteesResponseDto> getMentees(@PathVariable Long mentorId) {
         return mentorshipService.getMentees(mentorId);
     }
 
-    @GetMapping("/mentees/{menteeId}/mentors")
+    @GetMapping("/mentee/{menteeId}/mentors")
     public List<GetMentorsResponseDto> getMentors(@PathVariable Long menteeId) {
         return mentorshipService.getMentors(menteeId);
     }

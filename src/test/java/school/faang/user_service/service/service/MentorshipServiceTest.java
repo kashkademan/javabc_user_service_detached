@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorship.GetMenteesResponseDto;
 import school.faang.user_service.dto.mentorship.GetMentorsResponseDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.mentorship.MenteeMapperImpl;
-import school.faang.user_service.mapper.mentorship.MentorMapperImpl;
+import school.faang.user_service.mapper.mentorship.MenteeMapper;
+import school.faang.user_service.mapper.mentorship.MentorMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -35,21 +35,13 @@ public class MentorshipServiceTest {
     private MentorshipRepository mentorshipRepository;
 
     @Spy
-    private MenteeMapperImpl menteeMapperImpl;
+    private MenteeMapper menteeMapper;
 
     @Spy
-    private MentorMapperImpl mentorsMapperImpl;
+    private MentorMapper mentorsMapper;
 
     @InjectMocks
     private MentorshipService mentorshipService;
-
-
-    private User createUser(long id, String username) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        return user;
-    }
 
     @Test
     public void testGetMentees() {
@@ -59,7 +51,7 @@ public class MentorshipServiceTest {
         mentees.add(jon);
         miras.setMentees(mentees);
         List<GetMenteesResponseDto> menteeList = mentees.stream()
-                .map(user -> menteeMapperImpl.toDto(user)).toList();
+                .map(user -> menteeMapper.toDto(user)).toList();
 
         when(mentorshipRepository.findById(miras.getId()))
                 .thenReturn(Optional.of(miras));
@@ -86,7 +78,7 @@ public class MentorshipServiceTest {
         mentors.add(miras);
         jon.setMentors(mentors);
         List<GetMentorsResponseDto> mentorList = mentors.stream()
-                .map(user -> mentorsMapperImpl.toDto(user)).toList();
+                .map(mentorsMapper::toDto).toList();
 
         when(mentorshipRepository.findById(jon.getId()))
                 .thenReturn(Optional.of(jon));
@@ -147,5 +139,9 @@ public class MentorshipServiceTest {
 
         verify(mentorshipRepository, times(1)).save(miras);
         verify(mentorshipRepository, times(1)).save(jon);
+    }
+
+    private User createUser(long id, String username) {
+        return User.builder().id(id).username(username).build();
     }
 }
