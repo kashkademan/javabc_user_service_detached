@@ -14,8 +14,12 @@ import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +29,10 @@ public class PromotionRedisService {
     private final EventRedisRepository eventRedisRepository;
     private final PromotionMapper promotionMapper;
     private final EventMapper eventMapper;
-    private static final int NUM = 5;
 
+    private static final Queue<String> DELETED_PROMOTION = new ArrayDeque<>();
+
+    // TODO: транзакция внутри транзакции
     @Transactional
     public void saveEventPromotion(Promotion promotion, Event event) {
         EventRedisModel eventRedisModel = eventMapper.toEventRedis(event);
@@ -34,6 +40,7 @@ public class PromotionRedisService {
 
         EventRedisModel saveEvent = eventRedisRepository.save(eventRedisModel);
         log.info("Event {} has been saved in redis", saveEvent);
+        // TODO: сохранять ещё и promotionId
         PromotionRedisModel savePromotion = promotionRedisRepository.save(promotionRedisModel);
         log.info("Promotion {} has been saved in redis", savePromotion);
     }
@@ -41,12 +48,52 @@ public class PromotionRedisService {
     // TODO: коэфициенты по тарифу
     // TODO: отнимать счётчик
     public List<Event> getPromotedEvents(EventFilter filter) {
-        eventRedisRepository.findAll();
-        List<Event> events = new ArrayList<>();
-//        List<Event> eventList = events.stream()
-//                .filter(event -> !filteredEvents.contains(event))
-//                .limit(NUM)
-//                .toList();
-        return events;
+
+        List<EventRedisModel> eventRedisModelList = getFilteredEventRedisModels(filter);
+
+        List<String> promotionIds = eventRedisModelList.stream()
+                .map(EventRedisModel::getPromotionId)
+                .toList();
+
+        promotionIds.forEach(this::decrementCountView);
+        
+        return eventRedisModelList.stream()
+                .map(eventMapper::toEventEntity)
+                .toList();
+    }
+
+    private List<EventRedisModel> getFilteredEventRedisModels(EventFilter filter) {
+        List<EventRedisModel> redisModels = StreamSupport
+                .stream(eventRedisRepository.findAll().spliterator(), false)
+                .toList();
+
+        return redisModels.stream()
+                .filter(eventRedis -> filter.getTitle() == null ||
+                        eventRedis.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()))
+                .filter(eventRedis -> filter.getEventType() == null ||
+                        Objects.equals(eventRedis.getType(), filter.getEventType()))
+                .filter(eventRedis -> filter.getEventStatus() == null ||
+                        Objects.equals(eventRedis.getStatus(), filter.getEventStatus()))
+                .filter(eventRedis -> filter.getStartFrom() == null ||
+                        !eventRedis.getStartDate().isBefore(filter.getStartFrom()))
+                .filter(eventRedis -> filter.getStartTo() == null ||
+                        !eventRedis.getStartDate().isAfter(filter.getStartTo()))
+                .sorted(Comparator.comparingInt(EventRedisModel::getCoefficientPriority).reversed())
+                .toList();
+    }
+
+    private void decrementCountView(String promotionId) {
+        PromotionRedisModel promotionRedisModel =
+                promotionRedisRepository.findById(promotionId).orElseThrow(RuntimeException::new);
+
+        Integer decrementCountView = promotionRedisModel.getCountView() - 1;
+
+        if (Objects.equals(decrementCountView, 0)) {
+            DELETED_PROMOTION.add(promotionRedisModel.getId());
+            promotionRedisRepository.deleteById(promotionId);
+        } else {
+            promotionRedisModel.setCountView(decrementCountView);
+            promotionRedisRepository.save(promotionRedisModel);
+        }
     }
 }

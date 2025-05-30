@@ -3,6 +3,7 @@ CREATE TABLE promotion_tariff (
     price NUMERIC(19,2) NOT NULL CHECK (price >= 0),
     count_view INTEGER NOT NULL,
     duration_days INTEGER NOT NULL,
+    coefficient_priority INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     deleted BOOLEAN DEFAULT FALSE NOT NULL,

@@ -56,6 +56,9 @@ public interface EventMapper {
     @Mapping(source = "relatedSkills", target = "relatedSkillIds", qualifiedByName = "skillsToIds")
     EventRedisModel toEventRedis(Event event);
 
+    // TODO: дописать поля для маппинга
+    Event toEventEntity(EventRedisModel eventRedisModel);
+
     @Named("skillsToIds")
     default List<Long> skillsToIds(List<Skill> skills) {
         if (skills == null) {

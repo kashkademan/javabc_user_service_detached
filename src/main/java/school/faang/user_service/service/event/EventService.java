@@ -25,7 +25,6 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class EventService {
-
     private final UserService userService;
     private final SkillService skillService;
     private final EventRepository eventRepository;
@@ -101,15 +100,14 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    //TODO: подумать где делать объедение
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilter filter) {
         List<Event> eventsFilterCash = promotionRedisService.getPromotedEvents(filter);
-        List<Long> eventIdsFilterCash = eventsFilterCash.stream()
+        List<Long> cachedEventIds = eventsFilterCash.stream()
                 .map(Event::getId)
                 .toList();
 
-        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, eventIdsFilterCash);
+        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, cachedEventIds);
         eventsFilterCash.addAll(eventsFilter);
 
         return eventsFilterCash;

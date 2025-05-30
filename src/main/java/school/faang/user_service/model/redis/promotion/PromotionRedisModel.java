@@ -25,6 +25,7 @@ public class PromotionRedisModel implements Serializable {
     private Long tariffId;
     private LocalDateTime endDate;
     private Integer countView;
+    private Integer coefficientPriority;
     private PromotionStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

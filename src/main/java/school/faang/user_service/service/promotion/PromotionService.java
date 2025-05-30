@@ -24,6 +24,7 @@ public class PromotionService {
     private final PromotionTariffService promotionTariffService;
     private final PromotionRedisService promotionRedisService;
 
+    // TODO: проверка, что при создании события существует и что на него нет активного события
     @Transactional
     public Promotion createPromotion(final Long eventId, final Long tariffId) {
 

@@ -25,7 +25,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+// TODO: добавить коэфициент просмотра
+// TODO: создать родителя
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,6 +50,9 @@ public class PromotionTariff {
 
     @Column(name = "duration_days", nullable = false)
     private Integer durationDays;
+
+    @Column(name = "coefficient_priority", nullable = false)
+    private Integer coefficientPriority;
 
     @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)
     @ToString.Exclude

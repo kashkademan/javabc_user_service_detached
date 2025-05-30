@@ -20,6 +20,7 @@ import java.util.List;
 public class EventRedisModel implements Serializable {
     @Id
     private String id;
+    private String promotionId;
     private String title;
     private String description;
     private LocalDateTime startDate;
@@ -34,4 +35,6 @@ public class EventRedisModel implements Serializable {
     private EventStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    // TODO: поле не смаплено и дублируется
+    private Integer coefficientPriority;
 }
