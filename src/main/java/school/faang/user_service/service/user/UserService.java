@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserScore;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.aspect.score.ActionType;
 import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.repository.user.UserScoreRepository;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final UserScoreRepository userScoreRepository;
     private final UserContext userContext;
 
     @Transactional(readOnly = true)
@@ -35,7 +38,7 @@ public class UserService {
         long userId = userContext.getUserId();
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.error("User with id {} not found", userId);
+                    log.error("User from context with id {} not found", userId);
                     return new UserNotFoundException(userId);
                 });
     }
@@ -43,5 +46,16 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> getUsersByIds(List<Long> userIds) {
         return userRepository.findAllById(userIds);
+    }
+
+    @Transactional
+    public void incrementUserScore(long userId, int scoreDelta) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        UserScore userScore = user.getScore();
+        userScore.setScore(userScore.getScore() + scoreDelta);
+        user.setScore(userScore);
+
+        userRepository.save(user);
     }
 }

@@ -11,9 +11,9 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
 
-import java.util.List;
 import java.util.Map;
 
+import static school.faang.user_service.aspect.util.AspectUtils.requireArgumentOfType;
 import static school.faang.user_service.aspect.score.ActionType.COMPLETE_EVENT;
 import static school.faang.user_service.aspect.score.ActionType.COMPLETE_GOAL;
 
@@ -21,6 +21,9 @@ import static school.faang.user_service.aspect.score.ActionType.COMPLETE_GOAL;
 @Component
 @RequiredArgsConstructor
 public class ScoreTrackingAspect {
+    private static final String USER_SCORE_KEY_PREFIX = "UserScores:";
+    private static final String HASH_KEY_PREFIX = "scoreDelta";
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final Map<ActionType, Integer> actionScores = Map.of(
@@ -43,75 +46,37 @@ public class ScoreTrackingAspect {
     }
 
     private void trackAfterCompleteGoal(ProceedingJoinPoint joinPoint, int scoreDelta) {
-        Object[] args = joinPoint.getArgs();
-        Goal goal = null;
-        for (Object arg : args) {
-            if (arg instanceof Goal) {
-                goal = (Goal) arg;
-                break;
-            }
-        }
+        Goal goal = requireArgumentOfType(joinPoint, Goal.class);
 
-        if (goal == null) {
-            return;
-        }
-
-        List<Long> userIds = goal.getUsers().stream()
+        goal.getUsers().stream()
                 .map(User::getId)
-                .toList();
-
-        userIds.forEach(userId -> updateUserScore(userId, scoreDelta));
+                .forEach(userId -> incrementUserScoreDelta(userId, scoreDelta));
     }
+
 
     private void trackAfterCompleteEvent(ProceedingJoinPoint joinPoint, int scoreDelta) {
-        Object[] args = joinPoint.getArgs();
-        Event event = null;
-        for (Object arg : args) {
-            if (arg instanceof Event) {
-                event = (Event) arg;
-                break;
-            }
-        }
-
-        if (event == null || event.getStatus() != EventStatus.COMPLETED) {
+        Event event = requireArgumentOfType(joinPoint, Event.class);
+        if (event.getStatus() != EventStatus.COMPLETED) {
             return;
         }
 
-        List<Long> participatedIds = event.getAttendees().stream()
+        event.getAttendees().stream()
                 .map(User::getId)
-                .toList();
+                .forEach(userId -> incrementUserScoreDelta(userId, scoreDelta));
 
-        participatedIds.forEach(userId -> updateUserScore(userId, scoreDelta));
-
-        Long ownerId = event.getOwner().getId();
-        updateUserScore(ownerId, scoreDelta);
+        incrementUserScoreDelta(event.getOwner().getId(), scoreDelta);
     }
 
-    //TODO: подумать как суммировать рейтинг каждого пользователя
-    //В кэше или в jobe
-    private void updateUserScore(long userId, int scoreDelta) {
-        String key = "UserScores:" + userId;
-        redisTemplate.opsForHash().put(key, "scoreDelta", scoreDelta);
+    private void incrementUserScoreDelta(long userId, int scoreDelta) {
+        String key = USER_SCORE_KEY_PREFIX + userId;
+        Object scoreValue = redisTemplate.opsForHash().get(key, HASH_KEY_PREFIX);
+
+        int currentDelta = 0;
+        if (scoreValue instanceof Integer i) {
+            currentDelta = i;
+        }
+
+        int newDelta = currentDelta + scoreDelta;
+        redisTemplate.opsForHash().put(key, HASH_KEY_PREFIX, newDelta);
     }
-
-    private void updateLeaderboard(long userId, int scoreDelta) {
-        String key = "Leaderboard";
-        Double currentScore = redisTemplate.opsForZSet().score(key, userId);
-        double newScore = (currentScore != null ? currentScore : 0) + scoreDelta;
-
-        redisTemplate.opsForZSet().add(key, userId, newScore);
-    }
-
-//    private <T> T injectArgument(ProceedingJoinPoint joinPoint) {
-//        Object[] args = joinPoint.getArgs();
-//        T object = null;
-//        for (Object arg : args) {
-//            if (arg instanceof Goal) {
-//                object = (T) arg;
-//                break;
-//            }
-//        }
-//
-//        return object;
-//    }
 }
