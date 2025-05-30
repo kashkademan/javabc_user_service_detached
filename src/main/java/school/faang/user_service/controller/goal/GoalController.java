@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalCreateRequestDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
-import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.facade.goal.GoalFacade;
 
 import java.util.List;
 
@@ -27,38 +26,39 @@ import java.util.List;
 @RequestMapping("/api/v1/goals")
 @Slf4j
 public class GoalController {
-    private final GoalService goalService;
-
+    private final GoalFacade goalFacade;
     @PostMapping
     public ResponseEntity<GoalResponseDto> createGoal(@RequestBody @Valid GoalCreateRequestDto goalCreateRequestDto) {
         log.info("Goal controller accepted request create goal {}", goalCreateRequestDto);
-        return new ResponseEntity<>(goalService.createGoal(goalCreateRequestDto), HttpStatus.CREATED) ;
+        GoalResponseDto response = goalFacade.createGoal(goalCreateRequestDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED) ;
     }
 
     @PatchMapping
     public ResponseEntity<GoalResponseDto> updateGoal(@RequestBody @Valid GoalUpdateRequestDto goalUpdateRequestDto) {
         log.info("Goal controller accepted request update goal with id {}", goalUpdateRequestDto.getId());
-        return ResponseEntity.ok(goalService.updateGoal(goalUpdateRequestDto));
+        GoalResponseDto response = goalFacade.updateGoal(goalUpdateRequestDto);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{goalId}")
     public ResponseEntity<Void> deleteGoal(@PathVariable long goalId) {
         log.info("Goal controller accepted request delete goal with id {}", goalId);
-        goalService.deleteGoalById(goalId);
+        goalFacade.deleteGoalById(goalId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/subtasks/{goalParentId}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<GoalResponseDto>> getSubtasksByGoalId(@PathVariable long goalParentId) {
         log.info("Goal controller accepted request get subtasks with parent id {}", goalParentId);
-        return ResponseEntity.ok(goalService.getSubtasksByParentGoalId(goalParentId));
+        List<GoalResponseDto> response = goalFacade.getSubtasksByParentGoalId(goalParentId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/filter")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<GoalResponseDto>> getGoalsByUser(@RequestBody @Valid GoalFilterDto filterDto) {
         log.info("Goal controller accepted request get goats for user with filter {}", filterDto);
-        return ResponseEntity.ok(goalService.getGoalsByUser(filterDto));
+        List<GoalResponseDto> response = goalFacade.getGoalsByUserAndFilter(filterDto);
+        return ResponseEntity.ok(response);
     }
 }
