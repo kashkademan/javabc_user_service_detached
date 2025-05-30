@@ -33,8 +33,8 @@ public class GoalService {
     private final GoalValidator goalValidator;
 
 
-    @Transactional
-    public Goal getGoalByIdOrThrow(long goalId) {
+    @Transactional(readOnly = true)
+    public Goal getGoalById(long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> {
                     log.error("Goal with id {} not found", goalId);
@@ -55,7 +55,7 @@ public class GoalService {
         goal.setUsers(users);
 
         if (parentId != null) {
-            Goal parentGoal = getGoalByIdOrThrow(parentId);
+            Goal parentGoal = getGoalById(parentId);
             goal.setParent(parentGoal);
         }
 
@@ -83,7 +83,7 @@ public class GoalService {
 
     @Transactional
     public void deleteGoalById(long goalId) {
-        getGoalByIdOrThrow(goalId);
+        getGoalById(goalId);
 
         goalRepository.deleteById(goalId);
         log.info("Goal with id {} has been deleted", goalId);
@@ -111,7 +111,7 @@ public class GoalService {
     }
 
     public Goal getGoalByIdIfActiveElseThrow(long goalId) {
-        Goal goal = getGoalByIdOrThrow(goalId);
+        Goal goal = getGoalById(goalId);
         goalValidator.checkGoalIsCompleted(goal);
         return goal;
     }

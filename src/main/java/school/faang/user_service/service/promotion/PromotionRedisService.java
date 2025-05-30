@@ -13,12 +13,13 @@ import school.faang.user_service.model.redis.promotion.EventRedisModel;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
+import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
 
-import java.util.ArrayDeque;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -27,10 +28,9 @@ import java.util.stream.StreamSupport;
 public class PromotionRedisService {
     private final PromotionRedisRepository promotionRedisRepository;
     private final EventRedisRepository eventRedisRepository;
+    private final PromotionViewExpiredQueueStorage promotionViewExpiredQueueStorage;
     private final PromotionMapper promotionMapper;
     private final EventMapper eventMapper;
-
-    private static final Queue<String> DELETED_PROMOTION = new ArrayDeque<>();
 
     // TODO: транзакция внутри транзакции
     @Transactional
@@ -41,6 +41,9 @@ public class PromotionRedisService {
         EventRedisModel saveEvent = eventRedisRepository.save(eventRedisModel);
         log.info("Event {} has been saved in redis", saveEvent);
         // TODO: сохранять ещё и promotionId
+        // TODO: условие на TTL
+        long seconds = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
+        promotionRedisModel.setTtl(Math.max(seconds, 0)); // защита от отрицательных значений
         PromotionRedisModel savePromotion = promotionRedisRepository.save(promotionRedisModel);
         log.info("Promotion {} has been saved in redis", savePromotion);
     }
@@ -89,7 +92,7 @@ public class PromotionRedisService {
         Integer decrementCountView = promotionRedisModel.getCountView() - 1;
 
         if (Objects.equals(decrementCountView, 0)) {
-            DELETED_PROMOTION.add(promotionRedisModel.getId());
+            promotionViewExpiredQueueStorage.addDeletedPromotion(promotionRedisModel.getId());
             promotionRedisRepository.deleteById(promotionId);
         } else {
             promotionRedisModel.setCountView(decrementCountView);

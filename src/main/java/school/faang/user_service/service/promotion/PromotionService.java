@@ -7,12 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
+import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.service.event.EventService;
 
 import java.time.LocalDateTime;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
+import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
+import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_VIEW;
 import static school.faang.user_service.entity.promotion.PromotionType.EVENT;
 
 @Service
@@ -23,6 +26,15 @@ public class PromotionService {
     private final EventService eventService;
     private final PromotionTariffService promotionTariffService;
     private final PromotionRedisService promotionRedisService;
+
+    @Transactional(readOnly = true)
+    public Promotion getPromotionById(long promotionId) {
+        return promotionRepository.findById(promotionId)
+                .orElseThrow(() -> {
+                    log.error("Promotion with id {} not found", promotionId);
+                    return new PromotionNotFoundException(promotionId);
+                });
+    }
 
     // TODO: проверка, что при создании события существует и что на него нет активного события
     @Transactional
@@ -46,5 +58,23 @@ public class PromotionService {
         promotionRedisService.saveEventPromotion(promotion, event);
 
         return savePromotion;
+    }
+
+    @Transactional
+    public void finishedPromotionByView(long promotionId) {
+        Promotion promotion = getPromotionById(promotionId);
+
+        promotion.setStatus(FINISHED_VIEW);
+        promotionRepository.save(promotion);
+        log.info("Promotion with id {} finished by view", promotionId);
+    }
+
+    @Transactional
+    public void finishedPromotionByTime(long promotionId) {
+        Promotion promotion = getPromotionById(promotionId);
+
+        promotion.setStatus(FINISHED_TIME);
+        promotionRepository.save(promotion);
+        log.info("Promotion with id {} finished by time", promotionId);
     }
 }

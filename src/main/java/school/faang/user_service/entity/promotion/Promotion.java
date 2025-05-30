@@ -49,9 +49,6 @@ public class Promotion {
     @ToString.Exclude
     private Event event;
 
-    /**
-     *  typeParam
-     **/
     @Column(name = "type", nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private PromotionType type;
@@ -68,9 +65,9 @@ public class Promotion {
     @Column(name = "count_view", nullable = false)
     private Integer countView;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "varchar default ACTIVE")
     @Enumerated(EnumType.STRING)
-    private PromotionStatus status;
+    private PromotionStatus status = PromotionStatus.ACTIVE;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

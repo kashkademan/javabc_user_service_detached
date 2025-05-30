@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.promotion.PromotionType;
 
@@ -19,6 +20,8 @@ import java.time.LocalDateTime;
 public class PromotionRedisModel implements Serializable {
     @Id
     private String id;
+    @TimeToLive
+    private Long ttl;
     private Long userId;
     private Long eventId;
     private PromotionType type;

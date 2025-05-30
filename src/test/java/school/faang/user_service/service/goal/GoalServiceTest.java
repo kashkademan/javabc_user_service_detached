@@ -86,7 +86,7 @@ public class GoalServiceTest {
 
         when(goalRepository.findById(goal.getId())).thenReturn(Optional.of(goal));
 
-        Goal returnGoal = goalService.getGoalByIdOrThrow(goal.getId());
+        Goal returnGoal = goalService.getGoalById(goal.getId());
 
         verify(goalRepository, times(1)).findById(goal.getId());
         assertEquals(goal, returnGoal);
@@ -98,7 +98,7 @@ public class GoalServiceTest {
 
         when(goalRepository.findById(goal.getId())).thenReturn(Optional.empty());
 
-        assertThrows(GoalNotFoundException.class, () -> goalService.getGoalByIdOrThrow(goal.getId()));
+        assertThrows(GoalNotFoundException.class, () -> goalService.getGoalById(goal.getId()));
         verify(goalRepository, times(1)).findById(goal.getId());
     }
 
