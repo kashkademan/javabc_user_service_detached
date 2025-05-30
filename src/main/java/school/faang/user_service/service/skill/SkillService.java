@@ -100,7 +100,7 @@ public class SkillService {
 
     private List<UserSkillGuarantee> createGuaranteesFromOffers(List<SkillOffer> offers, Skill skill) {
         long userId = userContext.getUserId();
-        User user = userService.getUserByIdOrThrow(userId);
+        User user = userService.getUserById(userId);
         return offers.stream()
                 .map(offer -> UserSkillGuarantee.builder()
                         .user(user)

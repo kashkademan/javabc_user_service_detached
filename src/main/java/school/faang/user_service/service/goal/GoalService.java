@@ -51,7 +51,7 @@ public class GoalService {
         int countActiveGoalForUser = goalRepository.countActiveGoalsPerUser(userId);
         goalValidator.checkCountGoalForUser(userId, countActiveGoalForUser);
 
-        User owner = userService.getUserByIdOrThrow(userId);
+        User owner = userService.getUserById(userId);
         List<User> users = new ArrayList<>();
         users.add(owner);
         goal.setUsers(users);
@@ -66,7 +66,7 @@ public class GoalService {
         goal.setStatus(GoalStatus.ACTIVE);
 
         Goal savedGoal = goalRepository.save(goal);
-        log.info("Goal with id {} has been saved", savedGoal.getId());
+        log.info("Goal {} has been saved", savedGoal);
 
         return savedGoal;
     }
@@ -76,7 +76,7 @@ public class GoalService {
         setSkills(goal, skillIds);
 
         Goal saveGoal = goalRepository.save(goal);
-        log.info("Goal with id {} has been update", saveGoal.getId());
+        log.info("Goal {} has been update", saveGoal);
 
         if (Objects.equals(goal.getStatus(), GoalStatus.COMPLETED)) {
             completeGoal(saveGoal);
