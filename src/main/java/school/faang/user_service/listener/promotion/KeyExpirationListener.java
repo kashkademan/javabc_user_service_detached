@@ -7,6 +7,11 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
 
+import java.util.UUID;
+
+import static school.faang.user_service.model.redis.promotion.RedisHashType.EVENT_PROMOTION;
+import static school.faang.user_service.model.redis.promotion.RedisHashType.USER_PROMOTION;
+
 @Component
 @Slf4j
 public class KeyExpirationListener extends KeyExpirationEventMessageListener {
@@ -17,9 +22,12 @@ public class KeyExpirationListener extends KeyExpirationEventMessageListener {
         this.promotionViewExpiredQueueStorage = promotionViewExpiredQueueStorage;
     }
 
+    // TODO: нужно как-то получить promotion id
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        String promotionId = message.toString();
-        promotionViewExpiredQueueStorage.addDeletedPromotion(promotionId);
+        String key = message.toString();
+        if (key.startsWith(EVENT_PROMOTION.getHashName()) || key.startsWith(USER_PROMOTION.getHashName())) {
+            promotionViewExpiredQueueStorage.addDeletedPromotion(UUID.fromString(key));
+        }
     }
 }

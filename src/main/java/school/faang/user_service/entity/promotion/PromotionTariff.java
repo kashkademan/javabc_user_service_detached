@@ -25,12 +25,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 // TODO: добавить коэфициент просмотра
 // TODO: создать родителя
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "promotion_tariff")
 @ToString
@@ -39,7 +39,7 @@ import java.util.List;
 public class PromotionTariff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @DecimalMin("0.0")
     @Column(name = "price", nullable = false)

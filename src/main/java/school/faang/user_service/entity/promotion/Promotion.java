@@ -25,19 +25,18 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "promotion")
 @Check(constraints = "(user_id IS NULL AND event_id IS NOT NULL) OR (user_id IS NOT NULL AND event_id IS NULL)")
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable = false)

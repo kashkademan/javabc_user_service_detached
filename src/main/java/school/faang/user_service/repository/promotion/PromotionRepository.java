@@ -5,20 +5,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.promotion.PromotionStatus;
+
+import java.util.UUID;
 
 @Repository
-public interface PromotionRepository extends JpaRepository<Promotion, Long> {
-    @Query(nativeQuery = true, value = """
-            SELECT COUNT(*) > 0
-            FROM Promotion p
-            WHERE p.event_id = :event_id AND p.status = 'ACTIVE'
-            """)
-    boolean existsActivePromotionByEvent(@Param("event_id") Long eventId);
+public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
+    boolean existsByEventIdAndStatus(Long event_id, PromotionStatus status);
 
-    @Query(nativeQuery = true, value = """
-            SELECT COUNT(*) > 0
-            FROM Promotion p
-            WHERE p.user_id = :user_id AND p.status = 'ACTIVE'
-            """)
-    boolean existsActivePromotionByUser(@Param("user_id") Long userId);
+    boolean existsByUserIdAndStatus(Long user_id, PromotionStatus status);
 }

@@ -20,6 +20,7 @@ import school.faang.user_service.model.redis.promotion.EventRedisModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
@@ -49,7 +50,6 @@ public interface EventMapper {
 
 
     // TODO: дописать поля для маппинга
-    @Mapping(source = "id", target = "id", qualifiedByName = "longIdToStringId")
     @Mapping(source = "attendees", target = "attendeeIds", qualifiedByName = "attendeesToIds")
     @Mapping(source = "ratings", target = "ratingIds", qualifiedByName = "ratingsToIds")
     @Mapping(source = "owner.id", target = "ownerId")
@@ -69,13 +69,8 @@ public interface EventMapper {
                 .toList();
     }
 
-    @Named("longIdToStringId")
-    default String longIdToStringId(Long eventId) {
-        return String.valueOf(eventId);
-    }
-
     @Named("attendeesToIds")
-    default List<Long> attendeesToIds(List<User> users) {
+    default List<UUID> attendeesToIds(List<User> users) {
         if (users == null) {
             return new ArrayList<>();
         }

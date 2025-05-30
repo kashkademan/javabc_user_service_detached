@@ -10,8 +10,10 @@ import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
@@ -26,9 +28,10 @@ public class PromotionService {
     private final EventService eventService;
     private final PromotionTariffService promotionTariffService;
     private final PromotionRedisService promotionRedisService;
+    private final PromotionValidator promotionValidator;
 
     @Transactional(readOnly = true)
-    public Promotion getPromotionById(long promotionId) {
+    public Promotion getPromotionById(UUID promotionId) {
         return promotionRepository.findById(promotionId)
                 .orElseThrow(() -> {
                     log.error("Promotion with id {} not found", promotionId);
@@ -36,9 +39,9 @@ public class PromotionService {
                 });
     }
 
-    // TODO: проверка, что при создании события существует и что на него нет активного события
     @Transactional
-    public Promotion createPromotion(final Long eventId, final Long tariffId) {
+    public Promotion createPromotion(long eventId, long tariffId) {
+        promotionValidator.checkActivePromotionForEvent(eventId, tariffId);
 
         Event event = eventService.getEvent(eventId);
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);
@@ -51,7 +54,6 @@ public class PromotionService {
         promotion.setEndDate(LocalDateTime.now().plusDays(tariff.getDurationDays()));
         promotion.setStatus(ACTIVE);
 
-
         Promotion savePromotion = promotionRepository.save(promotion);
         log.info("Promotion with id {} has been created", savePromotion.getId());
 
@@ -61,7 +63,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByView(long promotionId) {
+    public void finishedPromotionByView(UUID promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_VIEW);
@@ -70,7 +72,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByTime(long promotionId) {
+    public void finishedPromotionByTime(UUID promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_TIME);

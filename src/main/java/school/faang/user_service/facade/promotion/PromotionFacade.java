@@ -3,7 +3,7 @@ package school.faang.user_service.facade.promotion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.promotion.PromotionCreateRequestDto;
+import school.faang.user_service.dto.promotion.PromotionEventCreateRequestDto;
 import school.faang.user_service.dto.promotion.PromotionResponseDto;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.mapper.promotion.PromotionMapper;
@@ -16,15 +16,15 @@ public class PromotionFacade {
     private final PromotionService promotionService;
     private final PromotionMapper promotionMapper;
 
-    public PromotionResponseDto createPromotion(final PromotionCreateRequestDto promotionCreateRequestDto) {
+    public PromotionResponseDto createPromotion(final PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
         // TODO: подумать нужен ли маппинг
 //        Promotion promotion = promotionMapper.toPromotionEntity(promotionCreateRequestDto);
 //        log.debug("Mapping PromotionCreateRequestDto to Promotion entity.DTO content: {}. Entity content: {}.",
 //                promotionCreateRequestDto, promotion);
 
         Promotion promotion = promotionService.createPromotion(
-                promotionCreateRequestDto.getEventId(),
-                promotionCreateRequestDto.getTariffId());
+                promotionEventCreateRequestDto.getEventId(),
+                promotionEventCreateRequestDto.getTariffId());
 
         PromotionResponseDto promotionResponseDto = promotionMapper.toPromotionResponseDto(promotion);
         log.debug("Mapping Promotion entity to PromotionResponseDto. Entity content: {}. DTO content: {}.",

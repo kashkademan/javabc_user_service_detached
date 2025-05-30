@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.promotion.PromotionCreateRequestDto;
+import school.faang.user_service.dto.promotion.PromotionEventCreateRequestDto;
 import school.faang.user_service.dto.promotion.PromotionResponseDto;
 import school.faang.user_service.facade.promotion.PromotionFacade;
 
@@ -21,10 +21,10 @@ public class PromotionController {
 
     @PostMapping
     public ResponseEntity<PromotionResponseDto> createPromotion
-            (@RequestBody PromotionCreateRequestDto promotionCreateRequestDto) {
-        log.info("Promotion controller accepted request get create promotion {}", promotionCreateRequestDto);
+            (@RequestBody PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
+        log.info("Promotion controller accepted request get create promotion {}", promotionEventCreateRequestDto);
 
-        PromotionResponseDto response = promotionFacade.createPromotion(promotionCreateRequestDto);
+        PromotionResponseDto response = promotionFacade.createPromotion(promotionEventCreateRequestDto);
         log.info("Promotion  controller return response get create promotion {}", response);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

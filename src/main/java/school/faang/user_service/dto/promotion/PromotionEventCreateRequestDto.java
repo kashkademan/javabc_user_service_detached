@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.promotion;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PromotionCreateRequestDto {
+public class PromotionEventCreateRequestDto {
+    @NotNull(message = "EventId is mandatory")
     private Long eventId;
-//    private PromotionType type;
+    @NotNull(message = "TariffId is mandatory")
     private Long tariffId;
 }

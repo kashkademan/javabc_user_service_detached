@@ -11,26 +11,39 @@ import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
+import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExistsException;
+import school.faang.user_service.exception.promotion.PromotionNotFoundException;
+import school.faang.user_service.exception.promotion.PromotionTariffNotFoundException;
+import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
+import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
 public class UserServiceExceptionHandler {
-    private static final Map<Class<? extends Exception>, HttpStatus> httpStatusMap = Map.of(
-            UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED,
-            GoalNotFoundException.class, HttpStatus.NOT_FOUND,
-            UserNotFoundException.class, HttpStatus.NOT_FOUND,
-            SkillNotFoundException.class, HttpStatus.NOT_FOUND,
-            CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT,
-            GoalAlreadyCompletedException.class, HttpStatus.CONFLICT,
-            MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST
-    );
+    private static final Map<Class<? extends Exception>, HttpStatus> HTTP_STATUS_MAP  = new HashMap<>();
+
+    static {
+        HTTP_STATUS_MAP.put(UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED);
+        HTTP_STATUS_MAP.put(GoalNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(UserNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(SkillNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(PromotionNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(PromotionTariffNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(GoalAlreadyCompletedException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(SkillAlreadyExistsException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
+    }
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
             MethodArgumentNotValidException.class, ex ->
                     formatMethodArgumentNotValidException((MethodArgumentNotValidException) ex)
@@ -41,8 +54,13 @@ public class UserServiceExceptionHandler {
             GoalNotFoundException.class,
             UserNotFoundException.class,
             SkillNotFoundException.class,
+            PromotionNotFoundException.class,
+            PromotionTariffNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
+            SkillAlreadyExistsException.class,
+            NotEnoughSkillOffersException.class,
+            ActivePromotionAlreadyExistsException.class,
             MethodArgumentNotValidException.class
     })
     public ResponseEntity<UserServiceErrorResponseDto> handleException(Exception ex) {
@@ -70,7 +88,7 @@ public class UserServiceExceptionHandler {
     private ResponseEntity<UserServiceErrorResponseDto> createErrorResponse(String errorMsg,
                                                                             HttpStatus status,
                                                                             Exception ex) {
-        log.error("Error in GoalController: {}, response status {}", errorMsg, status, ex);
+        log.error("Error in user-service: {}, response status {}", errorMsg, status, ex);
         UserServiceErrorResponseDto response =
                 new UserServiceErrorResponseDto(errorMsg,LocalDateTime.now(), status.value());
         return new ResponseEntity<>(response, status);

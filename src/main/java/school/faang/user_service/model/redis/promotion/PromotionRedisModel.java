@@ -1,6 +1,5 @@
 package school.faang.user_service.model.redis.promotion;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,15 +10,14 @@ import school.faang.user_service.entity.promotion.PromotionType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-// TODO: наcтроить TTL
 @RedisHash("promotion")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromotionRedisModel implements Serializable {
-    @Id
-    private String id;
+    private UUID id;
     @TimeToLive
     private Long ttl;
     private Long userId;
