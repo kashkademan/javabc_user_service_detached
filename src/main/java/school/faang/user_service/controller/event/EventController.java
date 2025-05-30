@@ -48,7 +48,7 @@ public class EventController {
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Void> delete(@PathVariable long eventId) {
         eventFacade.delete(eventId);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/owned/{userId}")
