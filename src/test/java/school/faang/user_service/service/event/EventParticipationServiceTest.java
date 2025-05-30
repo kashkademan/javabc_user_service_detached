@@ -101,10 +101,6 @@ public class EventParticipationServiceTest {
         verifyNoMoreInteractions(eventParticipationRepository);
     }
 
-    private User createUser(Long id, String username) {
-        return User.builder().id(id).username(username).build();
-    }
-
     @Test
     public void testGetParticipantsCountSuccess() {
         int expectedCount = 5;
@@ -116,5 +112,9 @@ public class EventParticipationServiceTest {
         assertEquals(expectedCount, actualCount);
         verify(eventParticipationRepository).countParticipants(eventId);
         verifyNoMoreInteractions(eventParticipationRepository);
+    }
+
+    private User createUser(Long id, String username) {
+        return User.builder().id(id).username(username).build();
     }
 }
