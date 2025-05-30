@@ -30,10 +30,10 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable long userId) {
+    public ResponseEntity<UserResponseDto> getUserByIdOrThrow(@PathVariable long userId) {
         log.debug("User controller accepted request get user with id {}", userId);
 
-        UserResponseDto response = userFacade.getUserById(userId);
+        UserResponseDto response = userFacade.getUserByIdOrThrow(userId);
         log.debug("User controller return response get user {}", response);
         return ResponseEntity.ok(response);
     }

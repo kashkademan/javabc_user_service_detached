@@ -7,10 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,20 +40,20 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserById_successfully() {
+    public void testgetUserByIdOrThrow_successfully() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        User returnUser = userService.getUserById(user.getId());
+        User returnUser = userService.getUserByIdOrThrow(user.getId());
 
         verify(userRepository, times(1)).findById(user.getId());
         assertEquals(user.getId(), returnUser.getId());
     }
 
     @Test
-    public void testGetUserById_userNotFound() {
+    public void testgetUserByIdOrThrow_userNotFound() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(user.getId()));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserByIdOrThrow(user.getId()));
         verify(userRepository, times(1)).findById(user.getId());
     }
 

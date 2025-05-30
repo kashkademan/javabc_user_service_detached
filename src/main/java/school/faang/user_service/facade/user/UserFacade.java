@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserResponseDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.service.user.UserService;
 
@@ -26,8 +26,8 @@ public class UserFacade {
         return userResponseDto;
     }
 
-    public UserResponseDto getUserById(long userId) {
-        User user = userService.getUserById(userId);
+    public UserResponseDto getUserByIdOrThrow(long userId) {
+        User user = userService.getUserByIdOrThrow(userId);
 
         UserResponseDto userResponseDto = userMapper.toUserResponseDto(user);
         log.debug("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",

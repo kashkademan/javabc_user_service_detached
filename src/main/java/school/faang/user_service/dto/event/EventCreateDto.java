@@ -25,5 +25,5 @@ public class EventCreateDto {
     private String location;
     private List<Long> relatedSkills;
     @NotNull(message = "Название события обязательно")
-    private EventType eventType;
+    private EventType type;
 }

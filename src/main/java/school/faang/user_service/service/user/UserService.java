@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.model.redis.ActionType;
-import school.faang.user_service.model.redis.TrackActionScore;
+import school.faang.user_service.aspect.score.ActionType;
+import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;

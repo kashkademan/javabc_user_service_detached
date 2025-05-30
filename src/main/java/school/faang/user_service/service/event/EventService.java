@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
-import school.faang.user_service.model.redis.ActionType;
-import school.faang.user_service.model.redis.TrackActionScore;
+import school.faang.user_service.aspect.score.ActionType;
+import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -37,7 +36,7 @@ public class EventService {
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
         long userId = userContext.getUserId();
-        User owner = userService.getUserById(userId);
+        User owner = userService.getUserByIdOrThrow(userId);
         event.setOwner(owner);
 
         if (relatedSkillIds != null && !relatedSkillIds.isEmpty()) {

@@ -1,4 +1,4 @@
-package school.faang.user_service.model.redis;
+package school.faang.user_service.aspect.score;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,8 +14,8 @@ import school.faang.user_service.entity.user.User;
 import java.util.List;
 import java.util.Map;
 
-import static school.faang.user_service.model.redis.ActionType.COMPLETE_EVENT;
-import static school.faang.user_service.model.redis.ActionType.COMPLETE_GOAL;
+import static school.faang.user_service.aspect.score.ActionType.COMPLETE_EVENT;
+import static school.faang.user_service.aspect.score.ActionType.COMPLETE_GOAL;
 
 @Aspect
 @Component
@@ -28,7 +28,7 @@ public class ScoreTrackingAspect {
             COMPLETE_EVENT, 2
     );
 
-    @Around("@annotation(TrackActionScore)")
+    @Around("@annotation(trackActionScore)")
     public Object trackScore(ProceedingJoinPoint joinPoint, TrackActionScore trackActionScore) throws Throwable {
         Object result = joinPoint.proceed();
 

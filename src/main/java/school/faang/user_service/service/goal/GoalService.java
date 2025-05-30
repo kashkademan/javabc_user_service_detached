@@ -11,8 +11,8 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.model.goal.GoalFilter;
-import school.faang.user_service.model.redis.ActionType;
-import school.faang.user_service.model.redis.TrackActionScore;
+import school.faang.user_service.aspect.score.ActionType;
+import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
@@ -51,7 +51,7 @@ public class GoalService {
         int countActiveGoalForUser = goalRepository.countActiveGoalsPerUser(userId);
         goalValidator.checkCountGoalForUser(userId, countActiveGoalForUser);
 
-        User owner = userService.getUserById(userId);
+        User owner = userService.getUserByIdOrThrow(userId);
         List<User> users = new ArrayList<>();
         users.add(owner);
         goal.setUsers(users);
