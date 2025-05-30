@@ -8,18 +8,21 @@ import org.springframework.data.redis.core.RedisHash;
 import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.promotion.PromotionType;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@RedisHash("event_promotion")
+// TODO: наcтроить TTL
+@RedisHash("promotion")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventPromotionRedis {
+public class PromotionRedisModel implements Serializable {
     @Id
     private String id;
-    private EventRedis event;
+    private Long userId;
+    private Long eventId;
     private PromotionType type;
-    private PromotionTariffRedis tariff;
+    private Long tariffId;
     private LocalDateTime endDate;
     private Integer countView;
     private PromotionStatus status;

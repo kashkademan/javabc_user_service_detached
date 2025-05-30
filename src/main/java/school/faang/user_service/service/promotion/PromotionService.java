@@ -42,10 +42,7 @@ public class PromotionService {
         Promotion savePromotion = promotionRepository.save(promotion);
         log.info("Promotion with id {} has been created", savePromotion.getId());
 
-
-        // TODO: нужно подумать какой тип данныхвозвращать на клиент
-        promotionRedisService.saveEventPromotion(promotion, event, tariff);
-
+        promotionRedisService.saveEventPromotion(promotion, event);
 
         return savePromotion;
     }

@@ -13,6 +13,7 @@ import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.promotion.PromotionRedisService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.event.EventValidator;
@@ -31,6 +32,7 @@ public class EventService {
     private final EventFilterRepository eventFilterRepository;
     private final EventValidator eventValidator;
     private final UserContext userContext;
+    private final PromotionRedisService promotionRedisService;
 
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
@@ -99,8 +101,17 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    //TODO: подумать где делать объедение
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilter filter) {
-        return eventFilterRepository.findByFilter(filter);
+        List<Event> eventsFilterCash = promotionRedisService.getPromotedEvents(filter);
+        List<Long> eventIdsFilterCash = eventsFilterCash.stream()
+                .map(Event::getId)
+                .toList();
+
+        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, eventIdsFilterCash);
+        eventsFilterCash.addAll(eventsFilter);
+
+        return eventsFilterCash;
     }
 }
