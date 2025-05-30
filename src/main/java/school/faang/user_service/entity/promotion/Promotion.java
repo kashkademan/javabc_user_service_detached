@@ -65,7 +65,7 @@ public class Promotion {
     @Column(name = "count_view", nullable = false)
     private Integer countView;
 
-    @Column(name = "status", nullable = false, columnDefinition = "varchar default ACTIVE")
+    @Column(name = "status", nullable = false, columnDefinition = "varchar default 'ACTIVE'")
     @Enumerated(EnumType.STRING)
     private PromotionStatus status = PromotionStatus.ACTIVE;
 
