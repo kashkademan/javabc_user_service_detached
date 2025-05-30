@@ -141,7 +141,6 @@ tasks.jacocoTestReport {
                     "com/json/student/**",
                     //Список классов, на которые необходимо написать тесты.
                     // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
-                    "school/faang/user_service/service/event/EventParticipationService*", //Тесты на Василии
                     "school/faang/user_service/service/event/EventService*", // Тесты на Сергее
                     "school/faang/user_service/service/MentorshipRequestService*", // Тесты на Антоне
                     "school/faang/user_service/filter/event/**", // Тесты на Сергее
@@ -171,7 +170,6 @@ tasks.jacocoTestCoverageVerification {
                 "com.json.student.*",
                 //Список классов, на которые необходимо написать тесты.
                 // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
-                "school.faang.user_service.service.event.EventParticipationService*", //Тесты на Василии
                 "school.faang.user_service.service.event.EventService*", // Тесты на Сергее
                 "school.faang.user_service.service.MentorshipRequestService*", // Тесты на Антоне
                 "school.faang.user_service.filter.event.*", // Тесты на Сергее
