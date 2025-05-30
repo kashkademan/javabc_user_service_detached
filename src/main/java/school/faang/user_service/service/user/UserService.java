@@ -23,7 +23,7 @@ public class UserService {
     public User getUserByIdOrThrow(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.error("User with id {} not found", userId);
+                    log.error("User not found");
                     return new UserNotFoundException(userId);
                 });
     }
@@ -33,7 +33,7 @@ public class UserService {
         long userId = userContext.getUserId();
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.error("User from context with id {} not found", userId);
+                    log.error("User from context not found");
                     return new UserNotFoundException(userId);
                 });
     }
@@ -46,7 +46,10 @@ public class UserService {
     @Transactional
     public void incrementUserScore(long userId, int scoreDelta) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found");
+                    return new UserNotFoundException(userId);
+                });
         UserScore userScore = user.getScore();
         userScore.setScore(userScore.getScore() + scoreDelta);
         user.setScore(userScore);
