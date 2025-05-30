@@ -8,10 +8,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserScore;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.aspect.score.ActionType;
-import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.repository.user.UserScoreRepository;
 
 import java.util.List;
 
@@ -20,11 +17,9 @@ import java.util.List;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
-    private final UserScoreRepository userScoreRepository;
     private final UserContext userContext;
 
     @Transactional(readOnly = true)
-    @TrackActionScore(ActionType.OPEN_PROFILE)
     public User getUserByIdOrThrow(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
