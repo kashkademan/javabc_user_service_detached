@@ -78,20 +78,20 @@ public class GoalService {
         Goal saveGoal = goalRepository.save(goal);
         log.info("Goal with id {} has been update", saveGoal.getId());
 
-        assignSkillsToAllUsersIfGoalCompleted(saveGoal);
+        if (Objects.equals(goal.getStatus(), GoalStatus.COMPLETED)) {
+            completeGoal(saveGoal);
+        }
 
         return saveGoal;
     }
 
     @Transactional
-    @TrackActionScore(ActionType.FINISH_GOAL)
     public void deleteGoalById(long goalId) {
         getGoalByIdOrThrow(goalId);
 
         goalRepository.deleteById(goalId);
         log.info("Goal with id {} has been deleted", goalId);
     }
-
 
     @Transactional(readOnly = true)
     public List<Goal> getSubtasksByParentGoalId(long goalParentId) {
@@ -113,22 +113,22 @@ public class GoalService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Goal getGoalByIdIfActiveElseThrow(long goalId) {
         Goal goal = getGoalByIdOrThrow(goalId);
         goalValidator.checkGoalIsCompleted(goal);
         return goal;
     }
 
-    private void assignSkillsToAllUsersIfGoalCompleted(Goal saveGoal) {
-        if (Objects.equals(saveGoal.getStatus(), GoalStatus.COMPLETED)) {
-            List<Long> userIds = saveGoal.getUsers().stream()
-                    .map(User::getId)
-                    .toList();
-            List<Long> skillIds = saveGoal.getSkillsToAchieve().stream()
-                    .map(Skill::getId)
-                    .toList();
-            skillService.assignSkillsToUsers(skillIds, userIds);
-        }
+    @TrackActionScore(ActionType.COMPLETE_GOAL)
+    private void completeGoal(Goal goal) {
+        List<Long> userIds = goal.getUsers().stream()
+                .map(User::getId)
+                .toList();
+        List<Long> skillIds = goal.getSkillsToAchieve().stream()
+                .map(Skill::getId)
+                .toList();
+        skillService.assignSkillsToUsers(skillIds, userIds);
     }
 
     private void setSkills(Goal goal, List<Long> skillIds) {

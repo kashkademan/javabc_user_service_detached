@@ -6,24 +6,26 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.user.User;
 
+import java.util.List;
 import java.util.Map;
 
-import static school.faang.user_service.model.redis.ActionType.FINISH_EVENT;
-import static school.faang.user_service.model.redis.ActionType.FINISH_GOAL;
-import static school.faang.user_service.model.redis.ActionType.GET_RECOMMENDATION;
-import static school.faang.user_service.model.redis.ActionType.OPEN_PROFILE;
+import static school.faang.user_service.model.redis.ActionType.COMPLETE_EVENT;
+import static school.faang.user_service.model.redis.ActionType.COMPLETE_GOAL;
 
-@Component
 @Aspect
+@Component
 @RequiredArgsConstructor
 public class ScoreTrackingAspect {
     private final RedisTemplate<String, Object> redisTemplate;
+
     private final Map<ActionType, Integer> actionScores = Map.of(
-            FINISH_GOAL, 10,
-            FINISH_EVENT, 2,
-            OPEN_PROFILE, 4,
-            GET_RECOMMENDATION, 6
+            COMPLETE_GOAL, 10,
+            COMPLETE_EVENT, 2
     );
 
     @Around("@annotation(TrackActionScore)")
@@ -31,26 +33,58 @@ public class ScoreTrackingAspect {
         Object result = joinPoint.proceed();
 
         ActionType type = trackActionScore.value();
+        int score = actionScores.getOrDefault(type, 0);
         switch (type) {
-            case FINISH_GOAL -> {
-                return 0;
-            }
+            case COMPLETE_GOAL -> trackAfterCompleteGoal(joinPoint, score);
+            case COMPLETE_EVENT -> trackAfterCompleteEvent(joinPoint, score);
         }
 
-        int score = actionScores.getOrDefault(type, 0);
+        return result;
+    }
+
+    private void trackAfterCompleteGoal(ProceedingJoinPoint joinPoint, int scoreDelta) {
         Object[] args = joinPoint.getArgs();
-        long userId = 0;
+        Goal goal = null;
         for (Object arg : args) {
-            if (arg instanceof Long) {
-                userId = (Long) arg;
+            if (arg instanceof Goal) {
+                goal = (Goal) arg;
                 break;
             }
         }
 
-        updateUserScore(userId, score);
-        updateLeaderboard(userId, score);
+        if (goal == null) {
+            return;
+        }
 
-        return result;
+        List<Long> userIds = goal.getUsers().stream()
+                .map(User::getId)
+                .toList();
+
+        userIds.forEach(userId -> updateUserScore(userId, scoreDelta));
+    }
+
+    private void trackAfterCompleteEvent(ProceedingJoinPoint joinPoint, int scoreDelta) {
+        Object[] args = joinPoint.getArgs();
+        Event event = null;
+        for (Object arg : args) {
+            if (arg instanceof Event) {
+                event = (Event) arg;
+                break;
+            }
+        }
+
+        if (event == null || event.getStatus() != EventStatus.COMPLETED) {
+            return;
+        }
+
+        List<Long> participatedIds = event.getAttendees().stream()
+                .map(User::getId)
+                .toList();
+
+        participatedIds.forEach(userId -> updateUserScore(userId, scoreDelta));
+
+        Long ownerId = event.getOwner().getId();
+        updateUserScore(ownerId, scoreDelta);
     }
 
     //TODO: подумать как суммировать рейтинг каждого пользователя
@@ -67,4 +101,17 @@ public class ScoreTrackingAspect {
 
         redisTemplate.opsForZSet().add(key, userId, newScore);
     }
+
+//    private <T> T injectArgument(ProceedingJoinPoint joinPoint) {
+//        Object[] args = joinPoint.getArgs();
+//        T object = null;
+//        for (Object arg : args) {
+//            if (arg instanceof Goal) {
+//                object = (T) arg;
+//                break;
+//            }
+//        }
+//
+//        return object;
+//    }
 }
