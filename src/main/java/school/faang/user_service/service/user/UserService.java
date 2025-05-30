@@ -13,7 +13,6 @@ import school.faang.user_service.repository.UserRepository;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final UserRepository userRepositoryAdapter;
     private final UserMapper userMapper;
 
     public User getUserById(Long id) {
