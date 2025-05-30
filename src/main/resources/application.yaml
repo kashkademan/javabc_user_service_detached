@@ -72,6 +72,18 @@ payment-service:
   host: localhost
   port: 9080
 
+service:
+  payment:
+    url: http://${payment-service.host}:${payment-service.port}
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+      payment_service:
+
 management:
   endpoints:
     web:
@@ -85,4 +97,5 @@ management:
 
 recommendation:
   range-between-recommendation: 6
+
 
