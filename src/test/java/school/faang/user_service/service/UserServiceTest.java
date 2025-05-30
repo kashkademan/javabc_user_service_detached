@@ -24,8 +24,9 @@ class UserServiceTest {
     @Test
     void getUserById() {
         long id = 1L;
-        User user = new User();
-        user.setId(id);
+        User user = User.builder()
+                .id(id)
+                .build();
 
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
 

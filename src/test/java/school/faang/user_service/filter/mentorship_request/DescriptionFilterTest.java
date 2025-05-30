@@ -52,8 +52,7 @@ class DescriptionFilterTest {
     }
 
     @Test
-    void testApplyOneComingOneWort() {
-        DescriptionFilter filter = new DescriptionFilter();
+    void testApplyOneComingOneWord() {
         Stream<MentorshipRequest> requests = Stream.of(
                 new MentorshipRequest(1L, "test one", null, null, null, null, null, null),
                 new MentorshipRequest(2L, "tEst two", null, null, null, null, null, null),
@@ -69,7 +68,6 @@ class DescriptionFilterTest {
 
     @Test
     void testApplyThreeComingTwoWort() {
-        DescriptionFilter filter = new DescriptionFilter();
         Stream<MentorshipRequest> requests = Stream.of(
                 new MentorshipRequest(1L, "test one two", null, null, null, null, null, null),
                 new MentorshipRequest(2L, "tEst two three", null, null, null, null, null, null),
@@ -85,7 +83,6 @@ class DescriptionFilterTest {
 
     @Test
     void testApplyNoSuitable() {
-        DescriptionFilter filter = new DescriptionFilter();
         Stream<MentorshipRequest> requests = Stream.of(
                 new MentorshipRequest(1L, "test one two", null, null, null, null, null, null),
                 new MentorshipRequest(2L, "tEst two three", null, null, null, null, null, null),
@@ -97,6 +94,21 @@ class DescriptionFilterTest {
         List<MentorshipRequest> list = filter.apply(requests, dto).toList();
 
         assertEquals(0, list.size());
+    }
+
+    @Test
+    void testApplySpecialCharacters(){
+        Stream<MentorshipRequest> requests = Stream.of(
+                new MentorshipRequest(1L, "test&@ one two", null, null, null, null, null, null),
+                new MentorshipRequest(2L, "tEst@ two three", null, null, null, null, null, null),
+                new MentorshipRequest(3L, "tesT& three for", null, null, null, null, null, null)
+        );
+
+        MentorshipRequestFilterDto dto = createDto("test&@");
+
+        List<MentorshipRequest> list = filter.apply(requests, dto).toList();
+
+        assertEquals(1, list.size());
     }
 
     private MentorshipRequestFilterDto createDto(String str){

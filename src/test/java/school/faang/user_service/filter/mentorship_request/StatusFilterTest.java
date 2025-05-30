@@ -29,11 +29,7 @@ class StatusFilterTest {
 
     @Test
     void testApplyFoundOne() {
-        Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, RequestStatus.ACCEPTED),
-                createMentorshipRequest(2L, RequestStatus.REJECTED),
-                createMentorshipRequest(3L, RequestStatus.PENDING)
-        );
+        Stream<MentorshipRequest> requests = creatStream(RequestStatus.ACCEPTED, RequestStatus.REJECTED, RequestStatus.PENDING);
 
         MentorshipRequestFilterDto dto = createDto(RequestStatus.ACCEPTED);
 
@@ -44,11 +40,8 @@ class StatusFilterTest {
 
     @Test
     void testApplyNoneFound() {
-        Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, RequestStatus.ACCEPTED),
-                createMentorshipRequest(2L, RequestStatus.ACCEPTED),
-                createMentorshipRequest(3L, RequestStatus.ACCEPTED)
-        );
+        Stream<MentorshipRequest> requests =
+                creatStream(RequestStatus.ACCEPTED, RequestStatus.ACCEPTED, RequestStatus.ACCEPTED);
 
         MentorshipRequestFilterDto dto = createDto(RequestStatus.PENDING);
 
@@ -59,11 +52,8 @@ class StatusFilterTest {
 
     @Test
     void testApplyFoundTwo() {
-        Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, RequestStatus.ACCEPTED),
-                createMentorshipRequest(2L, RequestStatus.ACCEPTED),
-                createMentorshipRequest(3L, RequestStatus.ACCEPTED)
-        );
+        Stream<MentorshipRequest> requests =
+                creatStream(RequestStatus.ACCEPTED, RequestStatus.ACCEPTED, RequestStatus.ACCEPTED);
 
         MentorshipRequestFilterDto dto = createDto(RequestStatus.ACCEPTED);
 
@@ -78,5 +68,13 @@ class StatusFilterTest {
 
     private MentorshipRequestFilterDto createDto(RequestStatus status) {
         return new MentorshipRequestFilterDto(null, null, null, status);
+    }
+
+    private Stream<MentorshipRequest> creatStream(RequestStatus status1, RequestStatus status2, RequestStatus status3) {
+        return Stream.of(
+                createMentorshipRequest(1L, status1),
+                createMentorshipRequest(2L, status2),
+                createMentorshipRequest(3L, status3)
+        );
     }
 }

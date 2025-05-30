@@ -29,13 +29,17 @@ class RequesterFilterTest {
 
     @Test
     void testApplyFoundOne() {
+        Long requesterId1 = 1L;
+        Long requesterId2 = 2L;
+        Long requesterId3 = 3L;
+
         Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, 1L),
-                createMentorshipRequest(2L, 2L),
-                createMentorshipRequest(3L, 3L)
+                createMentorshipRequest(requesterId1, requesterId1),
+                createMentorshipRequest(requesterId2, requesterId2),
+                createMentorshipRequest(requesterId3, requesterId3)
         );
 
-        MentorshipRequestFilterDto dto = createDto(1L);
+        MentorshipRequestFilterDto dto = createDto(requesterId1);
 
         List<MentorshipRequest> list = filter.apply(requests, dto).toList();
 
@@ -44,13 +48,18 @@ class RequesterFilterTest {
 
     @Test
     void testApplyNoneFound() {
+        Long requesterId1 = 1L;
+        Long requesterId2 = 2L;
+        Long requesterId3 = 3L;
+        Long requesterId4 = 4L;
+
         Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, 1L),
-                createMentorshipRequest(2L, 2L),
-                createMentorshipRequest(3L, 3L)
+                createMentorshipRequest(requesterId1, requesterId1),
+                createMentorshipRequest(requesterId2, requesterId2),
+                createMentorshipRequest(requesterId3, requesterId3)
         );
 
-        MentorshipRequestFilterDto dto = createDto(4L);
+        MentorshipRequestFilterDto dto = createDto(requesterId4);
 
         List<MentorshipRequest> list = filter.apply(requests, dto).toList();
 
@@ -59,13 +68,17 @@ class RequesterFilterTest {
 
     @Test
     void testApplyFoundTwo() {
+        Long requesterId1 = 1L;
+        Long requesterId2 = 2L;
+        Long requesterId3 = 3L;
+
         Stream<MentorshipRequest> requests = Stream.of(
-                createMentorshipRequest(1L, 1L),
-                createMentorshipRequest(2L, 1L),
-                createMentorshipRequest(3L, 2L)
+                createMentorshipRequest(requesterId1, requesterId1),
+                createMentorshipRequest(requesterId2, requesterId1),
+                createMentorshipRequest(requesterId3, requesterId3)
         );
 
-        MentorshipRequestFilterDto dto = createDto(1L);
+        MentorshipRequestFilterDto dto = createDto(requesterId1);
 
         List<MentorshipRequest> list = filter.apply(requests, dto).toList();
 
@@ -80,7 +93,7 @@ class RequesterFilterTest {
         return User.builder().id(id).build();
     }
 
-    private MentorshipRequestFilterDto createDto(Long requesterId){
+    private MentorshipRequestFilterDto createDto(Long requesterId) {
         return new MentorshipRequestFilterDto(null, requesterId, null, null);
     }
 }

@@ -72,6 +72,21 @@ class ReceiverFilterTest {
         assertEquals(2, list.size());
     }
 
+    @Test
+    void testApplyNegativeId() {
+        Stream<MentorshipRequest> requests = Stream.of(
+                createMentorshipRequest(1L, 1L),
+                createMentorshipRequest(2L, 1L),
+                createMentorshipRequest(3L, 2L)
+        );
+
+        MentorshipRequestFilterDto dto = createDto(-1L);
+
+        List<MentorshipRequest> list = filter.apply(requests, dto).toList();
+
+        assertEquals(0, list.size());
+    }
+
     private MentorshipRequest createMentorshipRequest(Long requestId, Long userId) {
         return new MentorshipRequest(requestId, null, null, createUserById(userId), null, null, null, null);
     }
