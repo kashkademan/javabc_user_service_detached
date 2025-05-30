@@ -30,7 +30,7 @@ public class EventDto {
     private List<Long> relatedSkills;
     private String location;
     @NotNull
-    private EventType eventType;
-    private EventStatus eventStatus;
+    private EventType type;
+    private EventStatus status;
     private LocalDateTime updatedAt;
 }
