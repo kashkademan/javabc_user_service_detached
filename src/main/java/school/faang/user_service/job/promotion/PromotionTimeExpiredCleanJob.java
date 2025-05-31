@@ -20,6 +20,7 @@ public class PromotionTimeExpiredCleanJob {
         while (promotionTimeExpiredQueueStorage.hasDeletedPromotions()) {
             String id = promotionTimeExpiredQueueStorage.pollDeletedPromotion();
             try {
+                // TODO: короткий ключ
                 long promotionId = Long.parseLong(id);
                 log.debug("Job promotion time clean ran finished promotion with id {}", promotionId);
                 promotionService.finishedPromotionByTime(promotionId);

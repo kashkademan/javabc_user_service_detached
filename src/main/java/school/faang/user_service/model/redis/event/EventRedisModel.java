@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RedisHash("event_promotion")
 @Data
@@ -31,10 +30,10 @@ public class EventRedisModel implements Serializable {
     private LocalDateTime endDate;
     private String location;
     private int maxAttendees;
-    private List<UUID> attendeeIds = new ArrayList<>();
-    private List<UUID> ratingIds = new ArrayList<>();
+    private List<Long> attendeeIds = new ArrayList<>();
+    private List<Long> ratingIds = new ArrayList<>();
     private Long ownerId;
-    private List<UUID> relatedSkillIds = new ArrayList<>();
+    private List<Long> relatedSkillIds = new ArrayList<>();
     private EventType type;
     private EventStatus status;
     private LocalDateTime createdAt;

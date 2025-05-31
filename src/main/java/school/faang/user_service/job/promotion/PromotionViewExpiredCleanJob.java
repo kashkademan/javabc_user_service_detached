@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
 
@@ -26,7 +25,7 @@ public class PromotionViewExpiredCleanJob {
                 log.debug("Job promotion view clean ran finished promotion with id {}", promotionId);
                 promotionService.finishedPromotionByView(promotionId);
             } catch (NumberFormatException ex) {
-                log.warn();
+                log.warn("Invalid promotion id in queue: {}", key, ex);
             }
         }
         log.info("Job promotion view clean finished");

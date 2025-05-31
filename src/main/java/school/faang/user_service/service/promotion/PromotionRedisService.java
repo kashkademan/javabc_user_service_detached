@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import static school.faang.user_service.model.redis.RedisHashType.EVENT_PROMOTION;
@@ -47,9 +46,15 @@ public class PromotionRedisService {
         eventRedisModel.setPromotionId(promotionRedisModel.getId());
         long ttlSecond = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
         eventRedisModel.setTtl(ttlSecond);
+        // TODO: возможно получится не дублировать
+        eventRedisModel.setCoefficientPriority(promotionRedisModel.getCoefficientPriority());
 
         EventRedisModel saveEvent = eventRedisRepository.save(eventRedisModel);
-        log.info("Event promotion {} has been saved in redis", saveEvent);
+        log.info("Event {} has been saved in redis", saveEvent);
+
+        promotionRedisModel.setTtl(ttlSecond);
+        PromotionRedisModel savePromotion = promotionRedisRepository.save(promotionRedisModel);
+        log.info("Promotion {} has been saved in redis", savePromotion);
     }
 
     public List<Event> getPromotedEvents(EventFilter filter) {
