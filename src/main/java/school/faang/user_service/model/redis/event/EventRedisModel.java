@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@RedisHash("event_promotion")
+@RedisHash("event")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

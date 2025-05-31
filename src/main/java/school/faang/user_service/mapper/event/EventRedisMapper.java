@@ -10,7 +10,7 @@ import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.model.redis.event.EventRedisModel;
-import school.faang.user_service.util.redis.RedisKeyUtil;
+import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public interface EventRedisMapper {
     @Mapping(source = "attendeeIds", target = "attendees", qualifiedByName = "idsToAttendees")
     @Mapping(source = "ratingIds", target = "ratings", qualifiedByName = "idsToRatings")
     @Mapping(source = "ownerId", target = "owner", qualifiedByName = "idToOwner")
-    @Mapping(source = "relatedSkillIds", target = "relatedSkillIds", qualifiedByName = "idsToRelatedSkills")
+    @Mapping(source = "relatedSkillIds", target = "relatedSkills", qualifiedByName = "idsToRelatedSkills")
     Event toEventEntity(EventRedisModel eventRedisModel);
 
     @Named("idToRedisKey")

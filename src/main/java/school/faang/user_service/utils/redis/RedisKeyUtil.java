@@ -1,4 +1,4 @@
-package school.faang.user_service.util.redis;
+package school.faang.user_service.utils.redis;
 
 import lombok.experimental.UtilityClass;
 import school.faang.user_service.exception.redis.InvalidRedisKeyException;

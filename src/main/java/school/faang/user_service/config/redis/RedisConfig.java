@@ -15,8 +15,6 @@ public class RedisConfig {
     private String host;
     @Value("${spring.data.redis.port}")
     private int post;
-
-    // TODO: мб RedisConnectionFactory
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
         JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
@@ -24,8 +22,6 @@ public class RedisConfig {
         jedisConnectionFactory.getStandaloneConfiguration().setPort(post);
         return jedisConnectionFactory;
     }
-
-    // TODO: сериализация
     @Bean
     RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory factory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();

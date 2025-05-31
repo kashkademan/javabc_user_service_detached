@@ -16,12 +16,7 @@ public class PromotionFacade {
     private final PromotionService promotionService;
     private final PromotionMapper promotionMapper;
 
-    public PromotionResponseDto createPromotion(final PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
-        // TODO: подумать нужен ли маппинг
-//        Promotion promotion = promotionMapper.toPromotionEntity(promotionCreateRequestDto);
-//        log.debug("Mapping PromotionCreateRequestDto to Promotion entity.DTO content: {}. Entity content: {}.",
-//                promotionCreateRequestDto, promotion);
-
+    public PromotionResponseDto createPromotion(PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
         Promotion promotion = promotionService.createPromotion(
                 promotionEventCreateRequestDto.getEventId(),
                 promotionEventCreateRequestDto.getTariffId());

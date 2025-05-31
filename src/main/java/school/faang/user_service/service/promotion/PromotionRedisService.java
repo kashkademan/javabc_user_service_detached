@@ -1,6 +1,5 @@
 package school.faang.user_service.service.promotion;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,28 +32,27 @@ public class PromotionRedisService {
     private final PromotionMapper promotionMapper;
     private final EventRedisMapper eventRedisMapper;
 
-    // TODO: инициализация redis при старте
-    @PostConstruct
-    public void init() {
-
-    }
-
-    public void saveEventPromotion(Promotion promotion, Event event) {
+    public void savePromotion(Promotion promotion, Event event) {
         PromotionRedisModel promotionRedisModel = promotionMapper.toEventPromotionRedis(promotion);
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
 
         eventRedisModel.setPromotionId(promotionRedisModel.getId());
         long ttlSecond = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
         eventRedisModel.setTtl(ttlSecond);
-        // TODO: возможно получится не дублировать
         eventRedisModel.setCoefficientPriority(promotionRedisModel.getCoefficientPriority());
 
-        EventRedisModel saveEvent = eventRedisRepository.save(eventRedisModel);
-        log.info("Event {} has been saved in redis", saveEvent);
+        EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);
+        log.info("Event {} has been saved in redis", savedEvent);
 
         promotionRedisModel.setTtl(ttlSecond);
-        PromotionRedisModel savePromotion = promotionRedisRepository.save(promotionRedisModel);
-        log.info("Promotion {} has been saved in redis", savePromotion);
+        PromotionRedisModel savedPromotion = promotionRedisRepository.save(promotionRedisModel);
+        log.info("Promotion {} has been saved in redis", savedPromotion);
+    }
+
+    public void updatePromotedEvent(Event event) {
+        EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
+        EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);
+        log.info("Event {} has been updated in redis", savedEvent);
     }
 
     public List<Event> getPromotedEvents(EventFilter filter) {
@@ -88,7 +86,6 @@ public class PromotionRedisService {
                 .toList();
     }
 
-    // TODO: продумать обработку исключений
     private void decrementCountView(String eventId, String promotionId) {
         try {
             PromotionRedisModel promotion = promotionRedisRepository.findById(promotionId)

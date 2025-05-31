@@ -83,7 +83,11 @@ public class EventService {
         }
 
         eventValidator.validateEventDates(event.getStartDate(), event.getEndDate());
-        return eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+        log.info("Event {} has been saved", savedEvent);
+
+        promotionRedisService.updatePromotedEvent(savedEvent);
+        return savedEvent;
     }
 
     @Transactional(readOnly = true)

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.redis.InvalidRedisKeyException;
 import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
-import school.faang.user_service.util.redis.RedisKeyUtil;
+import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 @Component
 @Slf4j

@@ -13,7 +13,6 @@ import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
@@ -57,7 +56,7 @@ public class PromotionService {
         Promotion savePromotion = promotionRepository.save(promotion);
         log.info("Promotion with id {} has been created", savePromotion.getId());
 
-        promotionRedisService.saveEventPromotion(promotion, event);
+        promotionRedisService.savePromotion(savePromotion, event);
 
         return savePromotion;
     }
