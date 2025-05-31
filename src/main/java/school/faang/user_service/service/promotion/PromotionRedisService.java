@@ -10,7 +10,7 @@ import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.mapper.promotion.PromotionMapper;
 import school.faang.user_service.model.event.EventFilter;
-import school.faang.user_service.model.redis.promotion.EventRedisModel;
+import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
-import static school.faang.user_service.model.redis.promotion.RedisHashType.EVENT_PROMOTION;
+import static school.faang.user_service.model.redis.RedisHashType.EVENT_PROMOTION;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class PromotionRedisService {
         PromotionRedisModel promotionRedisModel = promotionMapper.toEventPromotionRedis(promotion);
         EventRedisModel eventRedisModel = eventMapper.toEventRedis(event);
 
-        UUID eventId = UUID.fromString(EVENT_PROMOTION.getHashName() + ": " + eventRedisModel.getId());
+        String eventId = EVENT_PROMOTION.getHashName() + ": " + eventRedisModel.getId();
         eventRedisModel.setId(eventId);
         eventRedisModel.setPromotionId(promotionRedisModel.getId());
         long ttlSecond = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
@@ -85,7 +85,7 @@ public class PromotionRedisService {
     }
 
     // TODO: продумать обработку исключений
-    private void decrementCountView(UUID eventId, UUID promotionId) {
+    private void decrementCountView(String eventId, String promotionId) {
         try {
             PromotionRedisModel promotion = promotionRedisRepository.findById(promotionId)
                     .orElseThrow(() -> {

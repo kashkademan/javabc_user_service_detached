@@ -31,7 +31,7 @@ public class PromotionService {
     private final PromotionValidator promotionValidator;
 
     @Transactional(readOnly = true)
-    public Promotion getPromotionById(UUID promotionId) {
+    public Promotion getPromotionById(Long promotionId) {
         return promotionRepository.findById(promotionId)
                 .orElseThrow(() -> {
                     log.error("Promotion with id {} not found", promotionId);
@@ -63,7 +63,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByView(UUID promotionId) {
+    public void finishedPromotionByView(Long promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_VIEW);
@@ -72,7 +72,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByTime(UUID promotionId) {
+    public void finishedPromotionByTime(Long promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_TIME);

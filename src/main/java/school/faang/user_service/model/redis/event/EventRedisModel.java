@@ -1,4 +1,4 @@
-package school.faang.user_service.model.redis.promotion;
+package school.faang.user_service.model.redis.event;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
@@ -21,10 +21,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventRedisModel implements Serializable {
     @Id
-    private UUID id;
+    private String id;
     @TimeToLive
     private Long ttl;
-    private UUID promotionId;
+    private String promotionId;
     private String title;
     private String description;
     private LocalDateTime startDate;

@@ -1,4 +1,4 @@
-package school.faang.user_service.model.redis.promotion;
+package school.faang.user_service.model.redis.user;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;

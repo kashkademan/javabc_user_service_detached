@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
-
-import java.util.UUID;
 
 @Component
 @Slf4j
@@ -20,9 +19,15 @@ public class PromotionViewExpiredCleanJob {
     public void cleanupDeletedPromotions() {
         log.info("Job promotion view clean started");
         while (promotionViewExpiredQueueStorage.hasDeletedPromotions()) {
-            UUID promotionId = promotionViewExpiredQueueStorage.pollDeletedPromotion();
-            log.debug("Job promotion view clean ran finished promotion with id {}", promotionId);
-            promotionService.finishedPromotionByView(promotionId);
+            String key = promotionViewExpiredQueueStorage.pollDeletedPromotion();
+            try {
+                // TODO: короткий ключ
+                long promotionId = Long.parseLong(key);
+                log.debug("Job promotion view clean ran finished promotion with id {}", promotionId);
+                promotionService.finishedPromotionByView(promotionId);
+            } catch (NumberFormatException ex) {
+                log.warn();
+            }
         }
         log.info("Job promotion view clean finished");
     }

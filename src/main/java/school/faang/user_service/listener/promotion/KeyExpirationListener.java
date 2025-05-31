@@ -9,8 +9,8 @@ import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStor
 
 import java.util.UUID;
 
-import static school.faang.user_service.model.redis.promotion.RedisHashType.EVENT_PROMOTION;
-import static school.faang.user_service.model.redis.promotion.RedisHashType.USER_PROMOTION;
+import static school.faang.user_service.model.redis.RedisHashType.EVENT_PROMOTION;
+import static school.faang.user_service.model.redis.RedisHashType.USER_PROMOTION;
 
 @Component
 @Slf4j
