@@ -15,24 +15,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: добавить коэфициент просмотра
 // TODO: создать родителя
 @Getter
 @Setter
 @Entity
 @Table(name = "promotion_tariff")
 @ToString
-@SQLDelete(sql = "UPDATE promotion_tariff SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
-@Where(clause = "deleted = false")
 public class PromotionTariff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

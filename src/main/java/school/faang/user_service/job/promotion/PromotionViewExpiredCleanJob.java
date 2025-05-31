@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.exception.redis.InvalidRedisKeyException;
 import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
+import school.faang.user_service.util.redis.RedisKeyUtil;
 
 @Component
 @Slf4j
@@ -20,11 +22,10 @@ public class PromotionViewExpiredCleanJob {
         while (promotionViewExpiredQueueStorage.hasDeletedPromotions()) {
             String key = promotionViewExpiredQueueStorage.pollDeletedPromotion();
             try {
-                // TODO: короткий ключ
-                long promotionId = Long.parseLong(key);
+                long promotionId = RedisKeyUtil.extractId(key);
                 log.debug("Job promotion view clean ran finished promotion with id {}", promotionId);
                 promotionService.finishedPromotionByView(promotionId);
-            } catch (NumberFormatException ex) {
+            } catch (InvalidRedisKeyException ex) {
                 log.warn("Invalid promotion id in queue: {}", key, ex);
             }
         }

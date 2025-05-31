@@ -1,13 +1,13 @@
 package school.faang.user_service.service.promotion;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.event.EventRedisMapper;
 import school.faang.user_service.mapper.promotion.PromotionMapper;
 import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.model.redis.event.EventRedisModel;
@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import static school.faang.user_service.model.redis.RedisHashType.EVENT_PROMOTION;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,16 +31,18 @@ public class PromotionRedisService {
     private final PromotionRedisRepository promotionRedisRepository;
     private final PromotionViewExpiredQueueStorage promotionViewExpiredQueueStorage;
     private final PromotionMapper promotionMapper;
-    private final EventMapper eventMapper;
+    private final EventRedisMapper eventRedisMapper;
 
-    // TODO: транзакция внутри транзакции
-    @Transactional
+    // TODO: инициализация redis при старте
+    @PostConstruct
+    public void init() {
+
+    }
+
     public void saveEventPromotion(Promotion promotion, Event event) {
         PromotionRedisModel promotionRedisModel = promotionMapper.toEventPromotionRedis(promotion);
-        EventRedisModel eventRedisModel = eventMapper.toEventRedis(event);
+        EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
 
-        String eventId = EVENT_PROMOTION.getHashName() + ": " + eventRedisModel.getId();
-        eventRedisModel.setId(eventId);
         eventRedisModel.setPromotionId(promotionRedisModel.getId());
         long ttlSecond = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
         eventRedisModel.setTtl(ttlSecond);
@@ -64,7 +64,7 @@ public class PromotionRedisService {
         eventRedisModelList.forEach(eventModel -> decrementCountView(eventModel.getId(), eventModel.getPromotionId()));
         
         return eventRedisModelList.stream()
-                .map(eventMapper::toEventEntity)
+                .map(eventRedisMapper::toEventEntity)
                 .toList();
     }
 
@@ -84,7 +84,6 @@ public class PromotionRedisService {
                         !eventRedis.getStartDate().isBefore(filter.getStartFrom()))
                 .filter(eventRedis -> filter.getStartTo() == null ||
                         !eventRedis.getStartDate().isAfter(filter.getStartTo()))
-                // TODO: можно ли в redis not null constraint
                 .sorted(Comparator.comparingInt(EventRedisModel::getCoefficientPriority))
                 .toList();
     }

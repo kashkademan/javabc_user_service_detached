@@ -42,6 +42,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(SkillAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
+        //TODO: InvalidRedisKeyException;
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
     }
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(

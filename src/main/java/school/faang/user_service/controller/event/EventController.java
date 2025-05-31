@@ -64,7 +64,7 @@ public class EventController {
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<EventDto>> filter(@RequestBody EventFilterDto filter) {
+    public ResponseEntity<List<EventDto>> getEventByFilter(@RequestBody EventFilterDto filter) {
         List<EventDto> events = eventFacade.filter(filter);
         return ResponseEntity.ok(events);
     }
