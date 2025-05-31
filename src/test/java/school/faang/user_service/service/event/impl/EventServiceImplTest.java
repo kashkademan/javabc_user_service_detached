@@ -59,26 +59,26 @@ class EventServiceImplTest {
     private UserContext userContext;
     @InjectMocks
     private EventServiceImpl eventService;
-    User user;
-    User userWithoutSkills;
-    Event event;
-    Event eventUpdates;
-    Event eventWithoutSkills;
-    List<Skill> skills;
-    Skill skill1;
-    Skill skill2;
-    List<Long> skillIds;
-    Long ownerId = 1L;
-    Long userWithoutSkillsId = 2L;
-    Long eventId = 1L;
-    Long eventWithoutSkillsId = 2L;
-    String eventTitle = "Test Event";
-    String eventWithoutSkillsTitle = "Event without Skills";
-    LocalDateTime baseTime = LocalDateTime.of(2025, 5, 1, 12, 0);
-    String titleFilter = "Java";
-    List<Event> expectedEvents;
-    Long nonExistentId = 999L;
-    List<Event> events;
+    private User user;
+    private User userWithoutSkills;
+    private Event event;
+    private Event eventUpdates;
+    private Event eventWithoutSkills;
+    private List<Skill> skills;
+    private Skill skill1;
+    private Skill skill2;
+    private List<Long> skillIds;
+    private List<Event> events;
+    private List<Event> expectedEvents;
+    private final Long ownerId = 1L;
+    private final Long userWithoutSkillsId = 2L;
+    private final Long eventId = 1L;
+    private final Long eventWithoutSkillsId = 2L;
+    private final String eventTitle = "Test Event";
+    private final String eventWithoutSkillsTitle = "Event without Skills";
+    private final LocalDateTime baseTime = LocalDateTime.of(2025, 5, 1, 12, 0);
+    private final String titleFilter = "Java";
+    private final Long nonExistentId = 999L;
 
     @BeforeEach
     void setUp() {
@@ -144,9 +144,8 @@ class EventServiceImplTest {
         events = List.of(event, eventWithoutSkills);
     }
 
-    // тесты на метод create()
     @Test
-    void testCreateEventShouldSuccessfullyCreateEventWithValidData() {
+    void testCreateEventWithValidDataShouldSuccessfullyCreateEvent() {
         when(userContext.getUserId()).thenReturn(ownerId);
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(user));
         when(skillRepository.findAllById(skillIds)).thenReturn(skills);
@@ -199,9 +198,8 @@ class EventServiceImplTest {
         assertEquals(eventWithoutSkillsTitle, createdEvent.getTitle());
     }
 
-    // тесты на метод updateEvent()
     @Test
-    void testUpdateEventShouldSuccessfullyUpdateEventWithValidData() {
+    void testUpdateEventWithValidDataShouldSuccessfullyUpdateEvent() {
         when(userContext.getUserId()).thenReturn(ownerId);
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(user));
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -317,7 +315,6 @@ class EventServiceImplTest {
         verify(skillRepository).findAllById(skillIds);
     }
 
-    // тесты на метод getEventsByFilter()
     @Test
     void testGetEventsByFilterShouldFilterByTitle() {
         EventFilterDto filterByTitle = EventFilterDto.builder()
@@ -397,7 +394,6 @@ class EventServiceImplTest {
         verify(eventRepository).findAll(Mockito.<Specification<Event>>any());
     }
 
-    // тесты на метод getEvent()
     @Test
     void testGetEventShouldReturnEventWhenExists() {
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -420,7 +416,6 @@ class EventServiceImplTest {
         verify(eventRepository).findById(nonExistentId);
     }
 
-    // тесты на метод getOwnedEvents()
     @Test
     void testGetOwnedEventsShouldReturnOwnedEvents() {
         when(userContext.getUserId()).thenReturn(ownerId);
@@ -442,7 +437,6 @@ class EventServiceImplTest {
         verify(eventRepository).findAllByUserId(ownerId);
     }
 
-    // тесты на метод getParticipatedEvents()
     @Test
     void testGetParticipatedEventsShouldReturnEventsUserParticipatesIn() {
         when(userContext.getUserId()).thenReturn(ownerId);
@@ -465,7 +459,6 @@ class EventServiceImplTest {
         verify(eventRepository).findParticipatedEventsByUserId(ownerId);
     }
 
-    // тесты на метод deleteEvent()
     @Test
     void testDeleteEventShouldRemoveEventWhenItExists() {
         when(eventRepository.findOwnerIdByEventId(eventId)).thenReturn(Optional.of(ownerId));
