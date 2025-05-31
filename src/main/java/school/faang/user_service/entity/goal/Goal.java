@@ -35,7 +35,6 @@ import java.util.List;
 @Entity
 @Table(name = "goal")
 public class Goal {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

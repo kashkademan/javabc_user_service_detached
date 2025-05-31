@@ -5,10 +5,9 @@ import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.user.User;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT COUNT(s.id) FROM users u

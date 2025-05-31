@@ -5,9 +5,8 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.promotion.PromotionTariff;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
-public interface PromotionTariffRepository extends JpaRepository<PromotionTariff, UUID> {
+public interface PromotionTariffRepository extends JpaRepository<PromotionTariff, Long> {
     List<PromotionTariff> findAllByDeletedFalse();
 }

@@ -54,7 +54,7 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
 
     @Column(name = "username", length = 64, nullable = false, unique = true)
     private String username;

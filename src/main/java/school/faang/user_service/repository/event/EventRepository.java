@@ -5,9 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.event.Event;
 
 import java.util.List;
-import java.util.UUID;
 
-public interface EventRepository extends JpaRepository<Event, UUID> {
+public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT e.* FROM event e
