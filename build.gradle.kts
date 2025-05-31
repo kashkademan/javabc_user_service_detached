@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    jacoco
 }
 
 group = "faang.school"
@@ -87,6 +88,36 @@ jsonSchema2Pojo {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDirectory.set(layout.buildDirectory.dir("reports/jacoco"))
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+}
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(false) // Отключение XML отчета
+        csv.required.set(false) // Отключение CSV отчета
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml")) // Установка директории для HTML отчета
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.3".toBigDecimal()
+            }
+        }
+    }
+}
+
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
 
