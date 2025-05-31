@@ -1,5 +1,7 @@
 package school.faang.user_service.dto.recommendation;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,8 +12,11 @@ import java.util.List;
 @Builder
 public class RecommendationDto {
     private Long id;
+    @NotNull(message = "Author ID cannot be null")
     private Long authorId;
+    @NotNull(message = "Receiver ID cannot be null")
     private Long receiverId;
+    @NotBlank(message = "Recommendation text cannot be empty")
     private String content;
     private List<SkillOfferDto> skillOffers;
     private LocalDateTime createdAt;

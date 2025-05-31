@@ -22,14 +22,14 @@ public class EventDto {
     @Schema(description = "Unique id of event", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
     @Schema(description = "Title of the event", example = "Title", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank
+    @NotBlank(message = "Title is required.")
     private String title;
     @Schema(description = "Start date of the event", example = "2025-01-01T00:00", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull
+    @NotNull(message = "Start date is required.")
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     @Schema(description = "Owner id of the event", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull
+    @NotNull(message = "Owner is required.")
     private Long ownerId;
     private String description;
     private List<Long> relatedSkills;
