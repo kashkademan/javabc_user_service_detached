@@ -11,4 +11,5 @@ public class DiceBearConfig {
 
     private String apiUrl = "https://api.dicebear.com/9.x";
     private String style = "pixel-art";
+    private String defaultSeed = "defaultUserSeed";
 }

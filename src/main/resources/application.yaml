@@ -39,6 +39,4 @@ payment-service:
 dicebear:
   api-url: https://api.dicebear.com/9.x
   style: pixel-art
-
-default-avatar:
-  url: /images/default-avatar.svg
+  default-seed: defaultUserSeed
