@@ -18,12 +18,12 @@ public class AvatarController {
 
     @GetMapping("/{userId}/avatar")
     public AvatarDto getUserAvatar(@PathVariable @Positive(message = "User ID must be positive") Long userId) {
-        return avatarService.getAvatarDto(userId);
+        return avatarService.getAvatar(userId);
     }
 
     @PostMapping("/{userId}/avatar/generate")
     public AvatarDto generateUserAvatar(@PathVariable @Positive(message = "User ID must be positive") Long userId) {
-        return avatarService.generateAvatarDto(userId);
+        return avatarService.generateAvatar(userId);
     }
 
     @GetMapping("/{userId}/avatar/url")

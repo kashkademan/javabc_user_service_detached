@@ -8,7 +8,7 @@ public interface AvatarService {
 
     String getAvatarUrl(Long userId);
 
-    AvatarDto getAvatarDto(Long userId);
+    AvatarDto getAvatar(Long userId);
 
-    AvatarDto generateAvatarDto(Long userId);
+    AvatarDto generateAvatar(Long userId);
 }
