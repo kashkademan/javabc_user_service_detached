@@ -76,4 +76,11 @@ public class SubscriptionController {
         return subscriptionService.getFollowingCount(followerId);
     }
 
+    @GetMapping("/followers-id/{followeeId}")
+    @Operation(summary = "Получить идентификаторы подписчиков",
+            description = "Возвращает список идентификаторов подписчиков пользователя с переданным идентификатором")
+    public List<Long> getFollowerIds(@Parameter(description = "Идентификатор пользователя")
+                                         @PathVariable long followeeId) {
+        return subscriptionService.getFollowerIds(followeeId);
+    }
 }

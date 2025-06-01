@@ -27,6 +27,7 @@ import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.CsvMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.publisher.AuthorResponseEventPublisher;
 import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.publisher.SkillAcquiredEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
@@ -109,6 +110,9 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    @Mock
+    private AuthorResponseEventPublisher authorResponseEventPublisher;
+
     @BeforeEach
     void setUp() {
         userService = new UserService(
@@ -125,7 +129,8 @@ public class UserServiceTest {
                 s3Service,
                 compressorService,
                 skillAcquiredEventPublisher,
-                profileViewEventPublisher
+                profileViewEventPublisher,
+                authorResponseEventPublisher
         );
     }
 

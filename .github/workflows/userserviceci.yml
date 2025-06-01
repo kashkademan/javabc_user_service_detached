@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - titan-master-stream9
+      - Yom-stream9
 
 jobs:
   build:
@@ -30,7 +31,7 @@ jobs:
           gradle-${{ runner.os }}-
 
     - name: Step 4 - Build project with Gradle
-      run: ./gradlew build -x checkstyleMain -x checkstyleTest
+      run: ./gradlew clean build -x checkstyleMain -x checkstyleTest
 
     - name: Step 5 - Run tests with Gradle
       run: ./gradlew test

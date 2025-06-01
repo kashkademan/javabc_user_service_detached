@@ -8,7 +8,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -31,9 +31,39 @@ spring:
         skill-acquired: skill_acquired_channel
     kafka:
       bootstrap-servers: localhost:9092
-      group-id: user-service-group
       topic:
         userBan: user_ban
+        followers-request:
+          name: "post-followers-topic"
+          partitions: 3
+          replicas: 1
+        posts:
+          name: "posts-topic"
+          partitions: 3
+          replicas: 1
+        author-request:
+          name: "author-request-topic"
+          partitions: 3
+          replicas: 1
+        author-response:
+          name: "author-response-topic"
+          partitions: 3
+          replicas: 1
+        feed-warmup:
+          name: "feed-warmup-topic"
+          partitions: 3
+          replicas: 1
+        feed-users-response:
+          name: "feed-users-response-topic"
+          partitions: 3
+          replicas: 1
+      producer:
+        retry-backoff-ms: 1000
+        acks: all
+        enable-idempotence: true
+      consumer:
+        group-id: user-group
+        auto-offset-reset: earliest
 
   profiles:
     active: local
@@ -43,15 +73,7 @@ server:
 
 logging:
   level:
-    root: info
-
-project-service:
-  host: localhost
-  port: 8082
-
-payment-service:
-  host: localhost
-  port: 9080
+    root: debug
 
 s3:
   endpoint: http://localhost:9000
@@ -78,7 +100,6 @@ springdoc:
   app:
     security:
       password-length: 10
-      min-data-length: 6
 
 thread-pool:
   delete-events-max-threads: 3

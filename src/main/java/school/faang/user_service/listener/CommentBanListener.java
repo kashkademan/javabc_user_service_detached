@@ -22,7 +22,7 @@ public class CommentBanListener {
     private final UserRepository userRepository;
 
     @Transactional
-    @KafkaListener(topics = "${spring.data.kafka.topic.userBan}", groupId = "${spring.data.kafka.group-id}")
+    @KafkaListener(topics = "${spring.data.kafka.topic.userBan}", groupId = "${spring.data.kafka.consumer.group-id}")
     void onMessage(String message, Acknowledgment ack) {
         try {
             List<Long> usersForBan = objectMapper.readValue(message, new TypeReference<>() {});
