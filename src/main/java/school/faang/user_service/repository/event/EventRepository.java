@@ -1,10 +1,7 @@
 package school.faang.user_service.repository.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.event.Event;
 
 import java.time.LocalDateTime;
@@ -25,11 +22,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
 
-    @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM event WHERE id IN (:ids)", nativeQuery = true)
-    void deleteByIds(@Param("ids") List<Long> batch);
-
-    @Query(value = "SELECT id FROM event WHERE end_date IS NOT NULL AND end_date < :now", nativeQuery = true)
-    List<Long> findIdsByEndDateBefore(@Param("now") LocalDateTime now);
+    @Query("""
+            SELECT e FROM Event e
+            WHERE e.startDate BETWEEN :start AND :end
+            """)
+    List<Event> findEventsStartingBetween(LocalDateTime start, LocalDateTime end);
 }
