@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
-@EnableScheduling
 @RequiredArgsConstructor
 @EnableScheduling
 @Slf4j
