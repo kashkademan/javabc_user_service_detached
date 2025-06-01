@@ -9,7 +9,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.RequestEventDto;
 import school.faang.user_service.dto.event.ResponseEventDto;
@@ -31,7 +30,6 @@ import school.faang.user_service.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -44,9 +42,9 @@ public class EventServiceTest {
     private UserService userService;
     @Mock
     private SkillService skillService;
-    @Mock
+    @Spy
     private EventTitleFilter eventTitleFilter;
-    @Mock
+    @Spy
     private EventLocationFilter eventLocationFilter;
     @Mock
     private UserRepository userRepository;
@@ -171,15 +169,26 @@ public class EventServiceTest {
         when(userService.getUserById(1L)).thenReturn(user);
         when(skillService.getSkillsByIds(List.of(1L, 3L))).thenReturn(eventDtoTestData.eventSkills());
 
-        eventService.create(eventDtoTestData.requestEventDto);
+        RequestEventDto requestEventDto = eventDtoTestData.requestEventDto;
+        ResponseEventDto responseEventDto = eventService.create(requestEventDto);
 
-        verify(eventRepository, times(1)).save(captor.capture());
+        assertEquals(requestEventDto.getTitle(), responseEventDto.getTitle());
+        assertEquals(requestEventDto.getStartDate(), responseEventDto.getStartDate());
+        assertEquals(requestEventDto.getEndDate(), responseEventDto.getEndDate());
+        assertEquals(requestEventDto.getOwnerId(), responseEventDto.getOwnerId());
+        assertEquals(requestEventDto.getDescription(), responseEventDto.getDescription());
+        assertEquals(requestEventDto.getRelatedSkills(), responseEventDto.getRelatedSkills());
+        assertEquals(requestEventDto.getMaxAttendees(), responseEventDto.getMaxAttendees());
+        assertEquals(requestEventDto.getEventType(), responseEventDto.getEventType());
+        assertEquals(requestEventDto.getEventStatus(), responseEventDto.getEventStatus());
+
+        verify(eventRepository).save(captor.capture());
 
         Event event = captor.getValue();
 
-        assertEquals(event.getTitle(), eventDtoTestData.requestEventDto.getTitle());
-        assertEquals(event.getDescription(), eventDtoTestData.requestEventDto.getDescription());
-        assertEquals(event.getLocation(), eventDtoTestData.requestEventDto.getLocation());
+        assertEquals(event.getTitle(), requestEventDto.getTitle());
+        assertEquals(event.getDescription(), requestEventDto.getDescription());
+        assertEquals(event.getLocation(), requestEventDto.getLocation());
     }
 
     @Test
@@ -229,9 +238,21 @@ public class EventServiceTest {
         when(userService.getUserById(1L)).thenReturn(user);
         when(skillService.getSkillsByIds(List.of(1L, 3L))).thenReturn(eventDtoTestData.eventSkills());
 
-        eventService.updateEvent(eventDtoTestData.requestEventDto);
+        ResponseEventDto responseEventDto = eventService.updateEvent(eventDtoTestData.requestEventDto);
+        RequestEventDto requestEventDto = eventDtoTestData.requestEventDto;
 
-        verify(eventRepository, times(1)).save(captor.capture());
+        assertEquals(requestEventDto.getId(), responseEventDto.getId());
+        assertEquals(requestEventDto.getTitle(), responseEventDto.getTitle());
+        assertEquals(requestEventDto.getStartDate(), responseEventDto.getStartDate());
+        assertEquals(requestEventDto.getEndDate(), responseEventDto.getEndDate());
+        assertEquals(requestEventDto.getOwnerId(), responseEventDto.getOwnerId());
+        assertEquals(requestEventDto.getDescription(), responseEventDto.getDescription());
+        assertEquals(requestEventDto.getRelatedSkills(), responseEventDto.getRelatedSkills());
+        assertEquals(requestEventDto.getMaxAttendees(), responseEventDto.getMaxAttendees());
+        assertEquals(requestEventDto.getEventType(), responseEventDto.getEventType());
+        assertEquals(requestEventDto.getEventStatus(), responseEventDto.getEventStatus());
+
+        verify(eventRepository).save(captor.capture());
         Event captureEvent = captor.getValue();
 
         assertEquals(event.getCreatedAt(), captureEvent.getCreatedAt());
@@ -262,19 +283,6 @@ public class EventServiceTest {
 
 
         when(eventRepository.findAll()).thenReturn(List.of(eventOne, eventTwo, eventThree));
-
-        when(eventLocationFilter.isApplicable(any())).thenReturn(true);
-        when(eventTitleFilter.isApplicable(any())).thenReturn(true);
-
-        when(eventTitleFilter.apply(any(), any())).thenAnswer((Answer<Stream<Event>>) invocation -> {
-            Stream<Event> stream = invocation.getArgument(0);
-            return stream.filter(event -> event.getTitle().equals("Java"));
-        });
-
-        when(eventLocationFilter.apply(any(), any())).thenAnswer((Answer<Stream<Event>>) invocation -> {
-            Stream<Event> stream = invocation.getArgument(0);
-            return stream.filter(event -> event.getLocation().equals("Moscow"));
-        });
 
         List<ResponseEventDto> responseEventDto = eventService
                 .getEventsByFilter(
@@ -313,9 +321,6 @@ public class EventServiceTest {
 
         when(eventRepository.findAll()).thenReturn(List.of(eventOne, eventTwo, eventThree));
 
-        when(eventLocationFilter.isApplicable(any())).thenReturn(false);
-        when(eventTitleFilter.isApplicable(any())).thenReturn(false);
-
         List<ResponseEventDto> responseEventDto = eventService
                 .getEventsByFilter(
                         EventFilterDto
@@ -328,18 +333,18 @@ public class EventServiceTest {
     @Test
     public void testDeleteEventSuccess() {
         eventService.deleteEvent(1L);
-        verify(eventRepository, times(1)).deleteById(anyLong());
+        verify(eventRepository).deleteById(anyLong());
     }
 
     @Test
     public void testGetOwnedEventsSuccess() {
         eventService.getOwnedEvents(1L);
-        verify(eventRepository, times(1)).findAllByUserId(anyLong());
+        verify(eventRepository).findAllByUserId(anyLong());
     }
 
     @Test
     public void testGetParticipatedEventsSuccess() {
         eventService.getParticipatedEvents(1L);
-        verify(eventRepository, times(1)).findParticipatedEventsByUserId(anyLong());
+        verify(eventRepository).findParticipatedEventsByUserId(anyLong());
     }
 }
