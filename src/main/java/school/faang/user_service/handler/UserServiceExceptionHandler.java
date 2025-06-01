@@ -65,7 +65,6 @@ public class UserServiceExceptionHandler {
             SkillAlreadyExistsException.class,
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
-            MethodArgumentNotValidException.class
             MethodArgumentNotValidException.class,
             FeignException.class,
             RetryableException.class
@@ -85,7 +84,7 @@ public class UserServiceExceptionHandler {
     }
 
     private HttpStatus getHttpStatus(Throwable ex) {
-        return httpStatusMap.getOrDefault(ex.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return HTTP_STATUS_MAP.getOrDefault(ex.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ErrorHandler getErrorHandler(Throwable ex) {

@@ -16,7 +16,6 @@ import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Check;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
@@ -29,7 +28,6 @@ import java.time.LocalDateTime;
 @ToString
 @Entity
 @Table(name = "promotion")
-@Check(constraints = "(user_id IS NULL AND event_id IS NOT NULL) OR (user_id IS NOT NULL AND event_id IS NULL)")
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

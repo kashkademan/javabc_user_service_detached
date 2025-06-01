@@ -15,6 +15,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     boolean existsByUserIdAndStatus(Long userId, PromotionStatus status);
 
-    @EntityGraph(attributePaths = {"event"})
+    @EntityGraph(attributePaths = {"event", "tariff"})
     List<Promotion> findAllByTypeAndStatus(PromotionType type, PromotionStatus status);
 }
