@@ -40,7 +40,7 @@ class RecommendationRequestServiceTest {
 
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
-    @Mock
+
     private RecommendationMapper recommendationMapper;
     @Mock
     private UserRepository userRepository;
@@ -202,7 +202,7 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
         when(recommendationMapper.toDto(any(RecommendationRequest.class)))
-                .thenAnswer(inv -> mapToDto(inv.getArgument(0)));
+                .thenAnswer(inv -> recommendationMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -250,7 +250,7 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request1)).thenReturn(mapToDto(request1));
+        when(recommendationMapper.toDto(request1)).thenReturn(recommendationMapper.toDto(request1));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -298,7 +298,7 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(any())).thenAnswer(inv -> mapToDto(inv.getArgument(0)));
+        when(recommendationMapper.toDto(any())).thenAnswer(inv -> recommendationMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -312,7 +312,7 @@ class RecommendationRequestServiceTest {
         RequestFilterDto filter = new RequestFilterDto(null, null, null, "Java", null, null);
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request1)).thenReturn(mapToDto(request1));
+        when(recommendationMapper.toDto(request1)).thenReturn(recommendationMapper.toDto(request1));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -360,7 +360,7 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request2)).thenReturn(mapToDto(request2));
+        when(recommendationMapper.toDto(request2)).thenReturn(recommendationMapper.toDto(request2));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -414,16 +414,4 @@ class RecommendationRequestServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    private RecommendationResponseDto mapToDto(RecommendationRequest request) {
-        return new RecommendationResponseDto(
-                request.getId(),
-                request.getMessage(),
-                request.getStatus().toString(),
-                List.of(),
-                request.getRequester().getId(),
-                request.getReceiver().getId(),
-                request.getCreatedAt(),
-                request.getUpdatedAt()
-        );
-    }
 }

@@ -5,13 +5,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.service.RecommendationRequestService;
+import school.faang.user_service.filter.recommendation.MessagePatternFilter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RecommendationRequestFilterTest {
 
     @InjectMocks
-    private RecommendationRequestService recommendationRequestService;
+    private MessagePatternFilter messagePatternFilter;
 
     private RecommendationRequest request;
     private final LocalDateTime now = LocalDateTime.now();
@@ -44,106 +49,77 @@ class RecommendationRequestFilterTest {
                 .createdAt(now.minusDays(1))
                 .build();
     }
-
     @Test
-    void filterByRequesterId_ShouldReturnTrue_WhenRequesterIdMatches() {
-        assertTrue(recommendationRequestService.filterByRequesterId(request, 1L));
+    void isApplicable_shouldReturnTrueWhenMessagePatternIsNotEmpty() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, "Java", null, null);
+        assertTrue(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void filterByRequesterId_ShouldReturnTrue_WhenRequesterIdIsNull() {
-        assertTrue(recommendationRequestService.filterByRequesterId(request, null));
+    void isApplicable_shouldReturnFalseWhenMessagePatternIsNull() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, null, null, null);
+        assertFalse(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void filterByRequesterId_ShouldReturnFalse_WhenRequesterIdDoesNotMatch() {
-        assertFalse(recommendationRequestService.filterByRequesterId(request, 999L));
+    void isApplicable_shouldReturnFalseWhenMessagePatternIsBlank() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, " ", null, null);
+        assertFalse(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void filterByReceiverId_ShouldReturnTrue_WhenReceiverIdMatches() {
-        assertTrue(recommendationRequestService.filterByReceiverId(request, 2L));
+    void apply_shouldFilterRequestsContainingMessagePattern() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, "Java", null, null);
+
+        RecommendationRequest matchingRequest = request;
+        RecommendationRequest nonMatchingRequest = RecommendationRequest.builder()
+                .id(2L)
+                .message("Python developer needed")
+                .build();
+
+        Stream<RecommendationRequest> result = messagePatternFilter.apply(
+                Stream.of(matchingRequest, nonMatchingRequest),
+                filters
+        );
+
+        List<RecommendationRequest> filteredRequests = result.collect(Collectors.toList());
+        assertEquals(1, filteredRequests.size());
+        assertEquals(matchingRequest, filteredRequests.get(0));
     }
 
     @Test
-    void filterByReceiverId_ShouldReturnTrue_WhenReceiverIdIsNull() {
-        assertTrue(recommendationRequestService.filterByReceiverId(request, null));
+    void apply_shouldReturnEmptyStreamWhenNoRequestsMatchPattern() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, "React", null, null);
+
+        Stream<RecommendationRequest> result = messagePatternFilter.apply(
+                Stream.of(request),
+                filters
+        );
+
+        assertEquals(0, result.count());
     }
 
     @Test
-    void filterByReceiverId_ShouldReturnFalse_WhenReceiverIdDoesNotMatch() {
-        assertFalse(recommendationRequestService.filterByReceiverId(request, 999L));
+    void apply_shouldBeCaseSensitive() {
+        RequestFilterDto filters = new RequestFilterDto(null, null, null, "java", null, null);
+
+        Stream<RecommendationRequest> result = messagePatternFilter.apply(
+                Stream.of(request),
+                filters
+        );
+
+        assertEquals(0, result.count());
     }
 
     @Test
-    void filterByRecommendationId_ShouldReturnTrue_WhenRecommendationIdMatches() {
-        assertTrue(recommendationRequestService.filterByRecommendationId(request, 3L));
-    }
+    void apply_shouldIgnoreOtherFilterFields() {
+        RequestFilterDto filters = new RequestFilterDto(999L, 888L, 777L, "Java", now.minusYears(1), now.plusYears(1));
 
-    @Test
-    void filterByRecommendationId_ShouldReturnTrue_WhenRecommendationIdIsNull() {
-        assertTrue(recommendationRequestService.filterByRecommendationId(request, null));
-    }
+        Stream<RecommendationRequest> result = messagePatternFilter.apply(
+                Stream.of(request),
+                filters
+        );
 
-    @Test
-    void filterByRecommendationId_ShouldReturnFalse_WhenRecommendationIdDoesNotMatch() {
-        assertFalse(recommendationRequestService.filterByRecommendationId(request, 999L));
-    }
-
-    @Test
-    void filterByRecommendationId_ShouldReturnFalse_WhenRecommendationIsNull() {
-        request.setRecommendation(null);
-        assertFalse(recommendationRequestService.filterByRecommendationId(request, 3L));
-    }
-
-    @Test
-    void filterByMessagePattern_ShouldReturnTrue_WhenMessageContainsPattern() {
-        assertTrue(recommendationRequestService.filterByMessagePattern(request, "java"));
-    }
-
-    @Test
-    void filterByMessagePattern_ShouldReturnTrue_WhenPatternIsNull() {
-        assertTrue(recommendationRequestService.filterByMessagePattern(request, null));
-    }
-
-    @Test
-    void filterByMessagePattern_ShouldReturnFalse_WhenMessageDoesNotContainPattern() {
-        assertFalse(recommendationRequestService.filterByMessagePattern(request, "python"));
-    }
-
-    @Test
-    void filterByMessagePattern_ShouldReturnFalse_WhenMessageIsNull() {
-        request.setMessage(null);
-        assertFalse(recommendationRequestService.filterByMessagePattern(request, "java"));
-    }
-
-    @Test
-    void filterByCreatedAfter_ShouldReturnTrue_WhenCreatedAfterGivenDate() {
-        assertTrue(recommendationRequestService.filterByCreatedAfter(request, now.minusDays(2)));
-    }
-
-    @Test
-    void filterByCreatedAfter_ShouldReturnTrue_WhenDateIsNull() {
-        assertTrue(recommendationRequestService.filterByCreatedAfter(request, null));
-    }
-
-    @Test
-    void filterByCreatedAfter_ShouldReturnFalse_WhenCreatedBeforeGivenDate() {
-        assertFalse(recommendationRequestService.filterByCreatedAfter(request, now));
-    }
-
-    @Test
-    void filterByCreatedBefore_ShouldReturnTrue_WhenCreatedBeforeGivenDate() {
-        assertTrue(recommendationRequestService.filterByCreatedBefore(request, now));
-    }
-
-    @Test
-    void filterByCreatedBefore_ShouldReturnTrue_WhenDateIsNull() {
-        assertTrue(recommendationRequestService.filterByCreatedBefore(request, null));
-    }
-
-    @Test
-    void filterByCreatedBefore_ShouldReturnFalse_WhenCreatedAfterGivenDate() {
-        assertFalse(recommendationRequestService.filterByCreatedBefore(request, now.minusDays(2)));
+        assertEquals(1, result.count());
     }
 }
