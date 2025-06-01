@@ -1,5 +1,7 @@
 package school.faang.user_service.handler;
 
+import feign.FeignException;
+import feign.RetryableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,8 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
+        HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
+        HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
     }
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
             MethodArgumentNotValidException.class, ex ->
@@ -62,6 +66,9 @@ public class UserServiceExceptionHandler {
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
             MethodArgumentNotValidException.class
+            MethodArgumentNotValidException.class,
+            FeignException.class,
+            RetryableException.class
     })
     public ResponseEntity<UserServiceErrorResponseDto> handleException(Exception ex) {
         ErrorHandler handler = getErrorHandler(ex);
