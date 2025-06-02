@@ -3,6 +3,7 @@ package school.faang.user_service.controller.education;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.EducationDto;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.education.EducationService;
 
 @RestController
@@ -11,17 +12,17 @@ import school.faang.user_service.service.education.EducationService;
 public class EducationController {
     private final EducationService educationService;
 
-    @PostMapping("/post/{userId}")
-    public EducationDto addEducation(@PathVariable long userId, @RequestBody EducationDto educationDto) {
-        return educationService.addEducation(userId, educationDto);
+    @PostMapping("/{userId}")
+    public EducationDto addEducation(@RequestBody UserDto userDto, @RequestBody EducationDto educationDto) {
+        return educationService.addEducation(userDto, educationDto);
     }
 
-    @PutMapping("/update/{userId}")
-    public EducationDto updateEducation(@PathVariable long userId, @RequestBody EducationDto educationDto) {
-        return educationService.updateEducation(userId, educationDto);
+    @PutMapping("/{userId}")
+    public EducationDto updateEducation(@RequestBody UserDto userDto, @RequestBody EducationDto educationDto) {
+        return educationService.updateEducation(userDto, educationDto);
     }
 
-    @GetMapping("/get/{educationId}")
+    @GetMapping("/{educationId}")
     public EducationDto getById(@PathVariable long educationId) {
         return educationService.getById(educationId);
     }
