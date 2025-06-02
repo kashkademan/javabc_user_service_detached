@@ -15,6 +15,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -41,7 +42,7 @@ class RecommendationRequestServiceTest {
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
 
-    private RecommendationMapper recommendationMapper;
+    private final RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
     @Mock
     private UserRepository userRepository;
     @Mock
