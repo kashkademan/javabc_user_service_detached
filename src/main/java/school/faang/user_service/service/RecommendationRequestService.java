@@ -65,10 +65,6 @@ public class RecommendationRequestService {
                 throw new DataValidationException("You can send a recommendation request to this user only once per 6 months");
             }
 
-            if (recommendationRequest.skills() == null || recommendationRequest.skills().isEmpty()) {
-                throw new DataValidationException("Skills list must not be empty!");
-            }
-
             RecommendationRequest newRequest = recommendationRequestMapper.toEntity(recommendationRequest);
             newRequest.setRequester(requester);
             newRequest.setReceiver(receiver);
@@ -92,7 +88,7 @@ public class RecommendationRequestService {
             throw new DataValidationException("Failed to create recommendation request: " + e.getMessage());
         }
     }
-    public List<RecommendationResponseDto> getRequests(@Valid RequestFilterDto filter) {
+    public List<RecommendationResponseDto> getRequests(RequestFilterDto filter) {
         List<RecommendationRequest> allRequests = recommendationRequestRepository.findAll();
         List<RecommendationFilter> filters = List.of(
                 new RequesterIdFilter(),
@@ -102,9 +98,7 @@ public class RecommendationRequestService {
 
         Stream<RecommendationRequest> requestStream = allRequests.stream();
         for (RecommendationFilter recommendationFilter : filters) {
-            if (recommendationFilter.isApplicable(filter)) {
                 requestStream = recommendationFilter.apply(requestStream, filter);
-            }
         }
 
         return requestStream
@@ -119,7 +113,7 @@ public class RecommendationRequestService {
     }
 
     @Transactional
-    public RecommendationResponseDto rejectRequest(long id, @Valid RecommendationRejectDto rejection) {
+    public RecommendationResponseDto rejectRequest(long id, RecommendationRejectDto rejection) {
         RecommendationRequest request = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request not found with id: " + id));
 

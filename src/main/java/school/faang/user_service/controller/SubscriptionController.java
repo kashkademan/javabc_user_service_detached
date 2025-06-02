@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class SubscriptionController {
     @GetMapping("/followers/{followeeId}")
     public List<UserDto> getFollowers(
             @PathVariable long followeeId,
-            @ModelAttribute UserFilterDto filter) {
+            @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
@@ -43,7 +44,7 @@ public class SubscriptionController {
     @GetMapping("/following/{followeeId}")
     public List<UserDto> getFollowing(
             @PathVariable long followeeId,
-            @ModelAttribute UserFilterDto filter) {
+            @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 

@@ -17,6 +17,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -51,6 +52,7 @@ public class User {
     private String username;
 
     @Column(name = "email", length = 64, nullable = false, unique = true)
+    @Email(message = "Field must be an email")
     private String email;
 
     @Column(name = "phone", length = 32, unique = true)

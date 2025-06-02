@@ -29,7 +29,7 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
-    public List<MentorshipResponseDto> getRequests(@RequestBody MentorshipRequestFilterDto filter) {
+    public List<MentorshipResponseDto> getRequests(@Valid @RequestBody MentorshipRequestFilterDto filter) {
         return service.getRequests(filter);
     }
 

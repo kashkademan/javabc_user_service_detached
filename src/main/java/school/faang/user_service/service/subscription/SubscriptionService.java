@@ -1,6 +1,7 @@
 package school.faang.user_service.service.subscription;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
@@ -43,9 +44,7 @@ public class SubscriptionService {
     public List<User> filterUser(List<User> users, UserFilterDto userFilterDto) {
         Stream<User> usersStream = users.stream();
         for (UserFilter filter : filters) {
-            if (filter.isApplicable(userFilterDto)) {
                 usersStream = filter.apply(usersStream, userFilterDto);
-            }
         }
         return usersStream.toList();
     }

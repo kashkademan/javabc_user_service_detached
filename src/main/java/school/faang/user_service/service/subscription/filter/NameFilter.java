@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription.filter;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -9,8 +10,8 @@ import java.util.stream.Stream;
 @Component
 public class NameFilter implements UserFilter {
     @Override
-    public boolean isApplicable(UserFilterDto filters) {
-        return filters.namePattern() != null;
+    public boolean isApplicable(@Valid UserFilterDto filters) {
+        return true;
     }
 
     @Override

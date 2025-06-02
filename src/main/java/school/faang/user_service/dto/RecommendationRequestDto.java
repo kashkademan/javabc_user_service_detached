@@ -15,6 +15,7 @@ public record RecommendationRequestDto(
     @NotNull(message = "Status cannot be null")
     String status,
 
+    @NotNull(message = "Field cannot be null")
     @NotEmpty(message = "Skills cannot be empty")
     List<String> skills,
 
