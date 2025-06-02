@@ -13,13 +13,13 @@ public class EducationController {
     private final EducationService educationService;
 
     @PostMapping("/{userId}")
-    public EducationDto addEducation(@RequestBody UserDto userDto, @RequestBody EducationDto educationDto) {
-        return educationService.addEducation(userDto, educationDto);
+    public EducationDto addEducation(@PathVariable long userId, @RequestBody EducationDto educationDto) {
+        return educationService.addEducation(userId, educationDto);
     }
 
     @PutMapping("/{userId}")
-    public EducationDto updateEducation(@RequestBody UserDto userDto, @RequestBody EducationDto educationDto) {
-        return educationService.updateEducation(userDto, educationDto);
+    public EducationDto updateEducation(@PathVariable long userId, @RequestBody EducationDto educationDto) {
+        return educationService.updateEducation(userId, educationDto);
     }
 
     @GetMapping("/{educationId}")
