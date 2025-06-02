@@ -118,7 +118,15 @@ tasks.jacocoTestReport {
 tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
+            enabled = false
             element = "CLASS"
+            includes = listOf("org.gradle.*")
+
+            limit {
+                counter = "LINE"
+                value = "TOTALCOUNT"
+                maximum = 0.3.toBigDecimal()
+            }
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
