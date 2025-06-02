@@ -14,4 +14,6 @@ public interface UserService {
     UserPersonalDto refreshUserAvatar(Long userId);
 
     List<UserDto> processCsv(MultipartFile file);
+    void banUser(Long userId);
+    void unbanUser(Long userId);
 }
