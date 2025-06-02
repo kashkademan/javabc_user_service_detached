@@ -16,7 +16,6 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.mentorship_request.DescriptionFilter;
 import school.faang.user_service.filter.mentorship_request.ReceiverFilter;
-import school.faang.user_service.filter.mentorship_request.RequestFilter;
 import school.faang.user_service.filter.mentorship_request.RequesterFilter;
 import school.faang.user_service.filter.mentorship_request.StatusFilter;
 import school.faang.user_service.mapper.RequestToResponseDtoImpl;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,17 +40,19 @@ class MentorshipRequestServiceTest {
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Spy
     private RequestToResponseDtoImpl responseMapper;
-    @Mock
+
     private DescriptionFilter descriptionFilter;
-    @Mock
     private ReceiverFilter receiverFilter;
-    @Mock
     private RequesterFilter requesterFilter;
-    @Mock
     private StatusFilter statusFilter;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
+        descriptionFilter = new DescriptionFilter();
+        receiverFilter = new ReceiverFilter();
+        requesterFilter = new RequesterFilter();
+        statusFilter = new StatusFilter();
+
         mentorshipRequestService = new MentorshipRequestService(
                 mentorshipRequestRepository,
                 responseMapper,
@@ -62,31 +62,31 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testRequestMentorshipExceptionEqualsIdDto() {
-        MentorshipRequestDto dto = new MentorshipRequestDto("asd", 1L, 1L,
-                RequestStatus.ACCEPTED, LocalDateTime.now(), LocalDateTime.now());
+        long id = 1L;
+        MentorshipRequestDto dto = createMentorshipDto("asd", id, id, RequestStatus.ACCEPTED,
+                LocalDateTime.now(), LocalDateTime.now());
 
         assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.requestMentorship(dto));
     }
-
 
     @Test
     void testRequestMentorshipExceptionThreeMonths() {
         long requesterId = 1L;
         long receiverId = 2L;
-        MentorshipRequestDto dto = new MentorshipRequestDto("asd", requesterId, receiverId,
+        MentorshipRequestDto dto = createMentorshipDto("asd", requesterId, receiverId,
                 RequestStatus.ACCEPTED, LocalDateTime.now(), LocalDateTime.now());
 
         User requester = createUserById(requesterId);
         User receiver = createUserById(receiverId);
 
-        Optional<MentorshipRequest> optional =
+        Optional<MentorshipRequest> optionalNewMentorShip =
                 Optional.of(new MentorshipRequest(3L, "qwe", requester, receiver, RequestStatus.ACCEPTED,
                         "",
                         LocalDateTime.of(2025, 1, 1, 1, 1),
                         LocalDateTime.of(2025, 1, 1, 1, 1)));
 
         when(mentorshipRequestRepository
-                .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optional);
+                .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optionalNewMentorShip);
 
         assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.requestMentorship(dto));
     }
@@ -95,13 +95,13 @@ class MentorshipRequestServiceTest {
     void testRequestMentorship() {
         long requesterId = 1L;
         long receiverId = 2L;
-        MentorshipRequestDto dto = new MentorshipRequestDto("asd", requesterId, receiverId,
-                RequestStatus.ACCEPTED, LocalDateTime.now(), LocalDateTime.now());
+        MentorshipRequestDto dto = createMentorshipDto("asd", requesterId, receiverId, RequestStatus.ACCEPTED,
+                LocalDateTime.now(), LocalDateTime.now());
 
         User requester = createUserById(requesterId);
         User receiver = createUserById(receiverId);
 
-        Optional<MentorshipRequest> optional =
+        Optional<MentorshipRequest> optionalMentorshipRequest =
                 Optional.of(new MentorshipRequest(3L, "qwe", requester, receiver, RequestStatus.ACCEPTED,
                         "",
                         LocalDateTime.of(2025, 1, 1, 1, 1),
@@ -118,7 +118,7 @@ class MentorshipRequestServiceTest {
                 LocalDateTime.of(2025, 4, 1, 1, 1));
 
         when(mentorshipRequestRepository
-                .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optional);
+                .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optionalMentorshipRequest);
         when(mentorshipRequestRepository.create(dto.requesterId(), dto.receiverId(), dto.description()))
                 .thenReturn(mentorshipRequest);
 
@@ -194,43 +194,19 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testGetRequestsOneFilter() {
-        MentorshipRequest request1 = new MentorshipRequest(1L,
-                "",
-                User.builder().id(1L).build(),
-                User.builder().id(2L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request1 = createMentorshipRequest(1L, "", 1L, 2L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request2 = new MentorshipRequest(1L,
-                "",
-                User.builder().id(3L).build(),
-                User.builder().id(4L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request2 = createMentorshipRequest(1L, "", 3L, 4L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request3 = new MentorshipRequest(1L,
-                "",
-                User.builder().id(2L).build(),
-                User.builder().id(3L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request3 = createMentorshipRequest(1L, "", 2L, 3L,
+                RequestStatus.ACCEPTED);
 
         MentorshipRequestFilterDto dto = new MentorshipRequestFilterDto(null, 1L, null, null);
         List<MentorshipRequest> list = List.of(request1, request2, request3);
-        List<MentorshipRequest> list2 = List.of(request1);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(list);
-        filtersReturnTrue(requesterFilter);
-        filtersReturnFalse(receiverFilter);
-        filtersReturnFalse(statusFilter);
-        filtersReturnFalse(descriptionFilter);
-        when(requesterFilter.apply(any(), any())).thenReturn(list2.stream());
 
         List<MentorshipResponseDto> result = mentorshipRequestService.getRequests(dto);
 
@@ -240,43 +216,19 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testGetRequestsTwoFilter() {
-        MentorshipRequest request1 = new MentorshipRequest(1L,
-                "test one",
-                User.builder().id(1L).build(),
-                User.builder().id(2L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request1 = createMentorshipRequest(1L, "test one", 1L, 2L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request2 = new MentorshipRequest(1L,
-                "test two",
-                User.builder().id(3L).build(),
-                User.builder().id(4L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request2 = createMentorshipRequest(1L, "test two", 3L, 4L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request3 = new MentorshipRequest(1L,
-                "test three",
-                User.builder().id(2L).build(),
-                User.builder().id(5L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request3 = createMentorshipRequest(1L, "test three", 2L, 3L,
+                RequestStatus.ACCEPTED);
 
         MentorshipRequestFilterDto dto = new MentorshipRequestFilterDto("test", 1L, null, null);
         List<MentorshipRequest> list = List.of(request1, request2, request3);
-        List<MentorshipRequest> list2 = List.of(request1);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(list);
-        filtersReturnTrue(requesterFilter);
-        filtersReturnFalse(receiverFilter);
-        filtersReturnFalse(statusFilter);
-        filtersReturnTrue(descriptionFilter);
-        when(requesterFilter.apply(any(), any())).thenReturn(list2.stream());
 
         List<MentorshipResponseDto> result = mentorshipRequestService.getRequests(dto);
 
@@ -286,43 +238,19 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testGetRequestsThreeFilter() {
-        MentorshipRequest request1 = new MentorshipRequest(1L,
-                "test one",
-                User.builder().id(1L).build(),
-                User.builder().id(2L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request1 = createMentorshipRequest(1L, "test one", 1L, 2L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request2 = new MentorshipRequest(1L,
-                "test two",
-                User.builder().id(3L).build(),
-                User.builder().id(4L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request2 = createMentorshipRequest(1L, "test two", 3L, 4L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request3 = new MentorshipRequest(1L,
-                "test three",
-                User.builder().id(2L).build(),
-                User.builder().id(5L).build(),
-                RequestStatus.PENDING,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request3 = createMentorshipRequest(1L, "test three", 2L, 5L,
+                RequestStatus.PENDING);
 
         MentorshipRequestFilterDto dto = new MentorshipRequestFilterDto("test", 1L, null, RequestStatus.PENDING);
         List<MentorshipRequest> list = List.of(request1, request2, request3);
-        List<MentorshipRequest> list2 = new ArrayList<>();
 
         when(mentorshipRequestRepository.findAll()).thenReturn(list);
-        filtersReturnTrue(requesterFilter);
-        filtersReturnFalse(receiverFilter);
-        filtersReturnTrue(statusFilter);
-        filtersReturnTrue(descriptionFilter);
-        when(requesterFilter.apply(any(), any())).thenReturn(list2.stream());
 
         List<MentorshipResponseDto> result = mentorshipRequestService.getRequests(dto);
 
@@ -331,47 +259,42 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testGetRequestsFourFilter() {
-        MentorshipRequest request1 = new MentorshipRequest(1L,
-                "test one",
-                User.builder().id(1L).build(),
-                User.builder().id(2L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request1 = createMentorshipRequest(1L, "test one", 1L, 2L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request2 = new MentorshipRequest(1L,
-                "test two",
-                User.builder().id(3L).build(),
-                User.builder().id(4L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request2 = createMentorshipRequest(2L, "test two", 3L, 4L,
+                RequestStatus.ACCEPTED);
 
-        MentorshipRequest request3 = new MentorshipRequest(1L,
-                "test three",
-                User.builder().id(2L).build(),
-                User.builder().id(5L).build(),
-                RequestStatus.ACCEPTED,
-                "",
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        MentorshipRequest request3 = createMentorshipRequest(3L, "test three", 2L, 5L,
+                RequestStatus.ACCEPTED);
 
         MentorshipRequestFilterDto dto = new MentorshipRequestFilterDto("test", 1L, 2L, RequestStatus.ACCEPTED);
         List<MentorshipRequest> list = List.of(request1, request2, request3);
-        List<MentorshipRequest> list2 = List.of(request1);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(list);
-        filtersReturnTrue(requesterFilter);
-        filtersReturnTrue(receiverFilter);
-        filtersReturnTrue(statusFilter);
-        filtersReturnTrue(descriptionFilter);
-        when(requesterFilter.apply(any(), any())).thenReturn(list2.stream());
 
         List<MentorshipResponseDto> result = mentorshipRequestService.getRequests(dto);
 
-        assertEquals(0, result.size());
+        assertEquals(1, result.size());
+    }
+
+    private MentorshipRequest createMentorshipRequest(Long requestId, String description, Long userid1, Long userId2,
+                                                      RequestStatus status){
+        return new MentorshipRequest(requestId,
+                description,
+                User.builder().id(userid1).build(),
+                User.builder().id(userId2).build(),
+                status,
+                "",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+    }
+
+    private MentorshipRequestDto createMentorshipDto(String description, long requesterID, long receiverId,
+                                                     RequestStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new MentorshipRequestDto(description, requesterID, receiverId,
+                status, createdAt, updatedAt);
     }
 
 
@@ -390,13 +313,5 @@ class MentorshipRequestServiceTest {
     private void getMentorshipRequest(long id, MentorshipRequest request) {
         when(mentorshipRequestRepository.findById(id))
                 .thenReturn(Optional.of(request));
-    }
-
-    private void filtersReturnTrue(RequestFilter filter) {
-        when(filter.isApplicable(any())).thenReturn(true);
-    }
-
-    private void filtersReturnFalse(RequestFilter filter) {
-        when(filter.isApplicable(any())).thenReturn(false);
     }
 }
