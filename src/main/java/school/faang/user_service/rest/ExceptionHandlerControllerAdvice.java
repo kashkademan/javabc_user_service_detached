@@ -1,5 +1,6 @@
 package school.faang.user_service.rest;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +11,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.mentorship.ErrorResponseDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorResponse;
+import school.faang.user_service.exception.EventNotFoundException;
 import school.faang.user_service.exception.UnauthorizedException;
 import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestNotFoundException;
+import school.faang.user_service.exception.recommendation.RecommendationRequestValidationException;
+import school.faang.user_service.utils.Utils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,10 +27,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class ExceptionHandlerControllerAdvice {
+    public static final String RUNTIME_ERROR = "Runtime error, see log";
+    private final Utils utils;
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorResponseDto> handleResponseStatusException(ResponseStatusException e) {
+    public ResponseEntity<ErrorResponseDto> handlerResponseStatusException(ResponseStatusException e) {
         return ResponseEntity
                 .status(e.getStatusCode())
                 .body(new ErrorResponseDto(e.getReason()));
@@ -43,24 +53,47 @@ public class ExceptionHandlerControllerAdvice {
         return result;
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            RecommendationRequestNotFoundException.class,
+            EventNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(UserNotFoundException exception) {
-        log.error("{}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
+    public ErrorResponse handlerNotFoundException(RuntimeException e) {
+        return getErrorResponse("handlerNotFoundException", e);
+    }
+
+    @ExceptionHandler(RecommendationRequestException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlerRecommendationRequestException(RecommendationRequestException e) {
+        return getErrorResponse("handleRecommendationRequestException", e);
+    }
+
+    @ExceptionHandler({RecommendationRequestValidationException.class, DataValidationException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlerValidationException(RuntimeException e) {
+        return getErrorResponse("handlerValidationException", e);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handlerUnauthorizedException(UnauthorizedException e) {
-        log.error("handlerUnauthorizedException: {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return getErrorResponse("handlerUnauthorizedException", e);
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorResponse handlerRuntimeException(RuntimeException e) {
-        log.error("handlerRuntimeException: {}", e.getMessage(), e);
-        return new ErrorResponse("Runtime error, see log");
+        return getErrorResponse("handlerRuntimeException", RUNTIME_ERROR, e);
+    }
+
+    private ErrorResponse getErrorResponse(String exceptionLabel, Exception e) {
+        log.error("{}: {}", exceptionLabel, e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    private ErrorResponse getErrorResponse(String exceptionLabel, String errorMessage, Exception e) {
+        log.error("{}: {}", exceptionLabel, e.getMessage(), e);
+        return new ErrorResponse(errorMessage);
     }
 }

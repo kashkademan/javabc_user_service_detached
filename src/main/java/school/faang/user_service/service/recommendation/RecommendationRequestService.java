@@ -112,7 +112,7 @@ public class RecommendationRequestService {
         if (CHECK_STATUS_FOR_REJECT.contains(entity.getStatus())) {
             String errorMessage = utils.format(STATUS_HAS_NOT_BEEN_CHANGED, id, CHECK_STATUS_FOR_REJECT);
             log.error(errorMessage);
-            throw recommendationRequestException(errorMessage);
+            throw new RecommendationRequestException(errorMessage);
         }
         entity.setStatus(RequestStatus.REJECTED);
         entity.setRejectionReason(rejection.reason());
@@ -145,12 +145,6 @@ public class RecommendationRequestService {
         String errorMessage = utils.format(REQUEST_BY_ID_NOT_FOUND, id);
         log.error(errorMessage, id);
         return new RecommendationRequestNotFoundException(errorMessage);
-    }
-
-    @NotNull
-    private RecommendationRequestException recommendationRequestException(String message) {
-        log.error(message);
-        return new RecommendationRequestException(message);
     }
 
     private void fillEntity(RecommendationRequest entity, RecommendationRequestDto dto) {
