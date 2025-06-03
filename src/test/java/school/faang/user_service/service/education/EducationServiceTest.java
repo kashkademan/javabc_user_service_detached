@@ -30,8 +30,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class EducationServiceTest {
 
-    @InjectMocks
-    private EducationService educationService;
+    private final long USER_ID = 1L;
+    private final long EDUCATION_ID = 2L;
+    private User user ;
+    private AddEducationDto addEducationDto;
+    private Education education;
 
     @Mock
     private UserRepository userRepository;
@@ -45,15 +48,21 @@ public class EducationServiceTest {
     @Mock
     private UserContext userContext;
 
+    @InjectMocks
+    private EducationService educationService;
 
     @BeforeEach
     public void setUp() {
+        user = new User();
+        user.setId(USER_ID);
+
+        addEducationDto = new AddEducationDto();
+        education = new Education();
     }
 
     @Test
     public void testAddEducationWithGreaterYear() {
 
-        AddEducationDto addEducationDto = new AddEducationDto();
         addEducationDto.setYearFrom(2026);
 
         assertThrows(DataValidationException.class, () -> educationService.addEducation(addEducationDto));
@@ -62,12 +71,9 @@ public class EducationServiceTest {
     @Test
     public void testAddEducationWhenUserNotFound() {
 
-        long userId = 1L;
-        AddEducationDto addEducationDto = new AddEducationDto();
         addEducationDto.setYearFrom(2023);
-
-        when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         assertThrows(DataValidationException.class, () -> educationService.addEducation(addEducationDto));
     }
@@ -75,16 +81,12 @@ public class EducationServiceTest {
     @Test
     public void testAddEducationCurrent() {
 
-        long userId = 1L;
-        AddEducationDto addEducationDto = new AddEducationDto();
         addEducationDto.setYearFrom(2024);
-
         User user = new User();
-        Education education = new Education();
         EducationDto educationDto = new EducationDto();
 
-        when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(educationMapper.toEducation(addEducationDto)).thenReturn(education);
         when(educationRepository.save(education)).thenReturn(education);
         when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
@@ -93,58 +95,53 @@ public class EducationServiceTest {
 
         assertNotNull(result);
         assertEquals(educationDto, result);
-        verify(userRepository).findById(userId);
+        verify(userRepository).findById(USER_ID);
         verify(educationRepository).save(education);
     }
 
     @Test
     public void testGetEducationById() {
 
-        long educationId = 1L;
-        Education education = new Education();
         EducationDto educationDto = new EducationDto();
 
-        when(educationRepository.findById(educationId)).thenReturn(Optional.of(education));
+        when(educationRepository.findById(EDUCATION_ID)).thenReturn(Optional.of(education));
         when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
 
-        EducationDto actualDto = educationService.getById(educationId);
+        EducationDto actualDto = educationService.getById(EDUCATION_ID);
 
         assertNotNull(actualDto);
         assertEquals(educationDto, actualDto);
 
-        verify(educationRepository, times(1)).findById(educationId);
+        verify(educationRepository, times(1)).findById(EDUCATION_ID);
         verify(educationMapper, times(1)).toEducationDto(education);
     }
 
     @Test
     public void testGetEducationByIdNotFound() {
 
-        long educationId = 1L;
+        when(educationRepository.findById(EDUCATION_ID)).thenReturn(Optional.empty());
 
-        when(educationRepository.findById(educationId)).thenReturn(Optional.empty());
-        assertThrows(DataValidationException.class, () -> educationService.getById(educationId));
+        assertThrows(DataValidationException.class, () -> educationService.getById(EDUCATION_ID));
     }
 
     @Test
     public void testUpdateEducationWithGreaterYear() {
 
         Education newEducationData = new Education();
-        long educationId = 1L;
         newEducationData.setYearFrom(2026);
 
         assertThrows(DataValidationException.class,
-                () -> educationService.updateEducation(educationId, newEducationData));
+                () -> educationService.updateEducation(EDUCATION_ID, newEducationData));
     }
 
     @Test
     public void testUpdateEducationWhenEducationNotFound() {
-        long educationId = 20L;
 
-        when(educationRepository.findById(educationId))
-                .thenThrow(new DataValidationException("Education not Found " + educationId));
+        when(educationRepository.findById(EDUCATION_ID))
+                .thenThrow(new DataValidationException("Education not Found " + EDUCATION_ID));
 
-        assertThrows(DataValidationException.class, () -> educationService.getById(educationId));
-        verify(educationRepository).findById(educationId);
+        assertThrows(DataValidationException.class, () -> educationService.getById(EDUCATION_ID));
+        verify(educationRepository).findById(EDUCATION_ID);
     }
 
     @Test
