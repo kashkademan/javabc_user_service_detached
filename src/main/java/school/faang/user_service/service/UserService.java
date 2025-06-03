@@ -9,6 +9,7 @@ import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
@@ -21,14 +22,17 @@ import java.util.regex.Pattern;
 public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
+
     private final CountryService countryService;
     private final RestTemplate restTemplate = new RestTemplate();
     private MinioService minioService;
     private static final String DICE_BEAR_API = "https://api.dicebear.com/9.x/pixel-art/svg";
 
-    public User getUserById(Long id) {
-        return userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
+    public UserDto getUserById(Long id){
+        User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
+
                 ("The Requester with id =" + id + " does not exist"));
+        return userMapper.toDto(user);
     }
 
     @Transactional

@@ -11,12 +11,15 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
-
 import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.mockito.Mockito;
+import school.faang.user_service.dto.UserDto;
+import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -95,7 +98,16 @@ class UserServiceTest {
 
         assertEquals(userId, result);
     }
+    
+   @Test
+   void getUserByIdException(){
+        long id = -1L;
+        Mockito.when(userRepository.findById(id))
+                .thenThrow(new IllegalArgumentException("The Requester with id =" + id + " does not exist"));
 
+        assertThrows(IllegalArgumentException.class, ()->userRepository.findById(id));
+   }
+  
     private UserFullDto createDto(String username, String email, String phone, Integer experience) {
         return UserFullDto.builder()
                 .username(username)
@@ -105,4 +117,17 @@ class UserServiceTest {
                 .build();
     }
 
+    void getUserById() {
+        long id = 1L;
+        User user = User.builder()
+                .id(id)
+                .build();
+
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        UserDto result = userService.getUserById(id);
+
+        assertNotNull(result);
+        assertEquals(id,result.id());
+    }
 }
