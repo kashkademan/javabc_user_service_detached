@@ -32,7 +32,7 @@ public class EducationServiceTest {
 
     private final long USER_ID = 1L;
     private final long EDUCATION_ID = 2L;
-    private User user ;
+    private User user;
     private AddEducationDto addEducationDto;
     private Education education;
 
@@ -185,4 +185,3 @@ public class EducationServiceTest {
         verify(educationRepository, times(1)).save(updatedEducation);
     }
 }
-
