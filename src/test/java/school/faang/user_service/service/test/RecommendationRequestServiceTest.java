@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.RecommendationRejectDto;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationResponseDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -26,12 +28,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +46,7 @@ class RecommendationRequestServiceTest {
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
 
+    @Spy
     private final RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
     @Mock
     private UserRepository userRepository;
@@ -59,37 +64,37 @@ class RecommendationRequestServiceTest {
     private LocalDateTime now;
     private RecommendationRequest request1;
     private RecommendationRequest request2;
+    private static final String JAVA = "Java";
+    private static final String SPRING = "Spring";
+
+
 
     @BeforeEach
     void setUp() {
+
         now = LocalDateTime.now();
+        requester1 = User.builder().id(1L).build();
+        requester2 = User.builder().id(2L).build();
+        receiver1 = User.builder().id(3L).build();
 
-        requester1 = new User();
-        requester1.setId(1L);
+        request1 = createRequest(
+                1L,
+                requester1,
+                receiver1,
+                "Java developer needed",
+                RequestStatus.PENDING,
+                now.minusDays(1)
+        );
 
-        requester2 = new User();
-        requester2.setId(2L);
+        request2 = createRequest(
+                2L,
+                requester2,
+                receiver1,
+                "Python position available",
+                RequestStatus.ACCEPTED,
+                now.minusHours(2)
+        );
 
-        receiver1 = new User();
-        receiver1.setId(3L);
-
-        request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester1)
-                .receiver(receiver1)
-                .message("Java developer needed")
-                .status(RequestStatus.PENDING)
-                .createdAt(now.minusDays(1))
-                .build();
-
-        request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester2)
-                .receiver(receiver1)
-                .message("Python position available")
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(now.minusHours(2))
-                .build();
     }
 
     @Test
@@ -97,19 +102,21 @@ class RecommendationRequestServiceTest {
         RecommendationRequestDto requestDto = new RecommendationRequestDto(
                 "Title",
                 "Description",
-                List.of("Java", "Spring"),
+                List.of(JAVA, SPRING),
                 requester1.getId(),
                 receiver1.getId(),
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
 
-        RecommendationRequest savedRequest = new RecommendationRequest();
-        savedRequest.setId(1L);
-        savedRequest.setRequester(requester1);
-        savedRequest.setReceiver(receiver1);
-        savedRequest.setStatus(RequestStatus.PENDING);
-        savedRequest.setMessage("Message");
+        RecommendationRequest savedRequest = createRequest(
+                1L,
+                requester1,
+                receiver1,
+                "Message",
+                RequestStatus.PENDING,
+                null
+        );
 
         when(userRepository.findById(requester1.getId())).thenReturn(Optional.of(requester1));
         when(userRepository.findById(receiver1.getId())).thenReturn(Optional.of(receiver1));
@@ -118,13 +125,9 @@ class RecommendationRequestServiceTest {
         when(recommendationMapper.toEntity(requestDto)).thenReturn(new RecommendationRequest());
         when(recommendationRequestRepository.save(any())).thenReturn(savedRequest);
 
-        Skill javaSkill = new Skill();
-        javaSkill.setId(1L);
-        javaSkill.setTitle("Java");
 
-        Skill springSkill = new Skill();
-        springSkill.setId(2L);
-        springSkill.setTitle("Spring");
+        Skill javaSkill = Skill.builder().id(1L).title(JAVA).build();
+        Skill springSkill = Skill.builder().id(2L).title(SPRING).build();
 
         when(skillRepository.findByTitle("Java")).thenReturn(Optional.of(javaSkill));
         when(skillRepository.findByTitle("Spring")).thenReturn(Optional.of(springSkill));
@@ -133,7 +136,7 @@ class RecommendationRequestServiceTest {
                 1L,
                 "Title",
                 "Description",
-                List.of("Java", "Spring"),
+                List.of(JAVA, SPRING),
                 requester1.getId(),
                 receiver1.getId(),
                 savedRequest.getCreatedAt(),
@@ -148,7 +151,7 @@ class RecommendationRequestServiceTest {
         assertEquals(1L, result.id());
         assertEquals(requester1.getId(), result.requesterId());
         assertEquals(receiver1.getId(), result.receiverId());
-        assertEquals(List.of("Java", "Spring"), result.skills());
+        assertEquals(List.of(JAVA, SPRING), result.skills());
         verify(recommendationRequestRepository).save(any());
         verify(skillRequestRepository, times(2)).save(any());
     }
@@ -161,7 +164,7 @@ class RecommendationRequestServiceTest {
         RecommendationRequestDto requestDto = new RecommendationRequestDto(
                 "Title",
                 "Description",
-                List.of("Java", "Spring"),
+                List.of(JAVA, SPRING),
                 requester1.getId(),
                 receiver1.getId(),
                 now,
@@ -190,7 +193,13 @@ class RecommendationRequestServiceTest {
     @Test
     void create_RequesterEqualsReceiver_ThrowsException() {
         RecommendationRequestDto requestDto = new RecommendationRequestDto(
-                "Title", "Desc", List.of("Java"), requester1.getId(), requester1.getId(), null, null
+                "Title",
+                "Desc",
+                List.of(JAVA),
+                requester1.getId(),
+                requester1.getId(),
+                null,
+                null
         );
 
         assertThrows(DataValidationException.class,
@@ -199,11 +208,17 @@ class RecommendationRequestServiceTest {
 
     @Test
     void getRequests_NoFilters_ReturnsAllRequests() {
-        RequestFilterDto filter = new RequestFilterDto(null, null, null, null, null, null);
+        RequestFilterDto filter = new RequestFilterDto(null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
+        RecommendationMapper realMapper = new RecommendationMapperImpl();
         when(recommendationMapper.toDto(any(RecommendationRequest.class)))
-                .thenAnswer(inv -> recommendationMapper.toDto(inv.getArgument(0)));
+                .thenAnswer(inv -> realMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -214,35 +229,15 @@ class RecommendationRequestServiceTest {
 
     @Test
     void getRequests_FilterByRequesterId_ReturnsFiltered() {
-        User requester1 = new User();
-        requester1.setId(1L);
+        Long targetRequesterId = 1L;
 
-        User requester2 = new User();
-        requester2.setId(2L);
-
-        User receiver = new User();
-        receiver.setId(3L);
-
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester1)
-                .receiver(receiver)
-                .message("Java developer needed")
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .build();
-
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester2)
-                .receiver(receiver)
-                .message("Python position available")
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now().minusHours(2))
-                .build();
+        RecommendationRequest request1 = createRequest(1L, requester1, receiver1,
+                "Java developer needed", RequestStatus.PENDING, now.minusDays(1));
+        RecommendationRequest request2 = createRequest(2L, requester2, receiver1,
+                "Python position available", RequestStatus.ACCEPTED, now.minusHours(2));
 
         RequestFilterDto filter = new RequestFilterDto(
-                1L,
+                targetRequesterId,
                 null,
                 null,
                 null,
@@ -251,43 +246,29 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request1)).thenReturn(recommendationMapper.toDto(request1));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).requesterId());
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .satisfies(dto -> {
+                    assertThat(dto.requesterId()).isEqualTo(targetRequesterId);
+                    assertThat(dto.receiverId()).isEqualTo(receiver1.getId());
+                    assertThat(dto.message()).isEqualTo(request1.getMessage());
+                    assertThat(dto.status()).isEqualTo("PENDING");
+                    assertThat(dto.createdAt()).isEqualTo(request1.getCreatedAt());
+                });
     }
 
     @Test
     void getRequests_FilterByReceiverId_ReturnsFiltered() {
 
-        User requester1 = new User();
-        requester1.setId(1L);
-
-        User requester2 = new User();
-        requester2.setId(2L);
-
-        User receiver = new User();
-        receiver.setId(3L);
-
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester1)
-                .receiver(receiver)
-                .message("Java developer needed")
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .build();
-
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester2)
-                .receiver(receiver)
-                .message("Python position available")
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now().minusHours(2))
-                .build();
+        LocalDateTime now = LocalDateTime.now();
+        RecommendationRequest request1 = createRequest(1L, requester1, receiver1,
+                "Java developer needed", RequestStatus.PENDING, now.minusDays(1));
+        RecommendationRequest request2 = createRequest(2L, requester2, receiver1,
+                "Python position available", RequestStatus.ACCEPTED, now.minusHours(2));
 
         RequestFilterDto filter = new RequestFilterDto(
                 null,
@@ -299,7 +280,10 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(any())).thenAnswer(inv -> recommendationMapper.toDto(inv.getArgument(0)));
+
+        RecommendationMapper realMapper = new RecommendationMapperImpl();
+        when(recommendationMapper.toDto(any(RecommendationRequest.class)))
+                .thenAnswer(inv -> realMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -310,46 +294,41 @@ class RecommendationRequestServiceTest {
     @Test
     void getRequests_FilterByMessagePattern_ReturnsFiltered() {
 
-        RequestFilterDto filter = new RequestFilterDto(null, null, null, "Java", null, null);
+        RequestFilterDto filter = new RequestFilterDto(
+                null,
+                null,
+                null,
+                "Java",
+                null,
+                null
+        );
+
+        RecommendationResponseDto expectedDto = new RecommendationResponseDto(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request1)).thenReturn(recommendationMapper.toDto(request1));
+        when(recommendationMapper.toDto(request1)).thenReturn(expectedDto);
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
         assertEquals(1, result.size());
-        assertTrue(result.get(0).message().contains("Java"));
+        assertEquals(expectedDto, result.get(0));
+        verify(recommendationRequestRepository).findAll();
+
+        verify(recommendationMapper, times(2)).toDto(request1);
+        verify(recommendationMapper, never()).toDto(request2);
     }
 
     @Test
     void getRequests_CombinedFilters_ReturnsCorrectlyFiltered() {
-
-        User requester1 = new User();
-        requester1.setId(1L);
-
-        User requester2 = new User();
-        requester2.setId(2L);
-
-        User receiver = new User();
-        receiver.setId(3L);
-
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester1)
-                .receiver(receiver)
-                .message("Java developer needed")
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .build();
-
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester2)
-                .receiver(receiver)
-                .message("Python position available")
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now().minusHours(2))
-                .build();
 
         RequestFilterDto filter = new RequestFilterDto(
                 2L,
@@ -361,43 +340,20 @@ class RecommendationRequestServiceTest {
         );
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request2)).thenReturn(recommendationMapper.toDto(request2));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
-        assertEquals(1, result.size());
-        assertEquals(2L, result.get(0).requesterId());
-        assertTrue(result.get(0).message().contains("Python"));
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .satisfies(dto -> {
+                    assertThat(dto.requesterId()).isEqualTo(2L);
+                    assertThat(dto.message()).contains("Python");
+                });
     }
 
     @Test
     void getRequests_NoMatchingFilters_ReturnsEmptyList() {
-        User requester1 = new User();
-        requester1.setId(1L);
-
-        User requester2 = new User();
-        requester2.setId(2L);
-
-        User receiver = new User();
-        receiver.setId(3L);
-
-        RecommendationRequest request1 = RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester1)
-                .receiver(receiver)
-                .message("Java developer needed")
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .build();
-
-        RecommendationRequest request2 = RecommendationRequest.builder()
-                .id(2L)
-                .requester(requester2)
-                .receiver(receiver)
-                .message("Python position available")
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now().minusHours(2))
-                .build();
 
         RequestFilterDto filter = new RequestFilterDto(
                 99L,
@@ -415,4 +371,95 @@ class RecommendationRequestServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void rejectRequest_ValidRequest_RejectsAndReturnsDto() {
+
+        long requestId = 1L;
+        String rejectionReason = "Not qualified";
+        RecommendationRejectDto rejectDto = new RecommendationRejectDto(rejectionReason);
+
+        RecommendationRequest request = createRequest(
+                requestId,
+                requester1,
+                receiver1,
+                "Message",
+                RequestStatus.PENDING,
+                now
+        );
+
+        when(recommendationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+        when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        RecommendationResponseDto result = recommendationRequestService.rejectRequest(requestId, rejectDto);
+
+        assertAll(
+                () -> assertEquals(requestId, result.id()),
+                () -> assertEquals(RequestStatus.REJECTED.toString(), result.status()),
+                () -> assertEquals(rejectionReason, request.getRejectionReason()),
+                () -> verify(recommendationRequestRepository).findById(requestId),
+                () -> verify(recommendationRequestRepository).save(request)
+        );
+    }
+
+    @Test
+    void rejectRequest_RequestNotFound_ThrowsException() {
+        long nonExistentId = 999L;
+        RecommendationRejectDto rejectDto = new RecommendationRejectDto("Reason");
+
+        when(recommendationRequestRepository.findById(nonExistentId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(jakarta.persistence.EntityNotFoundException.class,
+                () -> recommendationRequestService.rejectRequest(nonExistentId, rejectDto));
+
+        verify(recommendationRequestRepository).findById(nonExistentId);
+        verify(recommendationRequestRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectRequest_NotPendingStatus_ThrowsException() {
+        long requestId = 2L;
+        RecommendationRejectDto rejectDto = new RecommendationRejectDto("Reason");
+
+        RecommendationRequest request = createRequest(
+                requestId,
+                requester1,
+                receiver1,
+                "Message",
+                RequestStatus.ACCEPTED,
+                now
+        );
+
+        when(recommendationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> recommendationRequestService.rejectRequest(requestId, rejectDto));
+
+        assertTrue(exception.getMessage().contains("Cannot reject request"));
+        assertTrue(exception.getMessage().contains(RequestStatus.ACCEPTED.toString()));
+
+        verify(recommendationRequestRepository).findById(requestId);
+        verify(recommendationRequestRepository, never()).save(any());
+    }
+
+    private RecommendationRequest createRequest(
+            Long id,
+            User requester,
+            User receiver,
+            String message,
+            RequestStatus status,
+            LocalDateTime createdAt
+    ) {
+        return RecommendationRequest.builder()
+                .id(id)
+                .requester(requester)
+                .receiver(receiver)
+                .message(message)
+                .status(status)
+                .createdAt(createdAt)
+                .build();
+    }
 }
