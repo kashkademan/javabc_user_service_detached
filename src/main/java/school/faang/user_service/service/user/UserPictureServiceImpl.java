@@ -1,27 +1,26 @@
 package school.faang.user_service.service.user;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.RandomAvatarConfiguration;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.service.UserPictureService;
 
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UserPictureServiceImpl implements UserPictureService {
 
-    @Value("${logic.constants.picture_provider_root}")
-    private String smallPictureProviderRoot;
-    @Value("${logic.constants.default_small_avatar_seed}")
-    private String defaultSmallAvatarSeed;
+    private final RandomAvatarConfiguration config;
 
     @Override
     public String getDefaultPictureLink() {
-        return smallPictureProviderRoot + '?' + defaultSmallAvatarSeed;
+        return config.getPictureProviderRootUrl() + '?' + config.getDefaultSmallAvatarSeed();
     }
 
     @Override
-    public UserProfilePic generateNewPictureAndReturn() {
+    public UserProfilePic generateNewPicture() {
         UserProfilePic profilePic = new UserProfilePic();
         String newSeed = UUID.randomUUID().toString();
         profilePic.setSmallFileId(seedValueToPath(newSeed));
@@ -29,6 +28,6 @@ public class UserPictureServiceImpl implements UserPictureService {
     }
 
     private String seedValueToPath(String smallFileId) {
-        return smallPictureProviderRoot + "?seed=" + smallFileId;
+        return config.getPictureProviderRootUrl() + "?seed=" + smallFileId;
     }
 }

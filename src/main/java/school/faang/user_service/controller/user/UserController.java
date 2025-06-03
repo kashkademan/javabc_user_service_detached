@@ -36,7 +36,7 @@ public class UserController {
 
     @PatchMapping("/{userId}/refresh")
     public UserPersonalDto refreshUsersAvatar(@PathVariable Long userId) {
-        UserPersonalDto personalDto = userService.refreshUsersAvatar(userId);
+        UserPersonalDto personalDto = userService.refreshUserAvatar(userId);
         log.debug("Personal photo was refreshed for userid {}, new avatar is {}",
                 userId, personalDto.getPictureSmallFileId());
 

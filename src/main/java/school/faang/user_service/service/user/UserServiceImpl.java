@@ -2,6 +2,7 @@ package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
@@ -52,11 +53,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserPersonalDto getUserPersonals(Long userId) {
-        User foundById = userRepository.findById(userId)
+        User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
-        UserPersonalDto userPersonalDto = userMapper.toUserPersonalDto(foundById);
+        UserPersonalDto userPersonalDto = userMapper.toUserPersonalDto(foundUser);
 
-        if (null == userPersonalDto.getPictureSmallFileId() || userPersonalDto.getPictureSmallFileId().isBlank()) {
+        if (StringUtils.isBlank(userPersonalDto.getPictureSmallFileId())) {
             userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureLink());
         }
 
@@ -65,14 +66,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserPersonalDto refreshUsersAvatar(Long userId) {
-        User foundById = userRepository.findById(userId)
+    public UserPersonalDto refreshUserAvatar(Long userId) {
+        User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
 
-        UserProfilePic newProfilePic = pictureService.generateNewPictureAndReturn();
-        foundById.setUserProfilePic(newProfilePic);
+        UserProfilePic newProfilePic = pictureService.generateNewPicture();
+        foundUser.setUserProfilePic(newProfilePic);
 
-        User savedUser = userRepository.saveAndFlush(foundById);
+        User savedUser = userRepository.saveAndFlush(foundUser);
 
         return userMapper.toUserPersonalDto(savedUser);
     }

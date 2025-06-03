@@ -42,8 +42,10 @@ payment-service:
 logic:
   constants:
     max_active_goals: 3
-    picture_provider_root: https://api.dicebear.com/9.x/identicon/svg
-    default_small_avatar_seed: rotate=10&scale=80&row1=xooox&row2=oxoxo&row3=ooxoo&row4=oxoxo&row5=xooox&rowColor=00acff
+
+picture-provider:
+  picture_provider_root_url: https://api.dicebear.com/9.x/identicon/svg
+  default_small_avatar_seed: rotate=10&scale=80&row1=xooox&row2=oxoxo&row3=ooxoo&row4=oxoxo&row5=xooox&rowColor=00acff
 
 feign:
   client:

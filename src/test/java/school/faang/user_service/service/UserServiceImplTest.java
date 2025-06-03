@@ -135,10 +135,10 @@ public class UserServiceImplTest {
         profilePic.setSmallFileId(notNullNewValue);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
-        when(pictureService.generateNewPictureAndReturn()).thenReturn(profilePic);
+        when(pictureService.generateNewPicture()).thenReturn(profilePic);
         when(userRepository.saveAndFlush(testUser)).thenReturn(testUser);
 
-        UserPersonalDto returnedDto = userService.refreshUsersAvatar(userId);
+        UserPersonalDto returnedDto = userService.refreshUserAvatar(userId);
         assertEquals(notNullNewValue, returnedDto.getPictureSmallFileId());
 
         verify(userRepository, times(1)).findById(userId);
