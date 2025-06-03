@@ -11,10 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PhoneFilterTest {
     private final PhoneFilter phoneFilter = new PhoneFilter();
+    private final static String PHONE1 = "89043354392";
+    private final static String PHONE2 = "89230462456";
+    private final static String PHONE3 = "89037572905";
 
     @Test
     public void testIsApplicableTrue() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, "89043354392", null, null);
+        UserFilterDto userFilterDto = createFilter(PHONE1);
         boolean result = phoneFilter.isApplicable(userFilterDto);
 
         assertTrue(result);
@@ -22,7 +25,7 @@ public class PhoneFilterTest {
 
     @Test
     public void testIsApplicableFalse() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, null, null, null);
+        UserFilterDto userFilterDto = createFilter(null);
         boolean result = phoneFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -30,7 +33,7 @@ public class PhoneFilterTest {
 
     @Test
     public void testIsApplicableWhenNameIsEmpty() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, "", null, null);
+        UserFilterDto userFilterDto = createFilter("");
         boolean result = phoneFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -38,7 +41,7 @@ public class PhoneFilterTest {
 
     @Test
     public void testIsApplicableWhenNameIsBlank() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, "   ", null, null);
+        UserFilterDto userFilterDto = createFilter("   ");
         boolean result = phoneFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -46,30 +49,35 @@ public class PhoneFilterTest {
 
     @Test
     public void testApply() {
-        Stream<User> users = Stream.of(
-                User.builder().phone("89230462456").build(),
-                User.builder().phone("89037572905").build()
-        );
+        Stream<User> users = createUsers(PHONE2, PHONE3);
+        UserFilterDto filter = createFilter(PHONE2);
 
-        Stream<User> user = phoneFilter.apply(users, new UserFilterDto(null, "89230462456",
-                null, null));
+        List<User> result = phoneFilter.apply(users, filter).toList();
 
-        List<User> userList = user.toList();
-        assertEquals(1, userList.size());
-        assertEquals("89230462456", userList.get(0).getPhone());
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(PHONE2, result.get(0).getPhone());
     }
 
     @Test
     public void testApplyNotSuitableUsers() {
-        Stream<User> users = Stream.of(
-                User.builder().username("89230462456").build(),
-                User.builder().username("89037572905").build()
+        Stream<User> users = createUsers(PHONE2, PHONE3);
+        UserFilterDto filter = createFilter(PHONE1);
+
+        List<User> result = phoneFilter.apply(users, filter).toList();
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    private Stream<User> createUsers(String phoneNumber1, String phoneNumber2) {
+        return Stream.of(
+                User.builder().phone(phoneNumber1).build(),
+                User.builder().phone(phoneNumber2).build()
         );
+    }
 
-        Stream<User> user = phoneFilter.apply(users, new UserFilterDto(null, "89037572937",
-                null, null));
-
-        List<User> userList = user.toList();
-        assertEquals(0, userList.size());
+    private UserFilterDto createFilter(String phoneNumber) {
+        return new UserFilterDto(null, phoneNumber, null, null);
     }
 }

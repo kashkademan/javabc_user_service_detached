@@ -12,11 +12,17 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.subscription.SubscriptionService;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionControllerTest {
+
+    private static final long FOLLOWER_ID = 1L;
+    private static final long FOLLOWEE_ID = 2L;
+    private static final int EXPECTED = 5;
+    private static final String NAME_PATTERN = "John";
 
     @Mock
     private SubscriptionService subscriptionService;
@@ -25,80 +31,78 @@ public class SubscriptionControllerTest {
     private SubscriptionController subscriptionController;
 
     @Test
-    public void testfollowUser() {
-        FollowRequest request = new FollowRequest(1, 2);
+    public void testFollowUser() {
+        FollowRequest request = new FollowRequest(FOLLOWER_ID, FOLLOWEE_ID);
 
+        assertNotNull(request);
         subscriptionController.followUser(request);
 
-        verify(subscriptionService).followUser(1, 2);
+        verify(subscriptionService).followUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
-    public void testunfollowUser() {
-        FollowRequest request = new FollowRequest(1, 2);
+    public void testunFollowUser() {
+        FollowRequest request = new FollowRequest(FOLLOWER_ID, FOLLOWEE_ID);
 
+        assertNotNull(request);
         subscriptionController.unfollowUser(request);
 
-        verify(subscriptionService).unfollowUser(1, 2);
+        verify(subscriptionService).unfollowUser(FOLLOWER_ID, FOLLOWEE_ID);
     }
 
     @Test
     public void testGetFollowers() {
-        long followerId = 1;
-        UserFilterDto filter = new UserFilterDto("John", null,
+        UserFilterDto filter = new UserFilterDto(NAME_PATTERN, null,
                 null, null);
-        List<UserDto> expected = List.of(new UserDto(followerId, "John", null));
+        List<UserDto> expected = List.of(new UserDto(FOLLOWER_ID, NAME_PATTERN, null));
 
-        when(subscriptionService.getFollowers(followerId, filter)).thenReturn(expected);
+        when(subscriptionService.getFollowers(FOLLOWER_ID, filter)).thenReturn(expected);
 
-        List<UserDto> result = subscriptionController.getFollowers(followerId, filter);
+        List<UserDto> result = subscriptionController.getFollowers(FOLLOWER_ID, filter);
 
+        assertNotNull(result);
         assertEquals(expected, result);
 
-        verify(subscriptionService).getFollowing(followerId, filter);
+        verify(subscriptionService).getFollowers(FOLLOWER_ID, filter);
     }
 
     @Test
     public void testGetFollowersCount() {
-        long followeeId = 1;
-        int expected = 5;
+        when(subscriptionService.getFollowersCount(FOLLOWER_ID)).thenReturn(5);
 
-        when(subscriptionService.getFollowersCount(followeeId)).thenReturn(5);
+        int result = subscriptionController.getFollowersCount(FOLLOWER_ID);
 
-        int result = subscriptionController.getFollowersCount(followeeId);
+        assertNotNull(result);
+        assertEquals(EXPECTED, result);
 
-        assertEquals(expected, result);
-
-        verify(subscriptionService).getFollowingCount(followeeId);
+        verify(subscriptionService).getFollowersCount(FOLLOWER_ID);
     }
 
     @Test
     public void testGetFollowing() {
-        long followeeId = 1;
         UserFilterDto filter = new UserFilterDto("Alice", null,
                 null, null);
-        List<UserDto> expected = List.of(new UserDto(followeeId, "Alice", null));
+        List<UserDto> expected = List.of(new UserDto(FOLLOWER_ID, "Alice", null));
 
-        when(subscriptionService.getFollowing(followeeId, filter)).thenReturn(expected);
+        when(subscriptionService.getFollowing(FOLLOWER_ID, filter)).thenReturn(expected);
 
-        List<UserDto> result = subscriptionController.getFollowing(followeeId, filter);
+        List<UserDto> result = subscriptionController.getFollowing(FOLLOWER_ID, filter);
 
+        assertNotNull(result);
         assertEquals(expected, result);
 
-        verify(subscriptionService).getFollowing(followeeId, filter);
+        verify(subscriptionService).getFollowing(FOLLOWER_ID, filter);
     }
 
     @Test
     public void testGetFollowingCount() {
-        long followeeId = 1;
-        int expected = 10;
+        when(subscriptionService.getFollowingCount(FOLLOWER_ID)).thenReturn(EXPECTED);
 
-        when(subscriptionService.getFollowingCount(followeeId)).thenReturn(expected);
+        int result = subscriptionController.getFollowingCount(FOLLOWER_ID);
 
-        int result = subscriptionController.getFollowingCount(followeeId);
+        assertNotNull(result);
+        assertEquals(EXPECTED, result);
 
-        assertEquals(expected, result);
-
-        verify(subscriptionService).getFollowingCount(followeeId);
+        verify(subscriptionService).getFollowingCount(FOLLOWER_ID);
     }
 }

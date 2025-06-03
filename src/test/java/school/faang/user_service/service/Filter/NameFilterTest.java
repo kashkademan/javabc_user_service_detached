@@ -10,10 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NameFilterTest {
     private final NameFilter nameFilter = new NameFilter();
+    private final static String NAME_ALEX = "Alex";
+    private final static String NAME_FRED = "Fred";
+    private final static String NAME_JOHN = "John";
 
     @Test
     public void testIsApplicableTrue() {
-        UserFilterDto userFilterDto = new UserFilterDto("Alex", null, null, null);
+        UserFilterDto userFilterDto = createFilter(NAME_ALEX);
         boolean result = nameFilter.isApplicable(userFilterDto);
 
         assertTrue(result);
@@ -21,7 +24,7 @@ public class NameFilterTest {
 
     @Test
     public void testIsApplicableFalse() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, null, null, null);
+        UserFilterDto userFilterDto = createFilter(null);
         boolean result = nameFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -29,7 +32,7 @@ public class NameFilterTest {
 
     @Test
     public void testIsApplicableWhenNameIsEmpty() {
-        UserFilterDto userFilterDto = new UserFilterDto("", null, null, null);
+        UserFilterDto userFilterDto = createFilter("");
         boolean result = nameFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -37,7 +40,7 @@ public class NameFilterTest {
 
     @Test
     public void testIsApplicableWhenNameIsBlank() {
-        UserFilterDto userFilterDto = new UserFilterDto("   ", null, null, null);
+        UserFilterDto userFilterDto = createFilter("    ");
         boolean result = nameFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -45,30 +48,35 @@ public class NameFilterTest {
 
     @Test
     public void testApply() {
-        Stream<User> users = Stream.of(
-                User.builder().username("Alex").build(),
-                User.builder().username("Fred").build()
-        );
+        Stream<User> users = createUsers(NAME_ALEX, NAME_FRED);
+        UserFilterDto filter = createFilter(NAME_ALEX);
 
-        Stream<User> user = nameFilter.apply(users, new UserFilterDto("Alex", null,
-                null, null));
+        List<User> result = nameFilter.apply(users, filter).toList();
 
-        List<User> userList = user.toList();
-        assertEquals(1, userList.size());
-        assertEquals("Alex", userList.get(0).getUsername());
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(NAME_ALEX, result.get(0).getUsername());
     }
 
     @Test
     public void testApplyNotSuitableUsers() {
-        Stream<User> users = Stream.of(
-                User.builder().username("Alex").build(),
-                User.builder().username("Fred").build()
+        Stream<User> users = createUsers(NAME_ALEX, NAME_FRED);
+        UserFilterDto filter = createFilter(NAME_JOHN);
+
+        List<User> result = nameFilter.apply(users, filter).toList();
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    private Stream<User> createUsers(String nameOfUser1, String nameOfUser2) {
+        return Stream.of(
+                User.builder().username(nameOfUser1).build(),
+                User.builder().username(nameOfUser2).build()
         );
+    }
 
-        Stream<User> user = nameFilter.apply(users, new UserFilterDto("John", null,
-                null, null));
-
-        List<User> userList = user.toList();
-        assertEquals(0, userList.size());
+    private UserFilterDto createFilter(String name) {
+        return new UserFilterDto(name, null, null, null);
     }
 }

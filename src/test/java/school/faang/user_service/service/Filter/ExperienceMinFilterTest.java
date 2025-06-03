@@ -11,11 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ExperienceMinFilterTest {
     private final ExperienceMinFilter experienceMinFilter = new ExperienceMinFilter();
+    private static final int EXPERIENCE_MAX = 40;
+    private static final int EXPERIENCE_MIN = 27;
+    private static final int EXPERIENCE_FILTER = 13;
+    private static final int NON_MATCHING_FILTER = 50;
 
     @Test
     public void testIsApplicableTrue() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, null,
-                20, null);
+        UserFilterDto userFilterDto = createFilter(EXPERIENCE_MIN);
         boolean result = experienceMinFilter.isApplicable(userFilterDto);
 
         assertTrue(result);
@@ -23,8 +26,7 @@ public class ExperienceMinFilterTest {
 
     @Test
     public void testIsApplicableFalse() {
-        UserFilterDto userFilterDto = new UserFilterDto(null, null,
-                null, null);
+        UserFilterDto userFilterDto = createFilter(null);
         boolean result = experienceMinFilter.isApplicable(userFilterDto);
 
         assertFalse(result);
@@ -32,30 +34,34 @@ public class ExperienceMinFilterTest {
 
     @Test
     public void testApply() {
-        Stream<User> users = Stream.of(
-                User.builder().experience(27).build(),
-                User.builder().experience(13).build()
-        );
+        Stream<User> users = createUsers(EXPERIENCE_MIN, EXPERIENCE_MAX);
+        UserFilterDto filter = createFilter(EXPERIENCE_FILTER);
 
-        Stream<User> user = experienceMinFilter.apply(users, new UserFilterDto(null, null,
-                20, null));
+        List<User> result = experienceMinFilter.apply(users, filter).toList();
 
-        List<User> userList = user.toList();
-        assertEquals(1, userList.size());
-        assertEquals(27, userList.get(0).getExperience());
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(EXPERIENCE_MIN, result.get(0).getExperience());
     }
 
     @Test
     public void testApplyNotSuitableUsers() {
-        Stream<User> users = Stream.of(
-                User.builder().experience(27).build(),
-                User.builder().experience(40).build()
-        );
+        Stream<User> users = createUsers(EXPERIENCE_MIN, EXPERIENCE_MAX);
+        UserFilterDto filter = createFilter(NON_MATCHING_FILTER);
 
-        Stream<User> user = experienceMinFilter.apply(users, new UserFilterDto(null, null,
-                50, null));
+        List<User> result = experienceMinFilter.apply(users, filter).toList();
 
-        List<User> userList = user.toList();
-        assertEquals(0, userList.size());
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    private UserFilterDto createFilter(Integer experience) {
+        return new UserFilterDto(null, null, experience, null);
+    }
+
+    private Stream<User> createUsers(int experienceMin, int experienceMax) {
+        return Stream.of(
+                User.builder().experience(experienceMin).build(),
+                User.builder().experience(experienceMax).build());
     }
 }
