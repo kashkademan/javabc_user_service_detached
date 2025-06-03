@@ -1,11 +1,10 @@
 plugins {
-
-    java
+    id("java")
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
-    jacoco
+    id("jacoco")
     id("checkstyle")
 }
 
@@ -129,22 +128,21 @@ tasks.jacocoTestReport {
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it) {
             exclude("school/faang/user_service/UserServiceApplication*",
-                    "school/faang/user_service/client/**",
-                    "school/faang/user_service/config/**",
-                    "school/faang/user_service/mapper/**",
-                    "school/faang/user_service/entity/**",
-                    "school/faang/user_service/dto/**",
-                    "school/faang/user_service/controller/**",
-                    "school/faang/user_service/repository/**",
-                    "school/faang/user_service/exception/**",
-                    "school/faang/user_service/rest/**",
-                    "com/json/student/**",
+                    "school/faang/user_service/client/*",
+                    "school/faang/user_service/config/*",
+                    "school/faang/user_service/mapper/*",
+                    "school/faang/user_service/entity/*",
+                    "school/faang/user_service/dto/*",
+                    "school/faang/user_service/controller/*",
+                    "school/faang/user_service/repository/*",
+                    "school/faang/user_service/exception/*",
+                    "school/faang/user_service/rest/*",
+                    "com/json/student/*",
                     //Список классов, на которые необходимо написать тесты.
                     // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
                     "school/faang/user_service/service/MentorshipRequestService*", // Тесты на Антоне
                     "school/faang/user_service/filter/mentorship/**", // Тесты на Антоне
-                    "school/faang/user_service/validator/mentorship/**", // Тесты на Антоне
-                    "school/faang/user_service/utils/**", // Кто покроет этот пакет тестами, тот большой молодец
+                    "school/faang/user_service/validator/mentorship/*" // Тесты на Антоне
             )
         }
     }))
@@ -163,15 +161,14 @@ tasks.jacocoTestCoverageVerification {
                 "school.faang.user_service.dto.*",
                 "school.faang.user_service.controller.*",
                 "school.faang.user_service.mapper.*",
-                "school.faang.user_service.exception.**",
-                "school.faang.user_service.rest.**",
+                "school.faang.user_service.exception.*",
+                "school.faang.user_service.rest.*",
                 "com.json.student.*",
                 //Список классов, на которые необходимо написать тесты.
                 // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
                 "school.faang.user_service.service.MentorshipRequestService*", // Тесты на Антоне
                 "school.faang.user_service.filter.mentorship.*", // Тесты на Антоне
-                "school.faang.user_service.validator.mentorship.*", // Тесты на Антоне
-                "school.faang.user_service.utils.**", // Кто покроет этот пакет тестами, тот большой молодец
+                "school.faang.user_service.validator.mentorship.*" // Тесты на Антоне
             )
             limit {
                 counter = "LINE" // Только покрытие строк
