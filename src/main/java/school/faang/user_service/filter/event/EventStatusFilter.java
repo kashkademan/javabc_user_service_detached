@@ -16,6 +16,6 @@ public class EventStatusFilter implements Filter<EventFilterDto, Event> {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto eventFilterDto) {
-        return events.filter(event -> eventFilterDto.eventStatus() == event.getStatus());
+        return events.filter(event -> eventFilterDto.eventStatus().equals(event.getStatus()));
     }
 }

@@ -23,13 +23,20 @@ public interface EventMapper {
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "attendees", ignore = true)
     @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "type", ignore = true)
-    @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "type", source = "eventType")
+    @Mapping(target = "status", source = "eventStatus")
     Event toEntity(RequestEventDto eventDto);
 
     @Mapping(target = "relatedSkills", ignore = true)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "attendees", ignore = true)
+    @Mapping(target = "ratings", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "type", source = "eventType")
+    @Mapping(target = "status", source = "eventStatus")
     void update(@MappingTarget Event event, RequestEventDto updateResponseEventDto);
 
     default List<Long> mappingRelatedSkills(Event event) {
