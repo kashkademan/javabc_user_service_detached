@@ -9,7 +9,6 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 @Mapper(componentModel = "spring")
 public interface SkillOfferMapper {
 

@@ -1,12 +1,13 @@
 package school.faang.user_service.repository.mentorship;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import school.faang.user_service.entity.MentorshipRequest;
 
 import java.util.Optional;
 
-public interface MentorshipRequestRepository extends CrudRepository<MentorshipRequest, Long> {
+public interface MentorshipRequestRepository extends CrudRepository<MentorshipRequest, Long>, JpaSpecificationExecutor<MentorshipRequest> {
 
     @Query(nativeQuery = true, value = """
             INSERT INTO mentorship_request (requester_id, receiver_id, description, status, created_at, updated_at)

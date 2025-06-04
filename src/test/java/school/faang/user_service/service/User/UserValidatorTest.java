@@ -36,6 +36,13 @@ public class UserValidatorTest {
         assertDoesNotThrow(() -> userValidator.validatorUserExistence(prepareDataUserDto().getId()));
     }
 
+    @Test
+    public void testValidateNotSameUser(){
+        long requesterId = 1L;
+        long receiverId = 1L;
+        assertThrows(DataValidationException.class,() -> userValidator.validateNotSameUser(requesterId, receiverId));
+    }
+
     private void workWhenUserRepository(boolean result) {
         when(userRepository.existsById(prepareDataUserDto().getId())).thenReturn(result);
     }
