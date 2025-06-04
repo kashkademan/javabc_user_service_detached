@@ -6,7 +6,6 @@ import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 
 
-@Component
 @Mapper(componentModel = "spring", uses = SkillMapper.class)
 public interface SkillCandidateMapper {
 

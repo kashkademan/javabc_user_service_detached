@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
-@Component
 @Mapper(componentModel = "spring", uses = SkillOfferMapper.class)
 public interface RecommendationMapper {
 

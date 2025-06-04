@@ -16,4 +16,10 @@ public class UserValidator {
             throw new DataValidationException("пользователя с данным id не существует!");
         }
     }
+
+    public void validateNotSameUser(long requesterId, long receiverId) {
+        if (requesterId == receiverId) {
+            throw new DataValidationException("Bad Request: Нельзя сделать запрос самому себе");
+        }
+    }
 }

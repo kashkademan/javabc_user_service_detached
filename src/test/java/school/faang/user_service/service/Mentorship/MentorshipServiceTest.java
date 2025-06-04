@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.mentorship.UserMapperImpl;
+import school.faang.user_service.mapper.User.UserMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.MentorshipService;
 import school.faang.user_service.validator.UserValidator;
