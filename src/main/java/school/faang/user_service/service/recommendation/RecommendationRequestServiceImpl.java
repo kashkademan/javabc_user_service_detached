@@ -1,6 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -34,7 +35,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final RecommendationRequestMapper recommendationRequestMapper;
 
     @Override
-    public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
+    public RecommendationRequestDto create(@Valid RecommendationRequestDto recommendationRequestDto) {
         User requester = userRepository.findById(recommendationRequestDto.getRequesterId())
                 .orElseThrow(() -> new EntityNotFoundException("Requester with id %s was not found".formatted(recommendationRequestDto.getRequesterId())));
         User receiver = userRepository.findById(recommendationRequestDto.getReceiverId())

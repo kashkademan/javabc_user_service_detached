@@ -37,7 +37,7 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
+    public List<MentorshipRequestDto> getRequests(@Valid RequestFilterDto filter) {
         log.info("Getting mentorship requests with filter {} - Started", filter);
         List<MentorshipRequestDto> requests = mentorshipRequestService.getRequests(filter);
         log.info("Getting mentorship requests with filter {} - Finished", filter);

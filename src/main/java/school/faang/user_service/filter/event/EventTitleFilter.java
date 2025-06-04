@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class EventTitleFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
-        return filter.getTitle() != null;
+        return filter.getTitle() != null && !filter.getTitle().isBlank();
     }
 
     @Override

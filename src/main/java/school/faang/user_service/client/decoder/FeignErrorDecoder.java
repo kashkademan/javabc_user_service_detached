@@ -4,8 +4,8 @@ import feign.Response;
 import feign.codec.ErrorDecoder;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exeption.DataValidationException;
-import school.faang.user_service.exeption.InternalServerErrorException;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.InternalServerErrorException;
 
 @Component
 public class FeignErrorDecoder implements ErrorDecoder {

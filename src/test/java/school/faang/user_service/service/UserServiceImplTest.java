@@ -37,8 +37,8 @@ public class UserServiceImplTest {
         user2 = new User();
         user2.setId(2L);
 
-        userDto1 = new UserDto(1L, "ira", "ira@mail.com",List.of());
-        userDto2 = new UserDto(2L, "kira", "kira@mail.com",List.of());
+        userDto1 =  UserDto.builder().id(1L).username("ira").email("ira@gmail.com").build();
+        userDto2 =  UserDto.builder().id(2L).username("kira").email("kira@gmail.com").build();
     }
 
     @Test
@@ -59,7 +59,7 @@ public class UserServiceImplTest {
 
         User user3 = new User();
         user3.setId(3L);
-        UserDto userDto3 = new UserDto(3L, "kira", "kira@mail.com",List.of());
+        UserDto userDto3 = UserDto.builder().id(3L).username("kira").email("kira@mail.com").build();
 
         when(userRepository.findAllById(ids)).thenReturn(List.of(user1, user3));
         when(userMapper.toUserDto(user1)).thenReturn(userDto1);

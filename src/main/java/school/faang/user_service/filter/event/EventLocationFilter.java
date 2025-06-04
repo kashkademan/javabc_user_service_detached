@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class EventLocationFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
-        return filter.getLocation() != null;
+        return filter.getLocation() != null && !filter.getLocation().isBlank();
     }
 
     @Override

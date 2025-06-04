@@ -1,4 +1,4 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filter.subscription;
 
 import school.faang.user_service.dto.UserDtoFilter;
 import school.faang.user_service.entity.User;
