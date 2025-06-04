@@ -47,7 +47,7 @@ class RecommendationRequestServiceTest {
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Spy
-    private final RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
+    private RecommendationMapperImpl recommendationMapper;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -122,7 +122,6 @@ class RecommendationRequestServiceTest {
         when(userRepository.findById(receiver1.getId())).thenReturn(Optional.of(receiver1));
         when(recommendationRequestRepository.findLatestPendingRequest(requester1.getId(), receiver1.getId()))
                 .thenReturn(Optional.empty());
-        when(recommendationMapper.toEntity(requestDto)).thenReturn(new RecommendationRequest());
         when(recommendationRequestRepository.save(any())).thenReturn(savedRequest);
 
 
