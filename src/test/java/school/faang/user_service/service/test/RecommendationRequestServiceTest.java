@@ -16,7 +16,6 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -215,9 +214,6 @@ class RecommendationRequestServiceTest {
                 null);
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        RecommendationMapper realMapper = new RecommendationMapperImpl();
-        when(recommendationMapper.toDto(any(RecommendationRequest.class)))
-                .thenAnswer(inv -> realMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
@@ -280,9 +276,6 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
 
-        RecommendationMapper realMapper = new RecommendationMapperImpl();
-        when(recommendationMapper.toDto(any(RecommendationRequest.class)))
-                .thenAnswer(inv -> realMapper.toDto(inv.getArgument(0)));
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
