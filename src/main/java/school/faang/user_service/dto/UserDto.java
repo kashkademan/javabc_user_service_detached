@@ -21,4 +21,12 @@ public class UserDto {
     private String email;
     @NotNull
     private List<UserDto> mentors;
+
+    private String aboutMe;
+
+    private Integer experience;
+
+    private String phone;
 }
+
+

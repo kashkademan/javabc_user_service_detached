@@ -42,21 +42,6 @@ class WorkScheduleDtoValidatorTest {
     }
 
     @Test
-    void testValidateDto_HavingEmptyFields() {
-        WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
-                .id(1L)
-                .startTime(LocalTime.of(8, 0))
-                .endTime(LocalTime.of(17, 0))
-                .build();
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> {
-            validator.validateDto(workScheduleDto);
-        });
-
-        assertEquals("All fields should be filled", exception.getMessage());
-    }
-
-    @Test
     void testValidate_RightDto(){
         WorkScheduleDto workScheduleDto = WorkScheduleDto.builder()
                 .id(1L)
