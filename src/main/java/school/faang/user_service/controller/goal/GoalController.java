@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping("/{userId}/create")
-    public GoalDto createGoal(@PathVariable Long userId, @RequestBody GoalDto goalDto) {
+    public GoalDto createGoal(@PathVariable Long userId, @Valid @RequestBody GoalDto goalDto) {
         if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
         GoalDto created = goalService.createGoal(userId, goalDto);
         log.info("Goal was created for user {}. Id {}, title {}", userId, created.getId(), created.getTitle());
@@ -25,7 +26,7 @@ public class GoalController {
     }
 
     @PutMapping("/{goalId}/update")
-    public GoalDto updateGoal(@PathVariable Long goalId, @RequestBody GoalDto goalDto) {
+    public GoalDto updateGoal(@PathVariable Long goalId, @Valid @RequestBody GoalDto goalDto) {
         if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
         GoalDto updated = goalService.updateGoal(goalId, goalDto);
         log.info("Goal id {} was updated", updated.getId());
@@ -40,12 +41,12 @@ public class GoalController {
     }
 
     @PostMapping("/{goalId}/subtasks")
-    public List<GoalDto> findSubtasksByGoalId(@PathVariable Long goalId, @RequestBody GoalFilterDto filter) {
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable Long goalId, @Valid @RequestBody GoalFilterDto filter) {
         return goalService.findSubtasksByGoalId(goalId, filter);
     }
 
     @PostMapping("/ofuser/{userId}")
-    public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @RequestBody GoalFilterDto filter) {
+    public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @Valid @RequestBody GoalFilterDto filter) {
         return goalService.findGoalsByUserId(userId, filter);
     }
 }
