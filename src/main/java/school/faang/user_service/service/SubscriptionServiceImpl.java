@@ -39,7 +39,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public List<UserDto> getFollowers(long followeeId, UserFilterDto userFilterDto) {
         Stream<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
         return filterUsers(followers, userFilterDto)
-                .map(userMapper::toUserDTO)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
@@ -60,7 +60,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public List<UserDto> getFollowing(long followerId, UserFilterDto userFilterDto) {
         Stream<User> followees = subscriptionRepository.findByFollowerId(followerId);
         return filterUsers(followees, userFilterDto)
-                .map(userMapper::toUserDTO)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
