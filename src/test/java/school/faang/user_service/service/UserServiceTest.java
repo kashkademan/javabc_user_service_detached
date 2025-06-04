@@ -5,19 +5,25 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+    @Spy
+    private UserMapperImpl userMapper;
     @InjectMocks
     private UserService userService;
 
