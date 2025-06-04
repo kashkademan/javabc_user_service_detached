@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 @Component
 public class TittleFilter implements GoalFilter {
     @Override
-    public boolean isApplicable(GoalFilterDto filters) {
+    public boolean isApplicable(@Valid GoalFilterDto filters) {
             return true;
     }
 

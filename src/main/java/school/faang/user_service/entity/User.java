@@ -52,7 +52,6 @@ public class User {
     private String username;
 
     @Column(name = "email", length = 64, nullable = false, unique = true)
-    @Email(message = "Field must be an email")
     private String email;
 
     @Column(name = "phone", length = 32, unique = true)
