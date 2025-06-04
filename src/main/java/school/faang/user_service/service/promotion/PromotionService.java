@@ -14,6 +14,7 @@ import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
@@ -66,7 +67,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByView(Long promotionId) {
+    public void finishPromotionByView(Long promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_VIEW);
@@ -75,11 +76,16 @@ public class PromotionService {
     }
 
     @Transactional
-    public void finishedPromotionByTime(Long promotionId) {
+    public void finishPromotionByTime(Long promotionId) {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_TIME);
         promotionRepository.save(promotion);
         log.info("Promotion with id {} finished by time", promotionId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Promotion> getAllActiveEventPromotion() {
+        return promotionRepository.findAllByTypeAndStatus(EVENT, ACTIVE);
     }
 }

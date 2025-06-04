@@ -24,7 +24,7 @@ public class PromotionViewExpiredCleanJob {
             try {
                 long promotionId = RedisKeyUtil.extractId(key);
                 log.debug("Job promotion view clean ran finished promotion with id {}", promotionId);
-                promotionService.finishedPromotionByView(promotionId);
+                promotionService.finishPromotionByView(promotionId);
             } catch (InvalidRedisKeyException ex) {
                 log.warn("Invalid promotion id in queue: {}", key, ex);
             }

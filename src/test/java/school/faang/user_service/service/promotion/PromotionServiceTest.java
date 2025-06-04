@@ -153,7 +153,7 @@ class PromotionServiceTest {
     void testFinishedPromotionByView_shouldSetStatusAndSave() {
         when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
 
-        promotionService.finishedPromotionByView(promotionId);
+        promotionService.finishPromotionByView(promotionId);
 
         assertEquals(PromotionStatus.FINISHED_VIEW, promotion.getStatus());
         verify(promotionRepository).save(promotion);
@@ -163,7 +163,7 @@ class PromotionServiceTest {
     void testFinishedPromotionByTime_shouldSetStatusAndSave() {
         when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(promotion));
 
-        promotionService.finishedPromotionByTime(promotionId);
+        promotionService.finishPromotionByTime(promotionId);
 
         assertEquals(PromotionStatus.FINISHED_TIME, promotion.getStatus());
         verify(promotionRepository).save(promotion);
