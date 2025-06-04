@@ -35,20 +35,14 @@ public class DiceBearAvatarServiceImpl implements AvatarService {
     public AvatarDto generateAvatar(Long userId) {
         log.info("Generating avatar for user: {}", userId);
 
-        try {
-            User user = findUserById(userId);
-            generateAndSaveAvatar(user);
+        User user = findUserById(userId);
+        generateAndSaveAvatar(user);
 
-            User updatedUser = findUserById(userId);
-            return avatarMapper.toDto(updatedUser);
-
-        } catch (Exception e) {
-            log.error("Failed to generate avatar for user {}: {}", userId, e.getMessage());
-            throw e;
-        }
+        User updatedUser = findUserById(userId);
+        return avatarMapper.toDto(updatedUser);
     }
 
-    @Override
+
     public String generateAvatarUrl(User user) {
         try {
             String seed = getSeedFromUser(user);
@@ -92,10 +86,6 @@ public class DiceBearAvatarServiceImpl implements AvatarService {
     }
 
     private String buildAvatarUrl(String seed) {
-        if (seed == null || seed.trim().isEmpty()) {
-            seed = diceBearConfig.getDefaultSeed();
-        }
-
         String encodedSeed = URLEncoder.encode(seed.trim(), StandardCharsets.UTF_8);
         return String.format("%s/%s/svg?seed=%s", diceBearConfig.getApiUrl(), diceBearConfig.getStyle(), encodedSeed);
     }
