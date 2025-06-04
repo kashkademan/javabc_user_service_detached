@@ -39,15 +39,15 @@ class UserServiceTest {
         UserDto result = userService.getUserById(id);
 
         assertNotNull(result);
-        assertEquals(id,result.id());
+        assertEquals(id, result.id());
     }
 
     @Test
-    void getUserByIdException(){
+    void getUserByIdException() {
         long id = -1L;
         Mockito.when(userRepository.findById(id))
                 .thenThrow(new IllegalArgumentException("The Requester with id =" + id + " does not exist"));
 
-        assertThrows(IllegalArgumentException.class, ()->userRepository.findById(id));
+        assertThrows(IllegalArgumentException.class, () -> userRepository.findById(id));
     }
 }
