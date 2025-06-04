@@ -48,7 +48,8 @@ public class EducationService {
     public EducationDto getById(long educationId) {
         return educationRepository.findById(educationId)
                 .map(educationMapper::toDto)
-                .orElseThrow(() -> new DataValidationException("The education with id = " + educationId + "does not exist"));
+                .orElseThrow(() -> new DataValidationException(
+                        "The education with id = " + educationId + "does not exist"));
     }
 
     private void validate(EducationDto educationDto) {
