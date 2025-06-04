@@ -47,5 +47,6 @@ public class GoalController {
 
     @PostMapping("/ofuser/{userId}")
     public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @Valid @RequestBody GoalFilterDto filter) {
+        return goalService.findGoalsByUserId(userId, filter);
     }
 }
