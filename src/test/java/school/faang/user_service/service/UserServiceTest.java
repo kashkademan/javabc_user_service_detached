@@ -5,9 +5,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
@@ -21,6 +24,9 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    @Spy
+    private UserMapperImpl userMapper;
+
     @Test
     void getUserById() {
         long id = 1L;
@@ -30,7 +36,7 @@ class UserServiceTest {
 
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
-        UserDto result = userService.getUserById(id);
+        UserDto result = userMapper.toDto(userService.getUserById(id));
 
         assertNotNull(result);
         assertEquals(id,result.id());

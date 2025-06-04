@@ -1,8 +1,10 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.FollowRequest;
 import school.faang.user_service.dto.UserDto;
@@ -16,6 +18,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/subscriptions")
+@Validated
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
@@ -31,25 +34,25 @@ public class SubscriptionController {
 
     @GetMapping("/followers/{followeeId}")
     public List<UserDto> getFollowers(
-            @PathVariable long followeeId,
+            @PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId,
             @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
     @GetMapping("/followers/count/{followeeId}")
-    public int getFollowersCount(@PathVariable long followeeId) {
+    public int getFollowersCount(@PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
     @GetMapping("/following/{followeeId}")
     public List<UserDto> getFollowing(
-            @PathVariable long followeeId,
+            @PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId,
             @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 
     @GetMapping("/following/{followeeId}/count")
-    public int getFollowingCount(@PathVariable long followeeId) {
+    public int getFollowingCount(@PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
     }
 }

@@ -1,4 +1,11 @@
 
 package school.faang.user_service.dto.mentorship;
 
-public record GetMenteesResponseDto(long id, String username){}
+import jakarta.validation.constraints.Min;
+
+public record GetMenteesResponseDto(
+        @Min(value = 1, message = "id must be a positive number")
+        long id,
+
+        String username
+){}

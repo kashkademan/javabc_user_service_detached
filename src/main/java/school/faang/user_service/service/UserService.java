@@ -13,9 +13,8 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
 
-    public UserDto getUserById(Long id){
-        User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
+    public User getUserById(Long id){
+        return userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
                 ("The Requester with id =" + id + " does not exist"));
-        return userMapper.toDto(user);
     }
 }

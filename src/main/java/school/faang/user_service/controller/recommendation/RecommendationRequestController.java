@@ -2,9 +2,11 @@ package school.faang.user_service.controller.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.RecommendationRejectDto;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -18,6 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/recommendation-requests")
+@Validated
 public class RecommendationRequestController {
 
     private final RecommendationRequestService recommendationRequestService;
@@ -36,13 +39,13 @@ public class RecommendationRequestController {
     }
 
     @GetMapping("/{id}")
-    public RecommendationResponseDto getById(@PathVariable long id) {
+    public RecommendationResponseDto getById(@PathVariable @Min(value = 1, message = "id must be a positive number") long id) {
         return recommendationRequestService.getRequest(id);
     }
 
     @PostMapping("/{id}/reject")
     public RecommendationResponseDto reject(
-            @PathVariable long id,
+            @PathVariable @Min(value = 1, message = "id must be a positive number") long id,
             @Valid @RequestBody RecommendationRejectDto rejectDto) {
         return recommendationRequestService.rejectRequest(id, rejectDto);
     }

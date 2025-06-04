@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class MentorIdFilter implements GoalFilter {
     @Override
     public boolean isApplicable(GoalFilterDto filters) {
-        return filters.mentorId() != null;
+        return true;
     }
 
     @Override

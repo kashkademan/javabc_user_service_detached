@@ -1,12 +1,12 @@
 package school.faang.user_service.service.goal;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.CreateGoalRequestDto;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
@@ -105,11 +105,9 @@ public class GoalService {
         return applyFilters(goalRepository.findGoalsByUserId(userId), goalFilterDto);
     }
 
-    private List<GoalDto> applyFilters(Stream<Goal> goals, GoalFilterDto filterDto) {
+    private List<GoalDto> applyFilters(Stream<Goal> goals, @Valid GoalFilterDto filterDto) {
         for (GoalFilter filter : filters) {
-            if (filter.isApplicable(filterDto)) {
                 goals = filter.apply(goals, filterDto);
-            }
         }
         return goals.map(goalMapper::toDto).toList();
     }

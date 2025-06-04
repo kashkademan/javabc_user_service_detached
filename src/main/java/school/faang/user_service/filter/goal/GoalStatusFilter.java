@@ -1,5 +1,6 @@
 package school.faang.user_service.filter.goal;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
@@ -9,8 +10,8 @@ import java.util.stream.Stream;
 @Component
 public class GoalStatusFilter implements GoalFilter {
     @Override
-    public boolean isApplicable(GoalFilterDto filters) {
-        return filters.status() != null;
+    public boolean isApplicable(@Valid GoalFilterDto filters) {
+        return true;
     }
 
     @Override

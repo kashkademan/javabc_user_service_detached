@@ -2,10 +2,12 @@ package school.faang.user_service.dto.mentorship_request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import school.faang.user_service.entity.RequestStatus;
 
 public record MentorshipRequestFilterDto(
-        @NotNull(message = "Field cannot be null")
+
+        @Size(max = 255)
         @NotBlank(message = "Field cannot be blank")
         String description,
 
@@ -16,5 +18,6 @@ public record MentorshipRequestFilterDto(
         Long receiverId,
 
         @NotNull(message = "Field cannot be null")
-        RequestStatus status) {
+        RequestStatus status
+) {
 }
