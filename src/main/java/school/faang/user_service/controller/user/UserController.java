@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +14,11 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.UserService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -36,7 +40,14 @@ public class UserController {
         if (file.isEmpty()) {
             throw new DataValidationException("File not found");
         }
-
-        return userService.processCsv(file);
+        log.info("Starting parsing {}", file.getOriginalFilename());
+        try (InputStream inputStream = file.getInputStream()) {
+            List<UserDto> parsedPersons = userService.processCsv(inputStream);
+            log.info("Parsing completed. Processed {} users", parsedPersons.size());
+            return parsedPersons;
+        } catch (IOException e) {
+            log.error("Parsing {} failed: {}", file.getOriginalFilename(), e.getMessage());
+            throw new RuntimeException("Failed to parse CSV file", e);
+        }
     }
 }

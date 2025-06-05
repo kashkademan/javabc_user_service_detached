@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.ErrorResponseDto;
+import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +47,18 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseDto handleConstraintViolation(ConstraintViolationException e) {
         log.error("ConstraintViolationException with message {} was thrown", e.getMessage());
+        return new ErrorResponseDto(
+                HttpStatus.BAD_REQUEST.name(),
+                "Incorrectly made request.",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    @ResponseStatus
+    public ErrorResponseDto handleDataValidationException(DataValidationException e) {
+        log.error("DataValidationException with message {} was thrown", e.getMessage());
         return new ErrorResponseDto(
                 HttpStatus.BAD_REQUEST.name(),
                 "Incorrectly made request.",

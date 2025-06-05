@@ -1,4 +1,4 @@
-package school.faang.user_service.service.country;
+package school.faang.user_service.mapper.country;
 
 import org.springframework.stereotype.Component;
 
@@ -7,8 +7,9 @@ import java.util.Map;
 
 @Component
 public class CountryMapper {
-    private final Map<String, String> COUNTRY_MAP = new HashMap<>();
+    private static final Map<String, String> COUNTRY_MAP = new HashMap<>();
 
+    static
     {
         COUNTRY_MAP.put("AFG", "Afghanistan");
         COUNTRY_MAP.put("ALB", "Albania");
