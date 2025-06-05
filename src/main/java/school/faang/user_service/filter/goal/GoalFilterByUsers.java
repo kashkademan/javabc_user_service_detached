@@ -1,7 +1,7 @@
 package school.faang.user_service.filter.goal;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.entity.filter.GoalFilterDto;
+import school.faang.user_service.dto.goal.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.Objects;
