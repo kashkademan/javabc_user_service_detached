@@ -49,14 +49,17 @@ public class RecommendationServiceTest {
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendationDto.authorId(),
                         recommendationDto.receiverId()
-                )).thenReturn(Optional.of(new Recommendation(1, "1", null, null, null, null, NOW.minusMonths(3), null)));
+                ))
+                .thenReturn(Optional.of(new Recommendation(1, "1", null, null, null, null, NOW.minusMonths(3), null)));
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
     }
 
     @Test
     public void testValidationNonExistentSkills() {
-        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(new SkillOfferDto(1L, 1L, 1L)), NOW);
+        RecommendationDto recommendationDto = new RecommendationDto(
+                1L, 1L, 1L, "", List.of(new SkillOfferDto(1L, 1L, 1L)), NOW);
+
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
     }
@@ -114,11 +117,15 @@ public class RecommendationServiceTest {
     @Test
     public void testGetAllGivenRecommendations() {
         long id = 1;
-        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, LocalDateTime.now(), null);
+        Recommendation recommendation = new Recommendation(
+                1, "1", null, null, List.of(), null, LocalDateTime.now(), null);
+
         List<Recommendation> recommendationList = List.of(recommendation, recommendation);
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByAuthorId(id, PAGEABLE)).thenReturn(page);
-        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id, PAGEABLE));
+        assertEquals(recommendationList.stream()
+                .map(recommendationMapper::toDto).toList(),
+                recommendationService.getAllGivenRecommendations(id, PAGEABLE));
     }
 }

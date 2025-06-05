@@ -24,7 +24,10 @@ public interface RecommendationMapper {
 
     default List<SkillOfferDto> toSkillOfferDtoList(Recommendation recommendation) {
         return recommendation.getSkillOffers().stream()
-                .map(skillOffer -> new SkillOfferDto(skillOffer.getId(), skillOffer.getSkill().getId(), skillOffer.getRecommendation().getId()))
+                .map(skillOffer ->
+                        new SkillOfferDto(skillOffer.getId(),
+                                skillOffer.getSkill().getId(),
+                                skillOffer.getRecommendation().getId()))
                 .toList();
     }
 }
