@@ -15,7 +15,6 @@ public class S3Config {
     private String accessKey;
     @Value("${services.s3.secretKey}")
     private String secretKey;
-
     @Value("http://${services.s3.host}:${services.s3.post}")
     private String url;
 
