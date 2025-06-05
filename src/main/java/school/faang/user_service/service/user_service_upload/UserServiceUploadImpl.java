@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user_service;
+package school.faang.user_service.service.user_service_upload;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class UserServiceImpl implements UserService {
+public class UserServiceUploadImpl implements UserServiceUpload {
     private final CsvMapper csvMapper;
     private final CsvUserMapper csvUserMapper;
     private final UserRepository userRepository;
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
             List<String> errors = new ArrayList<>();
             for (StudentCsvDto studentDto : students) {
                 try {
-                    User user = processUsers(studentDto, countriesMap);
+                    User user = processUser(studentDto, countriesMap);
                     processedUsers.add(user);
                 } catch (Exception e) {
                     errors.add("Error processing student " + studentDto.getEmail() + ": " + e.getMessage());
@@ -69,10 +69,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private List<StudentCsvDto> readCsvFile(InputStream inputStream) {
-        CsvSchema schema = csvMapper.schemaFor(StudentCsvDto.class)
-                .withColumnSeparator(',')
-                .withLineSeparator("\n")
-                .withHeader();
+        CsvSchema schema = csvMapper.schemaFor(StudentCsvDto.class).withHeader();
         MappingIterator<StudentCsvDto> iterator;
         try {
             iterator = csvMapper
@@ -89,18 +86,23 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private User processUsers(StudentCsvDto studentDto, Map<String, Country> countriesMap) {
+    private User processUser(StudentCsvDto studentDto, Map<String, Country> countriesMap) {
         if (userRepository.existsByEmail(studentDto.getEmail())) {
             throw new DataValidationException("User with email " + studentDto.getEmail() + " already exists.");
         }
+
         User user = csvUserMapper.toUser(studentDto);
         user.setPassword(passwordGenerator.generatePassword());
-        Country country = getOrCreateCountry(studentDto.getCountry(), countriesMap);
+
+        Country country = getCountry(studentDto.getCountry(), countriesMap);
         user.setCountry(country);
+
         User savedUser = userRepository.save(user);
+
         Education education = csvUserMapper.toEducation(studentDto);
         education.setUser(savedUser);
         educationRepository.save(education);
+
         return savedUser;
     }
 
@@ -115,14 +117,23 @@ public class UserServiceImpl implements UserService {
                         (existingCountry, newCountry) -> existingCountry));
     }
 
-    private Country getOrCreateCountry(String countryName, Map<String, Country> countriesMap) {
-        return countriesMap.computeIfAbsent(countryName, name -> {
-            Country newCountry = new Country();
-            newCountry.setTitle(name);
+    private Country getCountry(String countryName, Map<String, Country> countriesMap) {
+        Country existingCountry = countriesMap.get(countryName);
+        if (existingCountry != null) {
+            return existingCountry;
+        }
+        return createCountry(countryName, countriesMap);
+    }
 
-            Country savedCountry = countryRepository.save(newCountry);
-            log.info("Created new country {}", savedCountry);
-            return savedCountry;
-        });
+    private Country createCountry(String countryName, Map<String, Country> countriesMap) {
+        Country newCountry = new Country();
+        newCountry.setTitle(countryName);
+
+        Country savedCountry = countryRepository.save(newCountry);
+        countriesMap.put(countryName, savedCountry); // Обновляем кеш для последующих использований
+
+        log.info("Created new country: {}", savedCountry.getTitle());
+        return savedCountry;
     }
 }
+

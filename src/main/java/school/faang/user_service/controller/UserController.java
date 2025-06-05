@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.csv.CsvUploadResponseDto;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user_service_upload.UserServiceUpload;
+
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserServiceUpload userServiceUpload;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
@@ -32,8 +35,8 @@ public class UserController {
         return userService.getUsersByIds(ids);
     }
 
-    @PostMapping("/upload-csv")
+    @PostMapping("/upload")
     public CsvUploadResponseDto uploadStudentsCsv(@RequestParam("file") MultipartFile file) {
-        return userService.processStudentsCsv(file);
+        return userServiceUpload.processStudentsCsv(file);
     }
 }

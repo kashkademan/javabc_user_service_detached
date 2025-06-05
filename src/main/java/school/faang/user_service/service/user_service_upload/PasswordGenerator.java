@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user_service;
+package school.faang.user_service.service.user_service_upload;
 
 import org.springframework.stereotype.Component;
 
