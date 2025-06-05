@@ -13,5 +13,4 @@ public record RecommendationDto(Long id,
                                 String content,
 
                                 List<SkillOfferDto> skillOffers,
-                                LocalDateTime createdAt){
-}
+                                LocalDateTime createdAt){}
