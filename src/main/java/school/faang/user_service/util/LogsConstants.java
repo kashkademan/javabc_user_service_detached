@@ -22,6 +22,8 @@ public final class LogsConstants {
 
     // Сообщения об ошибках при работе с User
     public static final String USER_NOT_FOUND = "User with id = %s is not found";
+    public static final String USER_PICTURE_NOT_FOUND = "User profile picture is not found for userId = %s";
+
 
     // Сообщения об ошибках при работе с Skill
     public static final String SKILL_ALREADY_EXIST = "Skill '%s' is already existed";
@@ -38,4 +40,12 @@ public final class LogsConstants {
 
     //Сообщения при работе с Event
     public static final String DELETED_EVENT_MESSAGE = "Ивент с id %d удалён";
+
+    //Сообщения при работе с файлами
+    public static final String TOO_LARGE_FILE = "File is too large. Max size is {} Mb";
+    public static final String UPLOAD_FAILED = "File uploading failed";
+    public static final String DOWNLOAD_FAILED = "Failed to download file from storage";
+    public static final String DELETION_FAILED = "File deletion failed";
+
+
 }

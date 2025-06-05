@@ -1,12 +1,15 @@
 package school.faang.user_service.exception.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import school.faang.user_service.exception.common.DataValidationException;
+import school.faang.user_service.exception.common.FileException;
 import school.faang.user_service.exception.event.EventCreationNotAllowedException;
 import school.faang.user_service.exception.common.PreConditionFailedException;
 import school.faang.user_service.exception.common.RecordNotFoundException;
@@ -23,12 +26,14 @@ import school.faang.user_service.exception.work_schedule.WorkScheduleNotFoundExc
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             DataValidationException.class,
-            EventRegisterException.class
+            EventRegisterException.class,
+            FileException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException e) {
         ErrorResponse error = new ErrorResponse(
@@ -111,12 +116,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()
         );
+        log.error("handleException {}", e);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

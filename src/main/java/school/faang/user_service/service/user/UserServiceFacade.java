@@ -2,8 +2,11 @@ package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
 
 import java.util.List;
@@ -23,5 +26,21 @@ public class UserServiceFacade {
     public List<UserDto> getUsersById(List<Long> ids) {
         List<User> users = userService.getUsersById(ids);
         return userMapper.toEventResponses(users);
+    }
+
+    public UserProfilePic uploadAvatar(MultipartFile file) {
+        return userService.uploadAvatar(file);
+    }
+
+    public S3FileDto downloadAvatar() {
+        return userService.downloadFile() ;
+    }
+
+    public S3FileDto downloadAvatarMini() {
+        return userService.downloadFileMini() ;
+    }
+
+    public void deleteAvatar() {
+        userService.deleteAvatar();
     }
 }
