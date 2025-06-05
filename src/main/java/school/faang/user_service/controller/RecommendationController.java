@@ -1,6 +1,11 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -14,37 +19,30 @@ import java.util.List;
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    @PostMapping("/post")
-    public RecommendationDto giveRecommendation(@RequestBody RecommendationDto recommendationDto) {
-        validate(recommendationDto);
+    @PostMapping()
+    public RecommendationDto giveRecommendation(@RequestBody @Valid RecommendationDto recommendationDto) {
         return recommendationService.create(recommendationDto);
     }
 
-    @PutMapping("/update")
-    public RecommendationDto updateRecommendation(@RequestBody RecommendationDto recommendationDto) {
-        validate(recommendationDto);
-
+    @PutMapping()
+    public RecommendationDto updateRecommendation(@RequestBody @Valid RecommendationDto recommendationDto) {
         return recommendationService.update(recommendationDto);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public void deleteRecommendation(long id) {
         recommendationService.delete(id);
     }
 
-    @GetMapping("/userRecommendations/{receiverId}")
-    public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
-        return recommendationService.getAllUserRecommendations(receiverId);
+    @GetMapping("/userRecommendations/{receiverId}/{pageNumber}")
+    public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId, @PathVariable int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("updated_at"));
+        return recommendationService.getAllUserRecommendations(receiverId, pageable);
     }
 
-    @GetMapping("/givenRecommendations/{id}")
-    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long id) {
-        return recommendationService.getAllGivenRecommendations(id);
-    }
-
-    private void validate(RecommendationDto recommendationDto) {
-        if (recommendationDto.content().isEmpty()) {
-            throw new DataValidationException("Empty content");
-        }
+    @GetMapping("/givenRecommendations/{authorId}/{pageNumber}")
+    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId, @PathVariable int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("updated_at"));
+        return recommendationService.getAllGivenRecommendations(authorId, pageable);
     }
 }

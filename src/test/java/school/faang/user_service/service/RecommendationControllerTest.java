@@ -6,6 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -20,18 +23,13 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationControllerTest {
+    private static final Pageable pageable = PageRequest.of(0, 100, Sort.by("updated_at"));
+
     @Mock
     private RecommendationService recommendationService;
 
     @InjectMocks
     private RecommendationController recommendationController;
-
-    @Test
-    public void validationTestEmptyContent() {
-        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(), LocalDateTime.now());
-        assertThrows(DataValidationException.class,
-                () -> recommendationController.giveRecommendation(recommendationDto));
-    }
 
     @Test
     public void giveRecommendationTestGives() {
@@ -57,14 +55,14 @@ public class RecommendationControllerTest {
     @Test
     public void getAllUserRecommendationsTestGets() {
         long id = 1;
-        Mockito.when(recommendationService.getAllUserRecommendations(id)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id));
+        Mockito.when(recommendationService.getAllUserRecommendations(id, pageable)).thenReturn(List.of());
+        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, 0));
     }
 
     @Test
     public void getAllGivenRecommendationsTestGets() {
         long id = 1;
-        Mockito.when(recommendationService.getAllGivenRecommendations(id)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id));
+        Mockito.when(recommendationService.getAllGivenRecommendations(id, pageable)).thenReturn(List.of());
+        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, 0));
     }
 }

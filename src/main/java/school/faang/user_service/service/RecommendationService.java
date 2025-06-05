@@ -3,7 +3,9 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -27,7 +29,6 @@ public class RecommendationService {
     private final SkillOfferMapper skillOfferMapper;
     private final SkillRepository skillRepository;
     private final RecommendationMapper recommendationMapper;
-    private final Pageable pageable;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -66,19 +67,15 @@ public class RecommendationService {
         recommendationRepository.deleteById(id);
     }
 
-    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId, Pageable pageable) {
         Page<Recommendation> userRecommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable);
-        if (userRecommendations.isEmpty()) {
-            throw new IllegalArgumentException("NonexistentId");
-        }
-
         return userRecommendations.getContent()
                 .stream()
                 .map(recommendationMapper::toDto)
                 .toList();
     }
 
-    public List<RecommendationDto> getAllGivenRecommendations(long id) {
+    public List<RecommendationDto> getAllGivenRecommendations(long id, Pageable pageable) {
         Page<Recommendation> givenRecommendations = recommendationRepository.findAllByAuthorId(id, pageable);
         if (givenRecommendations.isEmpty()) {
             throw new IllegalArgumentException("Nonexistent id");

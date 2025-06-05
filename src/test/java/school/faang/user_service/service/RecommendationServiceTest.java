@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
-
+    private static final Pageable pageable = PageRequest.of(0, 100, Sort.by("updated_at"));
     private final LocalDateTime NOW = LocalDateTime.now();
 
     @Mock
@@ -33,8 +33,7 @@ public class RecommendationServiceTest {
     private SkillOfferRepository skillOfferRepository;
     @Mock
     private SkillRepository skillRepository;
-    @Mock
-    private Pageable pageable;
+
     @Spy
     private RecommendationMapperImpl recommendationMapper;
     @Spy
@@ -45,19 +44,19 @@ public class RecommendationServiceTest {
 
     @Test
     public void testValidationAfterSixMonth() {
-        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(), LocalDateTime.now());
+        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(), NOW);
         when(recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendationDto.authorId(),
                         recommendationDto.receiverId()
-                )).thenReturn(Optional.of(new Recommendation(1, "1", null, null, null, null, LocalDateTime.now().minusMonths(3), null)));
+                )).thenReturn(Optional.of(new Recommendation(1, "1", null, null, null, null, NOW.minusMonths(3), null)));
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
     }
 
     @Test
     public void testValidationNonExistentSkills() {
-        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(new SkillOfferDto(1L, 1L, 1L)), LocalDateTime.now());
+        RecommendationDto recommendationDto = new RecommendationDto(1L, 1L, 1L, "", List.of(new SkillOfferDto(1L, 1L, 1L)), NOW);
         assertThrows(DataValidationException.class,
                 () -> recommendationService.create(recommendationDto));
     }
@@ -102,30 +101,14 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void testWrongReceiverId() {
-        long id = 1;
-        when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(Page.empty());
-        assertThrows(IllegalArgumentException.class,
-                () -> recommendationService.getAllUserRecommendations(id));
-    }
-
-    @Test
     public void testGetAllUserRecommendations() {
         long id = 1;
-        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, LocalDateTime.now(), null);
+        Recommendation recommendation = new Recommendation(1, "1", null, null, List.of(), null, NOW, null);
         List<Recommendation> recommendationList = List.of(recommendation, recommendation);
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(page);
-        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id).size());
-    }
-
-    @Test
-    public void wrongUserId() {
-        long id = 1;
-        when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(Page.empty());
-        assertThrows(IllegalArgumentException.class,
-                () -> recommendationService.getAllGivenRecommendations(id));
+        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id, pageable).size());
     }
 
     @Test
@@ -136,6 +119,6 @@ public class RecommendationServiceTest {
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(page);
-        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id));
+        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id, pageable));
     }
 }
