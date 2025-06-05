@@ -24,8 +24,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
-    private static final Pageable pageable = PageRequest.of(0, 100, Sort.by("updated_at"));
-    private final LocalDateTime NOW = LocalDateTime.now();
+    private static final Pageable PAGEABLE = PageRequest.of(0, 100, Sort.by("updated_at"));
+    private static final LocalDateTime NOW = LocalDateTime.now();
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -107,8 +107,8 @@ public class RecommendationServiceTest {
         List<Recommendation> recommendationList = List.of(recommendation, recommendation);
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
-        when(recommendationRepository.findAllByReceiverId(id, pageable)).thenReturn(page);
-        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id, pageable).size());
+        when(recommendationRepository.findAllByReceiverId(id, PAGEABLE)).thenReturn(page);
+        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id, PAGEABLE).size());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class RecommendationServiceTest {
         List<Recommendation> recommendationList = List.of(recommendation, recommendation);
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
-        when(recommendationRepository.findAllByAuthorId(id, pageable)).thenReturn(page);
-        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id, pageable));
+        when(recommendationRepository.findAllByAuthorId(id, PAGEABLE)).thenReturn(page);
+        assertEquals(recommendationList.stream().map(recommendationMapper::toDto).toList(), recommendationService.getAllGivenRecommendations(id, PAGEABLE));
     }
 }

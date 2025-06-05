@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.exceptions.DataValidationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationControllerTest {
-    private static final Pageable pageable = PageRequest.of(0, 100, Sort.by("updated_at"));
+    private static final Pageable PAGEABLE = PageRequest.of(0, 100, Sort.by("updated_at"));
 
     @Mock
     private RecommendationService recommendationService;
@@ -55,14 +54,14 @@ public class RecommendationControllerTest {
     @Test
     public void getAllUserRecommendationsTestGets() {
         long id = 1;
-        Mockito.when(recommendationService.getAllUserRecommendations(id, pageable)).thenReturn(List.of());
+        Mockito.when(recommendationService.getAllUserRecommendations(id, PAGEABLE)).thenReturn(List.of());
         assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, 0));
     }
 
     @Test
     public void getAllGivenRecommendationsTestGets() {
         long id = 1;
-        Mockito.when(recommendationService.getAllGivenRecommendations(id, pageable)).thenReturn(List.of());
+        Mockito.when(recommendationService.getAllGivenRecommendations(id, PAGEABLE)).thenReturn(List.of());
         assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, 0));
     }
 }
