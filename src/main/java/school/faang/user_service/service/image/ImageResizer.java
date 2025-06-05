@@ -15,15 +15,19 @@ public class ImageResizer {
     public MultipartFile resizeMultipartImage(MultipartFile originalFile, int maxSideSize) {
         try {
             BufferedImage originalImage = ImageIO.read(originalFile.getInputStream());
-
-
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
+            boolean widthAndHeightLessMaxSideSize = width < maxSideSize && height < maxSideSize;
+            if (widthAndHeightLessMaxSideSize) {
+               return originalFile;
+            }
 
             double scale = 1.0;
-            if (width > height && width > maxSideSize) {
+            boolean widthMoreHeightAndMaxSideSize = width > height && width > maxSideSize;
+            boolean heightMoreOrEqualWidthAndMoreMaxSideSize = height >= width && height > maxSideSize;
+            if (widthMoreHeightAndMaxSideSize) {
                 scale = (double) maxSideSize / width;
-            } else if (height >= width && height > maxSideSize) {
+            } else if (heightMoreOrEqualWidthAndMoreMaxSideSize) {
                 scale = (double) maxSideSize / height;
             }
 
@@ -45,6 +49,7 @@ public class ImageResizer {
             throw new RuntimeException(e);
         }
     }
+
     private String getFileExtension(String fileName) {
         if (fileName == null) return "jpg";
         int dotIndex = fileName.lastIndexOf('.');

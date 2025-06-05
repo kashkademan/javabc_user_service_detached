@@ -43,20 +43,21 @@ public class UserController {
         return userService.uploadAvatar(file);
     }
 
-    @GetMapping("/avatar")
-    public ResponseEntity<Resource> downloadAvatar() {
-        S3FileDto s3Dto = userService.downloadAvatar();
+    @GetMapping("/{userId}/avatar")
+    public ResponseEntity<Resource> downloadAvatar(@PathVariable long userId) {
+        S3FileDto s3Dto = userService.downloadAvatar(userId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(s3Dto.getContentType())) // например, image/png
+                .contentType(MediaType.parseMediaType(s3Dto.getContentType()))
                 .contentLength(s3Dto.getContentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + s3Dto.getFileName() + "\"")
                 .body(s3Dto.getResource());
     }
 
-    @GetMapping("/avatar-mini")
-    public ResponseEntity<Resource> downloadAvatarMini() {
-        S3FileDto s3Dto = userService.downloadAvatarMini();
+    @GetMapping("/{userId}/avatar-mini")
+    public ResponseEntity<Resource> downloadAvatarMini(@PathVariable long userId) {
+        S3FileDto s3Dto = userService.downloadAvatarMini(userId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(s3Dto.getContentType())) // например, image/png
+                .contentType(MediaType.parseMediaType(s3Dto.getContentType()))
                 .contentLength(s3Dto.getContentLength())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + s3Dto.getFileName() + "\"")
                 .body(s3Dto.getResource());

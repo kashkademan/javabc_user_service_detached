@@ -13,6 +13,7 @@ import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.service.image.ImageResizer;
+import school.faang.user_service.validation.file.FileValidation;
 import school.faang.user_service.validation.user.UserValidation;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserValidation userValidation;
+    private final FileValidation fileValidation;
     private final S3Service s3Service;
     private final UserContext userContext;
     private final ImageResizer imageResizer;
@@ -40,11 +42,10 @@ public class UserService {
     public User getUserById(long userId) {
        return userRepository.findById(userId).orElseThrow(() -> {
            log.error(String.format(USER_NOT_FOUND, userId));
-           throw new UserNotFoundException(String.format(USER_NOT_FOUND, userId));
+           return new UserNotFoundException(String.format(USER_NOT_FOUND, userId));
        });
     }
 
-    @Transactional(readOnly = true)
     public User getCurrentUser() {
         long userId = userContext.getUserId();
         return getUserById(userId);
@@ -61,7 +62,7 @@ public class UserService {
     public UserProfilePic uploadAvatar(MultipartFile file) {
         User user = getCurrentUser();
 
-        userValidation.validateMaxFileSize(file);
+        fileValidation.validateMaxFileSize(file);
 
         MultipartFile compressedImage = imageResizer.resizeMultipartImage(file, MAX_SIDE_SIZE);
         String fileKey = s3Service.uploadFile(AVATAR_FOLDER, compressedImage);
@@ -76,6 +77,7 @@ public class UserService {
         User savedUser =  userRepository.save(user);
         return savedUser.getUserProfilePic();
     }
+
     @Transactional
     public void deleteAvatar() {
         User user = getCurrentUser();
@@ -85,19 +87,17 @@ public class UserService {
         s3Service.deleteFile(keyMini);
         user.setUserProfilePic(null);
     }
-    @Transactional
-    public S3FileDto downloadFile() {
-        return downloadFile(UserProfilePic::getFileId);
+
+    public S3FileDto downloadFile(long userId) {
+        return downloadFile(UserProfilePic::getFileId, userId);
     }
 
-    @Transactional
-    public S3FileDto downloadFileMini() {
-        return downloadFile(UserProfilePic::getSmallFileId);
+    public S3FileDto downloadFileMini(long userId) {
+        return downloadFile(UserProfilePic::getSmallFileId, userId);
     }
 
-    private S3FileDto downloadFile(Function<UserProfilePic, String> fileIdExtractor) {
-        User user = getCurrentUser();
-        long userId = user.getId();
+    private S3FileDto downloadFile(Function<UserProfilePic, String> fileIdExtractor, long userId) {
+        User user = getUserById(userId);
 
         UserProfilePic profilePic = user.getUserProfilePic();
         userValidation.validateProfilePicNotNull(profilePic, userId);

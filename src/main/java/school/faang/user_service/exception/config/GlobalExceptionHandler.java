@@ -113,6 +113,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "The request body is missing or contains invalid JSON"
         );
+        log.error("handleHttpMessageNotReadable", e);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -125,14 +126,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()
         );
-        log.error("handleException {}", e);
+        log.error("handleException", e);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -16,6 +16,7 @@ import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.ImageResizer;
 import school.faang.user_service.service.s3.S3Service;
+import school.faang.user_service.validation.file.FileValidation;
 import school.faang.user_service.validation.user.UserValidation;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
@@ -44,6 +46,8 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserValidation userValidation;
+    @Mock
+    private FileValidation fileValidation;
     @Mock
     private S3Service s3Service;
     @Mock
@@ -124,7 +128,7 @@ class UserServiceTest {
         assertEquals(result.getFileId(), FILE_ID);
         assertEquals(result.getSmallFileId(), MINI_FILE_ID);
 
-        verify(userValidation).validateMaxFileSize(file);
+        verify(fileValidation).validateMaxFileSize(file);
         verify(userRepository).save(userOne);
     }
 
@@ -142,7 +146,7 @@ class UserServiceTest {
         verify(s3Service).deleteFile(FILE_ID);
         verify(s3Service).deleteFile(MINI_FILE_ID);
         verify(userRepository).findById(USER_ID);
-        assertEquals(null, userOne.getUserProfilePic());
+        assertNull(userOne.getUserProfilePic());
     }
 
     @Test
@@ -157,19 +161,17 @@ class UserServiceTest {
         UserProfilePic profilePic = new UserProfilePic();
         profilePic.setFileId(FILE_ID);
         userOne.setUserProfilePic(profilePic);
-        when(userContext.getUserId()).thenReturn(USER_ID);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(userOne));
         doNothing().when(userValidation).validateProfilePicNotNull(profilePic, USER_ID);
         when(s3Service.downloadFile(FILE_ID)).thenReturn(fileDto);
 
-        S3FileDto result = userService.downloadFile();
+        S3FileDto result = userService.downloadFile(USER_ID);
 
         assertNotNull(result);
         assertEquals(fileDto.getFileName(), result.getFileName());
         assertEquals(fileDto.getContentType(), result.getContentType());
         assertEquals(fileDto.getContentLength(), result.getContentLength());
         assertEquals(fileDto.getResource(), result.getResource());
-
         verify(s3Service).downloadFile(FILE_ID);
     }
 
@@ -182,24 +184,20 @@ class UserServiceTest {
                 .contentType(CONTENT_TYPE)
                 .contentLength(resource.contentLength())
                 .build();
-
         UserProfilePic profilePic = new UserProfilePic();
         profilePic.setSmallFileId(MINI_FILE_ID);
         userOne.setUserProfilePic(profilePic);
-
-        when(userContext.getUserId()).thenReturn(USER_ID);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(userOne));
         doNothing().when(userValidation).validateProfilePicNotNull(profilePic, USER_ID);
         when(s3Service.downloadFile(MINI_FILE_ID)).thenReturn(fileDto);
 
-        S3FileDto result = userService.downloadFileMini();
+        S3FileDto result = userService.downloadFileMini(USER_ID);
 
         assertNotNull(result);
         assertEquals(fileDto.getFileName(), result.getFileName());
         assertEquals(fileDto.getContentType(), result.getContentType());
         assertEquals(fileDto.getContentLength(), result.getContentLength());
         assertEquals(fileDto.getResource(), result.getResource());
-
         verify(s3Service).downloadFile(MINI_FILE_ID);
     }
 }

@@ -32,12 +32,12 @@ public class UserServiceFacade {
         return userService.uploadAvatar(file);
     }
 
-    public S3FileDto downloadAvatar() {
-        return userService.downloadFile() ;
+    public S3FileDto downloadAvatar(long userId) {
+        return userService.downloadFile(userId) ;
     }
 
-    public S3FileDto downloadAvatarMini() {
-        return userService.downloadFileMini() ;
+    public S3FileDto downloadAvatarMini(long userId) {
+        return userService.downloadFileMini(userId) ;
     }
 
     public void deleteAvatar() {
