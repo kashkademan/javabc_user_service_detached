@@ -37,14 +37,14 @@ public class RecommendationController {
     @GetMapping("/userRecommendations/{receiverId}/{pageNumber}")
     public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId,
                                                              @PathVariable int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("updated_at"));
+        Pageable pageable = PageRequest.of(pageNumber - 1, 100, Sort.by("updated_at"));
         return recommendationService.getAllUserRecommendations(receiverId, pageable);
     }
 
     @GetMapping("/givenRecommendations/{authorId}/{pageNumber}")
     public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId,
                                                               @PathVariable int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 100, Sort.by("updated_at"));
+        Pageable pageable = PageRequest.of(pageNumber - 1, 100, Sort.by("updated_at"));
         return recommendationService.getAllGivenRecommendations(authorId, pageable);
     }
 }
