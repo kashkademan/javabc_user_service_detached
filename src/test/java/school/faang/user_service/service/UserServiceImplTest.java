@@ -131,11 +131,9 @@ public class UserServiceImplTest {
         testUser.setId(userId);
 
         String notNullNewValue = "notNullNewValue";
-        UserProfilePic profilePic = new UserProfilePic();
-        profilePic.setSmallFileId(notNullNewValue);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
-        when(pictureService.generateNewSmallPicture()).thenReturn(profilePic);
+        when(pictureService.generateNewSmallPicture()).thenReturn(notNullNewValue);
         when(userRepository.saveAndFlush(testUser)).thenReturn(testUser);
 
         UserPersonalDto returnedDto = userService.refreshUserAvatar(userId);
