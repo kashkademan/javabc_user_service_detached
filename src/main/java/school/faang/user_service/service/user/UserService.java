@@ -8,6 +8,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
 
@@ -17,6 +18,18 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserContext userContext;
+    private final UserValidator userValidator;
+
+    @Transactional
+    public User registrationUser(User user) {
+        userValidator.checkExistsUsername(user.getUsername());
+        // TODO: кодировать пароль
+
+        User savedUser = userRepository.save(user);
+        log.info("User {} has been saved", user);
+
+        return savedUser;
+    }
 
     @Transactional(readOnly = true)
     public User getUserById(long userId) {

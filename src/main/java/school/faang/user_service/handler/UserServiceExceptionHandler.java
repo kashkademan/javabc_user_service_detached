@@ -23,6 +23,8 @@ import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
 import school.faang.user_service.exception.user.UserNotFoundException;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
+import school.faang.user_service.exception.user.UsernameAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -48,6 +50,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(EventValidationException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(UsernameAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
@@ -68,6 +71,8 @@ public class UserServiceExceptionHandler {
             EventNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
+            UsernameAlreadyExistsException.class,
+            MethodArgumentNotValidException.class
             SkillAlreadyExistsException.class,
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,

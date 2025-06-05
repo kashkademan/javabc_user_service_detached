@@ -3,6 +3,8 @@ package school.faang.user_service.facade.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.user.UserRegisterRequestDto;
+import school.faang.user_service.dto.user.UserRegisterResponseDto;
 import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserMapper;
@@ -16,6 +18,20 @@ import java.util.List;
 public class UserFacade {
     private final UserMapper userMapper;
     private final UserService userService;
+
+    public UserRegisterResponseDto registrationUser(UserRegisterRequestDto userRegisterRequestDto) {
+        User user = userMapper.toUserEntity(userRegisterRequestDto);
+        log.debug("Mapping UserRegisterRequestDto to User entity. DTO content: {}. Entity content: {}.",
+                userRegisterRequestDto, user);
+
+        user = userService.registrationUser(user);
+
+        UserRegisterResponseDto userRegisterResponseDto = userMapper.toUserRegisterResponseDto(user);
+        log.debug("Mapping User entity to UserRegisterResponseDto. Entity content: {}. DTO content: {}.",
+                user, userRegisterResponseDto);
+
+        return userRegisterResponseDto;
+    }
 
     public UserResponseDto getCurrentUser() {
         User user = userService.getCurrentUser();
