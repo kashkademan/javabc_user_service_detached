@@ -3,6 +3,7 @@ package school.faang.user_service.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,13 +26,12 @@ public class UserRegisterRequestDto {
     @NotBlank(message = "Password is mandatory")
     @Size(min = 6, max = 128, message = "Password must be at least 6 characters")
     private String password;
-
     @Size(max = 4096, message = "About me must be at most 4096 characters")
     private String aboutMe;
-
+    @NotNull(message = "Country id is mandatory")
+    private Long countryId;
     @Size(max = 64, message = "City name must be at most 64 characters")
     private String city;
-
     @Min(value = 0, message = "Experience must be zero or positive")
     private Integer experience;
 }

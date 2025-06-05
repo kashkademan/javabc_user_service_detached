@@ -44,8 +44,20 @@ services:
     host: localhost
     port: 9080
 
+  dice-bear:
+    domain: api.dicebear.com
+    version: 9.x
+
+  s3:
+    host: localhost
+    post: 9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+
 jobs:
   promotion:
     close:
       cron: "*/15 * * * * *"
         # Каждые 15 секунд
+

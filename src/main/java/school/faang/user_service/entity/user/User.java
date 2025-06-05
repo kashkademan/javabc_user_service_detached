@@ -23,7 +23,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Career;
-import school.faang.user_service.entity.Country;
+import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.WorkSchedule;

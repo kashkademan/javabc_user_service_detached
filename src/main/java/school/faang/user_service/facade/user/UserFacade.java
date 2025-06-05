@@ -24,7 +24,7 @@ public class UserFacade {
         log.debug("Mapping UserRegisterRequestDto to User entity. DTO content: {}. Entity content: {}.",
                 userRegisterRequestDto, user);
 
-        user = userService.registrationUser(user);
+        user = userService.registrationUser(user, userRegisterRequestDto.getCountryId());
 
         UserRegisterResponseDto userRegisterResponseDto = userMapper.toUserRegisterResponseDto(user);
         log.debug("Mapping User entity to UserRegisterResponseDto. Entity content: {}. DTO content: {}.",

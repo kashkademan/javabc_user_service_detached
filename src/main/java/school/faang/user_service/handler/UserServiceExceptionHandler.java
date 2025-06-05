@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
+import school.faang.user_service.exception.country.CountryNotFoundException;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
@@ -44,6 +45,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(PromotionNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionTariffNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(EventNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(CountryNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(GoalAlreadyCompletedException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(SkillAlreadyExistsException.class, HttpStatus.CONFLICT);
@@ -69,6 +71,7 @@ public class UserServiceExceptionHandler {
             PromotionNotFoundException.class,
             PromotionTariffNotFoundException.class,
             EventNotFoundException.class,
+            CountryNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
             UsernameAlreadyExistsException.class,
