@@ -157,7 +157,6 @@ class UserServiceTest {
         UserProfilePic profilePic = new UserProfilePic();
         profilePic.setFileId(FILE_ID);
         userOne.setUserProfilePic(profilePic);
-
         when(userContext.getUserId()).thenReturn(USER_ID);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(userOne));
         doNothing().when(userValidation).validateProfilePicNotNull(profilePic, USER_ID);
