@@ -44,17 +44,15 @@ public class RecommendationRequestService {
 
     @Transactional
     public RecommendationResponseDto create(RecommendationRequestDto recommendationRequest) {
+        Long requesterId = recommendationRequest.requesterId();
+        Long receiverId = recommendationRequest.receiverId();
         try {
-            Long requesterId = recommendationRequest.requesterId();
-            Long receiverId = recommendationRequest.receiverId();
-
             if (requesterId.equals(receiverId)) {
                 throw new DataValidationException("Requester and receiver cannot be the same");
             }
-
-            User requester = userRepository.findById(requesterId)
+            final User requester = userRepository.findById(requesterId)
                     .orElseThrow(() -> new EntityNotFoundException("Requester not found with id: " + requesterId));
-            User receiver = userRepository.findById(receiverId)
+            final User receiver = userRepository.findById(receiverId)
                     .orElseThrow(() -> new EntityNotFoundException("Receiver not found with id: " + receiverId));
 
             LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
@@ -62,7 +60,8 @@ public class RecommendationRequestService {
                     requesterId, receiverId);
 
             if (latestRequest.isPresent() && latestRequest.get().getCreatedAt().isAfter(sixMonthsAgo)) {
-                throw new DataValidationException("You can send a recommendation request to this user only once per 6 months");
+                throw new DataValidationException("You can send a recommendation request to this user "
+                        + "only once per 6 months");
             }
 
             if (recommendationRequest.skills() == null || recommendationRequest.skills().isEmpty()) {
@@ -92,6 +91,7 @@ public class RecommendationRequestService {
             throw new DataValidationException("Failed to create recommendation request: " + e.getMessage());
         }
     }
+
     public List<RecommendationResponseDto> getRequests(@Valid RequestFilterDto filter) {
         List<RecommendationRequest> allRequests = recommendationRequestRepository.findAll();
         List<RecommendationFilter> filters = List.of(
@@ -133,6 +133,7 @@ public class RecommendationRequestService {
 
         return recommendationRequestMapper.toDto(updatedRequest);
     }
+
     private boolean filterByRequesterId(RecommendationRequest request, Long requesterId) {
         return requesterId == null || request.getRequester().getId().equals(requesterId);
     }
@@ -142,15 +143,13 @@ public class RecommendationRequestService {
     }
 
     private boolean filterByRecommendationId(RecommendationRequest request, Long recommendationId) {
-        return recommendationId == null ||
-                (request.getRecommendation() != null &&
-                        request.getRecommendation().getId() == recommendationId);
+        return recommendationId == null || (request.getRecommendation() != null
+                && request.getRecommendation().getId() == recommendationId);
     }
 
     private boolean filterByMessagePattern(RecommendationRequest request, String messagePattern) {
-        return messagePattern == null ||
-                (request.getMessage() != null &&
-                        request.getMessage().toLowerCase().contains(messagePattern.toLowerCase()));
+        return messagePattern == null || (request.getMessage() != null
+                && request.getMessage().toLowerCase().contains(messagePattern.toLowerCase()));
     }
 
     private boolean filterByCreatedAfter(RecommendationRequest request, LocalDateTime createdAfter) {

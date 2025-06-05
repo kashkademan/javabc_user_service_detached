@@ -8,7 +8,9 @@ import school.faang.user_service.entity.User;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReceiverFilterTest {
     ReceiverFilter filter = new ReceiverFilter();
@@ -88,14 +90,15 @@ class ReceiverFilterTest {
     }
 
     private MentorshipRequest createMentorshipRequest(Long requestId, Long userId) {
-        return new MentorshipRequest(requestId, null, null, createUserById(userId), null, null, null, null);
+        return new MentorshipRequest(requestId, null, null,
+                createUserById(userId), null, null, null, null);
     }
 
     private User createUserById(Long id) {
         return User.builder().id(id).build();
     }
 
-    private MentorshipRequestFilterDto createDto(Long receiverId){
+    private MentorshipRequestFilterDto createDto(Long receiverId) {
         return new MentorshipRequestFilterDto(null, null, receiverId, null);
     }
 }

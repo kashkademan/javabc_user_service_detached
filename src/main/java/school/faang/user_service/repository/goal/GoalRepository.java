@@ -57,6 +57,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO goal_skills (goal_id, skill_id) VALUES (:goalId, :skillId) ON CONFLICT DO NOTHING", nativeQuery = true)
+    @Query(value = "INSERT INTO goal_skills (goal_id, skill_id) VALUES (:goalId, :skillId) ON CONFLICT DO NOTHING",
+            nativeQuery = true)
     void addSkillToGoal(@Param("skillId") long skillId, @Param("goalId") long goalId);
 }
