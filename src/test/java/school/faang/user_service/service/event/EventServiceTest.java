@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.redis.RedisTtlProperties;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;

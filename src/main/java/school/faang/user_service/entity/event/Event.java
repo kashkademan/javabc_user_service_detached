@@ -21,6 +21,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
@@ -32,7 +34,8 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@ToString
+@ToString(exclude = {"attendees", "ratings",
+        "owner", "relatedSkills", "promotions"})
 @Table(name = "event")
 public class Event {
 
@@ -59,23 +62,19 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
-    @ToString.Exclude
     private List<User> attendees = new ArrayList<>();
 
     @OneToMany(mappedBy = "event")
-    @ToString.Exclude
     private List<Rating> ratings = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
     private User owner;
 
     @ManyToMany
     @JoinTable(name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    @ToString.Exclude
     private List<Skill> relatedSkills = new ArrayList<>();
 
     @Column(name = "type", nullable = false)
@@ -97,6 +96,5 @@ public class Event {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
-    @ToString.Exclude
     private List<Promotion> promotions = new ArrayList<>();
 }
