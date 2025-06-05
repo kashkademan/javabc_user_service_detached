@@ -47,7 +47,8 @@ public class RecommendationService {
     @Transactional
     public RecommendationDto update(RecommendationDto recommendationDto) {
         validation(recommendationDto);
-        recommendationRepository.update(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
+        recommendationRepository
+                .update(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
         skillOfferRepository.deleteAllByRecommendationId(recommendationDto.id());
         recommendationDto.skillOffers()
                 .forEach(skillOfferDto -> {
@@ -90,7 +91,8 @@ public class RecommendationService {
 
     private void checkForGuarantee(Recommendation recommendation, SkillOfferDto skillOfferDto) {
         if (recommendation.getReceiver().getSkills().contains(skillOfferMapper.toEntity(skillOfferDto).getSkill())) {
-            List<UserSkillGuarantee> userSkillGuarantees = skillOfferMapper.toEntity(skillOfferDto).getSkill().getGuarantees();
+            List<UserSkillGuarantee> userSkillGuarantees =
+                    skillOfferMapper.toEntity(skillOfferDto).getSkill().getGuarantees();
             userSkillGuarantees.add(new UserSkillGuarantee(null,
                     recommendation.getReceiver(),
                     skillOfferMapper.toEntity(skillOfferDto).getSkill(),
@@ -101,7 +103,7 @@ public class RecommendationService {
     }
 
 
-    private boolean isAfterSixMonth (RecommendationDto recommendationDto) {
+    private boolean isAfterSixMonth(RecommendationDto recommendationDto) {
         return recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendationDto.authorId(),
@@ -111,7 +113,7 @@ public class RecommendationService {
                 .isPresent();
     }
 
-    private boolean ifSkillsExist (RecommendationDto recommendationDto) {
+    private boolean ifSkillsExist(RecommendationDto recommendationDto) {
         return recommendationDto.skillOffers().size() != skillRepository.countExisting(recommendationDto.skillOffers()
                 .stream()
                 .map(SkillOfferDto::skillId)
