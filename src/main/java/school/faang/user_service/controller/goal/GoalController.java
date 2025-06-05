@@ -2,19 +2,18 @@ package school.faang.user_service.controller.goal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import school.faang.user_service.entity.filter.GoalFilterDto;
-import school.faang.user_service.entity.goal.dto.request.CreateGoalDto;
-import school.faang.user_service.entity.goal.dto.request.UpdateGoalDto;
-import school.faang.user_service.entity.goal.dto.response.GoalDto;
+import school.faang.user_service.dto.goal.filter.GoalFilterDto;
+import school.faang.user_service.dto.goal.request.CreateGoalDto;
+import school.faang.user_service.dto.goal.request.UpdateGoalDto;
+import school.faang.user_service.dto.goal.response.GoalDto;
 
 import java.util.List;
 
@@ -54,6 +53,7 @@ public interface GoalController {
             description = """
                     Возвращает список дочерних целей заданной цели,
                     который содержит цели удовлетворяющие переданному фильтру""",
+
             requestBody = @RequestBody(
                     description = "JSON с параметрами фильтра",
                     required = true,
@@ -69,8 +69,8 @@ public interface GoalController {
     })
     ResponseEntity<List<GoalDto>> getSubGoals(
             @Parameter(description = "ID цели родителя", example = "1")
-            @PathVariable long parentId,
-            @RequestBody GoalFilterDto goalFilterDto
+            long parentId,
+            GoalFilterDto goalFilterDto
     );
 
     @Operation(
@@ -82,7 +82,14 @@ public interface GoalController {
                     content = @Content(
                             schema = @Schema(implementation = CreateGoalDto.class)
                     )
-            )
+            ),
+            parameters = {
+                    @Parameter(
+                            name = "x-user-id",
+                            in = ParameterIn.HEADER,
+                            description = "ID Пользователя",
+                            required = true)
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Цель создана"),
@@ -91,7 +98,6 @@ public interface GoalController {
             @ApiResponse(responseCode = "404", description = "Передан не существующий навык"),
             @ApiResponse(responseCode = "412", description = "Пользователь имеет максимальное количество активных целей")
     })
-    @SecurityRequirement(name = "userIdHeader")
     ResponseEntity<GoalDto> createGoal(CreateGoalDto goalDto);
 
     @Operation(
@@ -104,7 +110,14 @@ public interface GoalController {
                     content = @Content(
                             schema = @Schema(implementation = UpdateGoalDto.class)
                     )
-            )
+            ),
+            parameters = {
+                    @Parameter(
+                            name = "x-user-id",
+                            in = ParameterIn.HEADER,
+                            description = "ID Пользователя",
+                            required = true)
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Цель обновлена"),
@@ -114,7 +127,7 @@ public interface GoalController {
             @ApiResponse(responseCode = "404", description = "Цель не найдена или передан не существующий навык"),
             @ApiResponse(responseCode = "412", description = "Не выполнено условие обновления цели")
     })
-    @SecurityRequirement(name = "userIdHeader")
+
     ResponseEntity<GoalDto> updateGoal(
             @Parameter(description = "ID цели", example = "1")
             long goalId,
@@ -122,7 +135,14 @@ public interface GoalController {
 
     @Operation(
             summary = "Удалить заданную цель",
-            description = "Удаляет связь пользователя с целью и цель, если у нее не осталось владельцев"
+            description = "Удаляет связь пользователя с целью и цель, если у нее не осталось владельцев",
+            parameters = {
+                    @Parameter(
+                            name = "x-user-id",
+                            in = ParameterIn.HEADER,
+                            description = "ID Пользователя",
+                            required = true)
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Цель удалена"),
@@ -130,7 +150,6 @@ public interface GoalController {
             @ApiResponse(responseCode = "403", description = "Пользователь не является владельцем цели"),
             @ApiResponse(responseCode = "404", description = "Цель не найдена")
     })
-    @SecurityRequirement(name = "userIdHeader")
     ResponseEntity<Void> deleteGoal(
             @Parameter(description = "ID цели", example = "1")
             long goalId);

@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.entity.filter.GoalFilterDto;
+import school.faang.user_service.dto.goal.request.CreateGoalDto;
+import school.faang.user_service.dto.goal.request.UpdateGoalDto;
+import school.faang.user_service.dto.goal.response.GoalDto;
+import school.faang.user_service.dto.goal.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.dto.request.CreateGoalDto;
-import school.faang.user_service.entity.goal.dto.request.UpdateGoalDto;
-import school.faang.user_service.entity.goal.dto.response.GoalDto;
+
 import school.faang.user_service.entity.goal.mapper.GoalMapper;
 import school.faang.user_service.service.goal.GoalService;
 

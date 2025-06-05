@@ -15,7 +15,7 @@ public record UpdateGoalDto(
         String title,
         @Schema(description = "Описание цели", example = "Описание цели")
         String description,
-        @Schema(description = "Статус цели", example = "ACTIVE")
+        @Schema(description = "Статус цели", example = "COMPLETE")
         GoalStatus status,
         @Schema(description = "Список ID связанных с целью навыков", example = "[1, 2, 3]")
         @NotNull
