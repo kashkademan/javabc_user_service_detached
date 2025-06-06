@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationControllerTest {
-    private static final Pageable PAGEABLE = PageRequest.of(0, 100, Sort.by("updated_at"));
+    private static final Pageable PAGEABLE = PageRequest.of(1, 100, Sort.by("updated_at").descending());
 
     @Mock
     private RecommendationService recommendationService;
@@ -54,14 +54,16 @@ public class RecommendationControllerTest {
     @Test
     public void getAllUserRecommendationsTestGets() {
         long id = 1;
+        int page = 1;
         Mockito.when(recommendationService.getAllUserRecommendations(id, PAGEABLE)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, 1));
+        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, page));
     }
 
     @Test
     public void getAllGivenRecommendationsTestGets() {
         long id = 1;
+        int page = 1;
         Mockito.when(recommendationService.getAllGivenRecommendations(id, PAGEABLE)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, 1));
+        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, page));
     }
 }
