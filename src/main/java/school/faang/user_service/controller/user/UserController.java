@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.resource.S3FileDto;
@@ -22,13 +21,12 @@ import school.faang.user_service.service.user.UserServiceFacade;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserServiceFacade userService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     UserDto getUser(@PathVariable long userId) {
         return userService.getUserById(userId);
     }
@@ -38,12 +36,12 @@ public class UserController {
         return userService.getUsersById(ids);
     }
 
-    @PutMapping("/avatar")
+    @PutMapping("/api/v1/users/avatar")
     public UserProfilePic uploadAvatar(@RequestBody MultipartFile file) {
         return userService.uploadAvatar(file);
     }
 
-    @GetMapping("/{userId}/avatar")
+    @GetMapping("/api/v1/users/{userId}/avatar")
     public ResponseEntity<Resource> downloadAvatar(@PathVariable long userId) {
         S3FileDto s3Dto = userService.downloadAvatar(userId);
         return ResponseEntity.ok()
@@ -53,7 +51,7 @@ public class UserController {
                 .body(s3Dto.getResource());
     }
 
-    @GetMapping("/{userId}/avatar-mini")
+    @GetMapping("/api/v1/users/{userId}/avatar-mini")
     public ResponseEntity<Resource> downloadAvatarMini(@PathVariable long userId) {
         S3FileDto s3Dto = userService.downloadAvatarMini(userId);
         return ResponseEntity.ok()
@@ -63,7 +61,7 @@ public class UserController {
                 .body(s3Dto.getResource());
     }
 
-    @DeleteMapping("/avatar")
+    @DeleteMapping("/api/v1/users/avatar")
     public ResponseEntity<Void> deleteAvatar() {
         userService.deleteAvatar();
         return ResponseEntity.noContent().build();

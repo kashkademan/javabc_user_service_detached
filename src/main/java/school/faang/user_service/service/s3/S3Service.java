@@ -16,7 +16,9 @@ import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 
 import static school.faang.user_service.util.LogsConstants.DELETION_FAILED;
 import static school.faang.user_service.util.LogsConstants.DOWNLOAD_FAILED;
@@ -40,9 +42,11 @@ public class S3Service {
                     .key(key)
                     .contentLength(file.getSize())
                     .contentType(file.getContentType())
-                    .metadata(Map.of("filename", file.getOriginalFilename()))
+                    .metadata(Map.of("filename", Objects.requireNonNull(file.getOriginalFilename())))
                     .build();
-            client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            try (InputStream inputStream = file.getInputStream()) {
+                client.putObject(request, RequestBody.fromInputStream(inputStream, file.getSize()));
+            }
         } catch (Exception e) {
             log.error(UPLOAD_FAILED, e);
             throw new FileException(UPLOAD_FAILED);

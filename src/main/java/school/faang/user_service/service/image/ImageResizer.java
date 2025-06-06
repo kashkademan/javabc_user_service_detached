@@ -8,43 +8,40 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Component
 public class ImageResizer {
 
     public MultipartFile resizeMultipartImage(MultipartFile originalFile, int maxSideSize) {
-        try {
-            BufferedImage originalImage = ImageIO.read(originalFile.getInputStream());
+        try (InputStream inputStream = originalFile.getInputStream()) {
+            BufferedImage originalImage = ImageIO.read(inputStream);
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
-            boolean widthAndHeightLessMaxSideSize = width < maxSideSize && height < maxSideSize;
+            boolean widthAndHeightLessMaxSideSize = width <= maxSideSize && height <= maxSideSize;
             if (widthAndHeightLessMaxSideSize) {
-               return originalFile;
+                return originalFile;
             }
+            boolean widthMoreHeight = width > height;
+            double scale = widthMoreHeight
+                    ? (double) maxSideSize / width
+                    : (double) maxSideSize / height;
 
-            double scale = 1.0;
-            boolean widthMoreHeightAndMaxSideSize = width > height && width > maxSideSize;
-            boolean heightMoreOrEqualWidthAndMoreMaxSideSize = height >= width && height > maxSideSize;
-            if (widthMoreHeightAndMaxSideSize) {
-                scale = (double) maxSideSize / width;
-            } else if (heightMoreOrEqualWidthAndMoreMaxSideSize) {
-                scale = (double) maxSideSize / height;
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                String formatName = getFileExtension(originalFile.getOriginalFilename());
+
+                Thumbnails.of(originalImage)
+                        .scale(scale)
+                        .outputFormat(formatName)
+                        .toOutputStream(outputStream);
+
+                return new InMemoryMultipartFile(
+                        originalFile.getName(),
+                        originalFile.getOriginalFilename(),
+                        originalFile.getContentType(),
+                        outputStream.toByteArray()
+                );
             }
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            String formatName = getFileExtension(originalFile.getOriginalFilename());
-
-            Thumbnails.of(originalImage)
-                    .scale(scale)
-                    .outputFormat(formatName)
-                    .toOutputStream(outputStream);
-
-            return new InMemoryMultipartFile(
-                    originalFile.getName(),
-                    originalFile.getOriginalFilename(),
-                    originalFile.getContentType(),
-                    outputStream.toByteArray()
-            );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
