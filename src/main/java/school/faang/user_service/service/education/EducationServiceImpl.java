@@ -32,7 +32,6 @@ public class EducationServiceImpl implements EducationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id=%d not found"));
 
-
         Education education = educationMapper.toEntity(educationDto);
         education.setUser(user);
 
@@ -46,7 +45,6 @@ public class EducationServiceImpl implements EducationService {
         }
 
         Optional<Education> existingEducation = educationRepository.findById(educationDto.getId());
-        String educationId = "";
         if (educationId.isEmpty()) {
             throw new EntityNotFoundException("User with id=%d not found");
         }

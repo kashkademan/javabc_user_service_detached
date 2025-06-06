@@ -8,8 +8,6 @@ import school.faang.user_service.entity.Education;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EducationMapper {
 
-
-
     Education toEducation(EducationDto educationDto);
 
     EducationDto toEducationDto(Education savedEducation);
