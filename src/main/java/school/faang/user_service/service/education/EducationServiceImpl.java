@@ -26,7 +26,7 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         if (educationDto.getYearFrom() >= Year.now().getValue()) {
-            throw new DataValidationException("yearFrom must be less than current year");
+            throw new DataValidationException("YearFrom must be less than current year");
         }
 
         User user = userRepository.findById(userId)
@@ -48,11 +48,11 @@ public class EducationServiceImpl implements EducationService {
         Optional<Education> existingEducation = educationRepository.findById(educationDto.getId());
         String educationId = "";
         if (educationId.isEmpty()) {
-            throw new EntityNotFoundException("Education with id=" + educationId + " not found");
+            throw new EntityNotFoundException("User with id=%d not found");
         }
 
         if (!existingEducation.get().getUser().getId().equals(userId)) {
-            throw new DataValidationException("Нельзя обновлять чужие данные");
+            throw new DataValidationException("Can't update someone else's data");
         }
 
         User user = existingEducation.get().getUser();
@@ -67,6 +67,6 @@ public class EducationServiceImpl implements EducationService {
     public EducationDto getById(long educationId) {
         return educationRepository.findById(educationId)
                 .map(educationMapper::toEducationDto)
-                .orElseThrow(() -> new DataValidationException("Образование не найдено"));
+                .orElseThrow(() -> new DataValidationException("User with id=%d not found"));
     }
 }
