@@ -47,7 +47,7 @@ public class GoalService {
         goalValidator.validateMaxActiveGoalLimitPerUser(userId);
         skillValidator.validateExistingSkills(skillsId);
 
-        newGoalData.setUsers(userService.getUsersById(List.of(userContext.getUserId())));
+        newGoalData.setUsers(List.of(userService.getUserById(userId)));
         newGoalData.setStatus(GoalStatus.ACTIVE);
         newGoalData.setSkillsToAchieve(skillsId.isEmpty() ? new ArrayList<>() : skillService.getSkillsById(skillsId));
         setIfNotNull(parentId, id -> newGoalData.setParent(getGoalById(id)));
