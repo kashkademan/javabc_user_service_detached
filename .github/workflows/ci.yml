@@ -1,0 +1,23 @@
+name: CI Pipeline User Service Triton Stream 10
+
+on:
+  pull_request:
+    branches:
+      ["triton-master-stream10", "develop/pipeline-77818"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 17
+
+      - name: Run Gradle Test
+        run: ./gradlew build --stacktrace
