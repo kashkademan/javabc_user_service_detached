@@ -14,7 +14,6 @@ public class EducationController {
         return educationService.addEducation(userId, dto);
     }
 
-
     public EducationDto updateEducation(long userId, EducationDto educationDto) {
         return educationService.updateEducation(userId, educationDto);
     }
