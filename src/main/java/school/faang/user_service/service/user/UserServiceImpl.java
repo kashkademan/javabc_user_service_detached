@@ -2,13 +2,18 @@ package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
+
 import java.util.List;
 
 @Service
@@ -17,6 +22,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
+    private final UserPictureService pictureService;
 
     @Override
     public UserDto findUserById(Long userId) {
@@ -42,5 +49,33 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(userMapper::toUserDto)
                 .toList();
+    }
+
+    @Override
+    public UserPersonalDto getUserPersonals(Long userId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+        UserPersonalDto userPersonalDto = userMapper.toUserPersonalDto(foundUser);
+
+        if (StringUtils.isBlank(userPersonalDto.getPictureSmallFileId())) {
+            userPersonalDto.setPictureSmallFileId(pictureService.getDefaultPictureLink());
+        }
+
+        return userPersonalDto;
+    }
+
+    @Override
+    @Transactional
+    public UserPersonalDto refreshUserAvatar(Long userId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+
+        UserProfilePic newProfilePic = new UserProfilePic();
+        newProfilePic.setSmallFileId(pictureService.generateNewSmallPicture());
+        foundUser.setUserProfilePic(newProfilePic);
+
+        User savedUser = userRepository.saveAndFlush(foundUser);
+
+        return userMapper.toUserPersonalDto(savedUser);
     }
 }
