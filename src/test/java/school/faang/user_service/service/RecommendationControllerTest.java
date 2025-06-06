@@ -55,13 +55,13 @@ public class RecommendationControllerTest {
     public void getAllUserRecommendationsTestGets() {
         long id = 1;
         Mockito.when(recommendationService.getAllUserRecommendations(id, PAGEABLE)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, 0));
+        assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, 1));
     }
 
     @Test
     public void getAllGivenRecommendationsTestGets() {
         long id = 1;
         Mockito.when(recommendationService.getAllGivenRecommendations(id, PAGEABLE)).thenReturn(List.of());
-        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, 0));
+        assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, 1));
     }
 }
