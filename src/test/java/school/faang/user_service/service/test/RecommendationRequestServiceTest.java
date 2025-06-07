@@ -16,7 +16,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -46,7 +46,7 @@ class RecommendationRequestServiceTest {
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Spy
-    private RecommendationMapperImpl recommendationMapper;
+    private RecommendationRequestMapperImpl recommendationMapper;
     @Mock
     private UserRepository userRepository;
     @Mock
