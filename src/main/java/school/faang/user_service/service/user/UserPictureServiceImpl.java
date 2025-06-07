@@ -112,10 +112,15 @@ public class UserPictureServiceImpl implements UserPictureService {
 
         Optional.ofNullable(user.getUserProfilePic())
                 .map(UserProfilePic::getFileId)
+                .filter(key -> !key.startsWith(config.getRandomPictureProviderRootUrl()))
                 .ifPresent(s3Service::deleteFile);
 
         Optional.ofNullable(user.getUserProfilePic())
                 .map(UserProfilePic::getSmallFileId)
+                .filter(key -> !key.startsWith(config.getRandomPictureProviderRootUrl()))
                 .ifPresent(s3Service::deleteFile);
+
+        user.setUserProfilePic(null);
+        userRepository.saveAndFlush(user);
     }
 }

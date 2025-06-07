@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class UserController {
         return userPersonals;
     }
 
-    @PatchMapping("/{userId}/refresh")//todo добавить блокировку для случая загруженного аватара
+    @PatchMapping("/{userId}/refresh")
     public UserPersonalDto refreshUsersAvatar(@PathVariable Long userId) {
         UserPersonalDto personalDto = userService.refreshUserAvatar(userId);
         log.debug("Personal photo was refreshed for userid {}, new avatar is {}",
@@ -59,9 +60,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(description = "use 'b' or 's' as size marker for big and small version of avatar")
     @GetMapping("/{userId}/avatar/{size}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable long userId,
-                                            @PathVariable(required = false) String size) {
+                                            @PathVariable String size) {
         byte[] avatar = userPictureService.getAvatar(userId, size);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);

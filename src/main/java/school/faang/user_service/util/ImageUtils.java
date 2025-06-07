@@ -1,6 +1,5 @@
 package school.faang.user_service.util;
 
-import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
