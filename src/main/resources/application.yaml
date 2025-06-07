@@ -17,7 +17,7 @@ spring:
       context-path: /api/v1
   servlet:
     multipart:
-      max-file-size: 10MB
+      max-file-size: 5MB
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

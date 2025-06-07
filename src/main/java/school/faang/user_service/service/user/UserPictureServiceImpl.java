@@ -2,6 +2,7 @@ package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,9 +17,11 @@ import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.util.ByteArrayMultipartFile;
 import school.faang.user_service.util.ImageUtils;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserPictureServiceImpl implements UserPictureService {
@@ -86,12 +89,37 @@ public class UserPictureServiceImpl implements UserPictureService {
     }
 
     @Override
-    public UserPersonalDto getAvatar(long userId) {
-        return null;
+    public byte[] getAvatar(long userId, String size) {
+        if (size != null && size.length() != 1) {
+            throw new IllegalArgumentException("Image size marker must be 'b' or 's' or could be skipped");
+        }
+        boolean big = "b".equals(size);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+
+        String avatarKey = Optional.ofNullable(user.getUserProfilePic())
+                .map(userProfilePic -> big ? userProfilePic.getFileId() : userProfilePic.getSmallFileId())
+                .orElseThrow(() -> new EntityNotFoundException("User doesn't have requested avatar"));
+
+        try {
+            return s3Service.downloadFile(avatarKey).readAllBytes();
+        } catch (IOException e) {
+            log.error("Error during download {}", e.getMessage());
+        }
+        return new byte[0];
     }
 
     @Override
-    public UserPersonalDto deleteAvatar(long userId) {
-        return null;
+    public void deleteAvatar(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+
+        Optional.ofNullable(user.getUserProfilePic())
+                .map(UserProfilePic::getFileId)
+                .ifPresent(s3Service::deleteFile);
+
+        Optional.ofNullable(user.getUserProfilePic())
+                .map(UserProfilePic::getSmallFileId)
+                .ifPresent(s3Service::deleteFile);
     }
 }

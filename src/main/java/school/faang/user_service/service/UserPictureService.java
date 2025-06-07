@@ -8,6 +8,6 @@ public interface UserPictureService {
     String getDefaultPictureLink();
     UserProfilePic generateNewPicture();
     UserPersonalDto uploadAvatar(long userId, MultipartFile file);
-    UserPersonalDto getAvatar(long userId);
-    UserPersonalDto deleteAvatar(long userId);
+    byte[] getAvatar(long userId, String sizeMarker);
+    void deleteAvatar(long userId);
 }

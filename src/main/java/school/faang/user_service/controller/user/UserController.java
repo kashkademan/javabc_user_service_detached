@@ -3,6 +3,10 @@ package school.faang.user_service.controller.user;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
@@ -48,26 +52,28 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/avatar")
-    public UserPersonalDto uploadAvatar(@PathVariable long userId, @NonNull MultipartFile file) {
+    public ResponseEntity<Void> uploadAvatar(@PathVariable long userId, @NonNull MultipartFile file) {
         UserPersonalDto updatedWIthAvatarDto = userPictureService.uploadAvatar(userId, file);
         log.info("Avatar was uploaded for user id {}, avatar {}", userId, updatedWIthAvatarDto.getPictureFileId());
 
-        return updatedWIthAvatarDto;
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/{userId}/avatar")
-    public UserPersonalDto getAvatar(@PathVariable long userId) {
-        UserPersonalDto userPersonalDto = userPictureService.getAvatar(userId);
-        log.debug("Avatar was provided for user id {}, avatar {}", userId, userPersonalDto.getPictureFileId());
+    @GetMapping("/{userId}/avatar/{size}")
+    public ResponseEntity<byte[]> getAvatar(@PathVariable long userId,
+                                            @PathVariable(required = false) String size) {
+        byte[] avatar = userPictureService.getAvatar(userId, size);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        log.debug("Avatar was provided for user id {}", userId);
 
-        return userPersonalDto;
+        return new ResponseEntity<>(avatar, headers, HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}/avatar")
-    public UserPersonalDto deleteAvatar(@PathVariable long userId) {
-        UserPersonalDto updatedWIthAvatarDto = userPictureService.deleteAvatar(userId);
+    public ResponseEntity<Void> deleteAvatar(@PathVariable long userId) {
+        userPictureService.deleteAvatar(userId);
         log.info("Avatar was deleted for user id {}", userId);
-
-        return updatedWIthAvatarDto;
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
