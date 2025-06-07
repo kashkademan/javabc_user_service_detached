@@ -30,17 +30,17 @@ class ImageServiceTest {
     private ImageService imageService;
 
     @Test
-    void generateRandomUserAvatar_shouldReturnCorrectResource() {
-        // given
+    void generateRandomUserAvatar_returnCorrectResource() {
         long userId = 42L;
         byte[] dummyImage = "<svg>avatar</svg>".getBytes(StandardCharsets.UTF_8);
         String expectedFileKey = "avatars/user_42_default_avatar.svg";
         String expectedFileName = "user_42_default_avatar.svg";
+        MediaType type = new MediaType("image", "svg+xml");
         String expectedContentType = "image/svg+xml";
 
         when(diceBearClient.getRandomAvatar()).thenReturn(dummyImage);
         when(s3Service.uploadFile(dummyImage, expectedFileName,
-                        new MediaType("image", "svg+xml"), S3Folder.AVATARS))
+                type, S3Folder.AVATARS))
                 .thenReturn(expectedFileKey);
 
         Resource result = imageService.generateRandomUserAvatar(userId);
@@ -48,7 +48,7 @@ class ImageServiceTest {
         assertNotNull(result);
         assertEquals(expectedFileKey, result.getFileKey());
         assertEquals(expectedFileName, result.getFileName());
-        assertEquals(expectedContentType, result.getContentType());
+        assertEquals(type.toString(), result.getContentType());
         assertEquals(dummyImage.length, result.getSize());
     }
 }

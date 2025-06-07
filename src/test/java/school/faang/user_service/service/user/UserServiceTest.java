@@ -15,19 +15,15 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.image.ImageServiceTest;
+import school.faang.user_service.service.image.ImageService;
 import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,7 +42,7 @@ public class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private ImageServiceTest imageService;
+    private ImageService imageService;
     @Mock
     private ApplicationContext applicationContext;
     @InjectMocks
