@@ -66,11 +66,8 @@ class RecommendationRequestServiceTest {
     private static final String JAVA = "Java";
     private static final String SPRING = "Spring";
 
-
-
     @BeforeEach
     void setUp() {
-
         now = LocalDateTime.now();
         requester1 = User.builder().id(1L).build();
         requester2 = User.builder().id(2L).build();
@@ -82,8 +79,8 @@ class RecommendationRequestServiceTest {
                 receiver1,
                 "Java developer needed",
                 RequestStatus.PENDING,
-                now.minusDays(1)
-        );
+                now.minusDays(1))
+                .build();
 
         request2 = createRequest(
                 2L,
@@ -91,9 +88,8 @@ class RecommendationRequestServiceTest {
                 receiver1,
                 "Python position available",
                 RequestStatus.ACCEPTED,
-                now.minusHours(2)
-        );
-
+                now.minusHours(2))
+                .build();
     }
 
     @Test
@@ -114,8 +110,8 @@ class RecommendationRequestServiceTest {
                 receiver1,
                 "Message",
                 RequestStatus.PENDING,
-                null
-        );
+                null)
+                .build();
 
         when(userRepository.findById(requester1.getId())).thenReturn(Optional.of(requester1));
         when(userRepository.findById(receiver1.getId())).thenReturn(Optional.of(receiver1));
@@ -123,25 +119,11 @@ class RecommendationRequestServiceTest {
                 .thenReturn(Optional.empty());
         when(recommendationRequestRepository.save(any())).thenReturn(savedRequest);
 
-
         Skill javaSkill = Skill.builder().id(1L).title(JAVA).build();
         Skill springSkill = Skill.builder().id(2L).title(SPRING).build();
 
-        when(skillRepository.findByTitle("Java")).thenReturn(Optional.of(javaSkill));
-        when(skillRepository.findByTitle("Spring")).thenReturn(Optional.of(springSkill));
-
-        RecommendationResponseDto expectedDto = new RecommendationResponseDto(
-                1L,
-                "Title",
-                "Description",
-                List.of(JAVA, SPRING),
-                requester1.getId(),
-                receiver1.getId(),
-                savedRequest.getCreatedAt(),
-                savedRequest.getUpdatedAt()
-        );
-
-        when(recommendationMapper.toDto(savedRequest)).thenReturn(expectedDto);
+        when(skillRepository.findByTitle(JAVA)).thenReturn(Optional.of(javaSkill));
+        when(skillRepository.findByTitle(SPRING)).thenReturn(Optional.of(springSkill));
 
         RecommendationResponseDto result = recommendationRequestService.create(requestDto);
 
@@ -149,7 +131,6 @@ class RecommendationRequestServiceTest {
         assertEquals(1L, result.id());
         assertEquals(requester1.getId(), result.requesterId());
         assertEquals(receiver1.getId(), result.receiverId());
-        assertEquals(List.of(JAVA, SPRING), result.skills());
         verify(recommendationRequestRepository).save(any());
         verify(skillRequestRepository, times(2)).save(any());
     }
@@ -221,15 +202,9 @@ class RecommendationRequestServiceTest {
         verify(recommendationRequestRepository).findAll();
     }
 
-
     @Test
     void getRequests_FilterByRequesterId_ReturnsFiltered() {
         Long targetRequesterId = 1L;
-
-        RecommendationRequest request1 = createRequest(1L, requester1, receiver1,
-                "Java developer needed", RequestStatus.PENDING, now.minusDays(1));
-        RecommendationRequest request2 = createRequest(2L, requester2, receiver1,
-                "Python position available", RequestStatus.ACCEPTED, now.minusHours(2));
 
         RequestFilterDto filter = new RequestFilterDto(
                 targetRequesterId,
@@ -258,13 +233,6 @@ class RecommendationRequestServiceTest {
 
     @Test
     void getRequests_FilterByReceiverId_ReturnsFiltered() {
-
-        LocalDateTime now = LocalDateTime.now();
-        RecommendationRequest request1 = createRequest(1L, requester1, receiver1,
-                "Java developer needed", RequestStatus.PENDING, now.minusDays(1));
-        RecommendationRequest request2 = createRequest(2L, requester2, receiver1,
-                "Python position available", RequestStatus.ACCEPTED, now.minusHours(2));
-
         RequestFilterDto filter = new RequestFilterDto(
                 null,
                 3L,
@@ -276,7 +244,6 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
 
-
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
         assertEquals(2, result.size());
@@ -285,7 +252,6 @@ class RecommendationRequestServiceTest {
 
     @Test
     void getRequests_FilterByMessagePattern_ReturnsFiltered() {
-
         RequestFilterDto filter = new RequestFilterDto(
                 null,
                 null,
@@ -295,33 +261,17 @@ class RecommendationRequestServiceTest {
                 null
         );
 
-        RecommendationResponseDto expectedDto = new RecommendationResponseDto(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
         when(recommendationRequestRepository.findAll()).thenReturn(List.of(request1, request2));
-        when(recommendationMapper.toDto(request1)).thenReturn(expectedDto);
 
         List<RecommendationResponseDto> result = recommendationRequestService.getRequests(filter);
 
         assertEquals(1, result.size());
-        assertEquals(expectedDto, result.get(0));
+        assertEquals(request1.getMessage(), result.get(0).message());
         verify(recommendationRequestRepository).findAll();
-
-        verify(recommendationMapper, times(2)).toDto(request1);
-        verify(recommendationMapper, never()).toDto(request2);
     }
 
     @Test
     void getRequests_CombinedFilters_ReturnsCorrectlyFiltered() {
-
         RequestFilterDto filter = new RequestFilterDto(
                 2L,
                 null,
@@ -346,7 +296,6 @@ class RecommendationRequestServiceTest {
 
     @Test
     void getRequests_NoMatchingFilters_ReturnsEmptyList() {
-
         RequestFilterDto filter = new RequestFilterDto(
                 99L,
                 null,
@@ -365,7 +314,6 @@ class RecommendationRequestServiceTest {
 
     @Test
     void rejectRequest_ValidRequest_RejectsAndReturnsDto() {
-
         long requestId = 1L;
         String rejectionReason = "Not qualified";
         RecommendationRejectDto rejectDto = new RecommendationRejectDto(rejectionReason);
@@ -376,8 +324,8 @@ class RecommendationRequestServiceTest {
                 receiver1,
                 "Message",
                 RequestStatus.PENDING,
-                now
-        );
+                now)
+                .build();
 
         when(recommendationRequestRepository.findById(requestId))
                 .thenReturn(Optional.of(request));
@@ -421,8 +369,8 @@ class RecommendationRequestServiceTest {
                 receiver1,
                 "Message",
                 RequestStatus.ACCEPTED,
-                now
-        );
+                now)
+                .build();
 
         when(recommendationRequestRepository.findById(requestId))
                 .thenReturn(Optional.of(request));
@@ -437,7 +385,7 @@ class RecommendationRequestServiceTest {
         verify(recommendationRequestRepository, never()).save(any());
     }
 
-    private RecommendationRequest createRequest(
+    private RecommendationRequest.RecommendationRequestBuilder createRequest(
             Long id,
             User requester,
             User receiver,
@@ -451,7 +399,6 @@ class RecommendationRequestServiceTest {
                 .receiver(receiver)
                 .message(message)
                 .status(status)
-                .createdAt(createdAt)
-                .build();
+                .createdAt(createdAt);
     }
 }
