@@ -1,5 +1,7 @@
 package school.faang.user_service.service.image;
 
+import feign.FeignException;
+import feign.RetryableException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,10 +17,15 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ImageServiceTest {
+public class ImageServiceTest {
 
     @Mock
     private DiceBearClient diceBearClient;
@@ -29,14 +36,14 @@ class ImageServiceTest {
     @InjectMocks
     private ImageService imageService;
 
+    private final Long userId = 42L;
+
     @Test
     void generateRandomUserAvatar_returnCorrectResource() {
-        long userId = 42L;
         byte[] dummyImage = "<svg>avatar</svg>".getBytes(StandardCharsets.UTF_8);
         String expectedFileKey = "avatars/user_42_default_avatar.svg";
         String expectedFileName = "user_42_default_avatar.svg";
         MediaType type = new MediaType("image", "svg+xml");
-        String expectedContentType = "image/svg+xml";
 
         when(diceBearClient.getRandomAvatar()).thenReturn(dummyImage);
         when(s3Service.uploadFile(dummyImage, expectedFileName,
@@ -50,5 +57,27 @@ class ImageServiceTest {
         assertEquals(expectedFileName, result.getFileName());
         assertEquals(type.toString(), result.getContentType());
         assertEquals(dummyImage.length, result.getSize());
+        verify(s3Service, times(1)).uploadFile(
+                dummyImage, expectedFileName, type, S3Folder.AVATARS);
+    }
+
+    @Test
+    void generateRandomUserAvatar_requestInDiceBearFails() {
+        when(diceBearClient.getRandomAvatar())
+                .thenThrow(FeignException.class);
+
+        assertThrows(FeignException.class, () -> imageService.generateRandomUserAvatar(userId));
+        verify(s3Service, never()).uploadFile(
+                any(), any(), any(), any());
+    }
+
+    @Test
+    void generateRandomUserAvatar_retryRequestInDiceBearFails() {
+        when(diceBearClient.getRandomAvatar())
+                .thenThrow(RetryableException.class);
+
+        assertThrows(RetryableException.class, () -> imageService.generateRandomUserAvatar(userId));
+        verify(s3Service, never()).uploadFile(
+                any(), any(), any(), any());
     }
 }
