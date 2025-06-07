@@ -45,7 +45,6 @@ public class UserPictureServiceImpl implements UserPictureService {
         return config.getRandomPictureProviderRootUrl() + "?seed=" + smallFileId;
     }
 
-
     @Override
     public UserPersonalDto uploadAvatar(long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
