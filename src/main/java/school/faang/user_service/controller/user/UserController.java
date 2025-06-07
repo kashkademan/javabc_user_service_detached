@@ -1,11 +1,13 @@
 package school.faang.user_service.controller.user;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserPictureService userPictureService;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
@@ -45,8 +48,8 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/avatar")
-    public UserPersonalDto uploadAvatar(@PathVariable long userId, MultipartFile file) {
-        UserPersonalDto updatedWIthAvatarDto = userService.uploadAvatar(userId, file);
+    public UserPersonalDto uploadAvatar(@PathVariable long userId, @NonNull MultipartFile file) {
+        UserPersonalDto updatedWIthAvatarDto = userPictureService.uploadAvatar(userId, file);
         log.info("Avatar was uploaded for user id {}, avatar {}", userId, updatedWIthAvatarDto.getPictureFileId());
 
         return updatedWIthAvatarDto;
@@ -54,7 +57,7 @@ public class UserController {
 
     @GetMapping("/{userId}/avatar")
     public UserPersonalDto getAvatar(@PathVariable long userId) {
-        UserPersonalDto userPersonalDto = userService.getAvatar(userId);
+        UserPersonalDto userPersonalDto = userPictureService.getAvatar(userId);
         log.debug("Avatar was provided for user id {}, avatar {}", userId, userPersonalDto.getPictureFileId());
 
         return userPersonalDto;
@@ -62,7 +65,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}/avatar")
     public UserPersonalDto deleteAvatar(@PathVariable long userId) {
-        UserPersonalDto updatedWIthAvatarDto = userService.deleteAvatar(userId);
+        UserPersonalDto updatedWIthAvatarDto = userPictureService.deleteAvatar(userId);
         log.info("Avatar was deleted for user id {}", userId);
 
         return updatedWIthAvatarDto;

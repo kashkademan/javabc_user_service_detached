@@ -9,7 +9,11 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "picture-provider")
 @Getter
 @Setter
-public class RandomAvatarConfiguration {
-    private String pictureProviderRootUrl;
+public class AvatarConfiguration {
+    private String randomPictureProviderRootUrl;
     private String defaultSmallAvatarSeed;
+
+    private int imageLimitSize;
+    private int bigImageLimit;
+    private int smallImageLimit;
 }

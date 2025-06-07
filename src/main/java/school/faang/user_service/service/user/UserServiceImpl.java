@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
@@ -77,20 +76,5 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.saveAndFlush(foundUser);
 
         return userMapper.toUserPersonalDto(savedUser);
-    }
-
-    @Override
-    public UserPersonalDto uploadAvatar(long userId, MultipartFile file) {
-        return null;
-    }
-
-    @Override
-    public UserPersonalDto getAvatar(long userId) {
-        return null;
-    }
-
-    @Override
-    public UserPersonalDto deleteAvatar(long userId) {
-        return null;
     }
 }

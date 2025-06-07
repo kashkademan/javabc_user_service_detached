@@ -12,7 +12,4 @@ public interface UserService {
     List<UserDto> getUsersByIds(List<Long> userIds);
     UserPersonalDto getUserPersonals(Long userId);
     UserPersonalDto refreshUserAvatar(Long userId);
-    UserPersonalDto uploadAvatar(long userId, MultipartFile file);
-    UserPersonalDto getAvatar(long userId);
-    UserPersonalDto deleteAvatar(long userId);
 }

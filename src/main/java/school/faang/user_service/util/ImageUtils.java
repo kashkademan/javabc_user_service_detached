@@ -1,5 +1,6 @@
 package school.faang.user_service.util;
 
+import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -16,17 +17,16 @@ import java.io.InputStream;
 @Slf4j
 @UtilityClass
 public class ImageUtils {
-    private static final int TARGET_IMAGE_HEIGHT = 566;
-    private static final int TARGET_IMAGE_WIDTH = 1080;
     private static final int FILE_TYPE_START_INDEX = 6;
 
-    public ByteArrayInputStream getResizedImageStream(MultipartFile file) {
+    public ByteArrayInputStream resizeImageToFitLongestSide(MultipartFile file, int sideLimit) {
         BufferedImage image = convertFileToStream(file);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         validateFileType(file);
         try {
             Thumbnails.of(image)
-                    .forceSize(getTargetWidth(image), getTargetHeight(image))
+                    .size(sideLimit, sideLimit)
+                    .keepAspectRatio(true)
                     .outputFormat(file.getContentType().substring(FILE_TYPE_START_INDEX))
                     .toOutputStream(outputStream);
         } catch (Exception e) {
@@ -50,21 +50,6 @@ public class ImageUtils {
                     .formatted(file.getOriginalFilename()));
         }
         return originalImage;
-    }
-
-    private int getTargetWidth(BufferedImage image) {
-        return Math.min(image.getWidth(), TARGET_IMAGE_WIDTH);
-    }
-
-    private int getTargetHeight(BufferedImage image) {
-        int originalHeight = image.getHeight();
-        int originalWidth = image.getWidth();
-        if (originalWidth == originalHeight && originalWidth > TARGET_IMAGE_WIDTH) {
-            return TARGET_IMAGE_WIDTH;
-        } else if (originalWidth > originalHeight && originalHeight > TARGET_IMAGE_HEIGHT) {
-            return TARGET_IMAGE_HEIGHT;
-        }
-        return originalHeight;
     }
 
     private void validateFileType(MultipartFile file) {
