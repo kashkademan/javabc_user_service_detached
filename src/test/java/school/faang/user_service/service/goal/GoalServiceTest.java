@@ -86,6 +86,8 @@ public class GoalServiceTest {
 
     @Test
     public void testGetNotExistingGoal() {
+        when(goalRepository.findById(GOAL_ID)).thenReturn(Optional.empty());
+
         assertThrows(GoalNotExistException.class, () -> goalService.getGoalById(GOAL_ID));
     }
 
