@@ -60,6 +60,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
+    implementation("com.alibaba:transmittable-thread-local:2.14.2")
 
     /**
      * Test containers

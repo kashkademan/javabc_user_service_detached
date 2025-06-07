@@ -3,6 +3,9 @@ package school.faang.user_service.config.async;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -28,5 +31,10 @@ public class AsyncConfig {
         executor.setThreadNamePrefix("DecrementCountViewExecutor-");
         executor.initialize();
         return executor;
+    }
+
+    @Bean
+    public Executor generateRandomAvatarUserExecutor() {
+        return new SimpleAsyncTaskExecutor();
     }
 }
