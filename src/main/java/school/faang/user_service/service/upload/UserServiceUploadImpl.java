@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user_service_upload;
+package school.faang.user_service.service.upload;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -14,10 +14,11 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.CsvUserMapper;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.EducationRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.util.PasswordGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,69 +31,88 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class UserServiceUploadImpl implements UserServiceUpload {
     private final CsvMapper csvMapper;
-    private final CsvUserMapper csvUserMapper;
+    private final UserMapper csvUserMapper;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final EducationRepository educationRepository;
-    private final PasswordGenerator passwordGenerator;
 
     @Override
+    @Transactional
     public CsvUploadResponseDto processStudentsCsv(MultipartFile file) {
-        try {
-            List<StudentCsvDto> students = readCsvFile(file.getInputStream());
-            Map<String, Country> countriesMap = getAllCountriesMap();
-            List<User> processedUsers = new ArrayList<>();
-            List<String> errors = new ArrayList<>();
-            for (StudentCsvDto studentDto : students) {
-                try {
-                    User user = processUser(studentDto, countriesMap);
-                    processedUsers.add(user);
-                } catch (Exception e) {
-                    errors.add("Error processing student " + studentDto.getEmail() + ": " + e.getMessage());
-                    log.error("Error processing student  {}", studentDto.getEmail(), e);
+        List<StudentCsvDto> students = readCsvFile(file);
+        Map<String, Country> countriesMap = getAllCountriesMap();
 
-                }
-            }
-            CsvUploadResponseDto response = new CsvUploadResponseDto();
-            response.setTotalStudents(students.size());
-            response.setProcessedCount(processedUsers.size());
-            response.setErrors(errors);
-            response.setErrorCount(errors.size());
-            return response;
+        List<String> validationErrors = validateAllStudents(students);
 
-        } catch (IOException e) {
-            throw new DataValidationException("Error reading CSV file" + e.getMessage());
+        if (!validationErrors.isEmpty()) {
+            log.error("Validation failed for CSV file. Found {} errors", validationErrors.size());
+            throw new DataValidationException("Validation failed for CSV file. Errors: " + String.join("; ", validationErrors));
         }
+
+        List<User> processedUsers = processAllStudents(students, countriesMap);
+
+        log.info("Successfully processed {} students from CSV file", processedUsers.size());
+        return buildSuccessResponse(students.size(), processedUsers.size());
     }
 
-    private List<StudentCsvDto> readCsvFile(InputStream inputStream) {
+    private List<StudentCsvDto> readCsvFile(MultipartFile file) {
         CsvSchema schema = csvMapper.schemaFor(StudentCsvDto.class).withHeader();
-        MappingIterator<StudentCsvDto> iterator;
-        try {
-            iterator = csvMapper
+
+        try (InputStream inputStream = file.getInputStream()) {
+            MappingIterator<StudentCsvDto> iterator = csvMapper
                     .readerFor(StudentCsvDto.class)
                     .with(schema)
                     .readValues(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
             return iterator.readAll();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new DataValidationException("Error reading CSV file: " + e.getMessage());
         }
     }
 
-    private User processUser(StudentCsvDto studentDto, Map<String, Country> countriesMap) {
+    private List<String> validateAllStudents(List<StudentCsvDto> students) {
+        List<String> errors = new ArrayList<>();
+
+        for (StudentCsvDto studentDto : students) {
+            try {
+                validateStudent(studentDto);
+            } catch (Exception e) {
+                String studentIdentifier = getStudentIdentifier(studentDto);
+                errors.add("Error validating student " + studentIdentifier + ": " + e.getMessage());
+                log.error("Error validating student {}", studentIdentifier, e);
+            }
+        }
+
+        return errors;
+    }
+
+    private void validateStudent(StudentCsvDto studentDto) {
         if (userRepository.existsByEmail(studentDto.getEmail())) {
             throw new DataValidationException("User with email " + studentDto.getEmail() + " already exists.");
         }
+    }
 
+    private List<User> processAllStudents(List<StudentCsvDto> students, Map<String, Country> countriesMap) {
+        List<User> processedUsers = new ArrayList<>();
+
+        for (StudentCsvDto studentDto : students) {
+            User user = createUserFromStudent(studentDto, countriesMap);
+            processedUsers.add(user);
+        }
+
+        return processedUsers;
+    }
+
+    private String getStudentIdentifier(StudentCsvDto studentDto) {
+        return studentDto.getStudentID() != null && !studentDto.getStudentID().trim().isEmpty()
+                ? studentDto.getStudentID()
+                : studentDto.getEmail();
+    }
+
+    private User createUserFromStudent(StudentCsvDto studentDto, Map<String, Country> countriesMap) {
         User user = csvUserMapper.toUser(studentDto);
-        user.setPassword(passwordGenerator.generatePassword());
+        user.setPassword(PasswordGenerator.generatePassword());
 
         Country country = getCountry(studentDto.getCountry(), countriesMap);
         user.setCountry(country);
@@ -104,6 +124,15 @@ public class UserServiceUploadImpl implements UserServiceUpload {
         educationRepository.save(education);
 
         return savedUser;
+    }
+
+    private CsvUploadResponseDto buildSuccessResponse(int totalStudents, int processedCount) {
+        CsvUploadResponseDto response = new CsvUploadResponseDto();
+        response.setTotalStudents(totalStudents);
+        response.setProcessedCount(processedCount);
+        response.setErrors(new ArrayList<>());
+        response.setErrorCount(0);
+        return response;
     }
 
     private Map<String, Country> getAllCountriesMap() {
@@ -130,10 +159,9 @@ public class UserServiceUploadImpl implements UserServiceUpload {
         newCountry.setTitle(countryName);
 
         Country savedCountry = countryRepository.save(newCountry);
-        countriesMap.put(countryName, savedCountry); // Обновляем кеш для последующих использований
+        countriesMap.put(countryName, savedCountry);
 
         log.info("Created new country: {}", savedCountry.getTitle());
         return savedCountry;
     }
 }
-

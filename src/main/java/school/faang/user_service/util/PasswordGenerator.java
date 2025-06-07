@@ -1,9 +1,11 @@
-package school.faang.user_service.service.user_service_upload;
+package school.faang.user_service.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 
+@UtilityClass
 @Component
 public class PasswordGenerator {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
