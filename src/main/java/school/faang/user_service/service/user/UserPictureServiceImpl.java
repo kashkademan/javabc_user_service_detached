@@ -37,11 +37,8 @@ public class UserPictureServiceImpl implements UserPictureService {
     }
 
     @Override
-    public UserProfilePic generateNewPicture() {
-        UserProfilePic profilePic = new UserProfilePic();
-        String newSeed = UUID.randomUUID().toString();
-        profilePic.setSmallFileId(seedValueToPath(newSeed));
-        return profilePic;
+    public String generateNewSmallPicture() {
+        return seedValueToPath(UUID.randomUUID().toString());
     }
 
     private String seedValueToPath(String smallFileId) {

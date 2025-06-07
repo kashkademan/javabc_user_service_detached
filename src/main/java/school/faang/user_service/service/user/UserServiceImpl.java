@@ -70,7 +70,8 @@ public class UserServiceImpl implements UserService {
         User foundUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
 
-        UserProfilePic newProfilePic = pictureService.generateNewPicture();
+        UserProfilePic newProfilePic = new UserProfilePic();
+        newProfilePic.setSmallFileId(pictureService.generateNewSmallPicture());
         foundUser.setUserProfilePic(newProfilePic);
 
         User savedUser = userRepository.saveAndFlush(foundUser);
