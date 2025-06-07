@@ -1,7 +1,6 @@
 package school.faang.user_service.config.redis;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -13,9 +12,8 @@ import school.faang.user_service.subscriber.UserBanSubscriber;
 
 @Configuration
 @RequiredArgsConstructor
-@ConfigurationPropertiesScan
 public class RedisConfiguration {
-    private final RedisParam redisParams;
+    private final RedisProperties redisProperties;
 
     @Bean
     public RedisMessageListenerContainer redisContainer(MessageListenerAdapter userBanListener) {
@@ -28,15 +26,15 @@ public class RedisConfiguration {
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(redisParams.host());
-        config.setPort(redisParams.port());
+        config.setHostName(redisProperties.host());
+        config.setPort(redisProperties.port());
 
         return new JedisConnectionFactory(config);
     }
 
     @Bean
     public ChannelTopic topic() {
-        return new ChannelTopic(redisParams.channels().userBan());
+        return new ChannelTopic(redisProperties.channels().userBan());
     }
 
     @Bean

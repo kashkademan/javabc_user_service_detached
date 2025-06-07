@@ -150,21 +150,24 @@ public class UserServiceImpl implements UserService {
     public void banUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new EntityNotFoundException(String.format("User with id %d not found", userId)));
-        if (user.getBanned()) {
+        if (user.isBanned()) {
             return;
         }
 
         user.setBanned(true);
+        userRepository.save(user);
     }
 
     @Transactional
     @Override
     public void unbanUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        if (!user.getBanned()) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new EntityNotFoundException(String.format("User with id %d not found", userId)));
+        if (!user.isBanned()) {
             return;
         }
 
         user.setBanned(false);
+        userRepository.save(user);
     }
 }

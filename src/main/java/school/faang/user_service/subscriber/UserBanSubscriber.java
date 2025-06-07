@@ -23,7 +23,6 @@ public class UserBanSubscriber implements MessageListener {
             userService.banUser(userId);
         } catch (Exception e) {
             log.error("Error on processing userBan {} ban: ", message, e);
-            throw new RuntimeException(e);
         }
 
         log.info("User {} ban completed.", message);

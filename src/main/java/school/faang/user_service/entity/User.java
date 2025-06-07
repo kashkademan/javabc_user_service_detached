@@ -169,5 +169,5 @@ public class User {
     private WorkSchedule workSchedule;
 
     @Column(name = "banned")
-    private Boolean banned;
+    private boolean banned;
 }
