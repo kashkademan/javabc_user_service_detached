@@ -54,6 +54,10 @@ public class UserService {
                 });
     }
 
+    public void authorizeUser(long userId) {
+        userContext.setUserId(userId);
+    }
+
     @Transactional(readOnly = true)
     public List<User> getUsersByIds(List<Long> userIds) {
         return userRepository.findAllById(userIds);
@@ -96,9 +100,5 @@ public class UserService {
 
         User savedUsed = userRepository.save(user);
         log.info("User {} avatar {} has been saved", savedUsed.getId(), user.getUserProfilePic().getSmallFile());
-    }
-
-    private void authorizeUser(long userId) {
-        userContext.setUserId(userId);
     }
 }

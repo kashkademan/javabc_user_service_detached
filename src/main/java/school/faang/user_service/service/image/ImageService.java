@@ -15,6 +15,8 @@ import school.faang.user_service.service.s3.S3Service;
 public class ImageService {
     private final DiceBearClient diceBearClient;
     private final S3Service s3Service;
+
+
     public Resource generateRandomUserAvatar(long userId) {
         byte[] image = diceBearClient.getRandomAvatar();
         log.info("Generated random avatar for user with ID {}", userId);
