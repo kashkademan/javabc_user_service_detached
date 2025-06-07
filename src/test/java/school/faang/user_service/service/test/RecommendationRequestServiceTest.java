@@ -93,7 +93,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void create_ValidRequest_ReturnsResponseDto() {
+    void createValidRequestReturnsResponseDto() {
         RecommendationRequestDto requestDto = new RecommendationRequestDto(
                 "Title",
                 "Description",
@@ -136,11 +136,11 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void create_RecentRequestExists_ThrowsException() {
+    void createRecentRequestExistsThrowsException() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime fiveMonthsAgo = now.minusMonths(5);
 
-        RecommendationRequestDto requestDto = new RecommendationRequestDto(
+        final RecommendationRequestDto requestDto = new RecommendationRequestDto(
                 "Title",
                 "Description",
                 List.of(JAVA, SPRING),
@@ -170,7 +170,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void create_RequesterEqualsReceiver_ThrowsException() {
+    void createRequesterEqualsReceiverThrowsException() {
         RecommendationRequestDto requestDto = new RecommendationRequestDto(
                 "Title",
                 "Desc",
@@ -186,7 +186,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_NoFilters_ReturnsAllRequests() {
+    void getRequestsNoFiltersReturnsAllRequests() {
         RequestFilterDto filter = new RequestFilterDto(null,
                 null,
                 null,
@@ -203,7 +203,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_FilterByRequesterId_ReturnsFiltered() {
+    void getRequestsFilterByRequesterIdReturnsFiltered() {
         Long targetRequesterId = 1L;
 
         RequestFilterDto filter = new RequestFilterDto(
@@ -232,7 +232,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_FilterByReceiverId_ReturnsFiltered() {
+    void getRequestsFilterByReceiverIdReturnsFiltered() {
         RequestFilterDto filter = new RequestFilterDto(
                 null,
                 3L,
@@ -251,7 +251,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_FilterByMessagePattern_ReturnsFiltered() {
+    void getRequestsFilterByMessagePatternReturnsFiltered() {
         RequestFilterDto filter = new RequestFilterDto(
                 null,
                 null,
@@ -271,7 +271,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_CombinedFilters_ReturnsCorrectlyFiltered() {
+    void getRequestsCombinedFiltersReturnsCorrectlyFiltered() {
         RequestFilterDto filter = new RequestFilterDto(
                 2L,
                 null,
@@ -295,7 +295,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void getRequests_NoMatchingFilters_ReturnsEmptyList() {
+    void getRequestsNoMatchingFiltersReturnsEmptyList() {
         RequestFilterDto filter = new RequestFilterDto(
                 99L,
                 null,
@@ -313,7 +313,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void rejectRequest_ValidRequest_RejectsAndReturnsDto() {
+    void rejectRequestValidRequestRejectsAndReturnsDto() {
         long requestId = 1L;
         String rejectionReason = "Not qualified";
         RecommendationRejectDto rejectDto = new RecommendationRejectDto(rejectionReason);
@@ -344,7 +344,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void rejectRequest_RequestNotFound_ThrowsException() {
+    void rejectRequestRequestNotFoundThrowsException() {
         long nonExistentId = 999L;
         RecommendationRejectDto rejectDto = new RecommendationRejectDto("Reason");
 
@@ -359,7 +359,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void rejectRequest_NotPendingStatus_ThrowsException() {
+    void rejectRequestNotPendingStatusThrowsException() {
         long requestId = 2L;
         RecommendationRejectDto rejectDto = new RecommendationRejectDto("Reason");
 

@@ -49,26 +49,27 @@ class RecommendationRequestFilterTest {
                 .createdAt(now.minusDays(1))
                 .build();
     }
+
     @Test
-    void isApplicable_shouldReturnTrueWhenMessagePatternIsNotEmpty() {
+    void isApplicableShouldReturnTrueWhenMessagePatternIsNotEmpty() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, "Java", null, null);
         assertTrue(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void isApplicable_shouldReturnFalseWhenMessagePatternIsNull() {
+    void isApplicableShouldReturnFalseWhenMessagePatternIsNull() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, null, null, null);
         assertFalse(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void isApplicable_shouldReturnFalseWhenMessagePatternIsBlank() {
+    void isApplicableShouldReturnFalseWhenMessagePatternIsBlank() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, " ", null, null);
         assertFalse(messagePatternFilter.isApplicable(filters));
     }
 
     @Test
-    void apply_shouldFilterRequestsContainingMessagePattern() {
+    void applyShouldFilterRequestsContainingMessagePattern() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, "Java", null, null);
 
         RecommendationRequest matchingRequest = request;
@@ -88,7 +89,7 @@ class RecommendationRequestFilterTest {
     }
 
     @Test
-    void apply_shouldReturnEmptyStreamWhenNoRequestsMatchPattern() {
+    void applyShouldReturnEmptyStreamWhenNoRequestsMatchPattern() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, "React", null, null);
 
         Stream<RecommendationRequest> result = messagePatternFilter.apply(
@@ -100,7 +101,7 @@ class RecommendationRequestFilterTest {
     }
 
     @Test
-    void apply_shouldBeCaseSensitive() {
+    void applyShouldBeCaseSensitive() {
         RequestFilterDto filters = new RequestFilterDto(null, null, null, "java", null, null);
 
         Stream<RecommendationRequest> result = messagePatternFilter.apply(
@@ -112,7 +113,7 @@ class RecommendationRequestFilterTest {
     }
 
     @Test
-    void apply_shouldIgnoreOtherFilterFields() {
+    void applyShouldIgnoreOtherFilterFields() {
         RequestFilterDto filters = new RequestFilterDto(999L, 888L, 777L, "Java", now.minusYears(1), now.plusYears(1));
 
         Stream<RecommendationRequest> result = messagePatternFilter.apply(

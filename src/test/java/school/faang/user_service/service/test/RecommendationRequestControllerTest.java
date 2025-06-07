@@ -67,7 +67,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void create_ValidRequest_ReturnsCreatedResponse() {
+    void createValidRequestReturnsCreatedResponse() {
         when(recommendationRequestService.create(requestDto)).thenReturn(responseDto);
 
         RecommendationResponseDto result = recommendationRequestController.create(requestDto);
@@ -78,7 +78,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void getFiltered_ValidFilter_ReturnsFilteredRequests() {
+    void getFilteredValidFilterReturnsFilteredRequests() {
         List<RecommendationResponseDto> expected = List.of(responseDto);
         when(recommendationRequestService.getRequests(filterDto)).thenReturn(expected);
 
@@ -91,7 +91,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void getById_ExistingId_ReturnsRequest() {
+    void getByIdExistingIdReturnsRequest() {
         when(recommendationRequestService.getRequest(1L)).thenReturn(responseDto);
 
         RecommendationResponseDto result = recommendationRequestController.getById(1L);
@@ -102,7 +102,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void reject_ValidRequest_ReturnsRejectedRequest() {
+    void rejectValidRequestReturnsRejectedRequest() {
         when(recommendationRequestService.rejectRequest(1L, rejectDto)).thenReturn(responseDto);
 
         RecommendationResponseDto result = recommendationRequestController.reject(1L, rejectDto);
@@ -113,7 +113,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void handleException_DataValidationException_ReturnsBadRequest() {
+    void handleExceptionDataValidationExceptionReturnsBadRequest() {
         Exception exception = new DataValidationException("Test error");
 
         ResponseEntity<String> response = recommendationRequestController.handleException(exception);
@@ -123,7 +123,7 @@ class RecommendationRequestControllerTest {
     }
 
     @Test
-    void handleException_EntityNotFoundException_ReturnsBadRequest() {
+    void handleExceptionEntityNotFoundExceptionReturnsBadRequest() {
         Exception exception = new EntityNotFoundException("Not found");
 
         ResponseEntity<String> response = recommendationRequestController.handleException(exception);
