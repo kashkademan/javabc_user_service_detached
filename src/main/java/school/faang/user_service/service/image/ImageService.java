@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.client.DiceBearClient;
+import school.faang.user_service.entity.resource.Resource;
 import school.faang.user_service.service.s3.S3Folder;
 import school.faang.user_service.service.s3.S3Service;
 
@@ -14,13 +15,21 @@ import school.faang.user_service.service.s3.S3Service;
 public class ImageService {
     private final DiceBearClient diceBearClient;
     private final S3Service s3Service;
-    public String generateRandomUserAvatar(long userId) {
+    public Resource generateRandomUserAvatar(long userId) {
         byte[] image = diceBearClient.getRandomAvatar();
         log.info("Generated random avatar for user with ID {}", userId);
 
         MediaType type = new MediaType("image", "svg+xml");
         String fileName = String.format("user_%d_default_avatar.svg", userId);
 
-        return s3Service.uploadFile(image, fileName, type, S3Folder.AVATARS);
+        String fileKey = s3Service.uploadFile(image, fileName, type, S3Folder.AVATARS);
+
+        Resource resource = new Resource();
+        resource.setFileKey(fileKey);
+        resource.setFileName(fileName);
+        resource.setContentType(type.toString());
+        resource.setSize((long) image.length);
+
+        return resource;
     }
 }

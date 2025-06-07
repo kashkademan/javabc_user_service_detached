@@ -16,7 +16,7 @@ import java.util.Map;
 public class FileExceptionHandler {
     // TODO: статус ответа
     private static final Map<Class<? extends Exception>, HttpStatus> httpStatusMap = Map.of(
-            FileUploadException.class, HttpStatus.UNAUTHORIZED
+            FileUploadException.class, HttpStatus.SERVICE_UNAVAILABLE
     );
 
     @ExceptionHandler({

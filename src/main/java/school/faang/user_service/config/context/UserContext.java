@@ -9,7 +9,7 @@ import school.faang.user_service.exception.authorization.UserUnauthorizedExcepti
 @Slf4j
 public class UserContext {
 
-    private final ThreadLocal<Long> userIdHolder = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<Long> userIdHolder = new TransmittableThreadLocal<>();
 
     public void setUserId(long userId) {
         userIdHolder.set(userId);

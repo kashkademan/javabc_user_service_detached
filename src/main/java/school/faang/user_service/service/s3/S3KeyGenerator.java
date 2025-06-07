@@ -24,7 +24,6 @@ public class S3KeyGenerator {
         return String.format(IMAGE_KEY_PATTERN, folder, user, timeStamp, uniqueId, sanitizedFileName);
     }
 
-    // TODO: как получить userId, если вызывать ассинхронно?
     private String getUserIdOrSystem() {
         try {
             return String.valueOf(userContext.getUserId());
