@@ -1,7 +1,6 @@
 package school.faang.user_service.validation.goal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.goal.Goal;
@@ -17,15 +16,14 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GoalValidator {
 
-    @Value("${goal.maxLimit}")
-    private Integer goalLimit;
+    private final GoalProperties goalProperties;
     private final UserContext userContext;
     private final GoalRepository goalRepository;
 
     public void validateMaxActiveGoalLimitPerUser(long userId) {
-        boolean isUserReachActiveGoalLimit = goalRepository.countActiveGoalsPerUser(userId) >= goalLimit;
+        boolean isUserReachActiveGoalLimit = goalRepository.countActiveGoalsPerUser(userId) >= goalProperties.getMaxLimit();
         if (isUserReachActiveGoalLimit) {
-            throw new MaxActiveGoalPerUserException(userContext.getUserId(), goalLimit);
+            throw new MaxActiveGoalPerUserException(userContext.getUserId(), goalProperties.getMaxLimit());
         }
     }
 
