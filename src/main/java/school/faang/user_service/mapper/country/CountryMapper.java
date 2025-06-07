@@ -207,6 +207,6 @@ public class CountryMapper {
     }
 
     public String getFullName(String code) {
-        return COUNTRY_MAP.get(code.toUpperCase());
+        return COUNTRY_MAP.getOrDefault(code.toUpperCase(), "Unknown");
     }
 }

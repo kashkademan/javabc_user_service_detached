@@ -1,9 +1,8 @@
 package school.faang.user_service.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 public interface UserService {
@@ -13,5 +12,5 @@ public interface UserService {
 
     List<UserDto> getUsersByIds(List<Long> userIds);
 
-    List<UserDto> processCsv(InputStream inputStream) throws IOException;
+    List<UserDto> processCsv(MultipartFile file);
 }

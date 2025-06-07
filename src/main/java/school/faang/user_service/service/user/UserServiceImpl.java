@@ -5,9 +5,9 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.Person;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.Country;
@@ -17,6 +17,7 @@ import school.faang.user_service.mapper.country.CountryMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.util.PasswordGeneratorUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final CountryMapper countryMapper;
+    private final CsvMapper csvMapper;
 
     @Override
     public UserDto findUserById(Long userId) {
@@ -61,27 +63,34 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public List<UserDto> processCsv(InputStream inputStream) throws IOException {
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-        List<Person> persons = mapper.readerFor(Person.class)
-                .with(schema)
-                .<Person>readValues(inputStream)
-                .readAll();
+    public List<UserDto> processCsv(MultipartFile file) {
+        log.info("Starting parsing {}", file.getOriginalFilename());
+        try (InputStream inputStream = file.getInputStream()) {
+            CsvSchema schema = CsvSchema.emptySchema().withHeader();
+            List<Person> persons = csvMapper.readerFor(Person.class)
+                    .with(schema)
+                    .<Person>readValues(inputStream)
+                    .readAll();
 
-        List<Country> countries = (List<Country>) countryRepository.findAll();
-        List<User> users = persons.stream()
-                .map(person -> processPerson(person, countries))
-                .toList();
-        userRepository.saveAll(users);
+            List<Country> countries = (List<Country>) countryRepository.findAll();
+            List<User> users = persons.stream()
+                    .map(person -> processPerson(person, countries))
+                    .toList();
+            userRepository.saveAll(users);
+            log.info("Parsing completed. Processed {} users", users.size());
 
-        return userMapper.mapListOfUsers(users);
+            return userMapper.mapListOfUsers(users);
+
+        } catch (IOException e) {
+            log.error("Parsing {} failed: {}", file.getOriginalFilename(), e.getMessage());
+            throw new RuntimeException("Failed to parse CSV file", e);
+        }
     }
 
     private User processPerson(Person person, List<Country> countries) {
         person.setCountry(countryMapper.getFullName(person.getCountry()));
         User user = userMapper.personToUser(person);
-        user.setPassword(generatePassword());
+        user.setPassword(PasswordGeneratorUtil.generatePassword());
         Country country = countries.stream()
                 .filter(c -> person.getCountry().equalsIgnoreCase(c.getTitle()))
                 .findFirst()
@@ -97,9 +106,5 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
 
         return user;
-    }
-
-    private String generatePassword() {
-        return RandomStringUtils.randomAlphanumeric(10);
     }
 }
