@@ -52,8 +52,8 @@ public class UserController {
         return personalDto;
     }
 
-    @PostMapping("/{userId}/avatar")
-    public ResponseEntity<Void> uploadAvatar(@PathVariable long userId, @NonNull MultipartFile file) {
+    @PostMapping(value = "/{userId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadAvatar(@PathVariable long userId, @RequestPart("file") @NonNull MultipartFile file) {
         UserPersonalDto updatedWIthAvatarDto = userPictureService.uploadAvatar(userId, file);
         log.info("Avatar was uploaded for user id {}, avatar {}", userId, updatedWIthAvatarDto.getPictureFileId());
 
