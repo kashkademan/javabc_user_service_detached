@@ -7,17 +7,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.avatar.AvatarException;
+import school.faang.user_service.exception.UserNotFoundException;
+
 
 @Slf4j
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
 
     @ExceptionHandler(DataValidationException.class)
-    public final ResponseEntity<Object> handleDataValidationException(DataValidationException exception) {
-        log.warn("Validation error: {}", exception.getMessage());
+    public final ResponseEntity<ErrorResponse> handleDataValidationException(DataValidationException e) {
+        log.warn("Validation error: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
+                .body(new ErrorResponse("validation_error", e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(UserNotFoundException e) {
+        log.warn("Not found: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("not_found", e.getMessage()));
     }
 
     @ExceptionHandler(AvatarException.class)

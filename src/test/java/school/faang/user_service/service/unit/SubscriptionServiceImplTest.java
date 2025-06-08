@@ -99,7 +99,7 @@ class SubscriptionServiceImplTest {
     @DisplayName("Получение подписок — все фильтры корректны")
     void testGetFollowing_whenFiltersApplicable_thenApplyThem() {
         when(subscriptionRepository.findByFollowerId(42L)).thenReturn(Stream.of(user1));
-        when(userMapper.toUserDTO(user1)).thenReturn(dto1);
+        when(userMapper.toUserDto(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);
         when(mockFilter.apply(any(), any())).then(invocation -> invocation.getArgument(0));
 
@@ -113,8 +113,8 @@ class SubscriptionServiceImplTest {
     @DisplayName("Получение подписок — фильтры не установлены")
     void testGetFollowing_whenFiltersNotApplicable_thenSkipThem() {
         when(subscriptionRepository.findByFollowerId(42L)).thenReturn(Stream.of(user1, user2));
-        when(userMapper.toUserDTO(user1)).thenReturn(dto1);
-        when(userMapper.toUserDTO(user2)).thenReturn(dto2);
+        when(userMapper.toUserDto(user1)).thenReturn(dto1);
+        when(userMapper.toUserDto(user2)).thenReturn(dto2);
         when(mockFilter.isApplicable(any())).thenReturn(false);
 
         List<UserDto> result = subscriptionService.getFollowing(42L, new UserFilterDto());
@@ -127,7 +127,7 @@ class SubscriptionServiceImplTest {
     @DisplayName("Фильтрация подписок — фильтр срабатывает")
     void testGetFollowers_whenOneFilterApplied_thenFilterUsersCorrectly() {
         when(subscriptionRepository.findByFolloweeId(22L)).thenReturn(Stream.of(user1, user2));
-        when(userMapper.toUserDTO(user1)).thenReturn(dto1);
+        when(userMapper.toUserDto(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);
         when(mockFilter.apply(any(), any())).then(invocation -> {
             Stream<User> input = invocation.getArgument(0);
@@ -144,7 +144,7 @@ class SubscriptionServiceImplTest {
     @DisplayName("Получение подписок — комбинация фильтров, один исключает")
     void testFollowing_whenMultipleFilters_thenApplyAllCorrectly() {
         when(subscriptionRepository.findByFollowerId(22L)).thenReturn(Stream.of(user1, user2));
-        when(userMapper.toUserDTO(user1)).thenReturn(dto1);
+        when(userMapper.toUserDto(user1)).thenReturn(dto1);
         when(mockFilter.isApplicable(any())).thenReturn(true);
         when(mockFilter.apply(any(), any())).then(invocation -> invocation.getArgument(0));
         when(secondMockFilter.isApplicable(any())).thenReturn(true);
@@ -156,8 +156,8 @@ class SubscriptionServiceImplTest {
         List<UserDto> result = subscriptionService.getFollowing(22L, new UserFilterDto());
 
         assertEquals(List.of(dto1), result);
-        verify(userMapper).toUserDTO(user1);
-        verify(userMapper, never()).toUserDTO(user2);
+        verify(userMapper).toUserDto(user1);
+        verify(userMapper, never()).toUserDto(user2);
     }
 }
 

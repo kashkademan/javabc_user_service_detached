@@ -53,7 +53,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void addCareer_ValidData_SaveAndReturnDto() {
+    public void testAddCareer_whenValidData_thenSaveAndReturnDto() {
         when(userRepository.findById(10L)).thenReturn(Optional.of(testUser));
 
         Career testCareer = careerMapper.toCareer(testCareerDto);
@@ -74,7 +74,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void addCareer_futureFrom_throwsValidation() {
+    public void testAddCareer_whenFromDateInFuture_thenThrowsValidation() {
         testCareerDto.setFrom(LocalDate.now().plusDays(1));
         assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, testCareerDto));
 
@@ -82,7 +82,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void updateCareer_ValidData_SaveAndReturnDto() {
+    public void testUpdateCareer_whenValidData_thenSaveAndReturnDto() {
         testCareerDto.setId(5L);
 
         Career careerFromRepository = new Career();
@@ -107,7 +107,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void updateCareer_careerNotFound_throwsNotFound() {
+    public void testUpdateCareer_whenCareerNotFound_thenThrowsNotFound() {
         testCareerDto.setId(99L);
         when(careerRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -116,7 +116,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void getById_ValidData_ReturnDto() {
+    public void testGetById_whenValidData_thenReturnDto() {
         Career career = careerMapper.toCareer(testCareerDto);
         career.setUser(testUser);
         career.setId(99L);
@@ -133,7 +133,7 @@ public class CareerServiceTest {
     }
 
     @Test
-    public void getById_InvalidData_throwsNotFound() {
+    public void testGetById_thenInvalidData_whenThrowsNotFound() {
         when(careerRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(DataValidationException.class, () -> careerService.getById(99L));

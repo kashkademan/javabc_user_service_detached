@@ -33,7 +33,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
 
     public List<UserDto> getParticipant(long eventId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
-                .map(userMapper::toUserDTO)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
