@@ -15,9 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventUpdateDto {
-    @NotNull
-    private Long id;
+public class EventCreateRequestDto {
     @NotBlank(message = "Название события обязательно")
     @Size(max = 64, message = "Превышено максимальное число символов: 64")
     private String title;
@@ -30,7 +28,7 @@ public class EventUpdateDto {
     private LocalDateTime endDate;
     @Size(max = 128, message = "Превышено максимальное число символов: 128")
     private String location;
-    private List<Long> relatedSkills;
+    private List<Long> relatedSkillIds;
     @NotNull(message = "Тип события обязателен")
     private EventType type;
     @NotNull(message = "Статус события обязателен")

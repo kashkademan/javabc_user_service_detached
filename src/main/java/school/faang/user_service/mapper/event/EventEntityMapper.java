@@ -8,9 +8,9 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.event.EventCreateDto;
-import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.EventCreateRequestDto;
+import school.faang.user_service.dto.event.EventResponseDto;
+import school.faang.user_service.dto.event.EventUpdateRequestDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.skill.Skill;
@@ -24,13 +24,13 @@ import java.util.List;
         builder = @Builder(disableBuilder = true))
 public interface EventEntityMapper {
 
-    Event toEntityFromCreateDto(EventCreateDto dto);
+    Event toEntityFromCreateDto(EventCreateRequestDto dto);
 
     @Mapping(source = "attendees", target = "attendeeIds", qualifiedByName = "attendeesToIds")
     @Mapping(source = "ratings", target = "ratingIds", qualifiedByName = "ratingsToIds")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "relatedSkills", target = "relatedSkillIds", qualifiedByName = "relatedSkillsToIds")
-    EventDto toDto(Event event);
+    EventResponseDto toDto(Event event);
 
     @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(target = "attendees", ignore = true)
@@ -41,9 +41,9 @@ public interface EventEntityMapper {
     @Mapping(target = "maxAttendees", ignore = true)
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(EventUpdateDto dto, @MappingTarget Event entity);
+    void updateEntityFromDto(EventUpdateRequestDto dto, @MappingTarget Event entity);
 
-    List<EventDto> toDtoList(List<Event> events);
+    List<EventResponseDto> toDtoList(List<Event> events);
 
     @Named("relatedSkillsToIds")
     default List<Long> skillsToIds(List<Skill> skills) {

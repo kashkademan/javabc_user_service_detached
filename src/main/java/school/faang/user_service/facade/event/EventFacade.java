@@ -2,10 +2,10 @@ package school.faang.user_service.facade.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.event.EventCreateDto;
-import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.EventCreateRequestDto;
+import school.faang.user_service.dto.event.EventResponseDto;
+import school.faang.user_service.dto.event.EventFilterRequestDto;
+import school.faang.user_service.dto.event.EventUpdateRequestDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventEntityMapper;
 import school.faang.user_service.mapper.event.EventFilterMapper;
@@ -21,14 +21,14 @@ public class EventFacade {
     private final EventFilterMapper eventFilterMapper;
     private final EventService eventService;
 
-    public EventDto create(EventCreateDto dto) {
+    public EventResponseDto create(EventCreateRequestDto dto) {
         Event event = eventEntityMapper.toEntityFromCreateDto(dto);
         Event createdEvent = eventService.create(event, dto.getRelatedSkillIds());
 
         return eventEntityMapper.toDto(createdEvent);
     }
 
-    public EventDto update(EventUpdateDto dto) {
+    public EventResponseDto update(EventUpdateRequestDto dto) {
         Event existing = eventService.getEvent(dto.getId());
         eventEntityMapper.updateEntityFromDto(dto, existing);
         Event updatedEvent = eventService.updateEventData(existing, dto.getRelatedSkills());
@@ -36,7 +36,7 @@ public class EventFacade {
         return eventEntityMapper.toDto(updatedEvent);
     }
 
-    public EventDto get(long id) {
+    public EventResponseDto get(long id) {
         return eventEntityMapper.toDto(eventService.getEvent(id));
     }
 
@@ -44,17 +44,17 @@ public class EventFacade {
         eventService.deleteEvent(id);
     }
 
-    public List<EventDto> getOwned(long userId) {
+    public List<EventResponseDto> getOwned(long userId) {
         List<Event> ownedEvents = eventService.getOwnedEvents(userId);
         return eventEntityMapper.toDtoList(ownedEvents);
     }
 
-    public List<EventDto> getParticipated(long userId) {
+    public List<EventResponseDto> getParticipated(long userId) {
         List<Event> participatedEvents = eventService.getOwnedEvents(userId);
         return eventEntityMapper.toDtoList(participatedEvents);
     }
 
-    public List<EventDto> filter(EventFilterDto filterDto) {
+    public List<EventResponseDto> filter(EventFilterRequestDto filterDto) {
         EventFilter filter = eventFilterMapper.toFilter(filterDto);
         List<Event> events = eventService.getEventsByFilter(filter);
         return eventEntityMapper.toDtoList(events);

@@ -9,12 +9,16 @@ import school.faang.user_service.entity.event.EventType;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class EventFilterDto {
+@NoArgsConstructor
+public class EventLiteResponseDto {
+    private Long id;
     private String title;
-    private EventType eventType;
-    private EventStatus eventStatus;
-    private LocalDateTime startFrom;
-    private LocalDateTime startTo;
+    private String description;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private String location;
+    private int maxAttendees;
+    private EventType type;
+    private EventStatus status;
 }
