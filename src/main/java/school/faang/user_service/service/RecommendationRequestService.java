@@ -98,7 +98,9 @@ public class RecommendationRequestService {
 
         Stream<RecommendationRequest> requestStream = allRequests.stream();
         for (RecommendationFilter recommendationFilter : filters) {
+            if (recommendationFilter.isApplicable(filter)) {
                 requestStream = recommendationFilter.apply(requestStream, filter);
+            }
         }
 
         return requestStream

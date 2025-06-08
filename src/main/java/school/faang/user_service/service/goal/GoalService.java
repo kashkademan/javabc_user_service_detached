@@ -107,7 +107,9 @@ public class GoalService {
 
     private List<GoalDto> applyFilters(Stream<Goal> goals, @Valid GoalFilterDto filterDto) {
         for (GoalFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
                 goals = filter.apply(goals, filterDto);
+            }
         }
         return goals.map(goalMapper::toDto).toList();
     }

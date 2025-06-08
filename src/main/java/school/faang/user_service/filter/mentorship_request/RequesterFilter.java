@@ -1,6 +1,5 @@
 package school.faang.user_service.filter.mentorship_request;
 
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
@@ -11,8 +10,8 @@ import java.util.stream.Stream;
 @Component
 public class RequesterFilter implements RequestFilter {
     @Override
-    public boolean isApplicable(@Valid MentorshipRequestFilterDto filterDto) {
-        return true;
+    public boolean isApplicable(MentorshipRequestFilterDto filterDto) {
+        return filterDto.requesterId() != null;
     }
 
     @Override

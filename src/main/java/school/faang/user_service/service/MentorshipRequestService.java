@@ -92,7 +92,9 @@ public class MentorshipRequestService {
             (List<MentorshipRequest> listRequest, MentorshipRequestFilterDto filterDto) {
         Stream<MentorshipRequest> requestStream = listRequest.stream();
         for (RequestFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
                 requestStream = filter.apply(requestStream, filterDto);
+            }
         }
         return requestStream;
     }

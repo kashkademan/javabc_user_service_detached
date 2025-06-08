@@ -1,6 +1,5 @@
 package school.faang.user_service.filter.recommendation;
 
-import jakarta.validation.Valid;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
@@ -8,8 +7,8 @@ import java.util.stream.Stream;
 
 public class RequesterIdFilter implements RecommendationFilter {
     @Override
-    public boolean isApplicable(@Valid RequestFilterDto filters) {
-        return true;
+    public boolean isApplicable(RequestFilterDto filters) {
+        return filters.requesterId() != null;
     }
 
     @Override
