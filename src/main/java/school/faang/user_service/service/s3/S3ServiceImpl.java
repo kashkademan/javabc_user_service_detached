@@ -40,7 +40,7 @@ public class S3ServiceImpl implements S3Service {
             PutObjectRequest savedFile = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
             amazonS3.putObject(savedFile);
         } catch (IOException e) {
-            log.error(e);
+            log.error(e.getMessage(), e);
             throw new FileException(String.format("File saving failed: %s", e.getMessage()));
         }
 
