@@ -24,8 +24,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private final static int RECOMMENDATIONS_PER_PAGE = 100;
-    private final static Sort PAGE_SORT = Sort.by("updated_at").descending();
+    private static final int RECOMMENDATIONS_PER_PAGE = 100;
+    private static final Sort PAGE_SORT = Sort.by("updated_at").descending();
 
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
