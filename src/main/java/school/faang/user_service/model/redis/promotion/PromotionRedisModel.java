@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.promotion.PromotionType;
 
@@ -18,8 +19,9 @@ import java.util.UUID;
 public class PromotionRedisModel implements Serializable {
     private UUID key;
     private Long id;
-    // TODO: нужно ли
+    @Indexed
     private Long userId;
+    @Indexed
     private Long eventId;
     private PromotionType type;
     private Long tariffId;

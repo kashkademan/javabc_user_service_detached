@@ -15,6 +15,7 @@ import school.faang.user_service.service.promotion.PromotionService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,10 +31,17 @@ public class RedisEventInitializer {
     public void init() {
         List<Event> promotions = eventService.getAllEvents();
         promotions.forEach(event -> {
-            long ttl = promotionService.getActivePromotionByEventId(event.getId())
+            Optional<Promotion> promotionOptional = promotionService.getActivePromotionByEventId(event.getId());
+
+            long ttl = promotionOptional
                     .map(promotion -> getTtlByPromotion(promotion) + redisTtlProperties.getEvent())
                     .orElse(redisTtlProperties.getEvent());
-            eventRedisService.saveEvent(event, ttl);
+
+            promotionOptional.ifPresentOrElse(
+                    promotion -> eventRedisService.saveEvent(event, ttl, promotion.getId()),
+                    () -> eventRedisService.saveEvent(event, ttl)
+            );
+
             log.debug("Event {} saved to Redis with TTL {} seconds", event.getId(), ttl);
         });
 

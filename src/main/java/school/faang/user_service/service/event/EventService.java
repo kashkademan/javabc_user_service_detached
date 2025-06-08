@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
@@ -17,6 +18,7 @@ import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
+import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.event.EventValidator;
@@ -24,6 +26,7 @@ import school.faang.user_service.validation.event.EventValidator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -37,6 +40,7 @@ public class EventService {
     private final UserContext userContext;
     private final EventRedisService eventRedisService;
     private final RedisTtlProperties redisTtlProperties;
+    private final PromotionRedisService promotionRedisService;
 
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
@@ -116,25 +120,23 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilter filter) {
-        // 1) select для получения id событий с сортировкой
-        // 2) по каждому листу иду в редис, если нет, иду снова в базу и запускаю ассинхронно добавление в redis
         List<Long> filteredEventIds = eventFilterRepository.findByFilterId(filter);
 
-        // TODO: распраралелить
-        List<Event> filteredEvents = new ArrayList<>();
-        for (Long eventId : filteredEventIds) {
-            // TODO: запускать процесс добавления в redis
-            Event event = eventRedisService.getEventById(eventId)
-                    .orElseGet(() -> {
-                        addEventInRedis(eventId);
-                        return getEventById(eventId);
-                    });
-            filteredEvents.add(event);
-        }
-        return filteredEvents;
+        List<Event> events = filteredEventIds.parallelStream()
+                .map(eventId -> eventRedisService.getEventById(eventId)
+                        .orElseGet(() -> {
+                            addEventInRedis(eventId);
+                            return getEventById(eventId);
+                        }))
+                .toList();
+
+        promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
+
+        return events;
     }
 
-    @Async
+    // TODO: не сработает ассинхронно
+    @Async("addEventInRedisExecutor")
     public void addEventInRedis(long eventId) {
         Event event = getEventById(eventId);
         long ttl = redisTtlProperties.getEvent();

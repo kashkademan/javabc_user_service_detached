@@ -2,17 +2,21 @@ package school.faang.user_service.service.promotion;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.promotion.PromotionInCashNotFoundException;
 import school.faang.user_service.mapper.promotion.PromotionRedisMapper;
 import school.faang.user_service.model.redis.RedisHashType;
+import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
 import school.faang.user_service.storage.promotion.PromotionViewExpiredQueueStorage;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -69,28 +73,23 @@ public class PromotionRedisService {
 //    }
 
     // TODO: в цикле
+    @Async()
+    public void decrementCountViewByEventIds(List<Long> eventIds) {
+        eventIds.forEach(eventId -> {
+            Optional<PromotionRedisModel> optionalPromotion = promotionRedisRepository.findByEventId(eventId);
 
-    public void decrementCountView(UUID promotionKey /*, String eventId, String promotionId*/) {
-        try {
-            PromotionRedisModel promotion = promotionRedisRepository.findById(promotionKey)
-                    .orElseThrow(() -> {
-                        log.error("Promotion with id {} not found", promotionKey);
-                        return new PromotionInCashNotFoundException(promotionKey);
-                    });
-
-            Integer decrementCountView = promotion.getCountView() - 1;
-
-            if (Objects.equals(decrementCountView, 0)) {
-//                promotionViewExpiredQueueStorage.addDeletedPromotion(promotion.getId());
-                promotionRedisRepository.deleteById(promotionKey);
-            } else {
-                promotion.setCountView(decrementCountView);
-                promotionRedisRepository.save(promotion);
+            if (optionalPromotion.isEmpty()) {
+                return;
             }
-            // TODO: обработка ошибки
-        } catch (PromotionInCashNotFoundException ex) {
-            log.error("Promotion with id {} has been deleted from redis", promotionKey);
-//            promotionViewExpiredQueueStorage.addDeletedPromotion(promotionId);
-        }
+            decrementCountView(optionalPromotion.get());
+        });
+// TODO: удалить исключение
+    }
+
+    public void decrementCountView(PromotionRedisModel promotion) {
+        int newCount = promotion.getCountView() - 1;
+
+        promotion.setCountView(newCount);
+        promotionRedisRepository.save(promotion);
     }
 }
