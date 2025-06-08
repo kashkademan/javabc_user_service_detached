@@ -46,6 +46,7 @@ public final class LogsConstants {
     public static final String UPLOAD_FAILED = "File uploading failed";
     public static final String DOWNLOAD_FAILED = "Failed to download file from storage";
     public static final String DELETION_FAILED = "File deletion failed";
+    public static final String PRESIGNED_URL_GENERATION_FAILED = "Failed to generate presigned url for file";
 
 
 }

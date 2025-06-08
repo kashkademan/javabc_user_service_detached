@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.exception.common.FileException;
-import school.faang.user_service.exception.s3.StorageException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -27,6 +26,7 @@ import java.util.Objects;
 
 import static school.faang.user_service.util.LogsConstants.DELETION_FAILED;
 import static school.faang.user_service.util.LogsConstants.DOWNLOAD_FAILED;
+import static school.faang.user_service.util.LogsConstants.PRESIGNED_URL_GENERATION_FAILED;
 import static school.faang.user_service.util.LogsConstants.UPLOAD_FAILED;
 
 @Service
@@ -100,8 +100,8 @@ public class S3Service {
             PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
             return presignedRequest.url().toString();
         } catch (Exception e) {
-            log.error("Ошибка при генерации presigned URL для ключа '{}': {}", key, e.getMessage(), e);
-            throw new StorageException("Не удалось создать presigned URL");
+            log.error(PRESIGNED_URL_GENERATION_FAILED, e);
+            throw new FileException(PRESIGNED_URL_GENERATION_FAILED);
         }
     }
 }
