@@ -31,13 +31,13 @@ public class RecommendationController {
 
     @GetMapping("/userRecommendations/{receiverId}")
     public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId,
-                                                             @RequestParam("page") int page) {
+                                                             @RequestParam(defaultValue = "1") int page) {
         return recommendationService.getAllUserRecommendations(receiverId, page);
     }
 
     @GetMapping("/givenRecommendations/{authorId}/{pageNumber}")
     public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId,
-                                                              @RequestParam("page") int page) {
+                                                              @RequestParam(defaultValue = "1") int page) {
         return recommendationService.getAllGivenRecommendations(authorId, page);
     }
 }
