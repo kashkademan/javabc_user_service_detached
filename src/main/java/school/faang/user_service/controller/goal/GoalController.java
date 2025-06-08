@@ -28,7 +28,8 @@ public class GoalController {
     }
 
     @PutMapping("/{goalId}")
-    public GoalDto updateGoal(@PathVariable("goalId") @Min(value = 1, message = "id must be a positive number") Long goalId,
+    public GoalDto updateGoal(@PathVariable("goalId")
+                              @Min(value = 1, message = "id must be a positive number") Long goalId,
                               @RequestBody @Valid GoalDto  goalDto) {
         return goalService.updateGoal(goalId, goalDto);
     }
@@ -39,13 +40,15 @@ public class GoalController {
     }
 
     @PostMapping("/{goalId}/subtasks")
-    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") @Min(value = 1, message = "id must be a positive number") long goalId,
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId")
+                                              @Min(value = 1, message = "id must be a positive number") long goalId,
                                               @RequestBody GoalFilterDto filter) {
         return goalService.findSubtasksByGoalId(goalId, filter);
     }
 
     @PostMapping("/user/{userId}")
-    public List<GoalDto> getGoalsByUser(@PathVariable("userId") @Min(value = 1, message = "id must be a positive number") Long userId,
+    public List<GoalDto> getGoalsByUser(@PathVariable("userId")
+                                        @Min(value = 1, message = "id must be a positive number") Long userId,
                                         @RequestBody GoalFilterDto filter) {
         return goalService.getGoalsByUser(userId, filter);
     }

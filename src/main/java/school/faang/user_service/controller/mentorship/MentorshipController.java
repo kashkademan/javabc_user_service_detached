@@ -23,12 +23,14 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @GetMapping("/mentor/{mentorId}/mentees")
-    public List<GetMenteesResponseDto> getMentees(@PathVariable @Min(value = 1, message = "id must be a positive number") Long mentorId) {
+    public List<GetMenteesResponseDto> getMentees(@PathVariable
+                                                  @Min(value = 1, message = "id must be a positive number") Long mentorId) {
         return mentorshipService.getMentees(mentorId);
     }
 
     @GetMapping("/mentee/{menteeId}/mentors")
-    public List<GetMentorsResponseDto> getMentors(@PathVariable @Min(value = 1, message = "id must be a positive number") Long menteeId) {
+    public List<GetMentorsResponseDto> getMentors(@PathVariable
+                                                  @Min(value = 1, message = "id must be a positive number") Long menteeId) {
         return mentorshipService.getMentors(menteeId);
     }
 

@@ -17,19 +17,22 @@ public class EducationController {
     private final EducationService educationService;
 
     @PostMapping("/{userId}")
-    public EducationDto addEducation(@PathVariable @Min(value = 1, message = "id must be a positive number") long userId,
+    public EducationDto addEducation(@PathVariable
+                                     @Min(value = 1, message = "id must be a positive number") long userId,
                                      @RequestBody @Valid EducationDto educationDto) {
         return educationService.addEducation(userId, educationDto);
     }
 
     @PutMapping("/{userId}")
-    public EducationDto updateEducation(@PathVariable @Min(value = 1, message = "id must be a positive number") long userId,
+    public EducationDto updateEducation(@PathVariable
+                                        @Min(value = 1, message = "id must be a positive number") long userId,
                                         @RequestBody @Valid EducationDto educationDto) {
         return educationService.updateEducation(userId, educationDto);
     }
 
     @GetMapping("/{educationId}")
-    public EducationDto getById(@PathVariable @Min(value = 1, message = "id must be a positive number") long educationId) {
+    public EducationDto getById(@PathVariable
+                                @Min(value = 1, message = "id must be a positive number") long educationId) {
         return educationService.getById(educationId);
     }
 }

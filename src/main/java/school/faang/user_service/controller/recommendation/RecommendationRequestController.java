@@ -39,7 +39,8 @@ public class RecommendationRequestController {
     }
 
     @GetMapping("/{id}")
-    public RecommendationResponseDto getById(@PathVariable @Min(value = 1, message = "id must be a positive number") long id) {
+    public RecommendationResponseDto getById(@PathVariable
+                                             @Min(value = 1, message = "id must be a positive number") long id) {
         return recommendationRequestService.getRequest(id);
     }
 

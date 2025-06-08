@@ -40,7 +40,8 @@ public class SubscriptionController {
     }
 
     @GetMapping("/followers/count/{followeeId}")
-    public int getFollowersCount(@PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId) {
+    public int getFollowersCount(@PathVariable
+                                 @Min(value = 1, message = "id must be a positive number") long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
@@ -52,7 +53,8 @@ public class SubscriptionController {
     }
 
     @GetMapping("/following/{followeeId}/count")
-    public int getFollowingCount(@PathVariable @Min(value = 1, message = "id must be a positive number") long followeeId) {
+    public int getFollowingCount(@PathVariable
+                                 @Min(value = 1, message = "id must be a positive number") long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
     }
 }

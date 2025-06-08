@@ -23,7 +23,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable("userId") @Min(value = 1, message = "id must be a positive number") long id,
-                           @RequestHeader("x-user-id") @NotBlank(message = "Field cannot be blank") String xUserId){
+                           @RequestHeader("x-user-id") @NotBlank(message = "Field cannot be blank") String xUserId) {
         return userMapper.toDto(userService.getUserById(id));
     }
 }

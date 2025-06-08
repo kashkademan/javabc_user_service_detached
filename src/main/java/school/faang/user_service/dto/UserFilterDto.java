@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
-public record UserFilterDto (
+public record UserFilterDto(
         @NotBlank(message = "Field cannot be blank")
         @Size(max = 255, message = "Field length must be less or equal 255")
         String namePattern,

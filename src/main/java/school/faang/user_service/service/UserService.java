@@ -13,8 +13,8 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
 
-    public User getUserById(Long id){
-        return userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
-                ("The Requester with id =" + id + " does not exist"));
+    public User getUserById(Long id) {
+        return userRepo.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("The Requester with id =" + id + " does not exist"));
     }
 }
