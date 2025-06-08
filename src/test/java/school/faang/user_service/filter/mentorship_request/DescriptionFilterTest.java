@@ -97,7 +97,7 @@ class DescriptionFilterTest {
     }
 
     @Test
-    void testApplySpecialCharacters(){
+    void testApplySpecialCharacters() {
         Stream<MentorshipRequest> requests = Stream.of(
                 new MentorshipRequest(1L, "test&@ one two", null, null, null, null, null, null),
                 new MentorshipRequest(2L, "tEst@ two three", null, null, null, null, null, null),
@@ -111,7 +111,7 @@ class DescriptionFilterTest {
         assertEquals(1, list.size());
     }
 
-    private MentorshipRequestFilterDto createDto(String str){
+    private MentorshipRequestFilterDto createDto(String str) {
         return new MentorshipRequestFilterDto(str, null, null, null);
     }
 }

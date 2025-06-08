@@ -15,12 +15,16 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+    @Spy
+    private UserMapperImpl userMapper;
     @InjectMocks
     private UserService userService;
 
@@ -39,15 +43,15 @@ class UserServiceTest {
         UserDto result = userMapper.toDto(userService.getUserById(id));
 
         assertNotNull(result);
-        assertEquals(id,result.id());
+        assertEquals(id, result.id());
     }
 
     @Test
-    void getUserByIdException(){
+    void getUserByIdException() {
         long id = -1L;
         Mockito.when(userRepository.findById(id))
                 .thenThrow(new IllegalArgumentException("The Requester with id =" + id + " does not exist"));
 
-        assertThrows(IllegalArgumentException.class, ()->userRepository.findById(id));
+        assertThrows(IllegalArgumentException.class, () -> userRepository.findById(id));
     }
 }

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 @Controller
 @RequiredArgsConstructor
 public class GoalService {
-    private final int MAX_ACTIVE_GOALS = 3;
+    private final int maxActiveGoals = 3;
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
     private final List<GoalFilter> filters;
@@ -30,7 +30,7 @@ public class GoalService {
 
     @Transactional
     public GoalDto createGoal(CreateGoalRequestDto request) {
-        if (goalRepository.countActiveGoalsPerUser(request.userId()) >= MAX_ACTIVE_GOALS) {
+        if (goalRepository.countActiveGoalsPerUser(request.userId()) >= maxActiveGoals) {
             throw new IllegalArgumentException("You can't have more than 3 active goals!");
         }
 
@@ -40,7 +40,8 @@ public class GoalService {
             }
         }
 
-        Goal savedGoal = goalRepository.create(request.title(), request.description(), request.parentId() != null ? request.parentId() : null);
+        Goal savedGoal = goalRepository.create(request.title(), request.description(), request.parentId() != null
+                ? request.parentId() : null);
 
         for (Long skill : request.skillIds()) {
             goalRepository.addSkillToGoal(skill, savedGoal.getId());
@@ -51,7 +52,7 @@ public class GoalService {
 
     @Transactional
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
-       Goal existingGoal = getGoalOrThrow(goalId);
+        Goal existingGoal = getGoalOrThrow(goalId);
 
         if (existingGoal.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalArgumentException("You can't update a completed goal");

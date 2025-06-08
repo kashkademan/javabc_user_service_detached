@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record RequestFilterDto(
         @NotNull(message = "Field cannot be null")
         Long requesterId,

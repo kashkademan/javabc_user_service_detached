@@ -101,6 +101,6 @@ public class MentorshipControllerTest {
         mentorshipController.deleteMentor(mentee.getId(), mentor.getId());
 
         verify(mentorshipService, times(1))
-                .deleteMentee(mentee.getId(), mentor.getId());
+                .deleteMentor(mentee.getId(), mentor.getId());
     }
 }

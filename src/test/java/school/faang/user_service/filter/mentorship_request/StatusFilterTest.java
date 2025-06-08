@@ -29,7 +29,8 @@ class StatusFilterTest {
 
     @Test
     void testApplyFoundOne() {
-        Stream<MentorshipRequest> requests = creatStream(RequestStatus.ACCEPTED, RequestStatus.REJECTED, RequestStatus.PENDING);
+        Stream<MentorshipRequest> requests = creatStream(
+                RequestStatus.ACCEPTED, RequestStatus.REJECTED, RequestStatus.PENDING);
 
         MentorshipRequestFilterDto dto = createDto(RequestStatus.ACCEPTED);
 
@@ -63,7 +64,15 @@ class StatusFilterTest {
     }
 
     private MentorshipRequest createMentorshipRequest(Long requestId, RequestStatus status) {
-        return new MentorshipRequest(requestId, null, null, null, status, null, null, null);
+        return new MentorshipRequest(
+                requestId,
+                null,
+                null,
+                null,
+                status,
+                null,
+                null,
+                null);
     }
 
     private MentorshipRequestFilterDto createDto(RequestStatus status) {
