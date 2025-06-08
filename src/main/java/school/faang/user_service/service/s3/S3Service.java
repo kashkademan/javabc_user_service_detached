@@ -9,14 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.exception.common.FileException;
+import school.faang.user_service.exception.s3.StorageException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
@@ -51,7 +55,7 @@ public class S3Service {
             log.error(UPLOAD_FAILED, e);
             throw new FileException(UPLOAD_FAILED);
         }
-        return  key;
+        return key;
     }
 
     public void deleteFile(String key) {
@@ -78,6 +82,21 @@ public class S3Service {
         } catch (Exception e) {
             log.error(DOWNLOAD_FAILED, e);
             throw new FileException(DOWNLOAD_FAILED);
+        }
+    }
+
+    public String generatePresignedUrl(String key) {
+        try {
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofHours(presignedUrlTtl))
+                    .getObjectRequest(b -> b.bucket(bucketName).key(key))
+                    .build();
+
+            PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+            return presignedRequest.url().toString();
+        } catch (Exception e) {
+            log.error("Ошибка при генерации presigned URL для ключа '{}': {}", key, e.getMessage(), e);
+            throw new StorageException("Не удалось создать presigned URL");
         }
     }
 }

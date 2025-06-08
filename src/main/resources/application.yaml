@@ -61,3 +61,9 @@ services:
     accessKey: user
     secretKey: password
     bucketName: corpbucket
+    avatarPath: avatar/generated
+  dicebear:
+    url: http://localhost:3000
+    version: 9.x
+    style: pixel-art
+    format: png
