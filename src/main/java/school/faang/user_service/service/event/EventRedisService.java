@@ -21,6 +21,9 @@ public class EventRedisService {
 
     public void saveEvent(Event event, long ttl) {
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
+        log.debug("Mapping Event entity to EventRedisModel. Entity content: {}. RedisModel content: {}.",
+                event, eventRedisModel);
+
         eventRedisModel.setTtl(ttl);
 
         String eventKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);

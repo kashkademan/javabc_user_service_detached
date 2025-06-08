@@ -9,6 +9,7 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventCreateRequestDto;
+import school.faang.user_service.dto.event.EventLiteResponseDto;
 import school.faang.user_service.dto.event.EventResponseDto;
 import school.faang.user_service.dto.event.EventUpdateRequestDto;
 import school.faang.user_service.entity.event.Event;
@@ -30,7 +31,9 @@ public interface EventEntityMapper {
     @Mapping(source = "ratings", target = "ratingIds", qualifiedByName = "ratingsToIds")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "relatedSkills", target = "relatedSkillIds", qualifiedByName = "relatedSkillsToIds")
-    EventResponseDto toDto(Event event);
+    EventResponseDto toEventResponseDto(Event event);
+
+    EventLiteResponseDto toEventLiteResponseDto(Event event);
 
     @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(target = "attendees", ignore = true)
@@ -43,7 +46,13 @@ public interface EventEntityMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(EventUpdateRequestDto dto, @MappingTarget Event entity);
 
-    List<EventResponseDto> toDtoList(List<Event> events);
+    @Mapping(source = "attendees", target = "attendeeIds", qualifiedByName = "attendeesToIds")
+    @Mapping(source = "ratings", target = "ratingIds", qualifiedByName = "ratingsToIds")
+    @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "relatedSkills", target = "relatedSkillIds", qualifiedByName = "relatedSkillsToIds")
+    List<EventResponseDto> toEventResponseDtoList(List<Event> events);
+
+    List<EventLiteResponseDto> toEventLiteResponseDtoList(List<Event> events);
 
     @Named("relatedSkillsToIds")
     default List<Long> skillsToIds(List<Skill> skills) {

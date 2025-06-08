@@ -22,7 +22,7 @@ public class PromotionCleanJob {
     @Scheduled(cron = "0 * * * * *")
     public void cleanupDeletedPromotions() {
         log.info("Job promotion clean started");
-        List<PromotionRedisModel> promotions = promotionRedisService.getAllPromotionIds();
+        List<PromotionRedisModel> promotions = promotionRedisService.getAllPromotions();
         promotions.forEach(promotion -> {
             long seconds = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
             long promotionId = promotion.getId();

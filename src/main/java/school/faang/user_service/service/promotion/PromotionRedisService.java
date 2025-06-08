@@ -13,6 +13,7 @@ import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class PromotionRedisService {
 
     public void savePromotion(Promotion promotion) {
         PromotionRedisModel promotionRedisModel = promotionRedisMapper.toEventPromotionRedis(promotion);
-        // TODO: перенести в фасад
-        log.info("Mapping");
+        log.debug("Mapping Promotion entity to PromotionRedisModel. Entity content: {}. RedisModel content: {}.",
+                promotion, promotionRedisModel);
 
         String promotionKey = RedisKeyUtil.getKeyById(promotion.getId(), RedisHashType.PROMOTION);
         promotionRedisModel.setKey(promotionKey);
@@ -33,8 +34,10 @@ public class PromotionRedisService {
         log.info("Promotion {} has been saved in redis", savedPromotion);
     }
 
-    public List<PromotionRedisModel> getAllPromotionIds() {
-       return (List<PromotionRedisModel>) promotionRedisRepository.findAll();
+    public List<PromotionRedisModel> getAllPromotions() {
+        Iterable<PromotionRedisModel> iterable = promotionRedisRepository.findAll();
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .toList();
     }
 
     @Async("decrementCountViewExecutorExecutor")

@@ -27,8 +27,6 @@ public class PromotionRedisModel implements Serializable {
     private LocalDateTime endDate;
     private Integer countView;
     private PromotionStatus status;
-    // TODO: нужно ли
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
 

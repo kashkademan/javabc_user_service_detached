@@ -6,7 +6,6 @@ CREATE TABLE promotion_tariff (
     duration_days INTEGER NOT NULL,
     coefficient_priority INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP,
     deleted BOOLEAN DEFAULT FALSE NOT NULL,
     deleted_at TIMESTAMP
 );
