@@ -11,7 +11,6 @@ import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.service.event.EventRedisService;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.time.Duration;
@@ -34,7 +33,6 @@ public class PromotionService {
     private final PromotionRedisService promotionRedisService;
     private final EventRedisService eventRedisService;
     private final PromotionValidator promotionValidator;
-    private final PaymentService paymentService;
 
     @Transactional(readOnly = true)
     public Promotion getPromotionById(Long promotionId) {
@@ -51,9 +49,6 @@ public class PromotionService {
 
         Event event = eventService.getEventById(eventId);
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);
-
-        // TODO: убрать
-        paymentService.sendPayment(tariff);
 
         Promotion promotion = new Promotion();
         promotion.setType(EVENT);

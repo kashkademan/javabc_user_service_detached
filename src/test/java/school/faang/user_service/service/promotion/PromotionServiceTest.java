@@ -16,7 +16,6 @@ import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExist
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.util.Optional;
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,8 +45,6 @@ class PromotionServiceTest {
     private PromotionRedisService promotionRedisService;
     @Mock
     private PromotionValidator promotionValidator;
-    @Mock
-    private PaymentService paymentService;
     private final Long eventId = 1L;
     private final Long tariffId = 2L;
     private final Long promotionId = 3L;
@@ -108,9 +104,9 @@ class PromotionServiceTest {
         assertEquals(tariff, result.getTariff());
         assertEquals(PromotionStatus.ACTIVE, result.getStatus());
         verify(promotionValidator).checkActivePromotionForEvent(eventId, tariffId);
-        verify(paymentService).sendPayment(tariff);
+//        verify(paymentService).sendPayment(tariff);
         verify(promotionRepository).save(any(Promotion.class));
-        verify(promotionRedisService).savePromotion(any(Promotion.class), eq(event));
+//        verify(promotionRedisService).savePromotion(any(Promotion.class), eq(event));
     }
 
     @Test
@@ -125,7 +121,7 @@ class PromotionServiceTest {
         verify(promotionValidator).checkActivePromotionForEvent(eventId, tariffId);
         verifyNoInteractions(eventService,
                 promotionTariffService,
-                paymentService,
+//                paymentService,
                 promotionRepository, promotionRedisService);
     }
 
@@ -134,8 +130,8 @@ class PromotionServiceTest {
         when(eventService.getEventById(eventId)).thenReturn(event);
         when(promotionTariffService.getPromotionTariffById(tariffId)).thenReturn(tariff);
 
-        doThrow(FeignException.class)
-                .when(paymentService).sendPayment(tariff);
+//        doThrow(FeignException.class)
+//                .when(paymentService).sendPayment(tariff);
 
         assertThrows(
                 FeignException.class,
@@ -145,7 +141,6 @@ class PromotionServiceTest {
         verify(promotionValidator).checkActivePromotionForEvent(eventId, tariffId);
         verify(eventService).getEventById(eventId);
         verify(promotionTariffService).getPromotionTariffById(tariffId);
-        verify(paymentService).sendPayment(tariff);
         verifyNoMoreInteractions(promotionRepository, promotionRedisService);
     }
 

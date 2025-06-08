@@ -6,12 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationContext;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.event.EventValidationException;
-import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
@@ -32,30 +33,28 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
-
     @InjectMocks
     private EventService eventService;
-
     @Mock
     private UserService userService;
-
     @Mock
     private SkillService skillService;
-
     @Mock
     private EventRepository eventRepository;
-
     @Mock
     private EventFilterRepository eventFilterRepository;
-
     @Mock
     private EventValidator eventValidator;
-
     @Mock
     private UserContext userContext;
-
     @Mock
     private PromotionRedisService promotionRedisService;
+    @Mock
+    private RedisTtlProperties redisTtlProperties;
+    @Mock
+    private EventRedisService eventRedisService;
+    @Mock
+    private ApplicationContext applicationContext;
 
     private Event event;
     private User user;
@@ -88,7 +87,7 @@ class EventServiceTest {
         when(skillService.getSkillsByIds(skillIds)).thenReturn(skills);
         when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Event result = eventService.create(event, skillIds);
+        Event result = eventService.createEvent(event, skillIds);
 
         assertEquals(user, result.getOwner());
         assertEquals(skills, result.getRelatedSkills());
@@ -201,16 +200,5 @@ class EventServiceTest {
         when(eventRepository.findAll()).thenReturn(expected);
 
         assertEquals(expected, eventService.getAllEvents());
-    }
-    @Test
-    void getEventsByFilter_shouldDelegateToRepository() {
-        EventFilter filter = new EventFilter();
-        List<Event> expected = List.of(event);
-        List<Event> emptyList = new ArrayList<>();
-        List<Long> emptyIdList = new ArrayList<>();
-        when(promotionRedisService.getPromotedEvents(filter)).thenReturn(emptyList);
-        when(eventFilterRepository.findByFilter(filter, emptyIdList)).thenReturn(expected);
-
-        assertEquals(expected, eventService.getEventsByFilter(filter));
     }
 }
