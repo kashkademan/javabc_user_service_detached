@@ -6,6 +6,7 @@ CREATE TABLE promotion_tariff (
     duration_days INTEGER NOT NULL,
     coefficient_priority INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
     deleted BOOLEAN DEFAULT FALSE NOT NULL,
     deleted_at TIMESTAMP
 );
@@ -21,7 +22,6 @@ CREATE TABLE promotion (
     count_view INTEGER NOT NULL,
     status VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP,
 
     CONSTRAINT fk_promotion_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_promotion_event FOREIGN KEY (event_id) REFERENCES event(id),
