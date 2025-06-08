@@ -111,6 +111,7 @@ class UserPictureServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () -> userPictureService.getAvatar(userId, "b"));
     }
+
     @Test
     void deleteAvatarShouldRemoveFilesAndClearProfilePic() {
         long userId = 100L;
@@ -132,6 +133,4 @@ class UserPictureServiceImplTest {
         assertNull(user.getUserProfilePic());
         verify(userRepository).saveAndFlush(user);
     }
-
-
 }
