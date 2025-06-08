@@ -14,6 +14,7 @@ import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -65,10 +66,10 @@ public class PromotionService {
         Promotion savePromotion = promotionRepository.save(promotion);
         log.info("Promotion with id {} has been created", savePromotion.getId());
 
-        // TODO: ttl
         promotionRedisService.savePromotion(savePromotion);
-        // TODO: возможно событие уже есть в redis
-        eventRedisService.saveEvent(event, 12L);
+
+        long ttl = getTtlByPromotion(savePromotion);
+        eventRedisService.saveEvent(event, ttl);
 
         return savePromotion;
     }
@@ -99,5 +100,10 @@ public class PromotionService {
     @Transactional(readOnly = true)
     public Optional<Promotion> getActivePromotionByEventId(long eventId) {
         return promotionRepository.findByEventIdAndStatus(eventId, ACTIVE);
+    }
+
+    private long getTtlByPromotion(Promotion promotion) {
+        long seconds = Duration.between(LocalDateTime.now(), promotion.getEndDate()).getSeconds();
+        return seconds > 0 ? seconds : 0;
     }
 }

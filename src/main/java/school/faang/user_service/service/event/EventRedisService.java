@@ -19,12 +19,14 @@ import java.util.UUID;
 @Slf4j
 public class EventRedisService {
     private final EventRedisRepository eventRedisRepository;
-    private final PromotionRedisRepository promotionRedisRepository;
     private final EventRedisMapper eventRedisMapper;
 
     public void saveEvent(Event event, long ttl) {
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
         eventRedisModel.setTtl(ttl);
+
+        UUID eventKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
+        eventRedisModel.setKey(eventKey);
 
         EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);
         log.info("Event {} has been saved in redis", savedEvent);

@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
@@ -35,6 +36,7 @@ public class EventService {
     private final EventValidator eventValidator;
     private final UserContext userContext;
     private final EventRedisService eventRedisService;
+    private final RedisTtlProperties redisTtlProperties;
 
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
@@ -122,33 +124,20 @@ public class EventService {
         List<Event> filteredEvents = new ArrayList<>();
         for (Long eventId : filteredEventIds) {
             // TODO: запускать процесс добавления в redis
-            Event event = eventRedisService.getEventById(eventId).orElse(getEventById(eventId));
+            Event event = eventRedisService.getEventById(eventId)
+                    .orElseGet(() -> {
+                        addEventInRedis(eventId);
+                        return getEventById(eventId);
+                    });
             filteredEvents.add(event);
         }
         return filteredEvents;
-
-
-
-
-
-
-
-// TODO: удалить
-
-//        List<Event> eventsFilterCash = promotionRedisService.getPromotedEvents(filter);
-//        List<Long> cachedEventIds = eventsFilterCash.stream()
-//                .map(Event::getId)
-//                .toList();
-//
-//        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, cachedEventIds);
-//        eventsFilterCash.addAll(eventsFilter);
-//
-//        return eventsFilterCash;
     }
-    // TODO: ассинхронно
-    private void addEventInRedis(long eventId) {
+
+    @Async
+    public void addEventInRedis(long eventId) {
         Event event = getEventById(eventId);
-        // TODO: ttl
-        eventRedisService.saveEvent(event, 30L);
+        long ttl = redisTtlProperties.getEvent();
+        eventRedisService.saveEvent(event, ttl);
     }
 }
