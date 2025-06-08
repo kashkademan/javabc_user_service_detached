@@ -57,7 +57,6 @@ class UserPictureServiceImplTest {
 
         when(config.getBigImageLimit()).thenReturn(512);
         when(config.getSmallImageLimit()).thenReturn(64);
-        when(config.getImageLimitSize()).thenReturn(1);
         when(config.getBucketSubstorage()).thenReturn("userpic/");
 
         mockStatic(ImageUtils.class);
