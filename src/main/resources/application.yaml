@@ -4,6 +4,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -20,32 +21,38 @@ spring:
     redis:
       port: 6379
       host: localhost
+      channels:
+        calculations_channel:
+          name: calculations_channel
 
 server:
-  port: 8080
+  port: 8082
 
 logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
-
-payment-service:
-  host: localhost
-  port: 9080
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    operationsSorter: method
-    tagsSorter: alpha
-    docExpansion: none
-    displayRequestDuration: true
-    defaultModelsExpandDepth: -1
+calculations_messages_processing:
+  enabled: true
 
 goal:
   maxLimit: 3
+
+services:
+  s3:
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    avatarPath: avatar/generated
+  payment-service:
+    host: http://localhost
+    port: 9080
+  user-service:
+    host: http://localhost
+    port: 8080
+  dicebear:
+    url: http://localhost:3000
+    version: 9.x
+    style: pixel-art
+    format: png
