@@ -9,7 +9,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.avatar.AvatarException;
 import school.faang.user_service.exception.UserNotFoundException;
 
-
 @Slf4j
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
