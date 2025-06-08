@@ -60,6 +60,7 @@ picture-provider:
   image_limit_size: 5
   big_image_limit: 1080
   small_image_limit: 170
+  bucket_substorage: user/avatar
 
 feign:
   client:

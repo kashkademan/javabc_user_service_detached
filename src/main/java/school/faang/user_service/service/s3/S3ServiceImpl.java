@@ -32,11 +32,10 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public String uploadFile(MultipartFile file, String projectName) {
+    public String uploadFile(MultipartFile file, String key) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
         objectMetadata.setContentLength(file.getSize());
-        String key = String.format("%s/%s", projectName, file.getOriginalFilename());
         try {
             PutObjectRequest savedFile = new PutObjectRequest(bucketName, key, file.getInputStream(), objectMetadata);
             amazonS3.putObject(savedFile);

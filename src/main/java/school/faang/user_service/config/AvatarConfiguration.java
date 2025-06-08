@@ -16,4 +16,5 @@ public class AvatarConfiguration {
     private int imageLimitSize;
     private int bigImageLimit;
     private int smallImageLimit;
+    private String bucketSubstorage;
 }
