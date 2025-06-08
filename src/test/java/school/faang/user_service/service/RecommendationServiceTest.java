@@ -24,7 +24,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
-    private static final Pageable PAGEABLE = PageRequest.of(0, 100, Sort.by("updated_at"));
+    private static final int PAGE = 1;
+    private static final Pageable PAGEABLE = PageRequest.of(1, 100, Sort.by("updated_at").descending());
     private static final LocalDateTime NOW = LocalDateTime.now();
 
     @Mock
@@ -111,7 +112,7 @@ public class RecommendationServiceTest {
         PageRequest pageRequest = PageRequest.of(0, 2);
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByReceiverId(id, PAGEABLE)).thenReturn(page);
-        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id, PAGEABLE).size());
+        assertEquals(recommendationList.size(), recommendationService.getAllUserRecommendations(id, PAGE).size());
     }
 
     @Test
@@ -125,7 +126,7 @@ public class RecommendationServiceTest {
         Page<Recommendation> page = new PageImpl<>(recommendationList, pageRequest, recommendationList.size());
         when(recommendationRepository.findAllByAuthorId(id, PAGEABLE)).thenReturn(page);
         assertEquals(recommendationList.stream()
-                .map(recommendationMapper::toDto).toList(),
-                recommendationService.getAllGivenRecommendations(id, PAGEABLE));
+                        .map(recommendationMapper::toDto).toList(),
+                recommendationService.getAllGivenRecommendations(id, PAGE));
     }
 }

@@ -6,9 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import school.faang.user_service.controller.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 
@@ -22,7 +19,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationControllerTest {
-    private static final Pageable PAGEABLE = PageRequest.of(1, 100, Sort.by("updated_at").descending());
+    private static final int PAGE = 1;
 
     @Mock
     private RecommendationService recommendationService;
@@ -55,7 +52,7 @@ public class RecommendationControllerTest {
     public void getAllUserRecommendationsTestGets() {
         long id = 1;
         int page = 1;
-        Mockito.when(recommendationService.getAllUserRecommendations(id, PAGEABLE)).thenReturn(List.of());
+        Mockito.when(recommendationService.getAllUserRecommendations(id, PAGE)).thenReturn(List.of());
         assertEquals(List.of(), recommendationController.getAllUserRecommendations(id, page));
     }
 
@@ -63,7 +60,7 @@ public class RecommendationControllerTest {
     public void getAllGivenRecommendationsTestGets() {
         long id = 1;
         int page = 1;
-        Mockito.when(recommendationService.getAllGivenRecommendations(id, PAGEABLE)).thenReturn(List.of());
+        Mockito.when(recommendationService.getAllGivenRecommendations(id, PAGE)).thenReturn(List.of());
         assertEquals(List.of(), recommendationController.getAllGivenRecommendations(id, page));
     }
 }

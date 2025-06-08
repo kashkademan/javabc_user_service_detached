@@ -3,7 +3,9 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -22,6 +24,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
+    private final static int RECOMMENDATIONS_PER_PAGE = 100;
+    private final static Sort PAGE_SORT = Sort.by("updated_at").descending();
+
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillOfferMapper skillOfferMapper;
@@ -66,7 +71,8 @@ public class RecommendationService {
         recommendationRepository.deleteById(id);
     }
 
-    public List<RecommendationDto> getAllUserRecommendations(long receiverId, Pageable pageable) {
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId, int page) {
+        Pageable pageable = PageRequest.of(page, RECOMMENDATIONS_PER_PAGE, PAGE_SORT);
         Page<Recommendation> userRecommendations = recommendationRepository.findAllByReceiverId(receiverId, pageable);
         return userRecommendations.getContent()
                 .stream()
@@ -74,7 +80,8 @@ public class RecommendationService {
                 .toList();
     }
 
-    public List<RecommendationDto> getAllGivenRecommendations(long id, Pageable pageable) {
+    public List<RecommendationDto> getAllGivenRecommendations(long id, int page) {
+        Pageable pageable = PageRequest.of(page, RECOMMENDATIONS_PER_PAGE, PAGE_SORT);
         Page<Recommendation> givenRecommendations = recommendationRepository.findAllByAuthorId(id, pageable);
         if (givenRecommendations.isEmpty()) {
             throw new IllegalArgumentException("Nonexistent id");
