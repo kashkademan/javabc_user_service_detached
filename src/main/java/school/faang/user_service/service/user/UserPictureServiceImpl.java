@@ -53,7 +53,6 @@ public class UserPictureServiceImpl implements UserPictureService {
         User user = getUserChecked(userId);
 
         BigSmallPair<ByteArrayMultipartFile> avatarsByteMultipartPair = transformIntoByteArraysMultipartPair(file);
-        checkSizeExceeded(avatarsByteMultipartPair);
         deleteFromS3IfExists(user);
         BigSmallPair<String> keyPair = generateKeys(user, file);
         BigSmallPair<String> savedKeys = uploadPairImages(avatarsByteMultipartPair, keyPair);
@@ -112,13 +111,6 @@ public class UserPictureServiceImpl implements UserPictureService {
                 file.getOriginalFilename(), file.getContentType());
 
         return new BigSmallPair<>(resizedFileBig, resizedFileSmall);
-    }
-
-    private void checkSizeExceeded(BigSmallPair<ByteArrayMultipartFile> avatarsByteMultipartPair) {
-        if (avatarsByteMultipartPair.big().getSize() > DataSize.ofMegabytes(config.getImageLimitSize()).toBytes()) {
-            throw new IllegalArgumentException("Max upload avatar image size is %d megabytes"
-                    .formatted(config.getImageLimitSize()));
-        }
     }
 
     private void deleteFromS3IfExists(User user) {
