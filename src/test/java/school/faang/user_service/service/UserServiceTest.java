@@ -28,9 +28,6 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @Spy
-    private UserMapperImpl userMapper;
-
     @Test
     void getUserById() {
         long id = 1L;
