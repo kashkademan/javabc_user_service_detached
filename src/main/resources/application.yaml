@@ -71,6 +71,13 @@ services:
     name: post-service
   notification-service:
     name: notification-service
+  s3:
+    enabled: true
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    max-file-size: 5242880
 
 feign:
   client:
@@ -95,5 +102,4 @@ management:
 
 recommendation:
   range-between-recommendation: 6
-
 
