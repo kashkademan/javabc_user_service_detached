@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
@@ -33,10 +34,14 @@ import static school.faang.user_service.util.LogsConstants.UPLOAD_FAILED;
 @RequiredArgsConstructor
 public class S3Service {
 
+    private final S3Presigner presigner;
     private final S3Client client;
 
     @Value("${services.s3.bucketName}")
     private String bucketName;
+
+    @Value("${services.s3.presignedUrl.ttl}")
+    private int presignedUrlTtl;
 
     public String uploadFile(String folder, MultipartFile file) {
         String key = String.format("%s/%d%s", folder, System.currentTimeMillis(), file.getOriginalFilename());

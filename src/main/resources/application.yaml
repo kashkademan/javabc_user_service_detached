@@ -62,6 +62,8 @@ services:
     secretKey: password
     bucketName: corpbucket
     avatarPath: avatar/generated
+    presignedUrl:
+      ttl: 1
   dicebear:
     url: http://localhost:3000
     version: 9.x
