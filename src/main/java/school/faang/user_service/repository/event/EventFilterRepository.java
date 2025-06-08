@@ -4,10 +4,15 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.model.event.EventFilter;
 
 import java.util.ArrayList;
@@ -18,11 +23,13 @@ import java.util.function.Function;
 public class EventFilterRepository {
     @PersistenceContext
     private EntityManager entityManager;
-
-    public List<Event> findByFilter(EventFilter filter, List<Long> eventIds) {
+    public List<Long> findByFilter(EventFilter filter) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Event> query = cb.createQuery(Event.class);
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Event> event = query.from(Event.class);
+
+        Join<Event, Promotion> promotionJoin = event.join("promotions", JoinType.LEFT);
+        promotionJoin.on(cb.equal(promotionJoin.get("status"), PromotionStatus.ACTIVE));
 
         PredicateBuilder builder = new PredicateBuilder(event);
         builder
@@ -37,17 +44,17 @@ public class EventFilterRepository {
                 .addIfNotNull(filter.getStartTo(), root ->
                         cb.lessThanOrEqualTo(root.get("startDate"), filter.getStartTo()));
 
-        if (eventIds != null && !eventIds.isEmpty()) {
-            builder.add(root -> cb.not(root.get("id").in(eventIds)));
-        }
+        query.select(event.get("id"));
+        query.where(builder.build());
 
-        query.select(event).where(builder.build());
+        Expression<Integer> priority = cb.coalesce(
+                promotionJoin.get("tariff").get("coefficientPriority"),
+                Integer.MAX_VALUE
+        );
+
+        query.orderBy(cb.asc(priority));
+
         return entityManager.createQuery(query).getResultList();
-    }
-
-    // TODO: метод
-    public List<Long> findByFilterId(EventFilter filter) {
-        return new ArrayList<>();
     }
 
     private static class PredicateBuilder {
@@ -57,12 +64,6 @@ public class EventFilterRepository {
         public PredicateBuilder(Root<Event> root) {
             this.root = root;
         }
-
-        public PredicateBuilder add(Function<Root<Event>, Predicate> fn) {
-            predicates.add(fn.apply(root));
-            return this;
-        }
-
         public PredicateBuilder addIfNotNull(Object value, Function<Root<Event>, Predicate> fn) {
             if (value != null) {
                 predicates.add(fn.apply(root));

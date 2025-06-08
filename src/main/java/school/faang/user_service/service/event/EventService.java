@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
@@ -19,16 +18,13 @@ import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
-import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.utils.async.GracefullyShutdownThreadPool;
 import school.faang.user_service.validation.event.EventValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -127,7 +123,7 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilter filter) {
-        List<Long> filteredEventIds = eventFilterRepository.findByFilterId(filter);
+        List<Long> filteredEventIds = eventFilterRepository.findByFilter(filter);
 
         ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
 
