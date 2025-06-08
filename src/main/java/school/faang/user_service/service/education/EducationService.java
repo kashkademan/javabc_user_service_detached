@@ -24,7 +24,7 @@ public class EducationService {
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         validate(educationDto);
-        UserDto userDto = userService.getUserById(userId);
+        UserDto userDto = userMapper.toDto(userService.getUserById(userId));
         User user = userMapper.toEntity(userDto);
         Education education = educationMapper.toEntity(educationDto);
         user.getEducation().add(education);
