@@ -14,6 +14,7 @@ import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExistsException;
+import school.faang.user_service.exception.promotion.PromotionInCashNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionTariffNotFoundException;
 import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
@@ -38,6 +39,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(UserNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(SkillNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(PromotionInCashNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionTariffNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(GoalAlreadyCompletedException.class, HttpStatus.CONFLICT);
@@ -59,6 +61,7 @@ public class UserServiceExceptionHandler {
             UserNotFoundException.class,
             SkillNotFoundException.class,
             PromotionNotFoundException.class,
+            PromotionInCashNotFoundException.class,
             PromotionTariffNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,

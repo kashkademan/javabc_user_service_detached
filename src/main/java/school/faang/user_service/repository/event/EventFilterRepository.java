@@ -45,6 +45,11 @@ public class EventFilterRepository {
         return entityManager.createQuery(query).getResultList();
     }
 
+    // TODO: метод
+    public List<Long> findByFilterId(EventFilter filter) {
+        return new ArrayList<>();
+    }
+
     private static class PredicateBuilder {
         private final Root<Event> root;
         private final List<Predicate> predicates = new ArrayList<>();

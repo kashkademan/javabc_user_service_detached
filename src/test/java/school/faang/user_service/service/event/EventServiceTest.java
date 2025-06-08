@@ -104,7 +104,7 @@ class EventServiceTest {
         event.setId(eventId);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
-        Event actual = eventService.getEvent(eventId);
+        Event actual = eventService.getEventById(eventId);
 
         assertSame(event, actual);
     }
@@ -114,7 +114,7 @@ class EventServiceTest {
         long eventId = 1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
-        assertThrows(EventValidationException.class, () -> eventService.getEvent(eventId));
+        assertThrows(EventValidationException.class, () -> eventService.getEventById(eventId));
     }
 
     @Test
@@ -122,7 +122,7 @@ class EventServiceTest {
         long eventId = 1L;
         when(eventRepository.existsById(eventId)).thenReturn(true);
 
-        eventService.deleteEvent(eventId);
+        eventService.deleteEventById(eventId);
 
         verify(eventRepository).deleteById(eventId);
     }
@@ -132,7 +132,7 @@ class EventServiceTest {
         long eventId = 1L;
         when(eventRepository.existsById(eventId)).thenReturn(false);
 
-        assertThrows(EventValidationException.class, () -> eventService.deleteEvent(eventId));
+        assertThrows(EventValidationException.class, () -> eventService.deleteEventById(eventId));
     }
 
     @Test

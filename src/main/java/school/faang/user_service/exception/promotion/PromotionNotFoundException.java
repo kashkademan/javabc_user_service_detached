@@ -8,7 +8,4 @@ public class PromotionNotFoundException extends EntityNotFoundException {
     public PromotionNotFoundException(long promotionId) {
         super(String.format("Promotion with id %d not found", promotionId));
     }
-    public PromotionNotFoundException(String promotionId) {
-        super(String.format("Promotion with id %s not found", promotionId));
-    }
 }

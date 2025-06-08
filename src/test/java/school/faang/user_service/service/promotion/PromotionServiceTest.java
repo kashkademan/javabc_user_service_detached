@@ -93,7 +93,7 @@ class PromotionServiceTest {
 
     @Test
     void tesCreatePromotion_createAndSavePromotion() {
-        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(eventService.getEventById(eventId)).thenReturn(event);
         when(promotionTariffService.getPromotionTariffById(tariffId)).thenReturn(tariff);
         when(promotionRepository.save(any(Promotion.class))).thenAnswer(invocation -> {
             Promotion saved = invocation.getArgument(0);
@@ -131,7 +131,7 @@ class PromotionServiceTest {
 
     @Test
     void testCreatePromotion_shouldThrow_whenPaymentFails() {
-        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(eventService.getEventById(eventId)).thenReturn(event);
         when(promotionTariffService.getPromotionTariffById(tariffId)).thenReturn(tariff);
 
         doThrow(FeignException.class)
@@ -143,7 +143,7 @@ class PromotionServiceTest {
         );
 
         verify(promotionValidator).checkActivePromotionForEvent(eventId, tariffId);
-        verify(eventService).getEvent(eventId);
+        verify(eventService).getEventById(eventId);
         verify(promotionTariffService).getPromotionTariffById(tariffId);
         verify(paymentService).sendPayment(tariff);
         verifyNoMoreInteractions(promotionRepository, promotionRedisService);

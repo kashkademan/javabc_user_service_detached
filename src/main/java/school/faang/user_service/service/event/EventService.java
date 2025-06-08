@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -19,6 +20,7 @@ import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.event.EventValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +34,7 @@ public class EventService {
     private final EventFilterRepository eventFilterRepository;
     private final EventValidator eventValidator;
     private final UserContext userContext;
-    private final PromotionRedisService promotionRedisService;
+    private final EventRedisService eventRedisService;
 
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
@@ -52,14 +54,19 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public Event getEvent(long eventId) {
+    public Event getEventById(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventValidationException(
                         String.format("Событие с id=%d не найдено", eventId)));
     }
 
+    @Transactional(readOnly = true)
+    public List<Event> getAllEvents(long eventId) {
+        return eventRepository.findAll();
+    }
+
     @Transactional
-    public void deleteEvent(long eventId) {
+    public void deleteEventById(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             throw new EventValidationException(String.format("Событие с id=%d не найдено и не может быть удалено", eventId));
         }
@@ -86,7 +93,7 @@ public class EventService {
         Event savedEvent = eventRepository.save(event);
         log.info("Event {} has been saved", savedEvent);
 
-        promotionRedisService.updatePromotedEvent(savedEvent);
+        eventRedisService.updatePromotedEvent(savedEvent);
         return savedEvent;
     }
 
@@ -107,14 +114,41 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<Event> getEventsByFilter(EventFilter filter) {
-        List<Event> eventsFilterCash = promotionRedisService.getPromotedEvents(filter);
-        List<Long> cachedEventIds = eventsFilterCash.stream()
-                .map(Event::getId)
-                .toList();
+        // 1) select для получения id событий с сортировкой
+        // 2) по каждому листу иду в редис, если нет, иду снова в базу и запускаю ассинхронно добавление в redis
+        List<Long> filteredEventIds = eventFilterRepository.findByFilterId(filter);
 
-        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, cachedEventIds);
-        eventsFilterCash.addAll(eventsFilter);
+        // TODO: распраралелить
+        List<Event> filteredEvents = new ArrayList<>();
+        for (Long eventId : filteredEventIds) {
+            // TODO: запускать процесс добавления в redis
+            Event event = eventRedisService.getEventById(eventId).orElse(getEventById(eventId));
+            filteredEvents.add(event);
+        }
+        return filteredEvents;
 
-        return eventsFilterCash;
+
+
+
+
+
+
+// TODO: удалить
+
+//        List<Event> eventsFilterCash = promotionRedisService.getPromotedEvents(filter);
+//        List<Long> cachedEventIds = eventsFilterCash.stream()
+//                .map(Event::getId)
+//                .toList();
+//
+//        List<Event> eventsFilter = eventFilterRepository.findByFilter(filter, cachedEventIds);
+//        eventsFilterCash.addAll(eventsFilter);
+//
+//        return eventsFilterCash;
+    }
+    // TODO: ассинхронно
+    private void addEventInRedis(long eventId) {
+        Event event = getEventById(eventId);
+        // TODO: ttl
+        eventRedisService.saveEvent(event, 30L);
     }
 }

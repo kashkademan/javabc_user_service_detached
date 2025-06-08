@@ -9,12 +9,14 @@ import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
+import school.faang.user_service.service.event.EventRedisService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
@@ -29,6 +31,7 @@ public class PromotionService {
     private final EventService eventService;
     private final PromotionTariffService promotionTariffService;
     private final PromotionRedisService promotionRedisService;
+    private final EventRedisService eventRedisService;
     private final PromotionValidator promotionValidator;
     private final PaymentService paymentService;
 
@@ -45,9 +48,10 @@ public class PromotionService {
     public Promotion createPromotion(long eventId, long tariffId) {
         promotionValidator.checkActivePromotionForEvent(eventId, tariffId);
 
-        Event event = eventService.getEvent(eventId);
+        Event event = eventService.getEventById(eventId);
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);
 
+        // TODO: убрать
         paymentService.sendPayment(tariff);
 
         Promotion promotion = new Promotion();
@@ -61,7 +65,10 @@ public class PromotionService {
         Promotion savePromotion = promotionRepository.save(promotion);
         log.info("Promotion with id {} has been created", savePromotion.getId());
 
-        promotionRedisService.savePromotion(savePromotion, event);
+        // TODO: ttl
+        promotionRedisService.savePromotion(savePromotion);
+        // TODO: возможно событие уже есть в redis
+        eventRedisService.saveEvent(event, 12L);
 
         return savePromotion;
     }
@@ -87,5 +94,10 @@ public class PromotionService {
     @Transactional(readOnly = true)
     public List<Promotion> getAllActiveEventPromotion() {
         return promotionRepository.findAllByTypeAndStatus(EVENT, ACTIVE);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Promotion> getActivePromotionByEventId(long eventId) {
+        return promotionRepository.findByEventIdAndStatus(eventId, ACTIVE);
     }
 }

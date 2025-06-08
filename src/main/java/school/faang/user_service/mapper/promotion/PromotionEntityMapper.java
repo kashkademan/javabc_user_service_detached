@@ -12,17 +12,11 @@ import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         builder = @Builder(disableBuilder = true))
-public interface PromotionMapper {
-    Promotion toPromotionEntity(final PromotionEventCreateRequestDto promotionEventCreateRequestDto);
+public interface PromotionEntityMapper {
+    Promotion toPromotionEntity(PromotionEventCreateRequestDto promotionEventCreateRequestDto);
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "event.id", target = "eventId")
     @Mapping(source = "tariff.id", target = "tariffId")
-    PromotionResponseDto toPromotionResponseDto(final Promotion promotion);
-
-    @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "event.id", target = "eventId")
-    @Mapping(source = "tariff.id", target = "tariffId")
-    @Mapping(source = "tariff.coefficientPriority", target = "coefficientPriority")
-    PromotionRedisModel toEventPromotionRedis(final Promotion promotion);
+    PromotionResponseDto toPromotionResponseDto(Promotion promotion);
 }

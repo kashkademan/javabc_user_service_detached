@@ -29,7 +29,7 @@ public class EventFacade {
     }
 
     public EventResponseDto update(EventUpdateRequestDto dto) {
-        Event existing = eventService.getEvent(dto.getId());
+        Event existing = eventService.getEventById(dto.getId());
         eventEntityMapper.updateEntityFromDto(dto, existing);
         Event updatedEvent = eventService.updateEventData(existing, dto.getRelatedSkills());
 
@@ -37,11 +37,11 @@ public class EventFacade {
     }
 
     public EventResponseDto get(long id) {
-        return eventEntityMapper.toDto(eventService.getEvent(id));
+        return eventEntityMapper.toDto(eventService.getEventById(id));
     }
 
     public void delete(long id) {
-        eventService.deleteEvent(id);
+        eventService.deleteEventById(id);
     }
 
     public List<EventResponseDto> getOwned(long userId) {

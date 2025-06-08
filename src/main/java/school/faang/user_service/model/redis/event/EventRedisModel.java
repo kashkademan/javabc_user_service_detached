@@ -11,8 +11,7 @@ import school.faang.user_service.entity.event.EventType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @RedisHash("event")
 @Data
@@ -20,23 +19,16 @@ import java.util.List;
 @NoArgsConstructor
 public class EventRedisModel implements Serializable {
     @Id
-    private String id;
+    private UUID key;
     @TimeToLive
     private Long ttl;
-    private String promotionId;
+    private Long id;
     private String title;
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String location;
     private int maxAttendees;
-    private List<Long> attendeeIds = new ArrayList<>();
-    private List<Long> ratingIds = new ArrayList<>();
-    private Long ownerId;
-    private List<Long> relatedSkillIds = new ArrayList<>();
     private EventType type;
     private EventStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Integer coefficientPriority;
 }

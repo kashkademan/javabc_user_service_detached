@@ -33,12 +33,12 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", updatable = false)
     @ToString.Exclude
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "event_id", updatable = false)
     @ToString.Exclude
     private Event event;
@@ -47,7 +47,7 @@ public class Promotion {
     @Enumerated(EnumType.STRING)
     private PromotionType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "tariff_id", nullable = false, updatable = false)
     @ToString.Exclude
     private PromotionTariff tariff;

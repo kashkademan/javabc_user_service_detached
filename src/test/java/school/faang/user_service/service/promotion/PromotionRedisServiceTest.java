@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.mapper.event.EventRedisMapper;
-import school.faang.user_service.mapper.promotion.PromotionMapper;
+import school.faang.user_service.mapper.promotion.PromotionEntityMapper;
 import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
@@ -35,7 +35,7 @@ class PromotionRedisServiceTest {
     @Mock
     private PromotionViewExpiredQueueStorage promotionViewExpiredQueueStorage;
     @Mock
-    private PromotionMapper promotionMapper;
+    private PromotionEntityMapper promotionEntityMapper;
     @Mock
     private EventRedisMapper eventRedisMapper;
 
@@ -52,7 +52,7 @@ class PromotionRedisServiceTest {
         EventRedisModel eventRedisModel = new EventRedisModel();
         PromotionRedisModel promotionRedisModel = new PromotionRedisModel();
 
-        when(promotionMapper.toEventPromotionRedis(promotion)).thenReturn(promotionRedisModel);
+        when(promotionEntityMapper.toEventPromotionRedis(promotion)).thenReturn(promotionRedisModel);
         when(eventRedisMapper.toEventRedis(event)).thenReturn(eventRedisModel);
         when(eventRedisRepository.save(any())).thenReturn(eventRedisModel);
         when(promotionRedisRepository.save(any())).thenReturn(promotionRedisModel);

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalMapper {
-    Goal toGoalEntity(final GoalCreateRequestDto goalCreateRequestDto);
+    Goal toGoalEntity(GoalCreateRequestDto goalCreateRequestDto);
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdAt", target = "createdDate")
@@ -30,9 +30,9 @@ public interface GoalMapper {
     @Mapping(target = "invitationsIds", expression = "java(mapInvitationIds(goal.getInvitations()))")
     @Mapping(target = "usersIds", expression = "java(mapUserIds(goal.getUsers()))")
     @Mapping(target = "skillToAchieveIds", expression = "java(mapSkillIds(goal.getSkillsToAchieve()))")
-    GoalResponseDto toGoalResponseDto(final Goal goal);
+    GoalResponseDto toGoalResponseDto(Goal goal);
 
-    void update(@MappingTarget Goal goal, final GoalUpdateRequestDto goalUpdateRequestDto);
+    void update(@MappingTarget Goal goal, GoalUpdateRequestDto goalUpdateRequestDto);
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdAt", target = "createdDate")

@@ -12,7 +12,7 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         builder = @Builder(disableBuilder = true))
 public interface PromotionTariffMapper {
-    PromotionTariffResponseDto toPromotionTariffResponseDto(final PromotionTariff promotionTariff);
+    PromotionTariffResponseDto toPromotionTariffResponseDto(PromotionTariff promotionTariff);
 
-    List<PromotionTariffResponseDto> toPromotionTariffResponseDtoList(final List<PromotionTariff> promotionTariffs);
+    List<PromotionTariffResponseDto> toPromotionTariffResponseDtoList(List<PromotionTariff> promotionTariffs);
 }

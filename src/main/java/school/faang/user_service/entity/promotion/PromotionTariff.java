@@ -48,11 +48,6 @@ public class PromotionTariff {
 
     @Column(name = "coefficient_priority", nullable = false)
     private Integer coefficientPriority;
-
-    @OneToMany(mappedBy = "tariff", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Promotion> promotions = new ArrayList<>();
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
@@ -64,7 +59,7 @@ public class PromotionTariff {
     private LocalDateTime updatedAt;
 
     @Column(name = "deleted", nullable = false, columnDefinition = "boolean default false")
-    private boolean deleted;
+    private boolean deleted = false;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "deleted_at", updatable = false)

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.promotion.PromotionEventCreateRequestDto;
 import school.faang.user_service.dto.promotion.PromotionResponseDto;
 import school.faang.user_service.entity.promotion.Promotion;
-import school.faang.user_service.mapper.promotion.PromotionMapper;
+import school.faang.user_service.mapper.promotion.PromotionEntityMapper;
 import school.faang.user_service.service.promotion.PromotionService;
 
 @Component
@@ -14,14 +14,14 @@ import school.faang.user_service.service.promotion.PromotionService;
 @Slf4j
 public class PromotionFacade {
     private final PromotionService promotionService;
-    private final PromotionMapper promotionMapper;
+    private final PromotionEntityMapper promotionEntityMapper;
 
     public PromotionResponseDto createPromotion(PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
         Promotion promotion = promotionService.createPromotion(
                 promotionEventCreateRequestDto.getEventId(),
                 promotionEventCreateRequestDto.getTariffId());
 
-        PromotionResponseDto promotionResponseDto = promotionMapper.toPromotionResponseDto(promotion);
+        PromotionResponseDto promotionResponseDto = promotionEntityMapper.toPromotionResponseDto(promotion);
         log.debug("Mapping Promotion entity to PromotionResponseDto. Entity content: {}. DTO content: {}.",
                 promotion, promotionResponseDto);
         return promotionResponseDto;
