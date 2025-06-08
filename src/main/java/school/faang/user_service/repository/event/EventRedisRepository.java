@@ -7,5 +7,5 @@ import school.faang.user_service.model.redis.event.EventRedisModel;
 import java.util.UUID;
 
 @Repository
-public interface EventRedisRepository extends CrudRepository<EventRedisModel, UUID> {
+public interface EventRedisRepository extends CrudRepository<EventRedisModel, String> {
 }

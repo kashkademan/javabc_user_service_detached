@@ -8,12 +8,9 @@ import school.faang.user_service.mapper.event.EventRedisMapper;
 import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
-import school.faang.user_service.repository.promotion.PromotionRedisRepository;
-import school.faang.user_service.storage.promotion.PromotionDecrementCountViewMapStorage;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,36 +18,26 @@ import java.util.UUID;
 public class EventRedisService {
     private final EventRedisRepository eventRedisRepository;
     private final EventRedisMapper eventRedisMapper;
-    private final PromotionDecrementCountViewMapStorage promotionDecrementCountViewMapStorage;
 
-    // TODO: null посимпатичнее передавать
-    public void saveEvent(Event event, long ttl, Long promotionId) {
+    public void saveEvent(Event event, long ttl) {
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
         eventRedisModel.setTtl(ttl);
-        eventRedisModel.setPromotionId(promotionId);
 
-        UUID eventKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
+        String eventKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
         eventRedisModel.setKey(eventKey);
 
         EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);
         log.info("Event {} has been saved in redis", savedEvent);
     }
 
-    public void saveEvent(Event event, long ttl) {
-        saveEvent(event, ttl, null);
-    }
-
     public Optional<Event> getEventById(long eventId) {
-        UUID eventKey = RedisKeyUtil.getKeyById(eventId, RedisHashType.EVENT);
+        String eventKey = RedisKeyUtil.getKeyById(eventId, RedisHashType.EVENT);
 
         return eventRedisRepository.findById(eventKey)
                 .map(eventRedisMapper::toEventEntity)
                 .or(Optional::empty);
     }
 
-
-
-    // TODO: перенести в eventRedisService
     public void updatePromotedEvent(Event event) {
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
         EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);

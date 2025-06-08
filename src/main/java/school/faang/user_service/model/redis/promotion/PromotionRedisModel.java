@@ -10,14 +10,13 @@ import school.faang.user_service.entity.promotion.PromotionType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RedisHash("promotion")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromotionRedisModel implements Serializable {
-    private UUID key;
+    private String key;
     private Long id;
     @Indexed
     private Long userId;

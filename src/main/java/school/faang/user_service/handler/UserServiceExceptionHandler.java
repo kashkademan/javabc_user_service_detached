@@ -10,18 +10,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExistsException;
-import school.faang.user_service.exception.promotion.PromotionInCashNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionTariffNotFoundException;
 import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class UserServiceExceptionHandler {
-    private static final Map<Class<? extends Exception>, HttpStatus> HTTP_STATUS_MAP  = new HashMap<>();
+    private static final Map<Class<? extends Exception>, HttpStatus> HTTP_STATUS_MAP = new HashMap<>();
 
     static {
         HTTP_STATUS_MAP.put(UserUnauthorizedException.class, HttpStatus.UNAUTHORIZED);
@@ -39,7 +38,6 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(UserNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(SkillNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionNotFoundException.class, HttpStatus.NOT_FOUND);
-        HTTP_STATUS_MAP.put(PromotionInCashNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionTariffNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(GoalAlreadyCompletedException.class, HttpStatus.CONFLICT);
@@ -50,6 +48,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
     }
+
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
             MethodArgumentNotValidException.class, ex ->
                     formatMethodArgumentNotValidException((MethodArgumentNotValidException) ex)
@@ -61,7 +60,6 @@ public class UserServiceExceptionHandler {
             UserNotFoundException.class,
             SkillNotFoundException.class,
             PromotionNotFoundException.class,
-            PromotionInCashNotFoundException.class,
             PromotionTariffNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
@@ -99,7 +97,7 @@ public class UserServiceExceptionHandler {
                                                                             Exception ex) {
         log.error("Error in user-service: {}, response status {}", errorMsg, status, ex);
         UserServiceErrorResponseDto response =
-                new UserServiceErrorResponseDto(errorMsg,LocalDateTime.now(), status.value());
+                new UserServiceErrorResponseDto(errorMsg, LocalDateTime.now(), status.value());
         return new ResponseEntity<>(response, status);
     }
 

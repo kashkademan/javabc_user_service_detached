@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +22,22 @@ import school.faang.user_service.service.promotion.PromotionRedisService;
 import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.utils.async.GracefullyShutdownThreadPool;
 import school.faang.user_service.validation.event.EventValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventService {
+    private static final int NUM_THREADS = 10;
     private final UserService userService;
     private final SkillService skillService;
     private final EventRepository eventRepository;
@@ -41,6 +47,7 @@ public class EventService {
     private final EventRedisService eventRedisService;
     private final RedisTtlProperties redisTtlProperties;
     private final PromotionRedisService promotionRedisService;
+    private final ApplicationContext applicationContext;
 
     @Transactional
     public Event create(Event event, List<Long> relatedSkillIds) {
@@ -122,20 +129,32 @@ public class EventService {
     public List<Event> getEventsByFilter(EventFilter filter) {
         List<Long> filteredEventIds = eventFilterRepository.findByFilterId(filter);
 
-        List<Event> events = filteredEventIds.parallelStream()
-                .map(eventId -> eventRedisService.getEventById(eventId)
-                        .orElseGet(() -> {
-                            addEventInRedis(eventId);
-                            return getEventById(eventId);
-                        }))
-                .toList();
+        ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
 
-        promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
+        try {
+            List<CompletableFuture<Event>> futureEvents = filteredEventIds.stream()
+                    .map(eventId -> CompletableFuture.supplyAsync(() ->
+                            eventRedisService.getEventById(eventId)
+                                    .orElseGet(() -> {
+                                        EventService self = applicationContext.getBean(EventService.class);
+                                        self.addEventInRedis(eventId);
+                                        return getEventById(eventId);
+                                    }), threadPool))
+                    .toList();
 
-        return events;
+            List<Event> events = futureEvents.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+
+            promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
+
+            return events;
+
+        } finally {
+            GracefullyShutdownThreadPool.gracefullyShutdown(threadPool);
+        }
     }
 
-    // TODO: не сработает ассинхронно
     @Async("addEventInRedisExecutor")
     public void addEventInRedis(long eventId) {
         Event event = getEventById(eventId);

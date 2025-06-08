@@ -26,21 +26,14 @@ public class RedisEventInitializer {
     private final EventRedisService eventRedisService;
     private final RedisTtlProperties redisTtlProperties;
 
-    // TODO: ApplicationEvent
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         List<Event> promotions = eventService.getAllEvents();
         promotions.forEach(event -> {
-            Optional<Promotion> promotionOptional = promotionService.getActivePromotionByEventId(event.getId());
-
-            long ttl = promotionOptional
+            long ttl = promotionService.getActivePromotionByEventId(event.getId())
                     .map(promotion -> getTtlByPromotion(promotion) + redisTtlProperties.getEvent())
                     .orElse(redisTtlProperties.getEvent());
-
-            promotionOptional.ifPresentOrElse(
-                    promotion -> eventRedisService.saveEvent(event, ttl, promotion.getId()),
-                    () -> eventRedisService.saveEvent(event, ttl)
-            );
+            eventRedisService.saveEvent(event, ttl);
 
             log.debug("Event {} saved to Redis with TTL {} seconds", event.getId(), ttl);
         });

@@ -11,7 +11,6 @@ import school.faang.user_service.entity.event.EventType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RedisHash("event")
 @Data
@@ -19,11 +18,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventRedisModel implements Serializable {
     @Id
-    private UUID key;
+    private String key;
     @TimeToLive
     private Long ttl;
     private Long id;
-//    private Long promotionId;
     private String title;
     private String description;
     private LocalDateTime startDate;

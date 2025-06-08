@@ -3,6 +3,7 @@ package school.faang.user_service.initialization.redis;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.promotion.Promotion;
@@ -19,11 +20,9 @@ public class RedisPromotionInitializer {
     private final PromotionService promotionService;
     private final PromotionRedisService promotionRedisService;
 
-    // TODO: ApplicationEvent
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         List<Promotion> promotions = promotionService.getAllActiveEventPromotion();
-        // TODO: возможно стоит распраллелить
         promotions.forEach(promotionRedisService::savePromotion);
 
         log.info("Redis initialized with {} promotions for events", promotions.size());

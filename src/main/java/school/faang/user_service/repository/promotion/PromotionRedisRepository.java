@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PromotionRedisRepository extends CrudRepository<PromotionRedisModel, UUID> {
+public interface PromotionRedisRepository extends CrudRepository<PromotionRedisModel, String> {
     Optional<PromotionRedisModel> findByEventId(Long eventId);
 
     Optional<PromotionRedisModel> findByUserId(Long userId);
