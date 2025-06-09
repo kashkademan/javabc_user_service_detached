@@ -3,8 +3,10 @@ package school.faang.user_service.controller.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
