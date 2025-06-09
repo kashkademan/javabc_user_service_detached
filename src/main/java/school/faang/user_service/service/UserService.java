@@ -3,13 +3,14 @@ package school.faang.user_service.service;
 import jakarta.annotation.PreDestroy;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
@@ -22,17 +23,16 @@ import java.util.regex.Pattern;
 public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
-
     private final CountryService countryService;
     private final RestTemplate restTemplate = new RestTemplate();
-    private MinioService minioService;
-    private static final String DICE_BEAR_API = "https://api.dicebear.com/9.x/pixel-art/svg";
+    private final MinioService minioService;
 
-    public UserDto getUserById(Long id){
-        User user = userRepo.findById(id).orElseThrow(() -> new IllegalArgumentException
+    @Value("${dice-bear-api}")
+    private String DICE_BEAR_API;
 
+    public User getUserById(Long id) {
+        return userRepo.findById(id).orElseThrow(() -> new EntityNotFoundException
                 ("The Requester with id =" + id + " does not exist"));
-        return userMapper.toDto(user);
     }
 
     @Transactional
@@ -41,10 +41,9 @@ public class UserService {
         Country countryUser = countryService.getCountryByID(userDto.countryId());
 
         String api = createApi(filter);
-        if (minioService == null) {
-            minioService = new MinioService("user-pictures-bucket");
-            minioService.createBucket();
-        }
+
+        minioService.createBucket();
+
         putS3Client(api, userDto.email());
 
         User user = userMapper.toEntity(userDto);
@@ -94,7 +93,7 @@ public class UserService {
         if (file == null) {
             throw new IOException("No file");
         }
-        minioService.uploadFile(file, userEmail);
+        minioService.uploadFile(file, userEmail, Long.valueOf(file.length()));
     }
 
     @PreDestroy

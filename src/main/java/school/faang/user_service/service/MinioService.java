@@ -1,8 +1,16 @@
 package school.faang.user_service.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import school.faang.user_service.config.context.MinioStorage;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.exception.FileLoadException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -12,31 +20,64 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class MinioService {
-    private final MinioStorage storage;
-    private static final String END_POINT = "http://localhost:9000";
-    private static final String ACCESS_KEY = "user";
-    private static final String SECRET_KEY = "password";
-    private static final String REGION = "us-east-1";
-    private final String BUCKET_NAME;
+    private final AmazonS3 amazonS3;
+    private final TransferManager transferManager;
 
-    public MinioService(String bucketName) {
-        this.storage = new MinioStorage(END_POINT, ACCESS_KEY, SECRET_KEY, REGION);
-        this.BUCKET_NAME = bucketName;
-    }
+    @Value("${minio.content_length}")
+    private Long CONTENT_LENGTH;
+
+    @Value("${minio.bucket}")
+    private String BUCKET_NAME;
 
     public void createBucket() {
-        storage.createBucket(BUCKET_NAME);
+        if (!amazonS3.doesBucketExistV2(BUCKET_NAME)) {
+            amazonS3.createBucket(BUCKET_NAME);
+        }
     }
 
-    public void uploadFile(String object, String objectName) throws IOException {
+
+    public void uploadFile(String object, String objectName, Long contentLength) throws IOException {
         try (InputStream inputStream = new ByteArrayInputStream(object.getBytes())) {
-            storage.uploadFile(BUCKET_NAME, objectName, inputStream);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(contentLength);
+            if (contentLength > CONTENT_LENGTH) {
+                Upload upload = transferManager.upload(BUCKET_NAME, objectName, inputStream, metadata);
+
+                upload.waitForCompletion();
+            }
+            else {
+                amazonS3.putObject(BUCKET_NAME, objectName, inputStream, new ObjectMetadata());
+            }
+        } catch (InterruptedException e) {
+            log.error("Download error", e);
+            throw new FileLoadException("Download error");
+        }
+    }
+
+    public void uploadFile(byte[] object, String objectName, Long contentLength) throws IOException {
+        try (InputStream inputStream = new ByteArrayInputStream(object)) {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(contentLength);
+            if (contentLength > CONTENT_LENGTH) {
+                Upload upload = transferManager.upload(BUCKET_NAME, objectName, inputStream, metadata);
+
+                upload.waitForCompletion();
+            }
+            else {
+                amazonS3.putObject(BUCKET_NAME, objectName, inputStream, new ObjectMetadata());
+            }
+        } catch (InterruptedException e) {
+            log.error("Download error", e);
+            throw new FileLoadException("Download error");
         }
     }
 
     public String downloadFile(String objectName) throws IOException {
-        S3Object s3Object = storage.downloadFile(BUCKET_NAME, objectName);
+        S3Object s3Object = amazonS3.getObject(BUCKET_NAME, objectName);
         try (InputStream inputStream = s3Object.getObjectContent()) {
             return new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
@@ -45,16 +86,16 @@ public class MinioService {
     }
 
     public List<String> listFiles() {
-        return storage.listFiles(BUCKET_NAME).stream()
+        return amazonS3.listObjects(BUCKET_NAME).getObjectSummaries().stream()
                 .map(S3ObjectSummary::getKey)
                 .toList();
     }
 
     public void deleteFile(String fileName) {
-        storage.deleteFile(BUCKET_NAME, fileName);
+        amazonS3.deleteObject(BUCKET_NAME, fileName);
     }
 
-    public void shutdownBucket(){
-        storage.shutdown();
+    public void shutdownBucket() {
+        amazonS3.shutdown();
     }
 }
