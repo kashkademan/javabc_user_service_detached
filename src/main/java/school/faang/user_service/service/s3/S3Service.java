@@ -1,5 +1,8 @@
 package school.faang.user_service.service.s3;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -7,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.exception.file.FileUploadException;
 
@@ -23,6 +28,11 @@ public class S3Service {
     @Value("${services.s3.bucketName}")
     private String bucketName;
 
+    @Retryable(
+            retryFor = {AmazonServiceException.class, AmazonClientException.class, SdkClientException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public String uploadFile(byte[] file, String fileName, MediaType type, S3Folder folder) {
         int fileSize = file.length;
         ObjectMetadata objectMetadata = new ObjectMetadata();

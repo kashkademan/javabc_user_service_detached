@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
+import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.country.CountryNotFoundException;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.event.EventNotFoundException;
@@ -27,9 +28,8 @@ import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersExcep
 import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
 import school.faang.user_service.exception.user.EmailAlreadyExistsException;
 import school.faang.user_service.exception.user.PhoneAlreadyExistsException;
+import school.faang.user_service.exception.user.UserAlreadyExistsException;
 import school.faang.user_service.exception.user.UserNotFoundException;
-import school.faang.user_service.exception.authorization.UserUnauthorizedException;
-import school.faang.user_service.exception.user.UsernameAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -59,6 +59,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(UsernameAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(EmailAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(PhoneAlreadyExistsException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(UserAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
@@ -66,7 +67,9 @@ public class UserServiceExceptionHandler {
 
     private static final Map<Class<? extends Exception>, ErrorHandler> errorHandlers = Map.of(
             MethodArgumentNotValidException.class, ex ->
-                    formatMethodArgumentNotValidException((MethodArgumentNotValidException) ex)
+                    formatMethodArgumentNotValidException((MethodArgumentNotValidException) ex),
+            UserAlreadyExistsException.class, ex ->
+                    formatUserAlreadyExistsException((UserAlreadyExistsException) ex)
     );
 
     @ExceptionHandler({
@@ -88,6 +91,12 @@ public class UserServiceExceptionHandler {
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
             EventValidationException.class,
+            MethodArgumentNotValidException.class,
+            FeignException.class,
+            RetryableException.class
+            SkillAlreadyExistsException.class,
+            NotEnoughSkillOffersException.class,
+            UserAlreadyExistsException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,
             RetryableException.class
@@ -128,5 +137,10 @@ public class UserServiceExceptionHandler {
                 .map(error -> String.format("Field '%s' %s",
                         ((FieldError) error).getField(), error.getDefaultMessage()))
                 .collect(Collectors.joining(", "));
+    }
+
+    private static String formatUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return String.format("Field '%s' with value %s already exists",
+                ex.getField().name().toLowerCase(), ex.getValue());
     }
 }

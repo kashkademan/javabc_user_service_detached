@@ -32,47 +32,46 @@ public class S3ServiceTest {
     @InjectMocks
     private S3Service s3Service;
 
-    private final byte[] file = "test-failure".getBytes(StandardCharsets.UTF_8);
-    private final String fileName = "fail.svg";
-    private final MediaType type = new MediaType("image", "svg+xml");
-    private final S3Folder folder = S3Folder.AVATARS;
-    private final String expectedKey = "avatars/fail_500.svg";
-    private final String bucketName = "test-bucket";
+    private static final byte[] FILE = "test-failure".getBytes(StandardCharsets.UTF_8);
+    private static final String FILE_NAME = "fail.svg";
+    private static final MediaType TYPE = new MediaType("image", "svg+xml");
+    private static final S3Folder FOLDER = S3Folder.AVATARS;
+    private static final String EXPECTED_KEY = "avatars/fail_500.svg";
+    private static final String BUCKET_NAME = "test-bucket";
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(s3Service, "bucketName", bucketName);
-
+        ReflectionTestUtils.setField(s3Service, "bucketName", BUCKET_NAME);
     }
 
     @Test
-    void uploadFile_uploadAndReturnFileKey() {
-        when(s3KeyGenerator.generateKey(fileName, folder))
-                .thenReturn(expectedKey);
+    void testUploadFile_uploadAndReturnFileKey() {
+        when(s3KeyGenerator.generateKey(FILE_NAME, FOLDER))
+                .thenReturn(EXPECTED_KEY);
 
-        String actualKey = s3Service.uploadFile(file, fileName, type, folder);
+        String actualKey = s3Service.uploadFile(FILE, FILE_NAME, TYPE, FOLDER);
 
 
-        assertEquals(expectedKey, actualKey);
-        verify(s3KeyGenerator).generateKey(fileName, folder);
+        assertEquals(EXPECTED_KEY, actualKey);
+        verify(s3KeyGenerator).generateKey(FILE_NAME, FOLDER);
         verify(amazonS3).putObject(argThat((PutObjectRequest req) ->
-                req.getBucketName().equals(bucketName) &&
-                        req.getKey().equals(expectedKey)
+                req.getBucketName().equals(BUCKET_NAME) &&
+                        req.getKey().equals(EXPECTED_KEY)
         ));
     }
 
     @Test
-    void uploadFile_amazonFails() {
-        when(s3KeyGenerator.generateKey(fileName, folder))
-                .thenReturn(expectedKey);
+    void testUploadFile_amazonFails() {
+        when(s3KeyGenerator.generateKey(FILE_NAME, FOLDER))
+                .thenReturn(EXPECTED_KEY);
         doThrow(new AmazonClientException("S3 is down"))
                 .when(amazonS3)
                 .putObject(any(PutObjectRequest.class));
 
         assertThrows(FileUploadException.class, () ->
-                s3Service.uploadFile(file, fileName, type, folder));
+                s3Service.uploadFile(FILE, FILE_NAME, TYPE, FOLDER));
 
-        verify(s3KeyGenerator).generateKey(fileName, folder);
+        verify(s3KeyGenerator).generateKey(FILE_NAME, FOLDER);
         verify(amazonS3).putObject(any(PutObjectRequest.class));
     }
 }

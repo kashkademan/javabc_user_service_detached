@@ -36,10 +36,10 @@ public class ImageServiceTest {
     @InjectMocks
     private ImageService imageService;
 
-    private final Long userId = 42L;
+    private static final Long USER_ID = 42L;
 
     @Test
-    void generateRandomUserAvatar_returnCorrectResource() {
+    void testGenerateRandomUserAvatar_returnCorrectResource() {
         byte[] dummyImage = "<svg>avatar</svg>".getBytes(StandardCharsets.UTF_8);
         String expectedFileKey = "avatars/user_42_default_avatar.svg";
         String expectedFileName = "user_42_default_avatar.svg";
@@ -50,7 +50,7 @@ public class ImageServiceTest {
                 type, S3Folder.AVATARS))
                 .thenReturn(expectedFileKey);
 
-        Resource result = imageService.generateRandomUserAvatar(userId);
+        Resource result = imageService.generateRandomUserAvatar(USER_ID);
 
         assertNotNull(result);
         assertEquals(expectedFileKey, result.getFileKey());
@@ -62,21 +62,21 @@ public class ImageServiceTest {
     }
 
     @Test
-    void generateRandomUserAvatar_requestInDiceBearFails() {
+    void testGenerateRandomUserAvatar_requestInDiceBearFails() {
         when(diceBearClient.getRandomAvatar())
                 .thenThrow(FeignException.class);
 
-        assertThrows(FeignException.class, () -> imageService.generateRandomUserAvatar(userId));
+        assertThrows(FeignException.class, () -> imageService.generateRandomUserAvatar(USER_ID));
         verify(s3Service, never()).uploadFile(
                 any(), any(), any(), any());
     }
 
     @Test
-    void generateRandomUserAvatar_retryRequestInDiceBearFails() {
+    void testGenerateRandomUserAvatar_retryRequestInDiceBearFails() {
         when(diceBearClient.getRandomAvatar())
                 .thenThrow(RetryableException.class);
 
-        assertThrows(RetryableException.class, () -> imageService.generateRandomUserAvatar(userId));
+        assertThrows(RetryableException.class, () -> imageService.generateRandomUserAvatar(USER_ID));
         verify(s3Service, never()).uploadFile(
                 any(), any(), any(), any());
     }

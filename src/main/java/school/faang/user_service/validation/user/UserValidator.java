@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.user.EmailAlreadyExistsException;
-import school.faang.user_service.exception.user.PhoneAlreadyExistsException;
-import school.faang.user_service.exception.user.UsernameAlreadyExistsException;
+import school.faang.user_service.exception.user.UserAlreadyExistsException;
 import school.faang.user_service.repository.user.UserRepository;
 
 @Component
@@ -24,27 +22,24 @@ public class UserValidator {
     private void checkExistsUsername(String username) {
         boolean existsUsername = userRepository.existsByUsername(username);
         if (existsUsername) {
-            String errorMsg = String.format("Username %s already exists", username);
-            log.error(errorMsg);
-            throw new UsernameAlreadyExistsException(errorMsg);
+            log.error("Username {} already exists", username);
+            throw new UserAlreadyExistsException(UserAlreadyExistsException.UserField.USERNAME, username);
         }
     }
 
     private void checkExistsEmail(String email) {
         boolean existsUsername = userRepository.existsByEmail(email);
         if (existsUsername) {
-            String errorMsg = String.format("Email %s already exists", email);
-            log.error(errorMsg);
-            throw new EmailAlreadyExistsException(errorMsg);
+            log.error("Email {} already exists", email);
+            throw new UserAlreadyExistsException(UserAlreadyExistsException.UserField.EMAIL, email);
         }
     }
 
     private void checkExistsPhone(String phone) {
         boolean existsUsername = userRepository.existsByPhone(phone);
         if (existsUsername) {
-            String errorMsg = String.format("Phone %s already exists", phone);
-            log.error(errorMsg);
-            throw new PhoneAlreadyExistsException(errorMsg);
+            log.error("Phone {} already exists", phone);
+            throw new UserAlreadyExistsException(UserAlreadyExistsException.UserField.PHONE, phone);
         }
     }
 }
