@@ -47,7 +47,7 @@ public class S3ServiceTest {
     private S3Client s3Client;
 
     @Mock
-    private S3Presigner s3Presigner;
+    private S3Presigner presigner;
 
     @InjectMocks
     private S3Service s3Service;
@@ -151,21 +151,22 @@ public class S3ServiceTest {
     void testGeneratePresignedUrlWhenSuccess() throws MalformedURLException {
         PresignedGetObjectRequest mockPresignedRequest = mock(PresignedGetObjectRequest.class);
         when(mockPresignedRequest.url()).thenReturn(new URL(PRESIGNED_URL));
-        when(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenReturn(mockPresignedRequest);
+        when(presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenReturn(mockPresignedRequest);
 
         String resultUrl = s3Service.generatePresignedUrl(KEY);
 
         assertNotNull(resultUrl);
         assertEquals(PRESIGNED_URL, resultUrl);
-        verify(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class)));
+        verify(presigner).presignGetObject(any(GetObjectPresignRequest.class));
     }
 
     @Test
     void testGeneratePresignedUrlWhenThrowsException() {
-        when(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenThrow(RuntimeException.class);
+        when(presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenThrow(RuntimeException.class);
 
         FileException exception = assertThrows(FileException.class, () -> s3Service.generatePresignedUrl(KEY));
-        assertEquals("Не удалось создать presigned URL", exception.getMessage());
-        verify(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class)));
+        assertEquals("Failed to generate presigned url for file", exception.getMessage());
+
+        verify(presigner).presignGetObject(any(GetObjectPresignRequest.class));
     }
 }
