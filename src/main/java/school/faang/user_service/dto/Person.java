@@ -20,10 +20,8 @@ public class Person {
     public String faculty;
     public String yearOfStudy;
     public String major;
-
     @JsonProperty("GPA")
     public Double gpa;
-
     public String status;
     public String admissionDate;
     public String graduationDate;

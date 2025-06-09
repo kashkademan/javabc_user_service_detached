@@ -16,7 +16,7 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.country.CountryMapper;
+import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserPictureService;
@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
-    private final CountryMapper countryMapper;
     private final CsvMapper csvMapper;
     private final UserPictureService pictureService;
 
@@ -122,7 +121,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User processPerson(Person person, List<Country> countries) {
-        person.setCountry(countryMapper.getFullName(person.getCountry()));
+        person.setCountry(CountryMapperUtil.getFullName(person.getCountry()));
         User user = userMapper.personToUser(person);
         user.setPassword(PasswordGeneratorUtil.generatePassword());
         Country country = countries.stream()

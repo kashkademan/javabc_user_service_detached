@@ -1,13 +1,13 @@
-package school.faang.user_service.mapper.country;
+package school.faang.user_service.util;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-public class CountryMapper {
-    private static final Map<String, String> COUNTRY_MAP = new HashMap<>();
+@UtilityClass
+public class CountryMapperUtil {
+    private final Map<String, String> COUNTRY_MAP = new HashMap<>();
 
     static
     {
