@@ -3,7 +3,7 @@ name: CI Pipeline User Service Triton Stream 10
 on:
   pull_request:
     branches:
-      ["triton-master-stream10", "develop/pipeline-77818"]
+      ["triton-master-stream10"]
 
 jobs:
   build:
