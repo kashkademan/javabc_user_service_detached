@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PromotionValidatorTest {
+public class PromotionValidatorTest {
     @InjectMocks
     private PromotionValidator promotionValidator;
     @Mock
@@ -23,46 +23,41 @@ class PromotionValidatorTest {
     @Test
     void testCheckActivePromotionForUser_noActivePromotion() {
         long userId = 1L;
-        long tariffId = 2L;
 
         when(promotionRepository.existsByUserIdAndStatus(userId, PromotionStatus.ACTIVE)).thenReturn(false);
 
-        assertDoesNotThrow(() -> promotionValidator.checkActivePromotionForUser(userId, tariffId));
+        assertDoesNotThrow(() -> promotionValidator.checkActivePromotionForUser(userId));
     }
 
     @Test
-    void checkActivePromotionForUser_activePromotionExists() {
+    void testCheckActivePromotionForUser_activePromotionExists() {
         long userId = 1L;
-        long tariffId = 2L;
 
         when(promotionRepository.existsByUserIdAndStatus(userId, PromotionStatus.ACTIVE)).thenReturn(true);
 
         assertThrows(
                 ActivePromotionAlreadyExistsException.class,
-                () -> promotionValidator.checkActivePromotionForUser(userId, tariffId)
+                () -> promotionValidator.checkActivePromotionForUser(userId)
         );
     }
 
     @Test
     void testCheckActivePromotionForEvent_noActivePromotion() {
         long eventId = 10L;
-        long tariffId = 20L;
-
         when(promotionRepository.existsByEventIdAndStatus(eventId, PromotionStatus.ACTIVE)).thenReturn(false);
 
-        assertDoesNotThrow(() -> promotionValidator.checkActivePromotionForEvent(eventId, tariffId));
+        assertDoesNotThrow(() -> promotionValidator.checkActivePromotionForEvent(eventId));
     }
 
     @Test
     void testCheckActivePromotionForEvent_activePromotionExists() {
         long eventId = 10L;
-        long tariffId = 20L;
 
         when(promotionRepository.existsByEventIdAndStatus(eventId, PromotionStatus.ACTIVE)).thenReturn(true);
 
         assertThrows(
                 ActivePromotionAlreadyExistsException.class,
-                () -> promotionValidator.checkActivePromotionForEvent(eventId, tariffId)
+                () -> promotionValidator.checkActivePromotionForEvent(eventId)
         );
     }
 }

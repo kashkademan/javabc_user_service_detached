@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
+import school.faang.user_service.exception.event.EventNotFoundException;
+import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
 import school.faang.user_service.exception.goal.GoalAlreadyCompletedException;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
@@ -39,11 +41,13 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(SkillNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(PromotionTariffNotFoundException.class, HttpStatus.NOT_FOUND);
+        HTTP_STATUS_MAP.put(EventNotFoundException.class, HttpStatus.NOT_FOUND);
         HTTP_STATUS_MAP.put(CountActiveGoalMoreMaxException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(GoalAlreadyCompletedException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(SkillAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(EventValidationException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
@@ -61,11 +65,13 @@ public class UserServiceExceptionHandler {
             SkillNotFoundException.class,
             PromotionNotFoundException.class,
             PromotionTariffNotFoundException.class,
+            EventNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
             SkillAlreadyExistsException.class,
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
+            EventValidationException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,
             RetryableException.class

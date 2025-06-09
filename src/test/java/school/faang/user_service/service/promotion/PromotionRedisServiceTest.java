@@ -1,5 +1,6 @@
 package school.faang.user_service.service.promotion;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -9,125 +10,103 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.promotion.Promotion;
-import school.faang.user_service.mapper.promotion.PromotionRedisMapper;
+import school.faang.user_service.mapper.promotion.PromotionRedisMapperImpl;
+import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PromotionRedisServiceTest {
+public class PromotionRedisServiceTest {
     @Mock
     private PromotionRedisRepository promotionRedisRepository;
     @Spy
-    private PromotionRedisMapper promotionRedisMapper;
+    private PromotionRedisMapperImpl promotionRedisMapper;
     @Captor
     private ArgumentCaptor<PromotionRedisModel> promotionRedisModelCaptor;
     @InjectMocks
     private PromotionRedisService promotionRedisService;
 
+    private Promotion promotion;
+
+    @BeforeEach
+    public void setUp() {
+        promotion = new Promotion();
+        promotion.setId(13L);
+    }
+
     @Test
-    void testSavePromotion_savePromotionAndEvent() {
-        Promotion promotion = new Promotion();
-        promotion.setId(1L);
-
-//        PromotionRedisModel mappedModel = new PromotionRedisModel();
-//        mappedModel.setId(1L); // Укажи нужные поля
-//        doReturn(mappedModel).when(promotionRedisMapper).toEventPromotionRedis(promotion);
-
-        // when
+    void testSavePromotion_successfully() {
         assertDoesNotThrow(() -> promotionRedisService.savePromotion(promotion));
 
-        // then
         verify(promotionRedisRepository).save(promotionRedisModelCaptor.capture());
 
         PromotionRedisModel capturedModel = promotionRedisModelCaptor.getValue();
         assertNotNull(capturedModel);
-        assertEquals("PROMOTION: 1", capturedModel.getKey());
-        assertEquals(1L, capturedModel.getId());
+        assertEquals(RedisHashType.PROMOTION + ": " + promotion.getId(), capturedModel.getKey());
+        assertEquals(promotion.getId(), capturedModel.getId());
     }
 
-//    @Test
-//    void testUpdatePromotedEvent_saveUpdatedEvent() {
-//        Event event = new Event();
-//        EventRedisModel eventRedisModel = new EventRedisModel();
-//
-//        when(eventRedisMapper.toEventRedis(event)).thenReturn(eventRedisModel);
-//        when(eventRedisRepository.save(any())).thenReturn(eventRedisModel);
-//
-//        promotionRedisService.updatePromotedEvent(event);
-//
-//        verify(eventRedisRepository).save(eventRedisModel);
-//    }
-//
-//    @Test
-//    void testGetPromotedEvents_returnFilteredEventsAndDecrementViews() {
-//        EventRedisModel model = new EventRedisModel();
-//        model.setId("e1");
-//        model.setPromotionId("p1");
-//        model.setTitle("Test");
-//        model.setStartDate(LocalDateTime.now().plusHours(1));
-//        model.setCoefficientPriority(1);
-//
-//        PromotionRedisModel promoModel = new PromotionRedisModel();
-//        promoModel.setId("p1");
-//        promoModel.setCountView(5);
-//
-//        when(eventRedisRepository.findAll()).thenReturn(List.of(model));
-//        when(promotionRedisRepository.findById("p1")).thenReturn(Optional.of(promoModel));
-//        when(promotionRedisRepository.save(any())).thenReturn(promoModel);
-//        when(eventRedisMapper.toEventEntity(model)).thenReturn(new Event());
-//
-//        EventFilter filter = new EventFilter();
-//        filter.setTitle("Test");
-//
-//        List<Event> result = promotionRedisService.getPromotedEvents(filter);
-//
-//        assertEquals(1, result.size());
-//        verify(promotionRedisRepository).save(any());
-//    }
-//
-//    @Test
-//    void testDecrementCountView_deletePromotionAndEventWhenViewZero() {
-//        EventRedisModel eventRedis = new EventRedisModel();
-//        eventRedis.setId("event1");
-//        eventRedis.setPromotionId("promo1");
-//
-//        PromotionRedisModel promo = new PromotionRedisModel();
-//        promo.setId(eventRedis.getPromotionId());
-//        promo.setCountView(1);
-//
-//        when(promotionRedisRepository.findById(eventRedis.getPromotionId())).thenReturn(Optional.of(promo));
-//
-//        EventFilter filter = new EventFilter();
-//        when(eventRedisRepository.findAll()).thenReturn(List.of(eventRedis));
-//        when(eventRedisMapper.toEventEntity(any())).thenReturn(new Event());
-//
-//        promotionRedisService.getPromotedEvents(filter);
-//
-//        verify(promotionViewExpiredQueueStorage).addDeletedPromotion(promo.getId());
-//        verify(eventRedisRepository).deleteById(eventRedis.getId());
-//        verify(promotionRedisRepository).deleteById(promo.getId());
-//    }
-//
-//    @Test
-//    void testDecrementCountView_promotionNotFound() {
-//        EventRedisModel model = new EventRedisModel();
-//        model.setId("eventX");
-//        model.setPromotionId("promoX");
-//
-//        when(eventRedisRepository.findAll()).thenReturn(List.of(model));
-//        when(promotionRedisRepository.findById(model.getPromotionId())).thenReturn(Optional.empty());
-//
-//        EventFilter filter = new EventFilter();
-//        when(eventRedisMapper.toEventEntity(any())).thenReturn(new Event());
-//
-//        promotionRedisService.getPromotedEvents(filter);
-//
-//        verify(eventRedisRepository).deleteById(model.getId());
-//        verify(promotionViewExpiredQueueStorage).addDeletedPromotion(model.getPromotionId());
-//    }
+    @Test
+    void testGetAllPromotions_returnList() {
+        PromotionRedisModel p1 = new PromotionRedisModel();
+        PromotionRedisModel p2 = new PromotionRedisModel();
+
+        Iterable<PromotionRedisModel> iterable = List.of(p1, p2);
+        when(promotionRedisRepository.findAll()).thenReturn(iterable);
+
+        List<PromotionRedisModel> result = promotionRedisService.getAllPromotions();
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(p1));
+        assertTrue(result.contains(p2));
+    }
+
+    @Test
+    void testDecrementCountViewByEventIds_decrementAndSave() {
+        Long eventId = 42L;
+
+        PromotionRedisModel model = new PromotionRedisModel();
+        model.setKey("PROMOTION: 42");
+        model.setCountView(5);
+
+        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.of(model));
+        when(promotionRedisRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        promotionRedisService.decrementCountViewByEventIds(List.of(eventId));
+
+        assertEquals(4, model.getCountView());
+        verify(promotionRedisRepository).save(model);
+    }
+
+    @Test
+    void testDecrementCountViewByEventIds_doNothingIfNotFound() {
+        Long eventId = 42L;
+        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.empty());
+
+        assertDoesNotThrow(() -> promotionRedisService.decrementCountViewByEventIds(List.of(eventId)));
+
+        verify(promotionRedisRepository).findByEventId(eventId);
+        verify(promotionRedisRepository, never()).save(any());
+    }
+
+    @Test
+    void testDeletePromotionByKey_successfully() {
+        String key = "PROMOTION: 42";
+
+        assertDoesNotThrow(() -> promotionRedisService.deletePromotionByKey(key));
+
+        verify(promotionRedisRepository).deleteById(key);
+    }
 }

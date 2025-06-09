@@ -11,6 +11,7 @@ import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.event.EventValidationException;
@@ -65,8 +66,8 @@ public class EventService {
     @Transactional(readOnly = true)
     public Event getEventById(long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventValidationException(
-                        String.format("Событие с id=%d не найдено", eventId)));
+                .orElseThrow(() -> new EventNotFoundException(
+                        eventId));
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +78,7 @@ public class EventService {
     @Transactional
     public void deleteEventById(long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new EventValidationException(String.format("Событие с id=%d не найдено и не может быть удалено", eventId));
+            throw new EventNotFoundException(eventId);
         }
 
         eventRepository.deleteById(eventId);
@@ -145,7 +146,6 @@ public class EventService {
             promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
 
             return events;
-
         } finally {
             GracefullyShutdownThreadPool.gracefullyShutdown(threadPool);
         }

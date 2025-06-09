@@ -12,6 +12,7 @@ import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EventServiceTest {
+public class EventServiceTest {
     @InjectMocks
     private EventService eventService;
     @Mock
@@ -113,7 +114,7 @@ class EventServiceTest {
         long eventId = 1L;
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
-        assertThrows(EventValidationException.class, () -> eventService.getEventById(eventId));
+        assertThrows(EventNotFoundException.class, () -> eventService.getEventById(eventId));
     }
 
     @Test
@@ -131,7 +132,7 @@ class EventServiceTest {
         long eventId = 1L;
         when(eventRepository.existsById(eventId)).thenReturn(false);
 
-        assertThrows(EventValidationException.class, () -> eventService.deleteEventById(eventId));
+        assertThrows(EventNotFoundException.class, () -> eventService.deleteEventById(eventId));
     }
 
     @Test
@@ -153,6 +154,7 @@ class EventServiceTest {
         assertEquals(skills, result.getRelatedSkills());
         verify(eventValidator).validateOwnerHasSkills(userId, skills);
         verify(eventValidator).validateEventDates(event.getStartDate(), event.getEndDate());
+        verify(eventRedisService).updatePromotedEvent(event);
     }
 
     @Test

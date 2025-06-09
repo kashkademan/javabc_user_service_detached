@@ -45,7 +45,7 @@ public class PromotionService {
 
     @Transactional
     public Promotion createPromotion(long eventId, long tariffId) {
-        promotionValidator.checkActivePromotionForEvent(eventId, tariffId);
+        promotionValidator.checkActivePromotionForEvent(eventId);
 
         Event event = eventService.getEventById(eventId);
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);

@@ -52,7 +52,7 @@ public class PromotionRedisService {
         });
     }
 
-    public void decrementCountView(PromotionRedisModel promotion) {
+    private void decrementCountView(PromotionRedisModel promotion) {
         int newCount = promotion.getCountView() - 1;
         promotion.setCountView(newCount);
         promotionRedisRepository.save(promotion);
