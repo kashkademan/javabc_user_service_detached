@@ -15,6 +15,7 @@ import school.faang.user_service.entity.promotion.PromotionType;
 import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExistsException;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
+import school.faang.user_service.service.event.EventRedisService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
@@ -24,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,6 +48,8 @@ class PromotionServiceTest {
     private PromotionRedisService promotionRedisService;
     @Mock
     private PromotionValidator promotionValidator;
+    @Mock
+    private EventRedisService eventRedisService;
     private final Long eventId = 1L;
     private final Long tariffId = 2L;
     private final Long promotionId = 3L;
@@ -104,9 +109,9 @@ class PromotionServiceTest {
         assertEquals(tariff, result.getTariff());
         assertEquals(PromotionStatus.ACTIVE, result.getStatus());
         verify(promotionValidator).checkActivePromotionForEvent(eventId, tariffId);
-//        verify(paymentService).sendPayment(tariff);
         verify(promotionRepository).save(any(Promotion.class));
-//        verify(promotionRedisService).savePromotion(any(Promotion.class), eq(event));
+        verify(promotionRedisService).savePromotion(any(Promotion.class));
+        verify(eventRedisService).saveEvent(any(Event.class), anyLong());
     }
 
     @Test
