@@ -13,12 +13,8 @@ import org.springframework.context.annotation.Bean;
 import school.faang.user_service.controller.education.EducationController;
 import school.faang.user_service.dto.EducationDto;
 
-import static java.lang.Long.parseLong;
-
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
-@RequiredArgsConstructor
-@Data
 public class UserServiceApplication  {
 
     public static void main(String[] args) {
@@ -32,5 +28,4 @@ public class UserServiceApplication  {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
     }
-
 }

@@ -20,6 +20,5 @@ public class EducationController {
 
     public EducationDto getById(long educationId) {
         return educationService.getById(educationId);
-
     }
 }

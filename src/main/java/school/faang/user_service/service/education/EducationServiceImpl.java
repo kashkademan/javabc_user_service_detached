@@ -1,6 +1,5 @@
 package school.faang.user_service.service.education;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,6 @@ public class EducationServiceImpl implements EducationService {
                 .orElseThrow(() -> new EntityNotFoundException("User with id=%d not found"));
         Education education = educationMapper.toEntity(educationDto);
         education.setUser(user);
-
         return educationMapper.toDto(educationRepository.save(education));
     }
 
