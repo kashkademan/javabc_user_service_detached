@@ -21,7 +21,7 @@ import school.faang.user_service.facade.event.EventFacade;
 import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/events/api/v1")
 @RequiredArgsConstructor
 public class EventController {
 
