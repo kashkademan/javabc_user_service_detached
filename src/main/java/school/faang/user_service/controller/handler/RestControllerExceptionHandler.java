@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.avatar.AvatarException;
 import school.faang.user_service.exception.UserNotFoundException;
 
 @Slf4j
@@ -26,5 +27,12 @@ public class RestControllerExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("not_found", e.getMessage()));
+    }
+
+    @ExceptionHandler(AvatarException.class)
+    public ResponseEntity<String> handleAvatarException(AvatarException exception) {
+        log.error("AvatarException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
     }
 }
