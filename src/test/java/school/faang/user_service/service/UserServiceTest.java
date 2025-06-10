@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
@@ -12,14 +13,14 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import java.io.IOException;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import org.mockito.Mockito;
 import school.faang.user_service.dto.UserDto;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -98,7 +99,7 @@ class UserServiceTest {
 
         assertEquals(userId, result);
     }
-    
+
    @Test
    void getUserByIdException(){
         long id = -1L;
@@ -107,7 +108,7 @@ class UserServiceTest {
 
         assertThrows(IllegalArgumentException.class, ()->userRepository.findById(id));
    }
-  
+
     private UserFullDto createDto(String username, String email, String phone, Integer experience) {
         return UserFullDto.builder()
                 .username(username)

@@ -112,17 +112,17 @@ class MentorshipRequestServiceTest {
                         LocalDateTime.of(2025, 1, 1, 1, 1),
                         LocalDateTime.of(2025, 4, 1, 1, 1));
 
-        MentorshipResponseDto responseDto = new MentorshipResponseDto(1L, "asdf", requesterId, receiverId,
-                RequestStatus.ACCEPTED,
-                LocalDateTime.of(2025, 1, 1, 1, 1),
-                LocalDateTime.of(2025, 4, 1, 1, 1));
-
         when(mentorshipRequestRepository
                 .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optionalMentorshipRequest);
         when(mentorshipRequestRepository.create(dto.requesterId(), dto.receiverId(), dto.description()))
                 .thenReturn(mentorshipRequest);
 
         MentorshipResponseDto result = mentorshipRequestService.requestMentorship(dto);
+
+        MentorshipResponseDto responseDto = new MentorshipResponseDto(1L, "asdf", requesterId, receiverId,
+                RequestStatus.ACCEPTED,
+                LocalDateTime.of(2025, 1, 1, 1, 1),
+                LocalDateTime.of(2025, 4, 1, 1, 1));
 
         assertNotNull(result);
         assertEquals(responseDto, result);
@@ -279,7 +279,7 @@ class MentorshipRequestServiceTest {
     }
 
     private MentorshipRequest createMentorshipRequest(Long requestId, String description, Long userid1, Long userId2,
-                                                      RequestStatus status){
+                                                      RequestStatus status) {
         return new MentorshipRequest(requestId,
                 description,
                 User.builder().id(userid1).build(),
@@ -291,9 +291,10 @@ class MentorshipRequestServiceTest {
         );
     }
 
-    private MentorshipRequestDto createMentorshipDto(String description, long requesterID, long receiverId,
-                                                     RequestStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new MentorshipRequestDto(description, requesterID, receiverId,
+    private MentorshipRequestDto createMentorshipDto(String description, long requesterId, long receiverId,
+                                                     RequestStatus status, LocalDateTime createdAt,
+                                                     LocalDateTime updatedAt) {
+        return new MentorshipRequestDto(description, requesterId, receiverId,
                 status, createdAt, updatedAt);
     }
 

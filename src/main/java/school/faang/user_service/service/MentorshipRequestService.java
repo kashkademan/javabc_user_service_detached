@@ -88,8 +88,8 @@ public class MentorshipRequestService {
         request.setRejectionReason(rejection.reason());
     }
 
-    private Stream<MentorshipRequest> getFilteredRequest
-            (List<MentorshipRequest> listRequest, MentorshipRequestFilterDto filterDto) {
+    private Stream<MentorshipRequest> getFilteredRequest(
+            List<MentorshipRequest> listRequest, MentorshipRequestFilterDto filterDto) {
         Stream<MentorshipRequest> requestStream = listRequest.stream();
         for (RequestFilter filter : filters) {
             if (filter.isApplicable(filterDto)) {
@@ -100,6 +100,7 @@ public class MentorshipRequestService {
     }
 
     private MentorshipRequest getMentorshipRequestById(Long id) {
-        return mentorshipRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("there is no such id"));
+        return mentorshipRequestRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("there is no such id"));
     }
 }
