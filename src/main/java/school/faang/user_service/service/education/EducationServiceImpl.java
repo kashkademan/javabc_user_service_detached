@@ -42,8 +42,7 @@ public class EducationServiceImpl implements EducationService {
         }
 
         Optional<Education> existingEducation = educationRepository.findById(educationDto.getId());
-        String educationId;
-        if (educationId.isEmpty()) {
+        if (existingEducation.isEmpty()) {
             throw new EntityNotFoundException("User with id=%d not found");
         }
 
