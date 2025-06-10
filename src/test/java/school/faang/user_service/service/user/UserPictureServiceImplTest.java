@@ -9,7 +9,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.AvatarConfiguration;
-import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapperImpl;
@@ -67,9 +66,8 @@ class UserPictureServiceImplTest {
 
         when(userRepository.saveAndFlush(any())).thenReturn(user);
 
-        UserPersonalDto result = userPictureService.uploadAvatar(userId, mockFile);
+        userPictureService.uploadAvatar(userId, mockFile);
 
-        assertNotNull(result);
         verify(s3Service, times(2)).uploadFile(any(), any());
         verify(userRepository).saveAndFlush(user);
     }
@@ -89,15 +87,10 @@ class UserPictureServiceImplTest {
         when(config.getBucketSubstorage()).thenReturn("userpic/");
         when(s3Service.downloadFile("userpic/avatarBig")).thenReturn(new ByteArrayInputStream(expected));
 
-        byte[] result = userPictureService.getAvatar(userId, "b");
+        byte[] result = userPictureService.getAvatar(userId, "big");
 
         assertArrayEquals(expected, result);
         verify(s3Service).downloadFile("userpic/avatarBig");
-    }
-    @Test
-
-    void getAvatarShouldThrowExceptionWhenInvalidSizeMarker() {
-        assertThrows(IllegalArgumentException.class, () -> userPictureService.getAvatar(1L, "large"));
     }
 
     @Test

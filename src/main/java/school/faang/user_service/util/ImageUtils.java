@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.exception.FileException;
+import school.faang.user_service.exception.FileProcessException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -30,7 +30,7 @@ public class ImageUtils {
                     .toOutputStream(outputStream);
         } catch (Exception e) {
             log.error("Exception while resizing image was thrown", e);
-            throw new FileException("Exception while resizing image was thrown");
+            throw new FileProcessException("Exception while resizing image was thrown");
         }
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
@@ -41,11 +41,11 @@ public class ImageUtils {
             originalImage = ImageIO.read(fileInputStream);
         } catch (IOException e) {
             log.error("IOException while converting image was thrown", e);
-            throw new FileException("IOException while converting image was thrown");
+            throw new FileProcessException("IOException while converting image was thrown");
         }
         if (originalImage == null) {
             log.error("The uploaded file is not a valid image or an unsupported format: {}", file.getOriginalFilename());
-            throw new FileException("Uploaded file is not a valid image or format is not supported: %s"
+            throw new FileProcessException("Uploaded file is not a valid image or format is not supported: %s"
                     .formatted(file.getOriginalFilename()));
         }
         return originalImage;

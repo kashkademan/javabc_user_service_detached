@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,18 +52,23 @@ public class UserController {
     }
 
     @PostMapping(value = "/{userId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> uploadAvatar(@PathVariable long userId, @RequestPart("file") @NonNull MultipartFile file) {
-        UserPersonalDto updatedWIthAvatarDto = userPictureService.uploadAvatar(userId, file);
-        log.info("Avatar was uploaded for user id {}, avatar {}", userId, updatedWIthAvatarDto.getPictureFileId());
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public void uploadAvatar(@PathVariable long userId, @RequestPart("file") @NonNull MultipartFile file) {
+        userPictureService.uploadAvatar(userId, file);
     }
 
-    @Operation(description = "use 'b' or 's' as size marker for big and small version of avatar")
-    @GetMapping("/{userId}/avatar/{size}")
-    public ResponseEntity<byte[]> getAvatar(@PathVariable long userId,
-                                            @PathVariable String size) {
-        byte[] avatar = userPictureService.getAvatar(userId, size);
+    @GetMapping("/{userId}/avatar/big")
+    public ResponseEntity<byte[]> getAvatarBig(@PathVariable long userId) {
+        byte[] avatar = userPictureService.getAvatar(userId, "big");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        log.debug("Avatar was provided for user id {}", userId);
+
+        return new ResponseEntity<>(avatar, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/avatar/small")
+    public ResponseEntity<byte[]> getAvatarSmall(@PathVariable long userId) {
+        byte[] avatar = userPictureService.getAvatar(userId, "small");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         log.debug("Avatar was provided for user id {}", userId);
@@ -73,9 +77,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/avatar")
-    public ResponseEntity<Void> deleteAvatar(@PathVariable long userId) {
+    public void deleteAvatar(@PathVariable long userId) {
         userPictureService.deleteAvatar(userId);
-        log.info("Avatar was deleted for user id {}", userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

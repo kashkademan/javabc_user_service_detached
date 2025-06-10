@@ -5,13 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.AvatarConfiguration;
-import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.exception.S3FileIOException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.S3Service;
 import school.faang.user_service.service.UserPictureService;
@@ -31,7 +29,6 @@ public class UserPictureServiceImpl implements UserPictureService {
     private final AvatarConfiguration config;
     private final S3Service s3Service;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     public String getDefaultPictureLink() {
@@ -49,27 +46,24 @@ public class UserPictureServiceImpl implements UserPictureService {
 
     @Override
     @Transactional
-    public UserPersonalDto uploadAvatar(long userId, MultipartFile file) {
-        User user = getUserChecked(userId);
+    public void uploadAvatar(long userId, MultipartFile file) {
+        User user = getUserFromDb(userId);
 
         BigSmallPair<ByteArrayMultipartFile> avatarsByteMultipartPair = transformIntoByteArraysMultipartPair(file);
-        deleteFromS3IfExists(user);
-        BigSmallPair<String> keyPair = generateKeys(user, file);
-        BigSmallPair<String> savedKeys = uploadPairImages(avatarsByteMultipartPair, keyPair);
+        deleteUsersAvatarsFromS3IfExists(user);
+        BigSmallPair<String> generatedKeyPair = generateKeysForS3(user, file);
+        BigSmallPair<String> savedKeys = uploadPairImages(avatarsByteMultipartPair, generatedKeyPair);
         updateUserWithAvatarKeys(user, savedKeys);
 
         userRepository.saveAndFlush(user);
-
-        return userMapper.toUserPersonalDto(user);
+        log.info("Avatar was uploaded for user id {}, big avatar: {}, small avatar {}",
+                userId, savedKeys.big(), savedKeys.small());
     }
 
     @Override
     public byte[] getAvatar(long userId, String size) {
-        if (size != null && size.length() != 1) {
-            throw new IllegalArgumentException("Image size marker must be 'b' or 's'");
-        }
-        boolean big = "b".equals(size);
-        User user = getUserChecked(userId);
+        boolean big = "big".equals(size);
+        User user = getUserFromDb(userId);
 
         String avatarKey = Optional.ofNullable(user.getUserProfilePic())
                 .map(userProfilePic -> big ? userProfilePic.getFileId() : userProfilePic.getSmallFileId())
@@ -80,25 +74,23 @@ public class UserPictureServiceImpl implements UserPictureService {
             return s3Service.downloadFile(avatarKey).readAllBytes();
         } catch (IOException e) {
             log.error("Error during download {}", e.getMessage());
+            throw new S3FileIOException(e.getMessage());
         }
-        return new byte[0];
     }
 
     @Override
     @Transactional
     public void deleteAvatar(long userId) {
-        User user = getUserChecked(userId);
-        deleteFromS3IfExists(user);
+        User user = getUserFromDb(userId);
+        deleteUsersAvatarsFromS3IfExists(user);
         user.setUserProfilePic(null);
         userRepository.saveAndFlush(user);
+        log.info("Avatar was deleted for user id {}", userId);
     }
 
-    private User getUserChecked(long userId) {
+    private User getUserFromDb(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
-    }
-
-    private record BigSmallPair<T>(T big, T small) {
     }
 
     private BigSmallPair<ByteArrayMultipartFile> transformIntoByteArraysMultipartPair(MultipartFile file) {
@@ -113,7 +105,7 @@ public class UserPictureServiceImpl implements UserPictureService {
         return new BigSmallPair<>(resizedFileBig, resizedFileSmall);
     }
 
-    private void deleteFromS3IfExists(User user) {
+    private void deleteUsersAvatarsFromS3IfExists(User user) {
         Optional.ofNullable(user.getUserProfilePic())
                 .map(UserProfilePic::getFileId)
                 .filter(key -> !key.startsWith(config.getRandomPictureProviderRootUrl()))
@@ -125,7 +117,7 @@ public class UserPictureServiceImpl implements UserPictureService {
                 .ifPresent(s3Service::deleteFile);
     }
 
-    private BigSmallPair<String> generateKeys(User user, MultipartFile file) {
+    private BigSmallPair<String> generateKeysForS3(User user, MultipartFile file) {
         String baseKey = String.format("%s/u%did%d", config.getBucketSubstorage(), user.getId(),
                 Objects.requireNonNull(file.getOriginalFilename()).hashCode()
         );
@@ -150,5 +142,8 @@ public class UserPictureServiceImpl implements UserPictureService {
         newProfilePicture.setFileId(savedKeys.big());
         newProfilePicture.setSmallFileId(savedKeys.small());
         user.setUserProfilePic(newProfilePicture);
+    }
+
+    private record BigSmallPair<T>(T big, T small) {
     }
 }
