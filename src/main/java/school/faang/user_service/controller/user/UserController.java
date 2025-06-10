@@ -12,8 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.service.UserPictureService;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.UserService;
-
 import java.util.List;
 
 @Slf4j
@@ -51,6 +51,7 @@ public class UserController {
         return personalDto;
     }
 
+
     @PostMapping(value = "/{userId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void uploadAvatar(@PathVariable long userId, @RequestPart("file") @NonNull MultipartFile file) {
         userPictureService.uploadAvatar(userId, file);
@@ -80,4 +81,14 @@ public class UserController {
     public void deleteAvatar(@PathVariable long userId) {
         userPictureService.deleteAvatar(userId);
     }
+
+    @PostMapping("/upload-csv")
+    public List<UserDto> uploadCsv(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new DataValidationException("File not found");
+        }
+
+        return userService.processCsv(file);
+    }
 }
+
