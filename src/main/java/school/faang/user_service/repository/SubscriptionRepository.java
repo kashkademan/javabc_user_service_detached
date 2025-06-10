@@ -39,7 +39,8 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT u.id FROM users u
-            WHERE u.followee_id = ?1
+            join subscription as subs on u.id = subs.followee_id
+            WHERE subs.followee_id = :userId
             """)
     Stream<Long> findFollowersIds(Long userId);
 
