@@ -15,42 +15,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinioConfig {
     @Value("${minio.end_point}")
-    private String END_POINT;
+    private String endPoint;
 
     @Value("${minio.access_key}")
-    private String ACCESS_KEY;
+    private String accessKey;
 
     @Value("${minio.secret_key}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     @Value("${minio.region}")
-    private String REGION;
+    private String region;
 
     @Value("${minio.content_length}")
-    private Long CONTENT_LENGTH;
+    private Long contentLength;
 
     @Bean
     public AmazonS3 amazonS3() {
-        if (END_POINT == null || END_POINT.isBlank()) {
+        if (endPoint == null || endPoint.isBlank()) {
             throw new IllegalArgumentException("Endpoint cannot be null or empty");
         }
-        if (ACCESS_KEY == null || ACCESS_KEY.isBlank()) {
+        if (accessKey == null || accessKey.isBlank()) {
             throw new IllegalArgumentException("Access key cannot be null or empty");
         }
-        if (SECRET_KEY == null || SECRET_KEY.isBlank()) {
+        if (secretKey == null || secretKey.isBlank()) {
             throw new IllegalArgumentException("Secret key cannot be null or empty");
         }
-        if (REGION == null || REGION.isBlank()) {
+        if (region == null || region.isBlank()) {
             throw new IllegalArgumentException("Region cannot be null or empty");
         }
 
         return AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(
-                        END_POINT,
-                        REGION
+                        endPoint,
+                        region
                 ))
                 .withPathStyleAccessEnabled(true)
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY)))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
                 .withClientConfiguration(new ClientConfiguration()
                         .withMaxConnections(100)
                         .withConnectionTimeout(10 * 1000))
@@ -58,10 +58,10 @@ public class MinioConfig {
     }
 
     @Bean
-    public TransferManager transferManager(AmazonS3 amazonS3){
+    public TransferManager transferManager(AmazonS3 amazonS3) {
         return TransferManagerBuilder.standard()
                 .withS3Client(amazonS3)
-                .withMultipartUploadThreshold(CONTENT_LENGTH)
+                .withMultipartUploadThreshold(contentLength)
                 .build();
     }
 }

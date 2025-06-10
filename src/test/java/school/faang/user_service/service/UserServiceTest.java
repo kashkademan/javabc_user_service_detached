@@ -86,7 +86,7 @@ class UserServiceTest {
                 .id(userId)
                 .build();
 
-        when(countryService.getCountryByID(any())).thenReturn(country);
+        when(countryService.getCountryById(any())).thenReturn(country);
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(dto)).thenReturn(user);
 
@@ -108,7 +108,7 @@ class UserServiceTest {
                 .id(userId)
                 .build();
 
-        when(countryService.getCountryByID(any())).thenReturn(country);
+        when(countryService.getCountryById(any())).thenReturn(country);
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(any())).thenReturn(user);
 

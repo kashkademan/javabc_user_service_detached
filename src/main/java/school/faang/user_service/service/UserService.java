@@ -28,17 +28,17 @@ public class UserService {
     private final MinioService minioService;
 
     @Value("${dice-bear-api}")
-    private String DICE_BEAR_API;
+    private String diceBearApi;
 
     public User getUserById(Long id) {
-        return userRepo.findById(id).orElseThrow(() -> new EntityNotFoundException
-                ("The Requester with id =" + id + " does not exist"));
+        return userRepo.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("The Requester with id = " + id + " does not exist"));
     }
 
     @Transactional
     public Long newUser(UserFullDto userDto, String filter) throws IOException {
         validation(userDto);
-        Country countryUser = countryService.getCountryByID(userDto.countryId());
+        Country countryUser = countryService.getCountryById(userDto.countryId());
 
         String api = createApi(filter);
 
@@ -84,7 +84,7 @@ public class UserService {
     }
 
     private String createApi(String filter) {
-        return filter == null ? DICE_BEAR_API : DICE_BEAR_API + "?" + filter;
+        return filter == null ? diceBearApi : diceBearApi + "?" + filter;
     }
 
     private void putS3Client(String api, String userEmail) throws IOException {

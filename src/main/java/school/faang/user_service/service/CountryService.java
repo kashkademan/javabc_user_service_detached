@@ -11,7 +11,7 @@ import school.faang.user_service.repository.CountryRepository;
 public class CountryService {
     private final CountryRepository countryRepository;
 
-    public Country getCountryByID(Long id) {
+    public Country getCountryById(Long id) {
         return countryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("There is no country with id = " + id));
     }

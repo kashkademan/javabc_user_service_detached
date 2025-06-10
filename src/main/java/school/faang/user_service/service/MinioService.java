@@ -28,14 +28,14 @@ public class MinioService {
     private final TransferManager transferManager;
 
     @Value("${minio.content_length}")
-    private Long CONTENT_LENGTH;
+    private Long contentLength;
 
     @Value("${minio.bucket}")
-    private String BUCKET_NAME;
+    private String bucketName;
 
     public void createBucket() {
-        if (!amazonS3.doesBucketExistV2(BUCKET_NAME)) {
-            amazonS3.createBucket(BUCKET_NAME);
+        if (!amazonS3.doesBucketExistV2(bucketName)) {
+            amazonS3.createBucket(bucketName);
         }
     }
 
@@ -44,13 +44,12 @@ public class MinioService {
         try (InputStream inputStream = new ByteArrayInputStream(object.getBytes())) {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(contentLength);
-            if (contentLength > CONTENT_LENGTH) {
-                Upload upload = transferManager.upload(BUCKET_NAME, objectName, inputStream, metadata);
+            if (contentLength > this.contentLength) {
+                Upload upload = transferManager.upload(bucketName, objectName, inputStream, metadata);
 
                 upload.waitForCompletion();
-            }
-            else {
-                amazonS3.putObject(BUCKET_NAME, objectName, inputStream, new ObjectMetadata());
+            } else {
+                amazonS3.putObject(bucketName, objectName, inputStream, new ObjectMetadata());
             }
         } catch (InterruptedException e) {
             log.error("Download error", e);
@@ -62,13 +61,12 @@ public class MinioService {
         try (InputStream inputStream = new ByteArrayInputStream(object)) {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(contentLength);
-            if (contentLength > CONTENT_LENGTH) {
-                Upload upload = transferManager.upload(BUCKET_NAME, objectName, inputStream, metadata);
+            if (contentLength > this.contentLength) {
+                Upload upload = transferManager.upload(bucketName, objectName, inputStream, metadata);
 
                 upload.waitForCompletion();
-            }
-            else {
-                amazonS3.putObject(BUCKET_NAME, objectName, inputStream, new ObjectMetadata());
+            } else {
+                amazonS3.putObject(bucketName, objectName, inputStream, new ObjectMetadata());
             }
         } catch (InterruptedException e) {
             log.error("Download error", e);
@@ -77,7 +75,7 @@ public class MinioService {
     }
 
     public String downloadFile(String objectName) throws IOException {
-        S3Object s3Object = amazonS3.getObject(BUCKET_NAME, objectName);
+        S3Object s3Object = amazonS3.getObject(bucketName, objectName);
         try (InputStream inputStream = s3Object.getObjectContent()) {
             return new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
@@ -86,13 +84,13 @@ public class MinioService {
     }
 
     public List<String> listFiles() {
-        return amazonS3.listObjects(BUCKET_NAME).getObjectSummaries().stream()
+        return amazonS3.listObjects(bucketName).getObjectSummaries().stream()
                 .map(S3ObjectSummary::getKey)
                 .toList();
     }
 
     public void deleteFile(String fileName) {
-        amazonS3.deleteObject(BUCKET_NAME, fileName);
+        amazonS3.deleteObject(bucketName, fileName);
     }
 
     public void shutdownBucket() {
