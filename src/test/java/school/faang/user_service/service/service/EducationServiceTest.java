@@ -49,12 +49,12 @@ public class EducationServiceTest {
 
     @Test
     public void addEducationAdds() {
-        EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
         UserDto userDto = new UserDto(ID, "name", "email");
         User user = userMapper.toEntity(userDto);
         user.setEducation(new ArrayList<>());
         when(userService.getUserById(ID)).thenReturn(userDto);
         when(userMapper.toEntity(userDto)).thenReturn(user);
+        EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
         assertEquals(educationService.addEducation(ID, educationDto), educationDto);
     }
 
@@ -63,7 +63,8 @@ public class EducationServiceTest {
         EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
         User user = new User();
         user.setId(ID);
-        when(educationRepository.findById(educationDto.id())).thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
+        when(educationRepository.findById(educationDto.id()))
+                .thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
         assertThrows(DataValidationException.class, () -> educationService.updateEducation(2, educationDto));
     }
 
@@ -72,7 +73,8 @@ public class EducationServiceTest {
         EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
         User user = new User();
         user.setId(ID);
-        when(educationRepository.findById(educationDto.id())).thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
+        when(educationRepository.findById(educationDto.id()))
+                .thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
 
         assertEquals(educationDto, educationService.updateEducation(ID, educationDto));
     }
