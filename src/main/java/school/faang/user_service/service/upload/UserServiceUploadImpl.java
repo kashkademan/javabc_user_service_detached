@@ -120,6 +120,8 @@ public class UserServiceUploadImpl implements UserServiceUpload {
         User savedUser = userRepository.save(user);
 
         Education education = csvUserMapper.toEducation(studentDto);
+        education.setYearFrom(studentDto.getAdmissionDate() != null ? studentDto.getAdmissionDate().getYear() : null);
+        education.setYearTo(studentDto.getGraduationDate() != null ? studentDto.getGraduationDate().getYear() : null);
         education.setUser(savedUser);
         educationRepository.save(education);
 
