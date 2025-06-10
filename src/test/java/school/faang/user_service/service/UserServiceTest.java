@@ -44,7 +44,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(userService, "DICE_BEAR_API", "http://example.com/api");
+        ReflectionTestUtils.setField(userService, "diceBearApi", "http://example.com/api");
     }
 
     @Test
