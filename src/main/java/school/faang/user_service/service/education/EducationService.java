@@ -3,7 +3,6 @@ package school.faang.user_service.service.education;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EducationDto;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -24,8 +23,7 @@ public class EducationService {
 
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         validate(educationDto);
-        UserDto userDto = userService.getUserById(userId);
-        User user = userMapper.toEntity(userDto);
+        User user = userService.getUserById(userId);
         Education education = educationMapper.toEntity(educationDto);
         user.getEducation().add(education);
         education.setUser(user);

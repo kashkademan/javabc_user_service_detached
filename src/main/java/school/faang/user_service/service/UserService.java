@@ -24,7 +24,7 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
     private final CountryService countryService;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final MinioService minioService;
 
     @Value("${dice-bear-api}")
