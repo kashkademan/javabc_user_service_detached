@@ -22,6 +22,6 @@ public class EventUpdateDto {
     private LocalDateTime endDate;
     private String location;
     private List<Long> relatedSkills;
-    private EventType eventType;
-    private EventStatus eventStatus;
+    private EventType type;
+    private EventStatus status;
 }

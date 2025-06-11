@@ -8,6 +8,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
 import school.faang.user_service.repository.event.EventFilterRepository;
@@ -36,6 +37,7 @@ public class EventService {
         long userId = userContext.getUserId();
         User owner = userService.getUserById(userId);
         event.setOwner(owner);
+        event.setStatus(EventStatus.PLANNED);
 
         if (relatedSkillIds != null && !relatedSkillIds.isEmpty()) {
             List<Skill> skills = skillService.getSkillsByIds(relatedSkillIds);
