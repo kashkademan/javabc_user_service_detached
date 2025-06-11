@@ -15,7 +15,6 @@ public class SkillController {
 
     public SkillDto create(SkillDto skill) {
         validateSkill(skill);
-        //todo: вызвать метод из SkillService
         return skillService.create(skill);
     }
 
