@@ -50,7 +50,11 @@ public class MentorshipRequestService {
         MentorshipRequest newMentorshipRequest = mentorshipRequestRepository
                 .create(request.requesterId(), request.receiverId(), request.description());
 
-        MentorshipRequestEvent event = new MentorshipRequestEvent(request.requesterId(), request.receiverId(), newMentorshipRequest.getId());
+        MentorshipRequestEvent event = new MentorshipRequestEvent(
+                request.requesterId(),
+                request.receiverId(),
+                newMentorshipRequest.getId()
+        );
         mentorshipRequestEventPublisher.publish(event);
 
         return responseMapper.toDto(newMentorshipRequest);

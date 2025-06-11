@@ -16,6 +16,6 @@ public class MentorshipRequestEventPublisher {
 
     @SneakyThrows
     public void publish(MentorshipRequestEvent event) {
-        redisTemplate.convertAndSend("mentorshipRequest_topic",event);
+        redisTemplate.convertAndSend("mentorshipRequest_topic", event);
     }
 }
