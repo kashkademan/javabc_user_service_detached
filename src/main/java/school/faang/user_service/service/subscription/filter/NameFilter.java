@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 @Component
 public class NameFilter implements UserFilter {
     @Override
-    public boolean isApplicable(@Valid UserFilterDto filters) {
-        return true;
+    public boolean isApplicable(UserFilterDto filters) {
+        return filters.namePattern() != null;
     }
 
     @Override

@@ -44,7 +44,9 @@ public class SubscriptionService {
     public List<User> filterUser(List<User> users, UserFilterDto userFilterDto) {
         Stream<User> usersStream = users.stream();
         for (UserFilter filter : filters) {
-            usersStream = filter.apply(usersStream, userFilterDto);
+            if (filter.isApplicable(userFilterDto)) {
+                usersStream = filter.apply(usersStream, userFilterDto);
+            }
         }
         return usersStream.toList();
     }
