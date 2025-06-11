@@ -1,7 +1,9 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mentorshiprequest")
+@Validated
 public class MentorshipRequestController {
     private final MentorshipRequestService service;
 
@@ -29,17 +32,18 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
-    public List<MentorshipResponseDto> getRequests(@RequestBody MentorshipRequestFilterDto filter) {
+    public List<MentorshipResponseDto> getRequests(@Valid @RequestBody MentorshipRequestFilterDto filter) {
         return service.getRequests(filter);
     }
 
     @PutMapping(value = "/accept/{id}")
-    public void acceptRequest(@PathVariable("id") Long id) {
+    public void acceptRequest(@PathVariable("id") @Min(value = 1, message = "id must be a positive number") Long id) {
         service.acceptRequest(id);
     }
 
     @PutMapping(value = "/reject/{id}")
-    public void rejectRequest(@PathVariable("id") Long id, @RequestBody RejectionDto rejection) {
+    public void rejectRequest(@PathVariable("id") @Min(value = 1, message = "id must be a positive number") Long id,
+                              @RequestBody RejectionDto rejection) {
         service.rejectRequest(id, rejection);
     }
 }

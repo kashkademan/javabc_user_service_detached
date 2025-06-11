@@ -1,6 +1,7 @@
 package school.faang.user_service.service.goal;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.CreateGoalRequestDto;
@@ -105,7 +106,7 @@ public class GoalService {
         return applyFilters(goalRepository.findGoalsByUserId(userId), goalFilterDto);
     }
 
-    private List<GoalDto> applyFilters(Stream<Goal> goals, GoalFilterDto filterDto) {
+    private List<GoalDto> applyFilters(Stream<Goal> goals, @Valid GoalFilterDto filterDto) {
         for (GoalFilter filter : filters) {
             if (filter.isApplicable(filterDto)) {
                 goals = filter.apply(goals, filterDto);
