@@ -1,4 +1,6 @@
 package school.faang.user_service.dto;
 
-public record UserDto(Long id, String username, String email) {
+import java.util.Locale;
+
+public record UserDto(Long id, String username, String email, Locale locale) {
 }
