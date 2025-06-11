@@ -31,7 +31,7 @@ public class MentorshipRequestValidator {
                 .findLatestRequest(mentorshipRequestDto.getRequesterId(), mentorshipRequestDto.getReceiverId())
                 .map(MentorshipRequest::getCreatedAt)
                 .ifPresent(createdAt -> {
-                    if (createdAt.plusMonths(MentorshipRequestService.MENTORSHIP_REQUEST_WAIT_LIMIT).isAfter(LocalDateTime.now())) {
+                    if (createdAt.plusMonths(MentorshipRequestService.MONTHS_REQUEST_SENDING_RESTRICTIONS).isAfter(LocalDateTime.now())) {
                         throw new DataValidationException("Повторный запрос возможен только через 3 месяца.");
                     }
                 });
