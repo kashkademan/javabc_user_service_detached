@@ -15,6 +15,9 @@ spring:
   web:
     servlet:
       context-path: /api/v1
+  servlet:
+    multipart:
+      max-file-size: 5MB
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -39,13 +42,25 @@ payment-service:
   host: localhost
   port: 9080
 
+s3:
+  endpoint: http://localhost:9000
+  accessKey: user
+  secretKey: password
+  bucketName: corpbucket
+  isMocked: false
+  region: eu-central-1
+
 logic:
   constants:
     max_active_goals: 3
 
 picture-provider:
-  picture_provider_root_url: https://api.dicebear.com/9.x/identicon/svg
+  random_picture_provider_root_url: https://api.dicebear.com/9.x/identicon/svg
   default_small_avatar_seed: rotate=10&scale=80&row1=xooox&row2=oxoxo&row3=ooxoo&row4=oxoxo&row5=xooox&rowColor=00acff
+  image_limit_size: 5
+  big_image_limit: 1080
+  small_image_limit: 170
+  bucket_substorage: user/avatar
 
 feign:
   client:

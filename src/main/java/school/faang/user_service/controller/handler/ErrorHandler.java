@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.ErrorResponseDto;
+import school.faang.user_service.exception.FileProcessException;
+import school.faang.user_service.exception.S3FileIOException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.UserServiceException;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -111,6 +112,31 @@ public class ErrorHandler {
         return new ErrorResponseDto(
                 HttpStatus.METHOD_NOT_ALLOWED.name(),
                 "Operation not supported",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
+    @ExceptionHandler(S3FileIOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseDto s3FileIOHandler(S3FileIOException e) {
+        log.error("File didn't processed with S3 {}", e.getMessage());
+        return new ErrorResponseDto(
+                HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                "Content didn't saved or received",
+                e.getMessage(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
+
+    @ExceptionHandler(FileProcessException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseDto fileProcessHandler(FileProcessException e) {
+        log.error("Provided file wasn't processed correctly", e.getMessage());
+        return new ErrorResponseDto(
+                HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                "Couldn't converted provided file",
                 e.getMessage(),
                 LocalDateTime.now().format(formatter)
         );
