@@ -26,7 +26,7 @@ import school.faang.user_service.validator.UserValidator;
 @RequiredArgsConstructor
 public class MentorshipRequestService {
 
-    public static final int MENTORSHIP_REQUEST_WAIT_LIMIT = 3;
+    public static final int MONTHS_REQUEST_SENDING_RESTRICTIONS = 3;
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserValidator userValidator;
     private final UserRepository userRepository;
