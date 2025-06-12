@@ -26,6 +26,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      channels:
+          user_ban: user_ban
 
 server:
   port: 8080
