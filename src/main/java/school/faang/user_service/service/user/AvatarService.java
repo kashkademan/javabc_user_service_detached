@@ -39,7 +39,7 @@ public class AvatarService {
     @Transactional
     public void addAvatar(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
 
         byte[] largeImageBytes = imageResizingService.resizeImage(file, LARGE_IMAGE_SIZE);
         byte[] smallImageBytes = imageResizingService.resizeImage(file, SMALL_IMAGE_SIZE);
