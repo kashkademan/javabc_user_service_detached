@@ -21,7 +21,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 @ConditionalOnProperty(value = "services.s3.enabled", havingValue = "true")
-public class S3Service{
+public class S3Service {
     private final AmazonS3 s3Client;
 
     @Value("${services.s3.bucketName}")

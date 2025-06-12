@@ -50,7 +50,7 @@ public class AvatarServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> avatarService.getAvatar(USER_ID));
-        assertEquals("User not found", e.getMessage());
+        assertEquals(String.format("User with id %s not found", USER_ID), e.getMessage());
         verify(userRepository).findById(USER_ID);
         verifyNoInteractions(s3Service);
     }
@@ -91,7 +91,7 @@ public class AvatarServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> avatarService.addAvatar(USER_ID, file));
-        assertEquals("User not found", e.getMessage());
+        assertEquals(String.format("User with id %s not found", USER_ID), e.getMessage());
         verify(userRepository).findById(USER_ID);
         verifyNoInteractions(imageResizingService, s3Service);
     }
@@ -126,7 +126,7 @@ public class AvatarServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> avatarService.deleteAvatar(USER_ID));
-        assertEquals("User not found", e.getMessage());
+        assertEquals(String.format("User with id %s not found", USER_ID), e.getMessage());
         verify(userRepository).findById(USER_ID);
         verifyNoInteractions(s3Service);
     }
@@ -156,10 +156,8 @@ public class AvatarServiceTest {
 
         verify(s3Service).deleteFile("largeKey");
         verify(s3Service).deleteFile("smallKey");
-        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(captor.capture());
-        User savedUser = captor.getValue();
-        assertNull(savedUser.getUserProfilePic().getFileId());
-        assertNull(savedUser.getUserProfilePic().getSmallFileId());
+
+        assertNull(user.getUserProfilePic().getFileId());
+        assertNull(user.getUserProfilePic().getSmallFileId());
     }
 }

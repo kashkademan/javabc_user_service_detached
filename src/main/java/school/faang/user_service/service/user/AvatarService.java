@@ -12,7 +12,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.ImageResizingService;
 import school.faang.user_service.service.s3.S3Service;
 
-
 @Service
 @RequiredArgsConstructor
 public class AvatarService {
@@ -25,7 +24,7 @@ public class AvatarService {
 
     public UserAvatarDto getAvatar(Long userId) {
         UserProfilePic avatar = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"))
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)))
                 .getUserProfilePic();
 
         if (avatar == null || avatar.getFileId() == null || avatar.getSmallFileId() == null) {
@@ -40,7 +39,7 @@ public class AvatarService {
     @Transactional
     public void addAvatar(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
 
         byte[] largeImageBytes = imageResizingService.resizeImage(file, LARGE_IMAGE_SIZE);
         byte[] smallImageBytes = imageResizingService.resizeImage(file, SMALL_IMAGE_SIZE);
@@ -64,7 +63,7 @@ public class AvatarService {
     @Transactional
     public void deleteAvatar(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
         UserProfilePic avatar = user.getUserProfilePic();
 
         if (avatar == null || avatar.getFileId() == null || avatar.getSmallFileId() == null) {
@@ -75,6 +74,5 @@ public class AvatarService {
         s3Service.deleteFile(avatar.getSmallFileId());
         avatar.setFileId(null);
         avatar.setSmallFileId(null);
-        userRepository.save(user);
     }
 }
