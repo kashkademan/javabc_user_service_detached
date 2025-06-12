@@ -20,6 +20,7 @@ public class UserService {
     private final CountryRepository countryRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final AvatarService avatarService;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -34,6 +35,7 @@ public class UserService {
                 .orElseThrow(() -> new DataValidationException("Unknown country: " + countryTitle));;
         User userEntity = userMapper.toEntity(username, country, email, passwordEncoder.encode(password));
         User user = userRepository.save(userEntity);
+        avatarService.generateRandomAvatar(user.getId());
         return userMapper.toDto(user);
     }
 

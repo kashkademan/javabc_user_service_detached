@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.NotFoundException;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.dicebear.DicebearService;
 import school.faang.user_service.service.image.ImageResizingService;
 import school.faang.user_service.service.s3.S3Service;
 
@@ -21,6 +22,7 @@ public class AvatarService {
     private final UserRepository userRepository;
     private final ImageResizingService imageResizingService;
     private final S3Service s3Service;
+    private final DicebearService dicebearService;
 
     public UserAvatarDto getAvatar(Long userId) {
         UserProfilePic avatar = userRepository.findById(userId)
@@ -74,5 +76,29 @@ public class AvatarService {
         s3Service.deleteFile(avatar.getSmallFileId());
         avatar.setFileId(null);
         avatar.setSmallFileId(null);
+    }
+
+    @Transactional
+    public void generateRandomAvatar(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        byte[] largeImageBytes = dicebearService.getImage("webp" ,LARGE_IMAGE_SIZE);
+        byte[] smallImageBytes = dicebearService.getImage("webp", SMALL_IMAGE_SIZE);
+
+        String largeImageFolder = "user_avatars_large";
+        String smallImageFolder = "user_avatars_small";
+        String largeFileId = s3Service.uploadFile(largeImageBytes, "image/webp", largeImageFolder);
+        String smallFileId = s3Service.uploadFile(smallImageBytes, "image/webp", smallImageFolder);
+
+        UserProfilePic avatar = user.getUserProfilePic();
+        if (avatar == null) {
+            avatar = new UserProfilePic();
+        }
+        avatar.setFileId(largeFileId);
+        avatar.setSmallFileId(smallFileId);
+
+        user.setUserProfilePic(avatar);
+        userRepository.save(user);
     }
 }

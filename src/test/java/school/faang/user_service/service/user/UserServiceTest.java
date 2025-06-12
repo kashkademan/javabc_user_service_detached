@@ -40,8 +40,12 @@ public class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private AvatarService avatarService;
+
     @InjectMocks
     private UserService userService;
+
 
     private final String username = "alice.example";
     private final String countryTitle = "Japan";
@@ -104,6 +108,7 @@ public class UserServiceTest {
         verify(userMapper).toEntity(username, country, email, passwordHash);
         verify(userRepository).save(userEntity);
         verify(userMapper).toDto(savedEntity);
+        verify(avatarService).generateRandomAvatar(savedEntity.getId());
     }
 
     @Test
