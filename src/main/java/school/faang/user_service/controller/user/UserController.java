@@ -6,15 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/users")
@@ -24,17 +21,17 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping("/newuser?{filter}")
-    public Long newUser(@Valid @RequestBody UserFullDto dto, @PathVariable String filter) throws IOException {
-        return userService.newUser(dto, filter);
+    public Long newUser(@Valid @RequestBody UserFullDto dto, @PathVariable String filter) {
+        return userService.createUser(dto, filter);
     }
 
     @PostMapping("/newuser")
-    public Long newUser(@Valid @RequestBody UserFullDto dto) throws IOException {
-        return userService.newUser(dto, null);
+    public Long newUser(@Valid @RequestBody UserFullDto dto) {
+        return userService.createUser(dto, null);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable("userId") long id, @RequestHeader("x-user-id") String userIdX) {
+    public UserDto getUser(@PathVariable("userId") long id) {
         return userMapper.toDto(userService.getUserById(id));
     }
 }

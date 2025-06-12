@@ -50,32 +50,32 @@ class UserServiceTest {
     @Test
     void newUserTestIncorrectUsername() {
         UserFullDto dto = createDto("123", "qw@qwer.ru", "22222222222", -1);
-        assertThrows(IllegalArgumentException.class, () -> userService.newUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
     }
 
     @Test
     void newUserTestIncorrectEmail() {
         UserFullDto dto = createDto("qwe", "qwqwerru", "22222222222", 1);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.newUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
     }
 
     @Test
     void newUserTestIncorrectPhone() {
         UserFullDto dto = createDto("qwe", "qw@qwer.ru", "2", 2);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.newUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
     }
 
     @Test
     void newUserTestIncorrectExperience() {
         UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", -1);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.newUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
     }
 
     @Test
-    void newUserTestFilterIsNull() throws IOException {
+    void newUserTestFilterIsNull() {
         Long userId = 1L;
         UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1);
         Country country = new Country();
@@ -90,14 +90,14 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(dto)).thenReturn(user);
 
-        Long result = userService.newUser(dto, filter);
+        Long result = userService.createUser(dto, filter);
 
         assertNotNull(result);
         assertEquals(userId, result);
     }
 
     @Test
-    void newUserTestFilterIsNotNull() throws IOException {
+    void newUserTestFilterIsNotNull() {
         Long userId = 1L;
         UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1);
         Country country = new Country();
@@ -112,7 +112,7 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(any())).thenReturn(user);
 
-        Long result = userService.newUser(dto, filter);
+        Long result = userService.createUser(dto, filter);
 
         assertNotNull(result);
         assertEquals(userId, result);

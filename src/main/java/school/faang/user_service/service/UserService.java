@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import jakarta.annotation.PreDestroy;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,11 +21,12 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
     private final CountryService countryService;
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
     private final MinioService minioService;
 
     @Value("${dice-bear-api}")
@@ -36,16 +38,18 @@ public class UserService {
     }
 
     @Transactional
-    public Long newUser(UserFullDto userDto, String filter) throws IOException {
+    public Long createUser(UserFullDto userDto, String filter) {
         validation(userDto);
         Country countryUser = countryService.getCountryById(userDto.countryId());
 
-        String api = createApi(filter);
+        String api = createApiPath(filter);
 
         minioService.createBucket();
-
-        putS3Client(api, userDto.email());
-
+        try {
+            putS3Client(api, userDto.email());
+        } catch (IOException e){
+            log.error("IOException {}", e.getMessage());
+        }
         User user = userMapper.toEntity(userDto);
         user.setCountry(countryUser);
 
@@ -83,7 +87,7 @@ public class UserService {
         return !matcher.matches();
     }
 
-    private String createApi(String filter) {
+    private String createApiPath(String filter) {
         return filter == null ? diceBearApi : diceBearApi + "?" + filter;
     }
 
