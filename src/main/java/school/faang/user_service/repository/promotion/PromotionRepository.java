@@ -18,6 +18,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     Optional<Promotion> findByEventIdAndStatus(long eventId, PromotionStatus status);
 
-    @EntityGraph(attributePaths = {"tariff"})
+    @EntityGraph(attributePaths = {"tariff", "event"})
     List<Promotion> findAllByTypeAndStatus(PromotionType type, PromotionStatus status);
 }
