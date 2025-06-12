@@ -16,7 +16,6 @@ import school.faang.user_service.validation.promotion.PromotionValidator;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
@@ -90,11 +89,6 @@ public class PromotionService {
     @Transactional(readOnly = true)
     public List<Promotion> getAllActiveEventPromotion() {
         return promotionRepository.findAllByTypeAndStatus(EVENT, ACTIVE);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Promotion> getActivePromotionByEventId(long eventId) {
-        return promotionRepository.findByEventIdAndStatus(eventId, ACTIVE);
     }
 
     private long getTtlByPromotion(Promotion promotion) {

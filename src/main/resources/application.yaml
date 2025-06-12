@@ -30,10 +30,17 @@ logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
+services:
+  project-service:
+    host: localhost
+    port: 8082
 
-payment-service:
-  host: localhost
-  port: 9080
+  payment-service:
+    host: localhost
+    port: 9080
+
+jobs:
+  redis:
+    promotion:
+      cron: "*/15 * * * * *"
+      # Каждые 15 секунд
