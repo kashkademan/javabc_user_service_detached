@@ -63,7 +63,7 @@ public class AvatarService {
     @Transactional
     public void deleteAvatar(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
         UserProfilePic avatar = user.getUserProfilePic();
 
         if (avatar == null || avatar.getFileId() == null || avatar.getSmallFileId() == null) {

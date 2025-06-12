@@ -50,7 +50,7 @@ public class AvatarServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> avatarService.getAvatar(USER_ID));
-        assertEquals("User not found", e.getMessage());
+        assertEquals(String.format("User with id %s not found", USER_ID), e.getMessage());
         verify(userRepository).findById(USER_ID);
         verifyNoInteractions(s3Service);
     }
