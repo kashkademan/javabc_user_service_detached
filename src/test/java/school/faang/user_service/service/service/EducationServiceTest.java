@@ -7,14 +7,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.EducationDto;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EducationMapperImpl;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.EducationRepository;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.education.EducationService;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 public class EducationServiceTest {
     private static final long ID = 1;
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Mock
     private EducationRepository educationRepository;
@@ -49,11 +48,8 @@ public class EducationServiceTest {
 
     @Test
     public void addEducationAdds() {
-        UserDto userDto = new UserDto(ID, "name", "email");
-        User user = userMapper.toEntity(userDto);
-        user.setEducation(new ArrayList<>());
-        when(userService.getUserById(ID)).thenReturn(userDto);
-        when(userMapper.toEntity(userDto)).thenReturn(user);
+        User user = User.builder().id(ID).education(new ArrayList<>()).build();
+        when(userRepository.findById(ID)).thenReturn(Optional.of(user));
         EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
         assertEquals(educationService.addEducation(ID, educationDto), educationDto);
     }
@@ -61,8 +57,7 @@ public class EducationServiceTest {
     @Test
     public void inappropriateUserId() {
         EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
-        User user = new User();
-        user.setId(ID);
+        User user = User.builder().id(ID).build();
         when(educationRepository.findById(educationDto.id()))
                 .thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
         assertThrows(DataValidationException.class, () -> educationService.updateEducation(2, educationDto));
@@ -71,8 +66,7 @@ public class EducationServiceTest {
     @Test
     public void updateEducationUpdates() {
         EducationDto educationDto = new EducationDto(ID, 2023, 2027, "", "", "");
-        User user = new User();
-        user.setId(ID);
+        User user = User.builder().id(ID).build();
         when(educationRepository.findById(educationDto.id()))
                 .thenReturn(Optional.of(new Education(ID, 2023, 2027, "", "", "", user)));
 
