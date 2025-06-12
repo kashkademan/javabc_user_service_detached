@@ -24,7 +24,7 @@ public class S3Config {
     private String secretKey;
 
     @Bean
-    public AmazonS3 init() {
+    public AmazonS3 configureAmazonS3() {
         return AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new EndpointConfiguration(endpoint, "us-east-1"))
                 .withPathStyleAccessEnabled(true)
