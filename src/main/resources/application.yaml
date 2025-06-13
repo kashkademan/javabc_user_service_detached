@@ -8,7 +8,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -22,6 +22,11 @@ spring:
       host: localhost
       ttl:
         event: 1800
+      lock:
+        promotion:
+          expire-time: 3000
+          max-retries: 10
+          retry-delay: 300
 
 server:
   port: 8080
@@ -40,7 +45,7 @@ services:
     port: 9080
 
 jobs:
-  redis:
-    promotion:
+  promotion:
+    close:
       cron: "*/15 * * * * *"
-      # Каждые 15 секунд
+        # Каждые 15 секунд

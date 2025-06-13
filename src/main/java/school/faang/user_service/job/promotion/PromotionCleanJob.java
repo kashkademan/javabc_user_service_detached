@@ -19,7 +19,7 @@ public class PromotionCleanJob {
     private final PromotionService promotionService;
     private final PromotionRedisService promotionRedisService;
 
-    @Scheduled(cron = "${jobs.redis.promotion.cron}")
+    @Scheduled(cron = "${jobs.promotion.close.cron}")
     public void cleanupDeletedPromotions() {
         log.info("Job promotion clean started");
         List<PromotionRedisModel> promotions = promotionRedisService.getAllPromotions();

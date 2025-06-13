@@ -20,7 +20,7 @@ public class AsyncConfig {
     }
 
     @Bean(name = "decrementCountViewExecutorExecutor")
-    public Executor decrementCountViewExecutor() {
+    public ThreadPoolTaskExecutor decrementCountViewExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(10);

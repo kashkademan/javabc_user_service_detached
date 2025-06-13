@@ -4,13 +4,16 @@ import lombok.experimental.UtilityClass;
 import school.faang.user_service.exception.redis.InvalidRedisKeyException;
 import school.faang.user_service.model.redis.RedisHashType;
 
-import java.util.UUID;
-
 @UtilityClass
 public class RedisKeyUtil {
-    public static final String HASH_KEY_SEPARATOR = ": ";
+    private static final String HASH_KEY_SEPARATOR = ":";
+    private static final String LOCK = "lock";
     public static String getKeyById(Long id, RedisHashType redisHashType) {
         return redisHashType.getHashName() + HASH_KEY_SEPARATOR + id;
+    }
+
+    public static String getLockNameByKey(String key) {
+        return LOCK + HASH_KEY_SEPARATOR + key;
     }
 
     public static Long getIdByKey(String redisKey) {
