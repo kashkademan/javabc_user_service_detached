@@ -1,5 +1,6 @@
 CREATE TABLE promotion_tariff (
-    id bigint            PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id                   bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    name                 VARCHAR(255) NOT NULL,
     price                NUMERIC(19,2) NOT NULL CHECK (price >= 0),
     currency             VARCHAR(255) NOT NULL,
     count_view           INTEGER NOT NULL,
@@ -8,7 +9,9 @@ CREATE TABLE promotion_tariff (
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at           TIMESTAMP,
     deleted BOOLEAN      DEFAULT FALSE NOT NULL,
-    deleted_at           TIMESTAMP
+    deleted_at           TIMESTAMP,
+
+    CONSTRAINT price_more_zero CHECK (price >= 0)
 );
 
 

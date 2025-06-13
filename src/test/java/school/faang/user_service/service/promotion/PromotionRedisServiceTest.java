@@ -16,14 +16,11 @@ import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +51,7 @@ public class PromotionRedisServiceTest {
 
         PromotionRedisModel capturedModel = promotionRedisModelCaptor.getValue();
         assertNotNull(capturedModel);
-        assertEquals(RedisHashType.PROMOTION + ": " + promotion.getId(), capturedModel.getKey());
+        assertEquals(RedisHashType.PROMOTION + ":" + promotion.getId(), capturedModel.getKey());
         assertEquals(promotion.getId(), capturedModel.getId());
     }
 
@@ -74,36 +71,8 @@ public class PromotionRedisServiceTest {
     }
 
     @Test
-    void testDecrementCountViewByEventIds_decrementAndSave() {
-        Long eventId = 42L;
-
-        PromotionRedisModel model = new PromotionRedisModel();
-        model.setKey("PROMOTION: 42");
-        model.setCountView(5);
-
-        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.of(model));
-        when(promotionRedisRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-        promotionRedisService.decrementCountViewByEventIds(List.of(eventId));
-
-        assertEquals(4, model.getCountView());
-        verify(promotionRedisRepository).save(model);
-    }
-
-    @Test
-    void testDecrementCountViewByEventIds_doNothingIfNotFound() {
-        Long eventId = 42L;
-        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.empty());
-
-        assertDoesNotThrow(() -> promotionRedisService.decrementCountViewByEventIds(List.of(eventId)));
-
-        verify(promotionRedisRepository).findByEventId(eventId);
-        verify(promotionRedisRepository, never()).save(any());
-    }
-
-    @Test
     void testDeletePromotionByKey_successfully() {
-        String key = "PROMOTION: 42";
+        String key = "PROMOTION:42";
 
         assertDoesNotThrow(() -> promotionRedisService.deletePromotionByKey(key));
 

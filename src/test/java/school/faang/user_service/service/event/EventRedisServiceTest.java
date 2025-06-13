@@ -52,7 +52,7 @@ public class EventRedisServiceTest {
 
         EventRedisModel capturedModel = eventRedisModelCaptor.getValue();
         assertNotNull(capturedModel);
-        assertEquals(RedisHashType.EVENT + ": " + event.getId(), capturedModel.getKey());
+        assertEquals(RedisHashType.EVENT + ":" + event.getId(), capturedModel.getKey());
         assertEquals(event.getId(), capturedModel.getId());
     }
 
