@@ -1,5 +1,6 @@
 package school.faang.user_service.model.redis.promotion;
 
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromotionRedisModel implements Serializable {
+    @Id
     private String key;
     private Long id;
     @Indexed
