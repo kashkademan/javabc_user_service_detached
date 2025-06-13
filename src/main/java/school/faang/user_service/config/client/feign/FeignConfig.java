@@ -1,16 +1,15 @@
-package school.faang.user_service.client;
+package school.faang.user_service.config.client.feign;
 
 
 import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import school.faang.user_service.config.context.UserContext;
 
 @Configuration
 public class FeignConfig {
     @Bean
-    public FeignUserInterceptor feignUserInterceptor(UserContext userContext) {
-        return new FeignUserInterceptor(userContext);
+    public FeignUserInterceptor feignUserInterceptor(FeignClientConfigurationProperties props) {
+        return new FeignUserInterceptor(props);
     }
 
     @Bean

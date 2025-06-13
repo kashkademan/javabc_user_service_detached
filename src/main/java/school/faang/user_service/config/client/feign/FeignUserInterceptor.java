@@ -1,17 +1,16 @@
-package school.faang.user_service.client;
+package school.faang.user_service.config.client.feign;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
-import school.faang.user_service.config.context.UserContext;
 
 @RequiredArgsConstructor
 public class FeignUserInterceptor implements RequestInterceptor {
 
-    private final UserContext userContext;
+    private final FeignClientConfigurationProperties props;
 
     @Override
     public void apply(RequestTemplate template) {
-        template.header("x-user-id", String.valueOf(userContext.getUserId()));
+        template.header("x-user-id", String.valueOf(props.getUserId()));
     }
 }

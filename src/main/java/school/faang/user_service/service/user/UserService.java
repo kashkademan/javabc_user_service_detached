@@ -17,7 +17,7 @@ import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.image.ImageService;
+import school.faang.user_service.service.resource.image.ImageService;
 import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
@@ -54,10 +54,6 @@ public class UserService {
                 });
     }
 
-    public void authorizeUser(long userId) {
-        userContext.setUserId(userId);
-    }
-
     @Transactional(readOnly = true)
     public List<User> getUsersByIds(List<Long> userIds) {
         return userRepository.findAllById(userIds);
@@ -76,13 +72,11 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info("User {} has been saved", savedUser);
 
-        authorizeUser(user.getId());
-
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 UserService self = applicationContext.getBean(UserService.class);
-                self.createAvatarUser();
+                self.createAvatarUser(savedUser.getId());
             }
         });
 
@@ -90,10 +84,10 @@ public class UserService {
     }
 
     @Async(value = "generateRandomAvatarUserExecutor")
-    public void createAvatarUser() {
-        User user = getCurrentUser();
+    public void createAvatarUser(long userId) {
+        User user = getUserById(userId);
 
-        Resource file = imageService.generateRandomUserAvatar(user.getId());
+        Resource file = imageService.generateRandomUserAvatar(userId);
         UserProfilePic userProfilePic = new UserProfilePic();
         userProfilePic.setSmallFile(file);
         user.setUserProfilePic(userProfilePic);

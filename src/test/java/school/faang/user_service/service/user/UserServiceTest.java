@@ -15,7 +15,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.country.CountryService;
-import school.faang.user_service.service.image.ImageService;
+import school.faang.user_service.service.resource.image.ImageService;
 import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;

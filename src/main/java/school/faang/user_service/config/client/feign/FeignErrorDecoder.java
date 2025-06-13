@@ -1,4 +1,4 @@
-package school.faang.user_service.client;
+package school.faang.user_service.config.client.feign;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;

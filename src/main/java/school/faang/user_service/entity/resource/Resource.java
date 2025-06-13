@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -26,25 +25,20 @@ public class Resource {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "file_key", nullable = false)
+    @Column(name = "file_key", nullable = false, updatable = false)
     private String fileKey;
 
-    @Column(name = "file_name", nullable = false)
+    @Column(name = "file_name", nullable = false, updatable = false)
     private String fileName;
 
-    @Column(name = "content_type", nullable = false)
+    @Column(name = "content_type", nullable = false, updatable = false)
     private String contentType;
 
-    @Column(name = "size", nullable = false)
+    @Column(name = "size", nullable = false, updatable = false)
     private Long size;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 }

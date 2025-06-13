@@ -45,7 +45,7 @@ services:
     port: 9080
 
   dice-bear:
-    domain: api.dicebear.com
+    url: https://api.dicebear.com
     version: 9.x
 
   s3:
@@ -61,3 +61,5 @@ jobs:
       cron: "*/15 * * * * *"
         # Каждые 15 секунд
 
+system:
+  user-id: -1

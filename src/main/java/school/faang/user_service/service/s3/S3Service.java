@@ -23,7 +23,6 @@ import java.io.InputStream;
 @Slf4j
 public class S3Service {
     private final AmazonS3 amazonS3;
-    private final S3KeyGenerator s3KeyGenerator;
 
     @Value("${services.s3.bucketName}")
     private String bucketName;
@@ -33,12 +32,11 @@ public class S3Service {
             maxAttempts = 5,
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public String uploadFile(byte[] file, String fileName, MediaType type, S3Folder folder) {
+    public void uploadFile(byte[] file, String fileKey, MediaType type) {
         int fileSize = file.length;
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(fileSize);
         objectMetadata.setContentType(type.toString());
-        String fileKey = s3KeyGenerator.generateKey(fileName, folder);
         try (InputStream inputStream = new ByteArrayInputStream(file)) {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileKey, inputStream, objectMetadata);
             amazonS3.putObject(putObjectRequest);
@@ -47,7 +45,6 @@ public class S3Service {
             throw new FileUploadException(String.format("Error uploading file to S3: %s", fileKey));
         }
         log.info("uploading file to S3 with key: {}", fileKey);
-        return fileKey;
     }
 }
 

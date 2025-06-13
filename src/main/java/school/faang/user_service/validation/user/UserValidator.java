@@ -28,16 +28,16 @@ public class UserValidator {
     }
 
     private void checkExistsEmail(String email) {
-        boolean existsUsername = userRepository.existsByEmail(email);
-        if (existsUsername) {
+        boolean existsEmail= userRepository.existsByEmail(email);
+        if (existsEmail) {
             log.error("Email {} already exists", email);
             throw new UserAlreadyExistsException(UserAlreadyExistsException.UserField.EMAIL, email);
         }
     }
 
     private void checkExistsPhone(String phone) {
-        boolean existsUsername = userRepository.existsByPhone(phone);
-        if (existsUsername) {
+        boolean existsPhone = userRepository.existsByPhone(phone);
+        if (existsPhone) {
             log.error("Phone {} already exists", phone);
             throw new UserAlreadyExistsException(UserAlreadyExistsException.UserField.PHONE, phone);
         }
