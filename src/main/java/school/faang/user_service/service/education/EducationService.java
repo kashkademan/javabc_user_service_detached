@@ -1,4 +1,4 @@
-package school.faang.user_service.client.service.education;
+package school.faang.user_service.service.education;
 
 import school.faang.user_service.dto.EducationDto;
 
@@ -9,5 +9,4 @@ public interface EducationService {
     EducationDto updateEducation(long userId, EducationDto educationDto);
 
     EducationDto getById(long educationId);
-
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.client.service.education.EducationServiceImpl;
+import school.faang.user_service.service.education.EducationServiceImpl;
 import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
