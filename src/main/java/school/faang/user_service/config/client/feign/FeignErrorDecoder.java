@@ -1,4 +1,4 @@
-package school.faang.user_service.client;
+package school.faang.user_service.config.client.feign;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -10,8 +10,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-            log.error("Remote resource error: {}", methodKey);
-            return defaultDecoder.decode(methodKey, response);
+        log.error("Remote resource error: {}", methodKey);
+        return defaultDecoder.decode(methodKey, response);
     }
 }
-

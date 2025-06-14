@@ -5,9 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.user.UserRegisterRequestDto;
+import school.faang.user_service.dto.user.UserRegisterResponseDto;
 import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.facade.user.UserFacade;
 
@@ -19,6 +23,16 @@ import java.util.List;
 @Slf4j
 public class UserController {
     private final UserFacade userFacade;
+
+    @PostMapping("/registration")
+    public ResponseEntity<UserRegisterResponseDto> registrationUser
+            (@RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+        log.debug("User controller accepted request registration user {}", userRegisterRequestDto);
+
+        UserRegisterResponseDto response = userFacade.registrationUser(userRegisterRequestDto);
+        log.debug("User controller return response registration user {}", response);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getCurrentUser() {

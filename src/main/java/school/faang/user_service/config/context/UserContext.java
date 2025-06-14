@@ -7,7 +7,6 @@ import school.faang.user_service.exception.authorization.UserUnauthorizedExcepti
 @Component
 @Slf4j
 public class UserContext {
-
     private final ThreadLocal<Long> userIdHolder = new ThreadLocal<>();
 
     public void setUserId(long userId) {
