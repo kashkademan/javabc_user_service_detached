@@ -105,7 +105,6 @@ tasks.jacocoTestReport {
                             "**/handler/**",
                             "**/client/**",
                             "**/mapper/**",
-                            "**/model/**",
                             "**/utils/**",
                             "**/job/**",
                             "**/initialization/**"
@@ -150,8 +149,6 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
                     "school.faang.user_service.client.*",
                     "school.faang.user_service.mapper",
                     "school.faang.user_service.mapper.*",
-                    "school.faang.user_service.model",
-                    "school.faang.user_service.model.*",
                     "school.faang.user_service.job",
                     "school.faang.user_service.job.*",
                     "school.faang.user_service.initialization",

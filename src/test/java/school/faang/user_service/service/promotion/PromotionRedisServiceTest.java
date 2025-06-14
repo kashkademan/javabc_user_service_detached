@@ -7,9 +7,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import school.faang.user_service.config.redis.RedisLockPromotionProperties;
 import school.faang.user_service.entity.promotion.Promotion;
@@ -19,12 +21,15 @@ import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,18 +72,34 @@ public class PromotionRedisServiceTest {
     }
 
     @Test
-    void testGetAllPromotions_returnList() {
-        PromotionRedisModel p1 = new PromotionRedisModel();
-        PromotionRedisModel p2 = new PromotionRedisModel();
+    void shouldDecrementCountViewWhenPromotionFound() {
+        // given
+        long eventId = 123L;
+        String key = "promo:123";
+        PromotionRedisModel promo = new PromotionRedisModel();
+        promo.setKey(key);
+        promo.setCountView(10);
 
-        Iterable<PromotionRedisModel> iterable = List.of(p1, p2);
-        when(promotionRedisRepository.findAll()).thenReturn(iterable);
+        ValueOperations<String, Object> valueOperations = Mockito.mock(ValueOperations.class);
 
-        List<PromotionRedisModel> result = promotionRedisService.getAllPromotions();
+        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.of(promo));
+        when(promotionRedisRepository.findById(key)).thenReturn(Optional.of(promo));
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-        assertEquals(2, result.size());
-        assertTrue(result.contains(p1));
-        assertTrue(result.contains(p2));
+        when(valueOperations.setIfAbsent(anyString(), any(), any())).thenReturn(true);
+        when(valueOperations.get(anyString())).thenReturn("lock-value");
+
+        when(props.getExpireTime()).thenReturn(5000L);
+        when(props.getMaxRetries()).thenReturn(1);
+        when(props.getRetryDelay()).thenReturn(0);
+
+        // when
+        promotionRedisService.decrementCountViewByEventIds(List.of(eventId));
+
+        // then
+        verify(promotionRedisRepository).save(argThat(saved ->
+                saved.getCountView() == 9
+        ));
     }
 
     @Test
@@ -106,33 +127,33 @@ public class PromotionRedisServiceTest {
         verify(promotionRedisRepository).findAll();
     }
 
-//    @Test
-//    void shouldDecrementCountViewWhenPromotionFound() {
-//        // given
-//        long eventId = 123L;
-//        String key = "promo:123";
-//        PromotionRedisModel promo = new PromotionRedisModel();
-//        promo.setKey(key);
-//        promo.setCountView(10);
-//
-//        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.of(promo));
-//        when(promotionRedisRepository.findById(key)).thenReturn(Optional.of(promo));
-//        when(redisTemplate.opsForValue().setIfAbsent(anyString(), any(), any())).thenReturn(true);
-//        when(redisTemplate.opsForValue().get(anyString())).thenReturn("lock-value");
-//
-//        when(props.getExpireTime()).thenReturn(5000L);
-//        when(props.getMaxRetries()).thenReturn(1);
-//        when(props.getRetryDelay()).thenReturn(0);
-//
-//        // when
-//        promotionRedisService.decrementCountViewByEventIds(List.of(eventId));
-//
-//        // then
-//        // немедленное выполнение т.к. executor.execute(...) не запускает в реальности (можно использовать direct executor или верифицировать сохранение)
-//        verify(promotionRedisRepository).save(argThat(saved ->
-//                saved.getCountView() == 9
-//        ));
-//    }
+    @Test
+    public void shouldDecrementCountViewWhenPromotionFound() {
+        // given
+        long eventId = 123L;
+        String key = "promo:123";
+        PromotionRedisModel promo = new PromotionRedisModel();
+        promo.setKey(key);
+        promo.setCountView(10);
+
+        when(promotionRedisRepository.findByEventId(eventId)).thenReturn(Optional.of(promo));
+        when(promotionRedisRepository.findById(key)).thenReturn(Optional.of(promo));
+        when(redisTemplate.opsForValue().setIfAbsent(anyString(), any(), any())).thenReturn(true);
+        when(redisTemplate.opsForValue().get(anyString())).thenReturn("lock-value");
+
+        when(props.getExpireTime()).thenReturn(5000L);
+        when(props.getMaxRetries()).thenReturn(1);
+        when(props.getRetryDelay()).thenReturn(0);
+
+        // when
+        promotionRedisService.decrementCountViewByEventIds(List.of(eventId));
+
+        // then
+        // немедленное выполнение т.к. executor.execute(...) не запускает в реальности (можно использовать direct executor или верифицировать сохранение)
+        verify(promotionRedisRepository).save(argThat(saved ->
+                saved.getCountView() == 9
+        ));
+    }
 
     @Test
     void shouldSkipWhenPromotionNotFoundByEventId() {
