@@ -26,6 +26,8 @@ public class UserFacade {
 
         user = userService.registrationUser(user, userRegisterRequestDto.getCountryId());
 
+        userService.createAvatarUser(user.getId());
+
         UserRegisterResponseDto userRegisterResponseDto = userMapper.toUserRegisterResponseDto(user);
         log.debug("Mapping User entity to UserRegisterResponseDto. Entity content: {}. DTO content: {}.",
                 user, userRegisterResponseDto);

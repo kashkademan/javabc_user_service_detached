@@ -2,13 +2,10 @@ package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.resource.Resource;
@@ -32,8 +29,6 @@ public class UserService {
     private final CountryService countryService;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
-    private final ApplicationContext applicationContext;
-
 
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
@@ -71,14 +66,6 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
         log.info("User {} has been saved", savedUser);
-
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                UserService self = applicationContext.getBean(UserService.class);
-                self.createAvatarUser(savedUser.getId());
-            }
-        });
 
         return savedUser;
     }
