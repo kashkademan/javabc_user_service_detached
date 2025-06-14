@@ -1,6 +1,5 @@
 package school.faang.user_service.config.context;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
@@ -8,8 +7,7 @@ import school.faang.user_service.exception.authorization.UserUnauthorizedExcepti
 @Component
 @Slf4j
 public class UserContext {
-
-    private final TransmittableThreadLocal<Long> userIdHolder = new TransmittableThreadLocal<>();
+    private final ThreadLocal<Long> userIdHolder = new ThreadLocal<>();
 
     public void setUserId(long userId) {
         userIdHolder.set(userId);

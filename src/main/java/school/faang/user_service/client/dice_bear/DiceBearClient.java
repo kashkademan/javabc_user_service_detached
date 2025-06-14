@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.util.retry.Retry;
 import school.faang.user_service.config.client.web.dice_bear.DiceBearConfigurationProperties;
 
@@ -24,7 +25,11 @@ public class DiceBearClient {
 
     public byte[] getRandomAvatar(MediaType type) {
         String randomSeed = UUID.randomUUID().toString();
-        String uri = "/pixel-art/svg?seed=" + randomSeed;
+        String uri = UriComponentsBuilder
+                .fromPath("/pixel-art/svg")
+                .queryParam("seed", randomSeed)
+                .build()
+                .toUriString();
 
         log.debug("Dice bear client sent request get random avatar with random seed {}", randomSeed);
 

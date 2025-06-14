@@ -60,6 +60,3 @@ jobs:
     close:
       cron: "*/15 * * * * *"
         # Каждые 15 секунд
-
-system:
-  user-id: -1

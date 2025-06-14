@@ -8,11 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FeignConfig {
     @Bean
-    public FeignUserInterceptor feignUserInterceptor(FeignClientConfigurationProperties props) {
-        return new FeignUserInterceptor(props);
-    }
-
-    @Bean
     public ErrorDecoder errorDecoder() {
         return new FeignErrorDecoder();
     }
