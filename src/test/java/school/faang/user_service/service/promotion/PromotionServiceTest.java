@@ -22,6 +22,7 @@ import school.faang.user_service.service.event.EventRedisService;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.promotion.PromotionValidator;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -212,5 +213,27 @@ public class PromotionServiceTest {
                 () -> promotionService.finishPromotionByTime(promotion.getId())
         );
         verify(promotionRepository, never()).save(promotion);
+    }
+
+    @Test
+    void testGetAllActiveEventPromotion_returnsActivePromotions() {
+        promotion.setType(PromotionType.EVENT);
+        promotion.setStatus(PromotionStatus.ACTIVE);
+        Promotion secondPromotion = new Promotion();
+        secondPromotion.setId(2L);
+        secondPromotion.setType(PromotionType.EVENT);
+        secondPromotion.setStatus(PromotionStatus.ACTIVE);
+        List<Promotion> mockPromotions = List.of(promotion, secondPromotion);
+
+        when(promotionRepository.findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE))
+                .thenReturn(mockPromotions);
+
+        List<Promotion> result = promotionService.getAllActiveEventPromotion();
+
+        assertNotNull(result);
+        assertEquals(mockPromotions.size(), result.size());
+        assertEquals(PromotionStatus.ACTIVE, result.get(0).getStatus());
+        assertEquals(PromotionType.EVENT, result.get(0).getType());
+        verify(promotionRepository).findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE);
     }
 }

@@ -1,4 +1,4 @@
-package school.faang.user_service.service.image;
+package school.faang.user_service.service.resource.image;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import school.faang.user_service.client.dice_bear.DiceBearClient;
 import school.faang.user_service.entity.resource.Resource;
 import school.faang.user_service.service.resource.ResourceService;
-import school.faang.user_service.service.resource.image.ImageService;
 import school.faang.user_service.service.s3.S3KeyGenerator;
 import school.faang.user_service.service.s3.S3Service;
 

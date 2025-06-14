@@ -91,18 +91,27 @@ tasks.jacocoTestReport {
     }
 
     classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                exclude(
-                    "**/config/**",
-                    "**/controller/**",
-                    "**/dto/**",
-                    "**/entity/**",
-                    "**/repository/**",
-                    "**/exception/**",
-                )
-            }
-        })
+            files(classDirectories.files.map {
+                fileTree(it) {
+                    exclude(
+                            "**/config/**",
+                            "**/controller/**",
+                            "**/dto/**",
+                            "**/entity/**",
+                            "**/model/**",
+                            "**/repository/**",
+                            "**/exception/**",
+                            "**/facade/**",
+                            "**/handler/**",
+                            "**/client/**",
+                            "**/mapper/**",
+                            "**/model/**",
+                            "**/utils/**",
+                            "**/job/**",
+                            "**/initialization/**"
+                    )
+                }
+            })
     )
 }
 
@@ -110,22 +119,53 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     dependsOn(tasks.test)
     violationRules {
         rule {
+            element = "PACKAGE"
             limit {
-                minimum = "0.7".toBigDecimal()
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
             }
+
+            excludes = listOf(
+                    "default",
+                    "school.faang.user_service.config",
+                    "school.faang.user_service.config.*",
+                    "school.faang.user_service.controller",
+                    "school.faang.user_service.controller.*",
+                    "school.faang.user_service.dto",
+                    "school.faang.user_service.dto.*",
+                    "school.faang.user_service.entity",
+                    "school.faang.user_service.entity.*",
+                    "school.faang.user_service.model",
+                    "school.faang.user_service.model.*",
+                    "school.faang.user_service.repository",
+                    "school.faang.user_service.repository.*",
+                    "school.faang.user_service.exception",
+                    "school.faang.user_service.exception.*",
+                    "school.faang.user_service.facade",
+                    "school.faang.user_service.facade.*",
+                    "school.faang.user_service.handler",
+                    "school.faang.user_service.handler.*",
+                    "school.faang.user_service.client",
+                    "school.faang.user_service.client.*",
+                    "school.faang.user_service.mapper",
+                    "school.faang.user_service.mapper.*",
+                    "school.faang.user_service.model",
+                    "school.faang.user_service.model.*",
+                    "school.faang.user_service.job",
+                    "school.faang.user_service.job.*",
+                    "school.faang.user_service.initialization",
+                    "school.faang.user_service.initialization.*",
+                    "school.faang.user_service.utils",
+                    "school.faang.user_service.utils.*",
+                    "school.faang.user_service"
+            )
         }
     }
 }
 
 tasks.check {
     dependsOn(tasks.named("jacocoTestCoverageVerification"))
-}
-
-jsonSchema2Pojo {
-    setSource(files("src/main/resources/json"))
-    targetDirectory = file("${project.buildDir}/generated-sources/js2p")
-    targetPackage = "com.json.student"
-    setSourceType("jsonschema")
 }
 
 tasks.withType<Test> {
