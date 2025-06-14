@@ -1,5 +1,5 @@
 CREATE TABLE promotion_tariff (
-    id                   bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id                   BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     name                 VARCHAR(255) NOT NULL,
     price                NUMERIC(19,2) NOT NULL CHECK (price >= 0),
     currency             VARCHAR(255) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE promotion_tariff (
 
 
 CREATE TABLE promotion (
-    id bigint  PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
+    id         BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     user_id    BIGINT,
     event_id   BIGINT,
     type       VARCHAR(255) NOT NULL,
