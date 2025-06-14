@@ -11,7 +11,7 @@ CREATE TABLE promotion_tariff (
     deleted BOOLEAN      DEFAULT FALSE NOT NULL,
     deleted_at           TIMESTAMP,
 
-    CONSTRAINT price_more_zero CHECK (price >= 0)
+    CONSTRAINT price_more_zero_check CHECK (price >= 0)
 );
 
 
