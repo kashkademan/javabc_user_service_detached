@@ -35,6 +35,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(exclude = {"parent", "mentor",
         "invitations", "users", "skillsToAchieve"})
+@Entity
 @Table(name = "goal")
 public class Goal {
     @Id

@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.country.CountryNotFoundException;
-import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
@@ -22,14 +21,10 @@ import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.exception.promotion.ActivePromotionAlreadyExistsException;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionTariffNotFoundException;
-import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
 import school.faang.user_service.exception.resource.ResourceNotFoundException;
 import school.faang.user_service.exception.skill.SkillAlreadyExistsException;
 import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
-import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
-import school.faang.user_service.exception.user.EmailAlreadyExistsException;
-import school.faang.user_service.exception.user.PhoneAlreadyExistsException;
 import school.faang.user_service.exception.user.UserAlreadyExistsException;
 import school.faang.user_service.exception.user.UserNotFoundException;
 
@@ -59,9 +54,6 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(NotEnoughSkillOffersException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(EventValidationException.class, HttpStatus.CONFLICT);
-        HTTP_STATUS_MAP.put(UsernameAlreadyExistsException.class, HttpStatus.CONFLICT);
-        HTTP_STATUS_MAP.put(EmailAlreadyExistsException.class, HttpStatus.CONFLICT);
-        HTTP_STATUS_MAP.put(PhoneAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(UserAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
@@ -88,19 +80,10 @@ public class UserServiceExceptionHandler {
             ResourceNotFoundException.class,
             CountActiveGoalMoreMaxException.class,
             GoalAlreadyCompletedException.class,
-            UsernameAlreadyExistsException.class,
-            EmailAlreadyExistsException.class,
-            PhoneAlreadyExistsException.class,
-            MethodArgumentNotValidException.class
             SkillAlreadyExistsException.class,
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
             EventValidationException.class,
-            MethodArgumentNotValidException.class,
-            FeignException.class,
-            RetryableException.class
-            SkillAlreadyExistsException.class,
-            NotEnoughSkillOffersException.class,
             UserAlreadyExistsException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,

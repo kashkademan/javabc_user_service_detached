@@ -23,12 +23,12 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Career;
-import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.WorkSchedule;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.goal.Goal;
@@ -177,6 +177,6 @@ public class User {
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user")
     private List<Promotion> promotions = new ArrayList<>();
 }
