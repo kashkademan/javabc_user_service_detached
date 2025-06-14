@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.redis.RedisLockPromotionProperties;
 import school.faang.user_service.entity.promotion.Promotion;
@@ -17,6 +16,7 @@ import school.faang.user_service.utils.redis.RedisKeyUtil;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -25,13 +25,13 @@ public class PromotionRedisService {
     private final PromotionRedisRepository promotionRedisRepository;
     private final PromotionRedisMapper promotionRedisMapper;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ThreadPoolTaskExecutor executor;
+    private final Executor executor;
     private final RedisLockPromotionProperties props;
 
     public PromotionRedisService(PromotionRedisRepository promotionRedisRepository,
                                  PromotionRedisMapper promotionRedisMapper,
                                  RedisTemplate<String, Object> redisTemplate,
-                                 @Qualifier("decrementCountViewExecutorExecutor") ThreadPoolTaskExecutor executor,
+                                 @Qualifier("decrementCountViewExecutorExecutor") Executor executor,
                                  RedisLockPromotionProperties props) {
         this.promotionRedisRepository = promotionRedisRepository;
         this.promotionRedisMapper = promotionRedisMapper;
