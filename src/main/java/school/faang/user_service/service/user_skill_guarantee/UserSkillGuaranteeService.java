@@ -3,7 +3,7 @@ package school.faang.user_service.service.user_skill_guarantee;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.skill.UserSkillGuarantee;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
 import java.util.List;

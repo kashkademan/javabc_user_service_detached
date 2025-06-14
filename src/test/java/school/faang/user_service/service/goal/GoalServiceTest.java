@@ -10,8 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
@@ -86,7 +86,7 @@ public class GoalServiceTest {
 
         when(goalRepository.findById(goal.getId())).thenReturn(Optional.of(goal));
 
-        Goal returnGoal = goalService.getGoalByIdOrThrow(goal.getId());
+        Goal returnGoal = goalService.getGoalById(goal.getId());
 
         verify(goalRepository, times(1)).findById(goal.getId());
         assertEquals(goal, returnGoal);
@@ -98,7 +98,7 @@ public class GoalServiceTest {
 
         when(goalRepository.findById(goal.getId())).thenReturn(Optional.empty());
 
-        assertThrows(GoalNotFoundException.class, () -> goalService.getGoalByIdOrThrow(goal.getId()));
+        assertThrows(GoalNotFoundException.class, () -> goalService.getGoalById(goal.getId()));
         verify(goalRepository, times(1)).findById(goal.getId());
     }
 

@@ -1,7 +1,5 @@
 package school.faang.user_service.dto.event;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,23 +12,20 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDto {
-    @NotNull
+public class EventResponseDto {
     private Long id;
-    @NotBlank
     private String title;
-    @NotBlank
     private String description;
-    @NotNull
     private LocalDateTime startDate;
-    @NotNull
     private LocalDateTime endDate;
-    @NotNull
-    private Long ownerId;
-    private List<Long> relatedSkills;
     private String location;
-    @NotNull
+    private int maxAttendees;
+    private List<Long> attendeeIds;
+    private List<Long> ratingIds;
+    private Long ownerId;
+    private List<Long> relatedSkillIds;
     private EventType type;
     private EventStatus status;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

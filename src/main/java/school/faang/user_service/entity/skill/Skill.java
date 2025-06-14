@@ -1,4 +1,4 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.skill;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,29 +12,28 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "skill")
 public class Skill {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
@@ -45,17 +44,21 @@ public class Skill {
             joinColumns = @JoinColumn(name = "skill_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
+    @ToString.Exclude
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "skill")
-    private List<UserSkillGuarantee> guarantees;
+    @ToString.Exclude
+    private List<UserSkillGuarantee> guarantees = new ArrayList<>();
 
     @ManyToMany(mappedBy = "relatedSkills")
-    private List<Event> events;
+    @ToString.Exclude
+    private List<Event> events = new ArrayList<>();
 
 
     @ManyToMany(mappedBy = "skillsToAchieve")
-    private List<Goal> goals;
+    @ToString.Exclude
+    private List<Goal> goals = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

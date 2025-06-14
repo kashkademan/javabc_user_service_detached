@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
@@ -33,8 +33,8 @@ public class GoalService {
     private final GoalValidator goalValidator;
 
 
-    @Transactional
-    public Goal getGoalByIdOrThrow(long goalId) {
+    @Transactional(readOnly = true)
+    public Goal getGoalById(long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> {
                     log.error("Goal with id {} not found", goalId);
@@ -55,7 +55,7 @@ public class GoalService {
         goal.setUsers(users);
 
         if (parentId != null) {
-            Goal parentGoal = getGoalByIdOrThrow(parentId);
+            Goal parentGoal = getGoalById(parentId);
             goal.setParent(parentGoal);
         }
 
@@ -83,7 +83,7 @@ public class GoalService {
 
     @Transactional
     public void deleteGoalById(long goalId) {
-        getGoalByIdOrThrow(goalId);
+        getGoalById(goalId);
 
         goalRepository.deleteById(goalId);
         log.info("Goal with id {} has been deleted", goalId);
@@ -111,7 +111,7 @@ public class GoalService {
     }
 
     public Goal getGoalByIdIfActiveElseThrow(long goalId) {
-        Goal goal = getGoalByIdOrThrow(goalId);
+        Goal goal = getGoalById(goalId);
         goalValidator.checkGoalIsCompleted(goal);
         return goal;
     }

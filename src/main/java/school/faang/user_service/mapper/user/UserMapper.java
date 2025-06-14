@@ -3,7 +3,7 @@ package school.faang.user_service.mapper.user;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserResponseDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 
 import java.util.List;
 

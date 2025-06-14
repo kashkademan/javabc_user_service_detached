@@ -1,14 +1,14 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5433/postgres
     username: user
     password: password
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -20,6 +20,13 @@ spring:
     redis:
       port: 6379
       host: localhost
+      ttl:
+        event: 1800
+      lock:
+        promotion:
+          expire-time: 3000
+          max-retries: 10
+          retry-delay: 300
 
 server:
   port: 8080
@@ -28,10 +35,17 @@ logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
+services:
+  project-service:
+    host: localhost
+    port: 8082
 
-payment-service:
-  host: localhost
-  port: 9080
+  payment-service:
+    host: localhost
+    port: 9080
+
+jobs:
+  promotion:
+    close:
+      cron: "*/15 * * * * *"
+        # Каждые 15 секунд
