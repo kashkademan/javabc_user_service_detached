@@ -29,6 +29,7 @@ app:
     premium-remove:
       cron: "0 59 23 * * SUN"
       enabled: true
+      batch-size: 100
 
 server:
   port: 8080

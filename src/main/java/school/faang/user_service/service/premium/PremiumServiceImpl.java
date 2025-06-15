@@ -2,12 +2,13 @@ package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.config.thread_config_premium_remove.AsyncThreadConfigPremiumRemove;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
 import school.faang.user_service.dto.PremiumDto;
@@ -23,11 +24,13 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.PremiumService;
 import school.faang.user_service.service.UserService;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -39,6 +42,8 @@ public class PremiumServiceImpl implements PremiumService {
     private final UserMapper userMapper;
     private final PaymentServiceClient paymentServiceClient;
     private final UserContext userContext;
+    @Value("${app.scheduler.premium-remove.batch-size}")
+    private final int batchSize;
 
     @Override
     public PremiumDto buyPremium(long userId, PremiumPeriod period) {
@@ -67,14 +72,19 @@ public class PremiumServiceImpl implements PremiumService {
 
     @Async("asyncTaskExecutorPremiumRemove")
     @Override
-    @Scheduled(cron = "${app.scheduler.premium-remove.cron}")
+    @Transactional
     public CompletableFuture<String> removePremium() {
         LocalDateTime now = LocalDateTime.now();
         List<Premium> expiredPremium = premiumRepository.findAllByEndDateBefore(now);
+        Stream<List<Premium>> stream = IntStream.range(0, (expiredPremium.size() + batchSize - 1 / batchSize))
+                .mapToObj(i -> expiredPremium.subList(i * batchSize, Math.min((i + 1) * batchSize ,
+                        expiredPremium.size())));
+        List<List<Premium>> batches = stream.toList();
 
-        expiredPremium.forEach(premiumRepository::delete);
+        batches.parallelStream()
+                .forEach(premiumRepository::deleteAll);
 
-
-        return null;
+        return CompletableFuture.completedFuture(expiredPremium.size() +
+                "expired premium subscribes was deleted");
     }
 }
