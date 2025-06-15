@@ -90,7 +90,6 @@ public class UserService {
             throw new DataValidationException("An account with that email already exists");
         }
     }
-}
 
     public Slice<UserViewDto> getAllUsers(@NotNull(message = "User filter dto cannot be null")
                                           UsersFilterDto usersFilterDto,
