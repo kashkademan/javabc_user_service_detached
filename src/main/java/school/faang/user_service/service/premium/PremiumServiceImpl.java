@@ -1,9 +1,13 @@
 package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.thread_config_premium_remove.AsyncThreadConfigPremiumRemove;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
 import school.faang.user_service.dto.PremiumDto;
@@ -22,7 +26,10 @@ import school.faang.user_service.service.UserService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PremiumServiceImpl implements PremiumService {
@@ -56,5 +63,18 @@ public class PremiumServiceImpl implements PremiumService {
                 .build();
         Premium savedPremium = premiumRepository.save(boughtPremium);
         return premiumMapper.toPremiumDto(savedPremium);
+    }
+
+    @Async("asyncTaskExecutorPremiumRemove")
+    @Override
+    @Scheduled(cron = "${app.scheduler.premium-remove.cron}")
+    public CompletableFuture<String> removePremium() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Premium> expiredPremium = premiumRepository.findAllByEndDateBefore(now);
+
+        expiredPremium.forEach(premiumRepository::delete);
+
+
+        return null;
     }
 }

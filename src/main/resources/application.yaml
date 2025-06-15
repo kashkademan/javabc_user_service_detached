@@ -24,6 +24,12 @@ spring:
       port: 6379
       host: localhost
 
+app:
+  scheduler:
+    premium-remove:
+      cron: "0 59 23 * * SUN"
+      enabled: true
+
 server:
   port: 8080
 
