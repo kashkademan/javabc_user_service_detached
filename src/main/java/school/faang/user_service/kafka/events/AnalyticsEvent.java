@@ -1,4 +1,4 @@
-package school.faang.user_service.kafka;
+package school.faang.user_service.kafka.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnalyticsCreatedEvent {
+public class AnalyticsEvent {
     private long id;
     private long receiverId;
     private long actorId;
-    private EventType eventType;
+    private AnalyticsEventType analyticsEventType;
 }

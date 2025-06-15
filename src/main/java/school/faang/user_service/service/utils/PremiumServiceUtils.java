@@ -19,7 +19,7 @@ public class PremiumServiceUtils {
     public void checkUserHasNoPremium(Long userId) {
         User user = userService.getUserById(userId);
         if (user.getPremium() != null
-        && LocalDateTime.now().isBefore(user.getPremium().getEndDate())) {
+                && LocalDateTime.now().isBefore(user.getPremium().getEndDate())) {
             throw new RuntimeException("User with id " + userId + " has premium");
         }
     }
