@@ -43,14 +43,14 @@ public class SkillService {
         return skillMapper.toDto(result);
     }
 
-    public List<SkillDto> getUserSkills(Long userId) {
+    public List<SkillDto> getUserSkills(long userId) {
         userValidator.validatorUserExistence(userId);
         return skillRepository.findAllByUserId(userId).stream()
                 .map(skillMapper::toDto)
                 .toList();
     }
 
-    public List<SkillCandidateDto> getOfferedSkills(Long userId) {
+    public List<SkillCandidateDto> getOfferedSkills(long userId) {
         userValidator.validatorUserExistence(userId);
         Map<Long, Long> guardianOfferedSkills = skillRepository.findSkillsOfferedToUser(userId).stream()
                 .collect(Collectors.groupingBy(Skill::getId, Collectors.counting()));
