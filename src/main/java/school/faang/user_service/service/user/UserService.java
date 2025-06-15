@@ -32,7 +32,7 @@ public class UserService {
     public UserDto create(String username, String countryTitle, String email, String password) {
         validate(username, countryTitle, email, password);
         Country country = countryRepository.findByTitle(countryTitle)
-                .orElseThrow(() -> new DataValidationException("Unknown country: " + countryTitle));;
+                .orElseThrow(() -> new DataValidationException("Unknown country: " + countryTitle));
         User userEntity = userMapper.toEntity(username, country, email, passwordEncoder.encode(password));
         User user = userRepository.save(userEntity);
         avatarService.generateRandomAvatar(user.getId());
