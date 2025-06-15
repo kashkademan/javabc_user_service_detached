@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.0.6"
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
+    id("jacoco")
     kotlin("jvm")
 }
 
@@ -92,4 +93,57 @@ tasks.bootJar {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    classDirectories.setFrom(
+        fileTree("${buildDir}/classes/java/main") {
+            include("school/faang/user_service/**")
+        }
+    )
+
+    sourceDirectories.setFrom(files("src/main/java"))
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+
+    violationRules {
+        rule {
+            isEnabled = true
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.30".toBigDecimal()
+            }
+        }
+    }
+
+    classDirectories.setFrom(
+        fileTree("${buildDir}/classes/java/main/school/faang/user_service") {
+            exclude(
+                "**/client/**",
+                "**/config/**",
+                "**/controller/**",
+                "**/dto/**",
+                "**/entity/**",
+                "**/exception/**",
+                "**/mapper/**",
+                "**/repository/**",
+                "**/UserServiceApplication.class"
+            )
+        }
+    )
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestReport)
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
