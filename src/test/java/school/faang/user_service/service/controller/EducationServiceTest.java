@@ -11,7 +11,7 @@ import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.EducationMapperImpl;
+import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.EducationRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -31,7 +31,7 @@ public class EducationServiceTest {
     private EducationRepository educationRepository;
 
     @Spy
-    private EducationMapperImpl educationMapper;
+    private EducationMapper educationMapper;
 
     @InjectMocks
     private EducationServiceImpl educationService;
@@ -43,7 +43,7 @@ public class EducationServiceTest {
     private long educationId;
     private EducationDto educationDto;
     private int correctYearFrom;
-    User user;
+    private User user;
 
     @BeforeEach
     public void setUp() {
@@ -57,8 +57,6 @@ public class EducationServiceTest {
         user = User.builder()
                 .id(userId)
                 .build();
-
-
     }
 
     @Test
@@ -108,7 +106,8 @@ public class EducationServiceTest {
         assertEquals(String
                 .format("User with id %d was not found", userId), entityNotFoundException.getMessage());
     }
-@Test
+
+    @Test
     void testUpdateEducationRepositorySave() {
         when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
         when(educationRepository.existsById(educationId)).thenReturn(true);
@@ -121,13 +120,9 @@ public class EducationServiceTest {
 
     @Test
     void testGetByIdIncorrectUser() {
-
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
                 () -> educationService.getById(educationId));
         assertEquals(String
                 .format("Education with id %d was not found", educationId), entityNotFoundException.getMessage());
     }
-
 }
-
-

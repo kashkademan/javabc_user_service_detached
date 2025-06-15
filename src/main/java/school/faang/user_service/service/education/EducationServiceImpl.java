@@ -2,6 +2,7 @@ package school.faang.user_service.service.education;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EducationDto;
@@ -25,8 +26,8 @@ public class EducationServiceImpl implements EducationService {
 
         Education education = educationMapper.toEntity(educationDto);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id " +
-                        "%d was not found", userId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(
+                        "User with id %d was not found", userId)));
         education.setUser(user);
 
         return educationMapper.toDto(educationRepository.save(education));
@@ -39,14 +40,14 @@ public class EducationServiceImpl implements EducationService {
         validateYear(educationDto);
 
         if (!educationRepository.existsById(educationId)) {
-            throw new EntityNotFoundException(String.format("Education by id " +
-                    "%d was not found!", educationId));
+            throw new EntityNotFoundException(String.format(
+                    "Education by id %d was not found!", educationId));
         }
 
         Education education = educationMapper.toEntity(educationDto);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id " +
-                        "%d was not found", userId)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(
+                        "User with id %d was not found", userId)));
         education.setUser(user);
 
         return educationMapper.toDto(educationRepository.save(education));
@@ -54,12 +55,11 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDto getById(long educationId) {
-
-        return educationRepository.findById
-                (educationId).map(educationMapper::toDto).orElseThrow(() -> new
-                EntityNotFoundException(String
-                .format("Education with id %d was not found",
-                        educationId)));
+        return educationRepository.findById(educationId)
+                .map(educationMapper::toDto)
+                .orElseThrow(() -> new
+                EntityNotFoundException(String.format(
+                        "Education with id %d was not found", educationId)));
     }
 
     private void validateYear(EducationDto educationDto) {
