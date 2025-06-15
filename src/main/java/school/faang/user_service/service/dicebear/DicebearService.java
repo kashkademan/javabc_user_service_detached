@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DicebearService {
 
-    private final DicebearServiceImpl dicebearServiceImpl;
+    private final DicebearClient dicebearClient;
 
     @Value("${services.dicebear.style}")
     private String style;
 
     public byte[] getImage(String format, int size) {
         String seed = String.valueOf(System.currentTimeMillis());
-        return dicebearServiceImpl.getImage(style, format, seed, size);
+        return dicebearClient.getImage(style, format, seed, size);
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "dicebear", url = "${services.dicebear.endpoint}")
-public interface DicebearServiceImpl {
+public interface DicebearClient {
 
     @GetMapping(value = "/{style}/{format}", produces = "image/webp")
     byte[] getImage(

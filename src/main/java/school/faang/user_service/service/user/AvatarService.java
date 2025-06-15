@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.NotFoundException;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.user.UserRepositoryAdapter;
 import school.faang.user_service.service.dicebear.DicebearService;
 import school.faang.user_service.service.image.ImageResizingService;
 import school.faang.user_service.service.s3.S3Service;
@@ -20,13 +21,13 @@ public class AvatarService {
     public static final int LARGE_IMAGE_SIZE = 1080;
     public static final int SMALL_IMAGE_SIZE = 170;
     private final UserRepository userRepository;
+    private final UserRepositoryAdapter userRepositoryAdapter;
     private final ImageResizingService imageResizingService;
     private final S3Service s3Service;
     private final DicebearService dicebearService;
 
     public UserAvatarDto getAvatar(Long userId) {
-        UserProfilePic avatar = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)))
+        UserProfilePic avatar = userRepositoryAdapter.findById(userId)
                 .getUserProfilePic();
 
         if (avatar == null || avatar.getFileId() == null || avatar.getSmallFileId() == null) {
@@ -40,8 +41,7 @@ public class AvatarService {
 
     @Transactional
     public void addAvatar(Long userId, MultipartFile file) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
+        User user = userRepositoryAdapter.findById(userId);
 
         byte[] largeImageBytes = imageResizingService.resizeImage(file, LARGE_IMAGE_SIZE);
         byte[] smallImageBytes = imageResizingService.resizeImage(file, SMALL_IMAGE_SIZE);
@@ -64,8 +64,7 @@ public class AvatarService {
 
     @Transactional
     public void deleteAvatar(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %s not found", userId)));
+        User user = userRepositoryAdapter.findById(userId);
         UserProfilePic avatar = user.getUserProfilePic();
 
         if (avatar == null || avatar.getFileId() == null || avatar.getSmallFileId() == null) {
@@ -80,8 +79,7 @@ public class AvatarService {
 
     @Transactional
     public void generateRandomAvatar(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userRepositoryAdapter.findById(userId);
 
         byte[] largeImageBytes = dicebearService.getImage("webp" ,LARGE_IMAGE_SIZE);
         byte[] smallImageBytes = dicebearService.getImage("webp", SMALL_IMAGE_SIZE);
