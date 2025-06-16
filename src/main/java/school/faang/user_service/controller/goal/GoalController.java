@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.messaging.publishers.GoalCompletedMessagePublisher;
 import school.faang.user_service.service.GoalService;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
+
+    private final GoalCompletedMessagePublisher goalCompletedMessagePublisher;
 
     @PostMapping("/{userId}/create")
     public GoalDto createGoal(@PathVariable Long userId, @Valid @RequestBody GoalDto goalDto) {
@@ -48,5 +52,13 @@ public class GoalController {
     @PostMapping("/ofuser/{userId}")
     public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @Valid @RequestBody GoalFilterDto filter) {
         return goalService.findGoalsByUserId(userId, filter);
+    }
+
+    @GetMapping("/complte-test")
+    private void sendFakeGoalComplete(){
+        Goal goal = new Goal();
+        goal.setId(108L);
+        goal.setTitle("test goal");
+        goalCompletedMessagePublisher.publishMessage(goal);
     }
 }
