@@ -47,5 +47,11 @@ public final class LogsConstants {
     public static final String DOWNLOAD_FAILED = "Failed to download file from storage";
     public static final String DELETION_FAILED = "File deletion failed";
 
+    //Сообщения при работе с подписками Premium
+    public static final String SUBSCRIPTION_NOT_FOUND = "There is no subscription with a duration of %s days";
+    public static final String USER_HAS_PREMIUM = "User already has premium";
+
+    //Сообщения при оплате
+    public static final String PAYMENT_PROBLEMS = "There are some problems during the payment processing";
 
 }
