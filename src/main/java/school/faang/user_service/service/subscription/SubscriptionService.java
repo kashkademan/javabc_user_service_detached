@@ -38,6 +38,10 @@ public class SubscriptionService {
         return filterUsers(followers, filters);
     }
 
+    public List<Long> getFollowersIds(long followeeId) {
+        return subscriptionRepository.findFollowersIds(followeeId);
+    }
+
     public List<User> filterUsers(Stream<User> users, UserFilterDto filters) {
         return userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))

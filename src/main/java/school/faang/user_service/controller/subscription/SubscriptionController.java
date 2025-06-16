@@ -3,6 +3,10 @@ package school.faang.user_service.controller.subscription;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -12,9 +16,11 @@ import school.faang.user_service.validator.subscription.SubscriptionValidator;
 
 import java.util.List;
 
-@Controller
+//@Controller
+@RestController
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/api/v1/subscription")
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -34,6 +40,11 @@ public class SubscriptionController {
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         List<User> followers = subscriptionService.getFollowers(followeeId, filter);
         return followers.stream().map(userMapper::toDto).toList();
+    }
+
+    @GetMapping("/followers/{followeeId}")
+    public List<Long> getFollowersIds(@PathVariable long followeeId) {
+        return subscriptionService.getFollowersIds(followeeId);
     }
 
     public int getFollowersCount(long followerId) {

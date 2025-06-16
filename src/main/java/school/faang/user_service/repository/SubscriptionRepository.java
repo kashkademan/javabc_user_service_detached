@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import school.faang.user_service.entity.User;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface SubscriptionRepository extends CrudRepository<User, Long> {
@@ -39,10 +40,10 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT u.id FROM users u
-            join subscription as subs on u.id = subs.followee_id
-            WHERE subs.followee_id = :userId
+            join subscription as subs on u.id = subs.follower_id
+            WHERE subs.followee_id = :followeeId
             """)
-    Stream<Long> findFollowersIds(Long userId);
+    List<Long> findFollowersIds(Long followeeId);
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :followerId")
     int findFolloweesAmountByFollowerId(long followerId);
