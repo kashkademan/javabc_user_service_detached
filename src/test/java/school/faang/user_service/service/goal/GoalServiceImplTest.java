@@ -18,13 +18,17 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
+import school.faang.user_service.messaging.publishers.GoalCompletedMessagePublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,6 +47,8 @@ class GoalServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
+    @Mock
+    GoalCompletedMessagePublisher goalCompletedMessagePublisher;
 
     private GoalFilter titleStubFilter = new GoalFilter() {
         @Override
@@ -81,7 +87,8 @@ class GoalServiceImplTest {
                 skillRepository,
                 userRepository,
                 goalInvitationRepository,
-                List.of(titleStubFilter, skillTitlesStubFilter)
+                List.of(titleStubFilter, skillTitlesStubFilter),
+                goalCompletedMessagePublisher
         );
         ReflectionTestUtils.setField(goalService, "maximumAllowedActiveGoals", 3);
     }
@@ -379,6 +386,41 @@ class GoalServiceImplTest {
 
         verify(userRepository).saveAllAndFlush(List.of(user));
         verify(skillRepository).saveAllAndFlush(List.of(skill));
+    }
+
+    @Test
+    void updateGoalCompleteGoalAndSendEvent() {
+        Long goalId = 1L;
+
+        Skill skill = new Skill();
+        skill.setId(1L);
+        skill.setUsers(new ArrayList<>());
+
+        User user = new User();
+        user.setId(1L);
+        user.setSkills(new ArrayList<>());
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.ACTIVE);
+        existingGoal.setSkillsToAchieve(List.of(skill));
+        existingGoal.setUsers(List.of(user));
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setStatus(GoalStatus.COMPLETED);
+        updateDto.setSkillIds(List.of(skill.getId()));
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+        when(skillRepository.findAllById(updateDto.getSkillIds())).thenReturn(List.of(skill));
+        when(goalMapper.toGoalDTO(existingGoal)).thenReturn(updateDto);
+
+        goalService.updateGoal(goalId, updateDto);
+
+        assertTrue(user.getSkills().contains(skill));
+        assertTrue(skill.getUsers().contains(user));
+
+        verify(goalCompletedMessagePublisher).publishMessage(existingGoal);
     }
 
     @Test
