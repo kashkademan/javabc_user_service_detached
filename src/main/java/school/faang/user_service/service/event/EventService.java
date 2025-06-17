@@ -11,10 +11,12 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.subscription.filter.EventFilter;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,84 +25,52 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
+    private final UserService userService;
 
     public EventDto create(EventDto eventDto) {
-        if (eventDto.getOwnerId() == null) {
-            throw new DataValidationException("ID пользователя обязателен");
-        }
+        User owner = getEventById(eventDto.getOwnerId()).getOwner();
 
-        User user = userRepository.findById(eventDto.getOwnerId())
-                .orElseThrow(() -> new DataValidationException("Пользователь не найден"));
-
-        Set<Long> userSkillIds = user.getSkills().stream()
-                .map(Skill::getId)
-                .collect(Collectors.toSet());
-
-        boolean hasAllRequiredSkills = userSkillIds.containsAll(eventDto.getRelatedSkills());
-
-        if (!hasAllRequiredSkills) {
-            throw new DataValidationException("Пользователь не обладает всеми необходимыми " +
-                    "навыками для проведения события");
-        }
-
+        checkUserSkills(owner, eventDto.getRelatedSkills());
         Event event = eventMapper.toEntity(eventDto);
         Event savedEvent = eventRepository.save(event);
-
         return eventMapper.toDto(savedEvent);
     }
 
     public EventDto getEvent(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new DataValidationException("Событие с ID " + eventId + " не найдено"));
+        Event event = getEventById(eventId);
         return eventMapper.toDto(event);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
-        return eventRepository.findAll().stream()
-                .filter(event -> filter.getTitle() == null || event.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()))
-                .filter(event -> filter.getStartDateFrom() == null || !event.getStartDate().isBefore(filter.getStartDateFrom()))
-                .filter(event -> filter.getStartDateTo() == null || !event.getStartDate().isAfter(filter.getStartDateTo()))
-                .filter(event -> filter.getEventType() == null || event.getType() == filter.getEventType())
-                .filter(event -> filter.getEventStatus() == null || event.getStatus() == filter.getEventStatus())
-                .filter(event -> filter.getOwnerId() == null || event.getOwner().equals(filter.getOwnerId()))
-                .filter(event -> filter.getRelatedSkills() == null || event.getRelatedSkills().containsAll(filter.getRelatedSkills()))
-                .filter(event -> filter.getLocation() == null || event.getLocation().equalsIgnoreCase(filter.getLocation()))
+    private final List<EventFilter> filters;
+
+    public List<EventDto> getEventsByFilter(EventFilterDto filterDto) {
+        List<Event> allEvents = eventRepository.findAll();
+
+        Stream<Event> eventStream = allEvents.stream();
+
+        for (EventFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
+                eventStream = filter.apply(eventStream, filterDto);
+            }
+        }
+
+        return eventStream
                 .map(eventMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void deleteEvent(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new DataValidationException("Событие с id " + eventId + " не найдено.");
+            throw new DataValidationException("Event with id " + eventId + " not found.");
         }
         eventRepository.deleteById(eventId);
     }
 
-    public EventDto updateEvent(EventDto dto) {
-        Event existing = eventRepository.findById(dto.getId())
-                .orElseThrow(() -> new DataValidationException("Событие с id " + dto.getId() + " не найдено."));
-
-        if (!existing.getOwner().getId().equals(dto.getOwnerId())) {
-            throw new DataValidationException("Пользователь не является автором события.");
-        }
-
-        User owner = userRepository.findById(dto.getOwnerId())
-                .orElseThrow(() -> new DataValidationException("Пользователь с id " + dto.getOwnerId() + " не найден."));
-
-        List<Long> ownerSkills = owner.getSkills().stream()
-                .map(skill -> skill.getId())
-                .toList();
-
-        for (Long skillId : dto.getRelatedSkills()) {
-            if (!ownerSkills.contains(skillId)) {
-                throw new DataValidationException("Пользователь не обладает навыком с id: " + skillId);
-            }
-        }
-
-        Event updated = eventMapper.toEntity(dto);
-        updated.setId(existing.getId());
-        Event saved = eventRepository.save(updated);
-        return eventMapper.toDto(saved);
+    public EventDto updateEvent(EventDto eventDto) {
+        Event event = getEventById(eventDto.getId());
+        eventMapper.update(event, eventDto); // "Перенеси" все обновляемые поля из dto в event
+        Event updated = eventRepository.save(event);
+        return eventMapper.toDto(updated);
     }
 
     public List<EventDto> getOwnedEvents(long userId) {
@@ -113,5 +83,29 @@ public class EventService {
         return eventRepository.findParticipatedEventsByUserId(userId).stream()
                 .map(eventMapper::toDto)
                 .toList();
+    }
+
+    public Event getEventById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataValidationException("Event not found with id: " + eventId));
+    }
+
+    public void checkUserSkills(User owner, List<Long> eventSkillIds) {
+        if (!hasRequiredSkills(owner, eventSkillIds)) {
+            throw new DataValidationException("User does not have the required skills to organize this event");
+        }
+    }
+
+    private boolean hasRequiredSkills(User user, List<Long> requiredSkills) {
+        if (requiredSkills == null || requiredSkills.isEmpty()) {
+            return true;
+        }
+
+        List<Long> userSkillIds = user.getSkills()
+                .stream()
+                .map(Skill::getId)
+                .collect(Collectors.toList());
+
+        return userSkillIds.containsAll(requiredSkills);
     }
 }
