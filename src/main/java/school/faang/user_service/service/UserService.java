@@ -38,16 +38,16 @@ public class UserService {
     }
 
     @Transactional
-    public Long createUser(UserFullDto userDto, String filter) {
+    public Long createUser(UserFullDto userDto) {
         validation(userDto);
         Country countryUser = countryService.getCountryById(userDto.countryId());
 
-        String api = createApiPath(filter);
+        String api = createApiPath(userDto.defaultPhoto());
 
         minioService.createBucket();
         try {
             putS3Client(api, userDto.email());
-        } catch (IOException e){
+        } catch (IOException e) {
             log.error("IOException {}", e.getMessage());
         }
         User user = userMapper.toEntity(userDto);
@@ -87,8 +87,8 @@ public class UserService {
         return !matcher.matches();
     }
 
-    private String createApiPath(String filter) {
-        return filter == null ? diceBearApi : diceBearApi + "?" + filter;
+    private String createApiPath(String photo) {
+        return photo == null ? diceBearApi : diceBearApi + "?" + photo;
     }
 
     private void putS3Client(String api, String userEmail) throws IOException {

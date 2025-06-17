@@ -30,6 +30,8 @@ public record UserFullDto(
         String city,
 
         @NotNull(message = "Experience cannot be null")
-        Integer experience
+        Integer experience,
+
+        String defaultPhoto
 ) {
 }

@@ -16,8 +16,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
-import java.io.IOException;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -49,37 +47,36 @@ class UserServiceTest {
 
     @Test
     void newUserTestIncorrectUsername() {
-        UserFullDto dto = createDto("123", "qw@qwer.ru", "22222222222", -1);
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
+        UserFullDto dto = createDto("123", "qw@qwer.ru", "22222222222", -1, null);
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto));
     }
 
     @Test
     void newUserTestIncorrectEmail() {
-        UserFullDto dto = createDto("qwe", "qwqwerru", "22222222222", 1);
+        UserFullDto dto = createDto("qwe", "qwqwerru", "22222222222", 1, null);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto));
     }
 
     @Test
     void newUserTestIncorrectPhone() {
-        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "2", 2);
+        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "2", 2, null);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto));
     }
 
     @Test
     void newUserTestIncorrectExperience() {
-        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", -1);
+        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", -1, null);
 
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto, null));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(dto));
     }
 
     @Test
     void newUserTestFilterIsNull() {
         Long userId = 1L;
-        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1);
+        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1, null);
         Country country = new Country();
-        String filter = null;
         String testApi = "http://example.com/api";
         String file = "test file";
         User user = User.builder()
@@ -90,7 +87,7 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(dto)).thenReturn(user);
 
-        Long result = userService.createUser(dto, filter);
+        Long result = userService.createUser(dto);
 
         assertNotNull(result);
         assertEquals(userId, result);
@@ -99,11 +96,10 @@ class UserServiceTest {
     @Test
     void newUserTestFilterIsNotNull() {
         Long userId = 1L;
-        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1);
+        UserFullDto dto = createDto("qwe", "qw@qwer.ru", "22222222222", 1, "someone");
         Country country = new Country();
         String testApi = "http://example.com/api?someone";
         String file = "test file";
-        String filter = "someone";
         User user = User.builder()
                 .id(userId)
                 .build();
@@ -112,7 +108,7 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(any())).thenReturn(user);
 
-        Long result = userService.createUser(dto, filter);
+        Long result = userService.createUser(dto);
 
         assertNotNull(result);
         assertEquals(userId, result);
@@ -142,12 +138,14 @@ class UserServiceTest {
         assertEquals(id, result.getId());
     }
 
-    private UserFullDto createDto(String username, String email, String phone, Integer experience) {
+    private UserFullDto createDto(String username, String email, String phone,
+                                  Integer experience, String defaultPhoto) {
         return UserFullDto.builder()
                 .username(username)
                 .email(email)
                 .phone(phone)
                 .experience(experience)
+                .defaultPhoto(defaultPhoto)
                 .build();
     }
 }

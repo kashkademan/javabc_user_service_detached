@@ -20,14 +20,9 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @PostMapping("/newuser?{filter}")
-    public Long newUser(@Valid @RequestBody UserFullDto dto, @PathVariable String filter) {
-        return userService.createUser(dto, filter);
-    }
-
-    @PostMapping("/newuser")
-    public Long newUser(@Valid @RequestBody UserFullDto dto) {
-        return userService.createUser(dto, null);
+    @PostMapping()
+    public Long newUser(@Valid @RequestBody UserFullDto createUserDto) {
+        return userService.createUser(createUserDto);
     }
 
     @GetMapping("/{userId}")

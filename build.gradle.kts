@@ -112,22 +112,45 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
     }
+
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it).apply {
+            exclude(
+                "**/client/**",
+                "**/mapper/**",
+                "**/entity/**",
+                "**/config/**",
+                "**/dto/**",
+                "**/model/**",
+                "**/repository**",
+                "**/**Test.class",
+                "**/PostServiceApp.class",
+                "**/controller/LikeController.class",
+                "**/**Impl"
+            )
+        }
+    }))
 }
 
 tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
-            enabled = false
             element = "CLASS"
-            includes = listOf("org.gradle.*")
-
-            limit {
-                counter = "LINE"
-                value = "TOTALCOUNT"
-                maximum = 0.3.toBigDecimal()
-            }
+            excludes = listOf(
+                "faang.school.postservice.client.*",
+                "faang.school.postservice.mapper.*",
+                "faang.school.postservice.entity.*",
+                "faang.school.postservice.config.*",
+                "faang.school.postservice.dto.*",
+                "faang.school.postservice.model.*",
+                "faang.school.postservice.repository.*",
+                "faang.school.postservice.controller.LikeController",
+                "**/*Test.class",
+                "**/*Impl.class",
+                "faang.school.postservice.PostServiceApp"
+            )
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
@@ -141,25 +164,6 @@ tasks.build {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
-tasks.jacocoTestReport {
-    classDirectories.setFrom(files(classDirectories.files.map {
-        fileTree(it).apply {
-            exclude(
-                "**/mapper/**",
-                "**/entity/**",
-                "**/client/**",
-                "**/config/**",
-                "**/dto/**",
-                "**/model/**",
-                "**/controller/**",
-                "**/repository/**",
-                "**/**Test.class",
-                "**/ProjectServiceApplication.class",
-                "**/**Impl.class",
-            )
-        }
-    }))
-}
 checkstyle {
     toolVersion = "10.17.0"
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
