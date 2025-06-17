@@ -110,6 +110,11 @@ checkstyle {
     toolVersion = "10.3"
     configFile = file("config/checkstyle/checkstyle.xml")
 }
+tasks.withType<Checkstyle> {
+    source = fileTree("src/main/java").matching {
+        exclude("**/build/generated-sources/**")
+    }
+}
 
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
