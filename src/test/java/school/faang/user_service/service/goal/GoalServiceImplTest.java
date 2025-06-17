@@ -389,6 +389,41 @@ class GoalServiceImplTest {
     }
 
     @Test
+    void updateGoalCompleteGoalAndSendEvent() {
+        Long goalId = 1L;
+
+        Skill skill = new Skill();
+        skill.setId(1L);
+        skill.setUsers(new ArrayList<>());
+
+        User user = new User();
+        user.setId(1L);
+        user.setSkills(new ArrayList<>());
+
+        Goal existingGoal = new Goal();
+        existingGoal.setId(goalId);
+        existingGoal.setStatus(GoalStatus.ACTIVE);
+        existingGoal.setSkillsToAchieve(List.of(skill));
+        existingGoal.setUsers(List.of(user));
+
+        GoalDto updateDto = new GoalDto();
+        updateDto.setId(goalId);
+        updateDto.setStatus(GoalStatus.COMPLETED);
+        updateDto.setSkillIds(List.of(skill.getId()));
+
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(existingGoal));
+        when(skillRepository.findAllById(updateDto.getSkillIds())).thenReturn(List.of(skill));
+        when(goalMapper.toGoalDTO(existingGoal)).thenReturn(updateDto);
+
+        goalService.updateGoal(goalId, updateDto);
+
+        assertTrue(user.getSkills().contains(skill));
+        assertTrue(skill.getUsers().contains(user));
+
+        verify(goalCompletedMessagePublisher).publishMessage(existingGoal);
+    }
+
+    @Test
     void deleteGoalThrowsIfGoalNotFound() {
         long goalId = 42L;
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
