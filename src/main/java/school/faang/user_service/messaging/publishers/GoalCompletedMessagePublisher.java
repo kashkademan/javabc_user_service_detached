@@ -5,10 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.redis.RedisProperties;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.messaging.events.GoalCompletedEvent;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +30,9 @@ public class GoalCompletedMessagePublisher {
     }
 
     public void publishMessage(Goal goal) {
-        GoalCompletedEvent event = new GoalCompletedEvent(goal.getId(), goal.getTitle(), LocalDateTime.now());
+        List<User> userList = Optional.ofNullable(goal.getUsers()).orElse(Collections.emptyList());
+        List<Long> userIds = userList.stream().map(User::getId).toList();
+        GoalCompletedEvent event = new GoalCompletedEvent(goal.getId(), goal.getTitle(), userIds, LocalDateTime.now());
         messagePublisher.publishMessage(topic, event);
     }
 }
