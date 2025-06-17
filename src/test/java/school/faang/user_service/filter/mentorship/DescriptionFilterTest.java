@@ -56,7 +56,8 @@ public class DescriptionFilterTest {
 //                .toList();
 
 
-        Stream<MentorshipRequest> request = descriptionFilter.apply(mentorshipRequests, new MentorshipFilterDto("Test", null,null, null));
+        Stream<MentorshipRequest> request = descriptionFilter.apply(mentorshipRequests,
+                new MentorshipFilterDto("Test", null,null, null));
         List<MentorshipRequest> requestList = request.toList();
 
         assertEquals(1,requestList.size());
