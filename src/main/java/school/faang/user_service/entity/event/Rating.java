@@ -30,8 +30,8 @@ import java.time.LocalDateTime;
 @Table(name = "rating")
 public class Rating {
 
-    private final static int RATE_MIN_VALUE = 0;
-    private final static int RATE_MAX_VALUE = 5;
+    private final int rateMinValue = 0;
+    private final int rateMaxValue = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +40,8 @@ public class Rating {
     @Column(name = "comment", length = 4096)
     private String comment;
 
-    @Min(RATE_MIN_VALUE)
-    @Max(RATE_MAX_VALUE)
+    @Min(rateMinValue)
+    @Max(rateMaxValue)
     @Column(name = "rate", nullable = false)
     private int rate;
 
