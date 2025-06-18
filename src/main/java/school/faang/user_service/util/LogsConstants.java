@@ -23,7 +23,7 @@ public final class LogsConstants {
     // Сообщения об ошибках при работе с User
     public static final String USER_NOT_FOUND = "User with id = %s is not found";
     public static final String USER_PICTURE_NOT_FOUND = "User profile picture is not found for userId = %s";
-
+    public static final String USER_COUNTRY_NOT_FOUND = "Country with id = %s is not found";
 
     // Сообщения об ошибках при работе с Skill
     public static final String SKILL_ALREADY_EXIST = "Skill '%s' is already existed";

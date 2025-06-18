@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserRegisterRequestDto;
+import school.faang.user_service.dto.user.UserRegisterResponseDto;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.service.user.UserServiceFacade;
 
@@ -25,6 +27,13 @@ import java.util.List;
 public class UserController {
 
     private final UserServiceFacade userService;
+
+    @PostMapping("api/v1/users/register")
+    public ResponseEntity<UserRegisterResponseDto> registerUser
+            (@RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+        UserRegisterResponseDto userRegisterResponseDto = userService.registerUser(userRegisterRequestDto);
+        return ResponseEntity.ok(userRegisterResponseDto);
+    }
 
     @GetMapping("/users/{userId}")
     UserDto getUser(@PathVariable long userId) {

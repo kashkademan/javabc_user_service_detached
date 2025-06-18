@@ -1,5 +1,6 @@
 package school.faang.user_service.util.file;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Builder
 @RequiredArgsConstructor
 public class CustomMultipartFile implements MultipartFile {
     private final byte[] content;

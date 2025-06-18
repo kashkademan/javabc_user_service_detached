@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.DiceBearClient;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.exception.avatar.AvatarGenerationException;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.util.file.CustomMultipartFile;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -19,6 +22,7 @@ import java.util.UUID;
 public class AvatarGeneratorService {
     private final S3Service s3Service;
     private final DiceBearClient dicebearClient;
+    private final UserContext userContext;
 
     @Value("${services.dicebear.version}")
     private String version;
@@ -32,12 +36,15 @@ public class AvatarGeneratorService {
     @Value("${services.s3.avatarPath}")
     private String avatarFolder;
 
-    public String generateAndUpload() {
+    @Async("avatar-generator-executor")
+    public CompletableFuture<String> generateAndUpload() {
+        userContext.setUserId(0); // Явно прописал 0, т.к не знаю, как убрать необходимость в хедере, ничего не помогло
+
         try {
             MultipartFile avatarFile = generateAvatar();
             log.info("Аватар успешно сгенерирован");
 
-            return s3Service.uploadFile(avatarFolder, avatarFile);
+            return CompletableFuture.completedFuture(s3Service.uploadFile(avatarFolder, avatarFile));
         } catch (AvatarGenerationException e) {
             log.error("Ошибка при генерации аватара: {}", e.getMessage(), e);
             throw new AvatarGenerationException("Ошибка при генерации аватара");
@@ -53,11 +60,11 @@ public class AvatarGeneratorService {
                 seed
         );
 
-        return new CustomMultipartFile(
-                avatarBytes,
-                "avatar",
-                "generated_avatar.png",
-                MediaType.IMAGE_PNG_VALUE
-        );
+        return CustomMultipartFile.builder()
+                .content(avatarBytes)
+                .name("avatar")
+                .originalFilename("generated_avatar.png")
+                .contentType(MediaType.IMAGE_PNG_VALUE)
+                .build();
     }
 }

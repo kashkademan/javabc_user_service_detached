@@ -32,6 +32,7 @@ server:
 logging:
   level:
     root: info
+    school.faang.user_service.client: debug
 
 project-service:
   host: localhost

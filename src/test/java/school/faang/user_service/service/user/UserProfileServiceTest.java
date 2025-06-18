@@ -12,6 +12,7 @@ import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.s3.FileException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.s3.S3Service;
+import school.faang.user_service.validation.user.UserValidation;
 
 import java.util.Optional;
 
@@ -27,6 +28,9 @@ class UserProfileServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserValidation userValidation;
 
     @Mock
     private S3Service s3Service;
@@ -53,24 +57,29 @@ class UserProfileServiceTest {
     void testGeneratePresignedUrlForSmallFile() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(validUser));
         when(s3Service.generatePresignedUrl(SMALL_FILE_ID)).thenReturn(PRESIGNED_URL);
+        doNothing().when(userValidation).validateProfilePicNotNull(any(UserProfilePic.class), anyLong());
+
 
         String actualUrl = userProfileService.generatePresignedUrl(USER_ID, true);
 
         assertEquals(PRESIGNED_URL, actualUrl);
         verify(userRepository).findById(USER_ID);
         verify(s3Service).generatePresignedUrl(SMALL_FILE_ID);
+        verify(userValidation).validateProfilePicNotNull(validUser.getUserProfilePic(), USER_ID);
     }
 
     @Test
     void testGeneratePresignedUrlForDefaultFile() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(validUser));
         when(s3Service.generatePresignedUrl(FILE_ID)).thenReturn(PRESIGNED_URL);
+        doNothing().when(userValidation).validateProfilePicNotNull(any(UserProfilePic.class), anyLong());
 
         String actualUrl = userProfileService.generatePresignedUrl(USER_ID, false);
 
         assertEquals(PRESIGNED_URL, actualUrl);
         verify(userRepository).findById(USER_ID);
         verify(s3Service).generatePresignedUrl(FILE_ID);
+        verify(userValidation).validateProfilePicNotNull(validUser.getUserProfilePic(), USER_ID);
     }
 
     @Test
@@ -83,12 +92,15 @@ class UserProfileServiceTest {
         assertEquals("Пользователь не найден!", exception.getMessage());
         verify(userRepository).findById(USER_ID);
         verifyNoInteractions(s3Service);
+        verifyNoInteractions(userValidation);
     }
 
     @Test
     void testGeneratePresignedUrlWhenProfilePicNotFound() {
         validUser.setUserProfilePic(null);
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(validUser));
+        doThrow(new FileException("У данного пользователя нет изображения профиля"))
+                .when(userValidation).validateProfilePicNotNull(eq(null), anyLong());
 
         FileException exception = assertThrows(FileException.class, () ->
                 userProfileService.generatePresignedUrl(USER_ID, true));

@@ -9,9 +9,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.DiceBearClient;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.exception.avatar.AvatarGenerationException;
 import school.faang.user_service.service.avatar.AvatarGeneratorService;
 import school.faang.user_service.service.s3.S3Service;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,6 +42,9 @@ class AvatarGeneratorServiceTest {
     @Mock
     private DiceBearClient diceBearClient;
 
+    @Mock
+    private UserContext userContext;
+
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(avatarGeneratorService, "avatarFolder", AVATAR_FOLDER);
@@ -48,17 +55,18 @@ class AvatarGeneratorServiceTest {
     }
 
     @Test
-    void testGenerateAndUploadWhenGenerationSuccessful() {
+    void testGenerateAndUploadWhenGenerationSuccessful() throws ExecutionException, InterruptedException {
         when(diceBearClient.getAvatar(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(AVATAR_BYTES);
         when(s3Service.uploadFile(eq(AVATAR_FOLDER), any(MultipartFile.class)))
                 .thenReturn(EXPECTED_URL);
 
-        String result = avatarGeneratorService.generateAndUpload();
+        CompletableFuture<String> resultFuture = avatarGeneratorService.generateAndUpload();
 
-        assertEquals(EXPECTED_URL, result);
+        assertEquals(EXPECTED_URL, resultFuture.get());
         verify(diceBearClient).getAvatar(anyString(), anyString(), anyString(), anyString());
         verify(s3Service).uploadFile(eq(AVATAR_FOLDER), any(MultipartFile.class));
+        verify(userContext).setUserId(0);
     }
 
     @Test
@@ -69,5 +77,6 @@ class AvatarGeneratorServiceTest {
         assertThrows(AvatarGenerationException.class, () -> avatarGeneratorService.generateAndUpload());
 
         verify(s3Service, never()).uploadFile(anyString(), any());
+        verify(userContext).setUserId(0);
     }
 }
