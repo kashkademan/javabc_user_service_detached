@@ -15,7 +15,6 @@ import school.faang.user_service.enums.PaymentStatus;
 import school.faang.user_service.enums.PremiumPeriod;
 import school.faang.user_service.exception.AlreadyPremiumUserException;
 import school.faang.user_service.exception.PaymentFailedException;
-import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.UserService;
@@ -40,8 +39,6 @@ public class PremiumServiceImplTest {
     @Mock
     private PremiumRepository premiumRepository;
 
-    @Spy
-    private PremiumMapperImpl premiumMapper;
 
     @Spy
     private UserMapperImpl userMapper;
