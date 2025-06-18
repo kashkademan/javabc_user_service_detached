@@ -17,6 +17,7 @@ import java.util.List;
 public class GoalController {
     private final GoalService goalService;
 
+
     @PostMapping("/{userId}/create")
     public GoalDto createGoal(@PathVariable Long userId, @Valid @RequestBody GoalDto goalDto) {
         if (goalDto.getTitle().isBlank()) throw new IllegalArgumentException("Goal has no title");
