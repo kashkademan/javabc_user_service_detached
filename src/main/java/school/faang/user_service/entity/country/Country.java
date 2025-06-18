@@ -13,6 +13,7 @@ import lombok.ToString;
 import school.faang.user_service.entity.user.User;
 
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 @Setter
@@ -27,6 +28,9 @@ public class Country {
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
+
+    @Column(name = "local", length = 16)
+    private Locale locale;
 
     @OneToMany(mappedBy = "country")
     private List<User> residents;

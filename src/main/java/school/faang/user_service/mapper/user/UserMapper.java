@@ -19,6 +19,7 @@ public interface UserMapper {
 
     UserResponseDto toUserResponseDto(User user);
     @Mapping(source = "contactPreference.preference", target = "preference")
+    @Mapping(source = "country.locale", target = "locale")
     UserNotificationResponseDto toUserNotificationResponseDto(User user);
 
     List<UserResponseDto> toUserResponseDtoList(List<User> users);
