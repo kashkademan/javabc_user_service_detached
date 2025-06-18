@@ -31,7 +31,7 @@ public class AsyncConfig {
         return executor;
     }
 
-    @Bean
+    @Bean(name = "generateRandomAvatarUserExecutor")
     public Executor generateRandomAvatarUserExecutor() {
         return new SimpleAsyncTaskExecutor();
     }
