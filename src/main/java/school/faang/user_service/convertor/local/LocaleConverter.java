@@ -1,11 +1,11 @@
-package school.faang.user_service.converter.local;
+package school.faang.user_service.convertor.local;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import java.util.Locale;
 
-@Converter
+@Converter(autoApply = true)
 public class LocaleConverter implements AttributeConverter<Locale, String> {
 
     @Override

@@ -29,7 +29,7 @@ public class Country {
     @Column(name = "title", length = 64, nullable = false, unique = true)
     private String title;
 
-    @Column(name = "local", length = 16)
+    @Column(name = "locale", length = 16)
     private Locale locale;
 
     @OneToMany(mappedBy = "country")
