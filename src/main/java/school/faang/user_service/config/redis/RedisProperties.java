@@ -5,12 +5,13 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties("spring.data.redis")
 public record RedisProperties(
-        String host,
-        int port,
+//        String host,
+//        int port,
         @NestedConfigurationProperty Channels channels
 ) {
     public record Channels(
-            String userBan
+            String userBan,
+            String recommendationEvent
     ) {
     }
 }
