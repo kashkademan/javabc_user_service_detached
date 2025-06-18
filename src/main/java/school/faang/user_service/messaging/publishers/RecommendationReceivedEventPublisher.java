@@ -14,7 +14,7 @@ import school.faang.user_service.mapper.RecommendationMapper;
 @Slf4j
 @Component("recommendationEventPublisher")
 @RequiredArgsConstructor
-public class RecommendationEventPublisher implements MessagePublisher<Recommendation> {
+public class RecommendationReceivedEventPublisher implements MessagePublisher<Recommendation> {
     private static final String TOPIC_NAME = "recommendation_event";
 
     private final RedisProperties properties;

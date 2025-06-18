@@ -15,7 +15,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.messaging.publishers.RecommendationEventPublisher;
+import school.faang.user_service.messaging.publishers.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -38,7 +38,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationEventPublisher publisher;
+    private final RecommendationReceivedEventPublisher publisher;
 
     @Override
     @Transactional
