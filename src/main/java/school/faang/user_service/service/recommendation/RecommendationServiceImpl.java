@@ -1,16 +1,12 @@
 package school.faang.user_service.service.recommendation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -19,8 +15,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.publisher.MessagePublisher;
-import school.faang.user_service.publisher.recommendation.RecommendationEventPublisher;
+import school.faang.user_service.messaging.publishers.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -43,8 +38,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final RecommendationMapper recommendationMapper;
-    @Qualifier("recommendationEventPublisher")
-    private final MessagePublisher publisher;
+    private final RecommendationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -64,9 +58,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .orElseThrow(() -> new DataValidationException("Failed to retrieve the created recommendation"));
         checkAndAddSkillsGuarantees(recommendationEntity);
 
-        RecommendationEventDto dt = recommendationMapper.toEventDto(recommendationEntity);
-           publisher.publish(dt);
-           log.info("Published");
+        publisher.publishMessage(recommendationEntity);
 
         return recommendationMapper.toDto(recommendationEntity);
     }
@@ -89,6 +81,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         Recommendation recommendationEntity = recommendationRepository.findById(updated.getId())
                 .orElseThrow(() -> new DataValidationException("Failed to retrieve the created recommendation"));
         checkAndAddSkillsGuarantees(recommendationEntity);
+
+        publisher.publishMessage(recommendationEntity);
 
         return recommendationMapper.toDto(recommendationEntity);
     }

@@ -1,8 +1,8 @@
-package school.faang.user_service.dto.recommendation;
+package school.faang.user_service.messaging.events;
 
 import java.time.LocalDateTime;
 
-public record RecommendationEventDto(
+public record RecommendationReceivedEvent(
         Long recommendationId,
         Long authorId,
         Long receiverId,
