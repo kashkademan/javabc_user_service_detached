@@ -19,7 +19,7 @@ public class EventRedisService {
     private final EventRedisRepository eventRedisRepository;
     private final EventRedisMapper eventRedisMapper;
 
-    public void saveEvent(Event event, long ttl) {
+    public void saveEvent(Event event, long promotionId, long ttl) {
         EventRedisModel eventRedisModel = eventRedisMapper.toEventRedis(event);
         log.debug("Mapping Event entity to EventRedisModel. Entity content: {}. RedisModel content: {}.",
                 event, eventRedisModel);
