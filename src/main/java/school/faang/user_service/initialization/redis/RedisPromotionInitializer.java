@@ -26,12 +26,12 @@ public class RedisPromotionInitializer {
     public void init() {
         List<Promotion> promotions = promotionService.getAllActiveEventPromotion();
 
-        promotions.forEach(promotionRedisService::savePromotion);
+        promotions.forEach(this::saveInRedis);
 
         log.info("Redis initialized with {} promotions for events", promotions.size());
     }
 
-    private void hjk(Promotion promotion) {
+    private void saveInRedis(Promotion promotion) {
         promotionRedisService.savePromotion(promotion);
         eventRedisService.saveEvent(promotion.getEvent(), getTtlByPromotion(promotion));
     }
