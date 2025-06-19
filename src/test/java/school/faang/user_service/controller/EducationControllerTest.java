@@ -9,9 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.education.EducationController;
 import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.service.education.EducationService;
-
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +40,7 @@ public class EducationControllerTest {
 
         EducationDto result = educationController.addEducation(userId, dto);
 
-        assertNotNull(result);
+       assertNotNull(result);
         assertEquals(dto, result);
         verify(educationService).addEducation(userId, dto);
     }
