@@ -1,7 +1,8 @@
 package school.faang.user_service.controller;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,6 +12,7 @@ import school.faang.user_service.service.education.EducationService;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,12 +25,17 @@ public class EducationControllerTest {
     @InjectMocks
     private EducationController educationController;
 
-    @Test
-    public void testAddEducation() {
-        long userId = 1L;
+    private EducationDto createEducationDto() {
         EducationDto dto = new EducationDto();
         dto.setId(1L);
         dto.setInstitution("University");
+        return dto;
+    }
+
+    @Test
+    public void testAddEducation() {
+        long userId = 1L;
+        EducationDto dto = createEducationDto();
 
         when(educationService.addEducation(userId, dto)).thenReturn(dto);
 
@@ -42,9 +49,7 @@ public class EducationControllerTest {
     @Test
     public void testUpdateEducation() {
         long userId = 1L;
-        EducationDto dto = new EducationDto();
-        dto.setId(1L);
-        dto.setInstitution("University");
+        EducationDto dto = createEducationDto();
 
         when(educationService.updateEducation(userId, dto)).thenReturn(dto);
 
@@ -58,9 +63,7 @@ public class EducationControllerTest {
     @Test
     public void testGetById() {
         long educationId = 1L;
-        EducationDto dto = new EducationDto();
-        dto.setId(1L);
-        dto.setInstitution("University");
+        EducationDto dto = createEducationDto();
 
         when(educationService.getById(educationId)).thenReturn(dto);
 
@@ -69,5 +72,16 @@ public class EducationControllerTest {
         assertNotNull(result);
         assertEquals(dto, result);
         verify(educationService).getById(educationId);
+    }
+
+    @Test
+    public void testGetByIdServiceThrowsException() {
+        Long id = -1L;
+        when(educationService.getById(id)).thenThrow(new DataValidationException("Invalid education ID"));
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> educationController.getById(id));
+
+        assertEquals("Invalid education ID", exception.getMessage());
     }
 }

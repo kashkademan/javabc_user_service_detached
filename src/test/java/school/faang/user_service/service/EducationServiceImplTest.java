@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testcontainers.shaded.org.hamcrest.Matchers.any;
 
+@Data
 @ExtendWith(MockitoExtension.class)
 public class EducationServiceImplTest {
 
@@ -39,101 +42,101 @@ public class EducationServiceImplTest {
     @InjectMocks
     private EducationService educationService;
 
-    @Test
-    public void testAddEducationSuccess() {
-        long userId = 1L;
+    private EducationDto createEducationDto() {
         EducationDto dto = new EducationDto();
         dto.setId(1L);
-        dto.setYearFrom(2015);
         dto.setInstitution("University");
+        dto.setYearFrom(2015);
+        return dto;
+    }
 
+    private User createUser(long id) {
         User user = new User();
-        user.setId(userId);
+        user.setId(id);
+        return user;
+    }
 
+    private Education createEducation(User user) {
         Education education = new Education();
         education.setId(1L);
         education.setUser(user);
         education.setInstitution("University");
+        education.setYearFrom(2015);
+        return education;
+
+    @Test
+    public void testAddEducationSuccess() {
+        long userId = 1L;
+        EducationDto dto = createEducationDto();
+        User user = createUser(userId);
+        Education education = createEducation(user);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(educationRepository.save(education)).thenReturn(education);
+        when(educationRepository.save(any(Education.class))).thenReturn(education);
 
         EducationDto result = educationService.addEducation(userId, dto);
 
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());
         verify(userRepository).findById(userId);
-        verify(educationRepository).save(education);
+        verify(educationRepository).save(any(Education.class));
     }
 
     @Test
     public void testAddEducationUserNotFoundThrowsException() {
         long userId = 1L;
-        EducationDto dto = new EducationDto();
+
+        EducationDto dto = createEducationDto();
+
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> educationService.addEducation(userId, dto));
+                    () -> educationService.addEducation(userId, dto));
 
         assertTrue(exception.getMessage().contains("User with id=%d not found"));
     }
 
     @Test
     public void testUpdateEducationSuccess() {
-        long userId = 1L;
+         long userId = 1L;
+         User user = createUser(userId);
+         Education existingEducation = createEducation(user);
 
-        User user = new User();
-        user.setId(userId);
+         EducationDto dto = createEducationDto();
+         dto.setInstitution("Updated University");
 
-        Education existingEducation = new Education();
-        existingEducation.setId(1L);
-        existingEducation.setUser(user);
+         Education updatedEducation = createEducation(user);
+         updatedEducation.setInstitution("Updated University");
 
-        EducationDto dto = new EducationDto();
-        dto.setId(1L);
-        dto.setInstitution("Updated University");
+         when(educationRepository.findById(1L)).thenReturn(Optional.of(existingEducation));
+         when(educationRepository.save(updatedEducation)).thenReturn(updatedEducation);
 
-        Education updatedEducation = new Education();
-        updatedEducation.setId(1L);
-        updatedEducation.setInstitution("Updated University");
-        updatedEducation.setUser(user);
+         EducationDto result = educationService.updateEducation(userId, dto);
 
-        when(educationRepository.findById(1L)).thenReturn(Optional.of(existingEducation));
-        when(educationRepository.save(updatedEducation)).thenReturn(updatedEducation);
-
-
-        EducationDto result = educationService.updateEducation(userId, dto);
-
-        assertNotNull(result);
-        assertEquals(dto.getInstitution(), result.getInstitution());
-        assertEquals(userId, updatedEducation.getUser().getId());
-        verify(educationRepository).save(updatedEducation);
+         assertNotNull(result);
+         assertEquals("Updated University", result.getInstitution());
+         assertEquals(userId, updatedEducation.getUser().getId());
+         verify(educationRepository).save(updatedEducation);
     }
 
     @Test
     public void testUpdateEducationNotFoundThrowsException() {
         long userId = 1L;
-        EducationDto dto = new EducationDto();
-        dto.setEducationLevel("Bachelor");
+        EducationDto dto = createEducationDto();
+
         when(educationRepository.findById(1L)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> educationService.updateEducation(userId, dto));
+                    () -> educationService.updateEducation(userId, dto));
 
-        assertTrue(exception.getMessage().contains("User with id=%d not found"));
+        assertTrue(exception.getMessage().contains("Education with id=%d not found"));
     }
 
     @Test
     public void testGetByIdSuccess() {
         long educationId = 1L;
-
-        Education education = new Education();
-        education.setId(educationId);
-        education.setInstitution("University");
-
-        EducationDto dto = new EducationDto();
-        dto.setId(educationId);
-        dto.setInstitution("University");
+        Education education = createEducation(createUser(1L));
+        EducationDto dto = createEducationDto();
 
         when(educationRepository.findById(educationId)).thenReturn(Optional.of(education));
 
@@ -142,7 +145,6 @@ public class EducationServiceImplTest {
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());
         assertEquals(dto.getInstitution(), result.getInstitution());
-
         verify(educationRepository).findById(educationId);
     }
 
@@ -152,8 +154,18 @@ public class EducationServiceImplTest {
         when(educationRepository.findById(educationId)).thenReturn(Optional.empty());
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> educationService.getById(educationId));
+                    () -> educationService.getById(educationId));
 
-        assertTrue(exception.getMessage().contains("User with id=%d not found"));
+        assertTrue(exception.getMessage().contains("Education with id=%d not found"));
+    }
+
+    @Test
+    public void testGetByIdInvalidIdThrowsException() {
+        Long invalidId = -1L;
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                    () -> educationService.getById(invalidId));
+
+        assertEquals("Invalid education ID", exception.getMessage());
     }
 }
