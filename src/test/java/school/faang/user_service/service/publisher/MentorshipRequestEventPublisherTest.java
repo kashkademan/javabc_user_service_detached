@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.dto.event.MentorshipRequestEvent;
 import school.faang.user_service.publisher.MentorshipRequestEventPublisher;
-;
+
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
