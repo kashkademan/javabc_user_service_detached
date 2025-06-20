@@ -1,0 +1,2 @@
+ALTER TABLE country
+ADD COLUMN locale VARCHAR(16);

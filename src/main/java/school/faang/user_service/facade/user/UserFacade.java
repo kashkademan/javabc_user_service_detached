@@ -3,6 +3,7 @@ package school.faang.user_service.facade.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.user.UserNotificationResponseDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.dto.user.UserRegisterResponseDto;
 import school.faang.user_service.dto.user.UserResponseDto;
@@ -49,6 +50,15 @@ public class UserFacade {
 
         UserResponseDto userResponseDto = userMapper.toUserResponseDto(user);
         log.debug("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
+                user, userResponseDto);
+        return userResponseDto;
+    }
+
+    public UserNotificationResponseDto getNotificationUserById(long userId) {
+        User user = userService.getUserById(userId);
+
+        UserNotificationResponseDto userResponseDto = userMapper.toUserNotificationResponseDto(user);
+        log.debug("Mapping User entity to UserNotificationResponseDto. Entity content: {}. DTO content: {}.",
                 user, userResponseDto);
         return userResponseDto;
     }
