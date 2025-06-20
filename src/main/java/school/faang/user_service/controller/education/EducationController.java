@@ -20,6 +20,7 @@ public class EducationController {
     public EducationDto updateEducation(long userId, EducationDto educationDto) {
         return educationService.updateEducation(userId, educationDto);
     }
+
     @GetMapping
     public EducationDto getById(long educationId) {
         return educationService.getById(educationId);

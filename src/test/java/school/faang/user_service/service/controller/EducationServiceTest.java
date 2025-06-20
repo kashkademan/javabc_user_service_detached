@@ -78,16 +78,6 @@ public class EducationServiceTest {
                 .format("User with id %d was not found", userId), entityNotFoundException.getMessage());
     }
 
-//    @Test
-//    void testAddEducationRepositorySave() {
-//        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
-//
-//        educationService.addEducation(userId, educationDto);
-//
-//        verify(educationRepository, times(1)).save(educationCaptor.capture());
-//        assertEquals(educationDto.getYearFrom(), educationCaptor.getValue().getYearFrom());
-//        assertEquals(educationDto.getId(), educationCaptor.getValue().getId());
-//    }
 
     @Test
     void testUpdateEducationNotExistEducation() {
@@ -107,16 +97,6 @@ public class EducationServiceTest {
                 .format("User with id %d was not found", userId), entityNotFoundException.getMessage());
     }
 
-//    @Test
-//    void testUpdateEducationRepositorySave() {
-//        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
-//        when(educationRepository.existsById(educationId)).thenReturn(true);
-//
-//        educationService.updateEducation(userId, educationDto);
-//
-//        verify(educationRepository, times(1)).save(educationCaptor.capture());
-//        assertEquals(userId, educationCaptor.getValue().getUser().getId());
-//    }
 
     @Test
     void testGetByIdIncorrectUser() {
