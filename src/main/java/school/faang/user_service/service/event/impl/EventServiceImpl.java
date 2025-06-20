@@ -135,4 +135,19 @@ public class EventServiceImpl implements EventService {
         eventRepository.deleteById(eventId);
         return String.format(DELETED_EVENT_MESSAGE, eventId);
     }
+
+    @Transactional(readOnly = true)
+    public List<Long> getPastEventsId(int limit) {
+        long start = System.currentTimeMillis();
+        List<Long> ids = eventRepository.findPastEvents(limit);
+        log.debug("All past events get for {} millis.", (System.currentTimeMillis() - start));
+        return ids;
+    }
+
+    @Transactional
+    public void deletePastEventsBatch(List<Long> eventsId) {
+        long start = System.currentTimeMillis();
+        eventRepository.deleteAllByIdInBatch(eventsId);
+        log.debug("Batch deleted in {} millis.", (System.currentTimeMillis() - start));
+    }
 }

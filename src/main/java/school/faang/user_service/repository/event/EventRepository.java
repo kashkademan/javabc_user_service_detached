@@ -26,4 +26,10 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     
     @Query(value = "SELECT e.owner.id FROM Event e WHERE e.id = :eventId")
     Optional<Long> findOwnerIdByEventId(@Param("eventId") Long eventId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT id FROM event
+            WHERE end_date < NOW()
+            LIMIT :limit""")
+    List<Long> findPastEvents(int limit);
 }

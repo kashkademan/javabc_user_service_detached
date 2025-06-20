@@ -8,7 +8,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -61,3 +61,13 @@ services:
     accessKey: user
     secretKey: password
     bucketName: corpbucket
+
+scheduler:
+  past-event_clean:
+    cron: "0 0 4 * * *"
+    batch-size: 5000
+    fetch-limit: 1000000
+    executor-config:
+      core-pool-size: 20
+      max-pool-size: 50
+      thread-name-prefix: 'EventCleaner-'
