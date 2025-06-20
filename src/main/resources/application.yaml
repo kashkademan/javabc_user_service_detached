@@ -29,6 +29,7 @@ spring:
       channels:
           user_ban: user_ban
           goal_complete: goal_complete
+          recommendation_event: recommendation_event
 
 server:
   port: 8080
