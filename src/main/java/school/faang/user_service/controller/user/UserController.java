@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -30,9 +31,8 @@ public class UserController {
 
     @PostMapping("api/v1/users/register")
     public ResponseEntity<UserRegisterResponseDto> registerUser
-            (@RequestBody UserRegisterRequestDto userRegisterRequestDto) {
-        UserRegisterResponseDto userRegisterResponseDto = userService.registerUser(userRegisterRequestDto);
-        return ResponseEntity.ok(userRegisterResponseDto);
+            (@Valid @RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+        return ResponseEntity.ok(userService.registerUser(userRegisterRequestDto));
     }
 
     @GetMapping("/users/{userId}")

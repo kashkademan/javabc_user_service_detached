@@ -3,16 +3,18 @@ package school.faang.user_service.service.user;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.resource.S3FileDto;
+import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.exception.avatar.AvatarGenerationException;
 import school.faang.user_service.exception.users.UserNotFoundException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.avatar.AvatarGeneratorService;
@@ -22,8 +24,6 @@ import school.faang.user_service.validation.file.FileValidation;
 import school.faang.user_service.validation.user.UserValidation;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,9 +45,9 @@ public class UserService {
     private final S3Service s3Service;
     private final UserContext userContext;
     private final ImageResizer imageResizer;
-    private final PasswordEncoder passwordEncoder;
     private final CountryRepository countryRepository;
     private final AvatarGeneratorService avatarGeneratorService;
+    private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
@@ -120,9 +120,23 @@ public class UserService {
         return fileDto;
     }
 
-    public User createUser(User user, Long countryId) {
+    @Transactional
+    public User createUser(UserRegisterRequestDto userRegisterRequestDto) {
+        User user = userMapper.toUserEntity(userRegisterRequestDto);
         UserProfilePic userProfilePic = new UserProfilePic();
-        CompletableFuture<String> avatarUploadFuture = avatarGeneratorService.generateAndUpload();
+        String password = userRegisterRequestDto.getPassword();
+
+        String s3key = null;
+        try {
+            s3key = avatarGeneratorService.generateAndUpload();
+            log.info("Аватар успешно сгенерирован для пользователя {}, ключ: {}",
+                    user.getUsername(), s3key);
+        } catch (AvatarGenerationException e) {
+            log.error("Ошибка при генерации аватара для пользователя {}: {}",
+                    user.getUsername(), e.getMessage(), e);
+        }
+
+        long countryId = userRegisterRequestDto.getCountryId();
 
         Country country = countryRepository.findById(countryId)
                 .orElseThrow(() -> {
@@ -130,20 +144,10 @@ public class UserService {
                     return new EntityNotFoundException(String.format(USER_COUNTRY_NOT_FOUND, countryId));
                 });
 
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-
-        String path;
-        try {
-            path = avatarUploadFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Произошла ошибка при генерации аватара {}", e.getMessage(), e);
-            path = null;
-        }
-
-        userProfilePic.setSmallFileId(path);
+        userProfilePic.setSmallFileId(s3key);
         user.setUserProfilePic(userProfilePic);
+        user.setPassword(password);
         user.setCountry(country);
-        user.setPassword(encodedPassword);
         user.setActive(true);
 
         return userRepository.save(user);

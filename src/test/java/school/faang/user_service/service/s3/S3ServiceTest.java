@@ -21,14 +21,9 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -38,16 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class S3ServiceTest {
     @Mock
     private S3Client s3Client;
-
-    @Mock
-    private S3Presigner presigner;
 
     @InjectMocks
     private S3Service s3Service;
@@ -61,7 +52,6 @@ public class S3ServiceTest {
     private final static String CONTENT_TYPE = "image/jpeg";
     private final static long FILE_SIZE = 123L;
     private final static String KEY = String.format("%s/%s%s", FOLDER, "123456789", FILE_NAME);
-    private static final String PRESIGNED_URL = "https://example.com/presigned-url";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -69,10 +59,6 @@ public class S3ServiceTest {
         java.lang.reflect.Field field = S3Service.class.getDeclaredField("bucketName");
         field.setAccessible(true);
         field.set(s3Service, BUCKET_NAME);
-
-        java.lang.reflect.Field presignedUrlTtlField = S3Service.class.getDeclaredField("presignedUrlTtl");
-        presignedUrlTtlField.setAccessible(true);
-        presignedUrlTtlField.set(s3Service, 1);
 
         when(multipartFile.getOriginalFilename()).thenReturn(FILE_NAME);
         when(multipartFile.getContentType()).thenReturn(CONTENT_TYPE);
@@ -145,28 +131,5 @@ public class S3ServiceTest {
         when(s3Client.getObject(any(GetObjectRequest.class))).thenThrow(RuntimeException.class);
 
         assertThrows(FileException.class, () -> s3Service.downloadFile(KEY));
-    }
-
-    @Test
-    void testGeneratePresignedUrlWhenSuccess() throws MalformedURLException {
-        PresignedGetObjectRequest mockPresignedRequest = mock(PresignedGetObjectRequest.class);
-        when(mockPresignedRequest.url()).thenReturn(new URL(PRESIGNED_URL));
-        when(presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenReturn(mockPresignedRequest);
-
-        String resultUrl = s3Service.generatePresignedUrl(KEY);
-
-        assertNotNull(resultUrl);
-        assertEquals(PRESIGNED_URL, resultUrl);
-        verify(presigner).presignGetObject(any(GetObjectPresignRequest.class));
-    }
-
-    @Test
-    void testGeneratePresignedUrlWhenThrowsException() {
-        when(presigner.presignGetObject(any(GetObjectPresignRequest.class))).thenThrow(RuntimeException.class);
-
-        FileException exception = assertThrows(FileException.class, () -> s3Service.generatePresignedUrl(KEY));
-        assertEquals("Failed to generate presigned url for file", exception.getMessage());
-
-        verify(presigner).presignGetObject(any(GetObjectPresignRequest.class));
     }
 }

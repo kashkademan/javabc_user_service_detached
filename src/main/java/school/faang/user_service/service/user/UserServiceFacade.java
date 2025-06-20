@@ -49,10 +49,7 @@ public class UserServiceFacade {
 
     @Transactional
     public UserRegisterResponseDto registerUser(UserRegisterRequestDto userRegisterRequestDto) {
-        User user = userMapper.toUserEntity(userRegisterRequestDto);
-        user.setPassword(userRegisterRequestDto.getPassword());
-        User savedUser = userService.createUser(user, userRegisterRequestDto.getCountryId());
-
-        return userMapper.toUserRegisterResponseDto(savedUser);
+        User user = userService.createUser(userRegisterRequestDto);
+        return userMapper.toUserRegisterResponseDto(user);
     }
 }

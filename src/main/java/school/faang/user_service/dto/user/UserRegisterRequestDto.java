@@ -14,9 +14,10 @@ public class UserRegisterRequestDto {
     private String username;
 
     @Email(message = "Почта указано неверно")
+    @NotBlank
     private String email;
 
-    @NotBlank()
+    @NotBlank
     private String password;
 
     @NotNull

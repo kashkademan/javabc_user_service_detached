@@ -15,33 +15,23 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.InputStream;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
 import static school.faang.user_service.util.LogsConstants.DELETION_FAILED;
 import static school.faang.user_service.util.LogsConstants.DOWNLOAD_FAILED;
-import static school.faang.user_service.util.LogsConstants.PRESIGNED_URL_GENERATION_FAILED;
 import static school.faang.user_service.util.LogsConstants.UPLOAD_FAILED;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class S3Service {
-
-    private final S3Presigner presigner;
     private final S3Client client;
 
     @Value("${services.s3.bucketName}")
     private String bucketName;
-
-    @Value("${services.s3.presignedUrl.ttl}")
-    private int presignedUrlTtl;
 
     public String uploadFile(String folder, MultipartFile file) {
         String key = String.format("%s/%d%s", folder, System.currentTimeMillis(), file.getOriginalFilename());
@@ -87,21 +77,6 @@ public class S3Service {
         } catch (Exception e) {
             log.error(DOWNLOAD_FAILED, e);
             throw new FileException(DOWNLOAD_FAILED);
-        }
-    }
-
-    public String generatePresignedUrl(String key) {
-        try {
-            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofHours(presignedUrlTtl))
-                    .getObjectRequest(b -> b.bucket(bucketName).key(key))
-                    .build();
-
-            PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
-            return presignedRequest.url().toString();
-        } catch (Exception e) {
-            log.error(PRESIGNED_URL_GENERATION_FAILED, e);
-            throw new FileException(PRESIGNED_URL_GENERATION_FAILED);
         }
     }
 }
