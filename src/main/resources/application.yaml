@@ -61,3 +61,11 @@ services:
     accessKey: user
     secretKey: password
     bucketName: corpbucket
+
+kafka:
+  producer:
+    server: localhost:9092
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    producer.id: server.broadcast
+  template:
+    topic: "view-topic"
