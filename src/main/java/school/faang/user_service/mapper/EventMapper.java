@@ -31,12 +31,16 @@ public interface EventMapper {
     Event toEntity(EventDto eventDto);
 
     default List<Long> map(List<Skill> skills) {
-        if (skills == null) return null;
+        if (skills == null) {
+            return null;
+        }
         return skills.stream().map(Skill::getId).collect(Collectors.toList());
     }
 
     default List<Skill> mapToSkills(List<Long> ids) {
-        if (ids == null) return null;
+        if (ids == null) {
+            return null;
+        }
         return ids.stream().map(id -> {
             Skill skill = new Skill();
             skill.setId(id);

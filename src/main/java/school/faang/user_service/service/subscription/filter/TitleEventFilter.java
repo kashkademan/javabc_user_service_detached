@@ -15,7 +15,7 @@ public class TitleEventFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto filter) {
-        return events.filter(event -> event.getTitle() != null &&
-                event.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()));
+        return events.filter(event -> event.getTitle() != null
+                && event.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()));
     }
 }

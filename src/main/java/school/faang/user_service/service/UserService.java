@@ -14,7 +14,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public User getUserById(Long id){
+    public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new DataValidationException("User not found"));
     }
