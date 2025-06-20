@@ -21,7 +21,6 @@ public class EventCleanConfig {
     public static class ExecutorConfig {
         private int corePoolSize;
         private int maxPoolSize;
-        private int queueCapacity;
         private String threadNamePrefix;
     }
 }

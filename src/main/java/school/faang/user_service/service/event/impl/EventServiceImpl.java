@@ -140,7 +140,7 @@ public class EventServiceImpl implements EventService {
     public List<Long> getPastEventsId(int limit) {
         long start = System.currentTimeMillis();
         List<Long> ids = eventRepository.findPastEvents(limit);
-        log.debug("All past events get for {} millis.", (System.currentTimeMillis() - start));
+        log.info("All past events get for {} millis.", (System.currentTimeMillis() - start));
         return ids;
     }
 
@@ -148,6 +148,6 @@ public class EventServiceImpl implements EventService {
     public void deletePastEventsBatch(List<Long> eventsId) {
         long start = System.currentTimeMillis();
         eventRepository.deleteAllByIdInBatch(eventsId);
-        log.debug("Batch deleted in {} millis.", (System.currentTimeMillis() - start));
+        log.info("Batch deleted in {} millis.", (System.currentTimeMillis() - start));
     }
 }

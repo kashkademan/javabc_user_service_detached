@@ -18,7 +18,6 @@ public class EventCleanExecutorConfig {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(config.getExecutorConfig().getCorePoolSize());
         executor.setMaxPoolSize(config.getExecutorConfig().getMaxPoolSize());
-        executor.setQueueCapacity(config.getExecutorConfig().getQueueCapacity());
         executor.setThreadNamePrefix(config.getExecutorConfig().getThreadNamePrefix());
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();

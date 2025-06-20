@@ -33,7 +33,7 @@ public class Scheduler {
         ListUtils.partition(pastEvents, batchSize)
                 .forEach(eventCleaner::cleanEventsBatch);
 
-        log.info("Scheduled job finished in {} seconds: past events cleared.",
+        log.info("Scheduled job finished in {} millis: past events cleared.",
                 (System.currentTimeMillis() - start)
         );
     }
