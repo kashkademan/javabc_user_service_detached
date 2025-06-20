@@ -30,6 +30,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @Query(nativeQuery = true, value = """
             SELECT id FROM event
             WHERE end_date < NOW()
+            FOR UPDATE SKIP LOCKED
             LIMIT :limit""")
     List<Long> findPastEvents(int limit);
 }
