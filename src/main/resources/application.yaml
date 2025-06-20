@@ -63,7 +63,7 @@ services:
     bucketName: corpbucket
 
 scheduler:
-  past-event_clean:
+  past-event-clean:
     cron: "0 0 4 * * *"
     batch-size: 5000
     fetch-limit: 1000000

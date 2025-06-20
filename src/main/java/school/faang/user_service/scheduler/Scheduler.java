@@ -20,7 +20,7 @@ public class Scheduler {
     private final EventCleanConfig eventCleanConfig;
     private final EventCleaner eventCleaner;
 
-    @Scheduled(cron = "${scheduler.past-event_clean.cron}")
+    @Scheduled(cron = "${scheduler.past-event-clean.cron}")
     public void clearEvents() {
         long start = System.currentTimeMillis();
         int batchSize = eventCleanConfig.getBatchSize();
