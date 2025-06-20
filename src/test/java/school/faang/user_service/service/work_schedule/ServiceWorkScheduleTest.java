@@ -1,23 +1,16 @@
 package school.faang.user_service.service.work_schedule;
 
-import net.bytebuddy.asm.Advice;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.WorkSchedule;
-import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.exception.work_schedule.WorkScheduleNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.WorkScheduleRepository;
-import school.faang.user_service.service.WorkScheduleService;
 import school.faang.user_service.service.WorkScheduleServiceImpl;
 
 import java.time.LocalTime;;

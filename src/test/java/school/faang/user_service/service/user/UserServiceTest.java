@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +11,16 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.resource.S3FileDto;
+import school.faang.user_service.dto.user.UserRegisterRequestDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.exception.avatar.AvatarGenerationException;
 import school.faang.user_service.exception.users.UserNotFoundException;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.avatar.AvatarGeneratorService;
 import school.faang.user_service.service.image.ImageResizer;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validation.file.FileValidation;
@@ -26,8 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,12 +70,23 @@ class UserServiceTest {
     private MultipartFile resizedFile;
     @Mock
     private MultipartFile resizedMiniFile;
+    @Mock
+    private AvatarGeneratorService avatarGeneratorService;
+    @Mock
+    private CountryRepository countryRepository;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserService userService;
 
     private User userOne;
     private User userTwo;
+    private UserRegisterRequestDto userRegisterDto;
+    private Country country;
+    private Long countryId;
+    private String password;
+    private String avatarKey;
 
     private final static String FILE_NAME = "test.jpg";
     private final static String FILE_ID = String.format("%s/%s", AVATAR_FOLDER, FILE_NAME);
@@ -78,6 +99,20 @@ class UserServiceTest {
         userTwo = new User();
         userOne.setId(USER_ID);
         userTwo.setId(USER_ID_TWO);
+
+        countryId = 1L;
+        password = "Abc123";
+        avatarKey = "/avatars/some_unique_id.png";
+
+        country = new Country();
+        country.setId(countryId);
+        country.setTitle("Wonderland");
+
+        userRegisterDto = new UserRegisterRequestDto();
+        userRegisterDto.setUsername("newUser");
+        userRegisterDto.setEmail("newuser@example.com");
+        userRegisterDto.setPassword(password);
+        userRegisterDto.setCountryId(1L);
     }
 
     @Test
@@ -199,5 +234,66 @@ class UserServiceTest {
         assertEquals(fileDto.getContentLength(), result.getContentLength());
         assertEquals(fileDto.getResource(), result.getResource());
         verify(s3Service).downloadFile(MINI_FILE_ID);
+    }
+
+    @Test
+    void testCreateUserWithProperValues() {
+        User mappedUser = new User();
+        mappedUser.setUsername(userRegisterDto.getUsername());
+        mappedUser.setPassword(password);
+
+        when(userMapper.toUserEntity(userRegisterDto)).thenReturn(mappedUser);
+        when(avatarGeneratorService.generateAndUpload()).thenReturn(avatarKey);
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User savedUser = invocation.getArgument(0, User.class);
+            savedUser.setId(100L);
+            return savedUser;
+        });
+
+        User resultUser = userService.createUser(userRegisterDto);
+
+        assertEquals(100L, resultUser.getId());
+        assertEquals(country, resultUser.getCountry());
+        assertEquals(avatarKey, resultUser.getUserProfilePic().getSmallFileId());
+        assertTrue(resultUser.isActive());
+
+        verify(userMapper).toUserEntity(userRegisterDto);
+        verify(avatarGeneratorService).generateAndUpload();
+        verify(countryRepository).findById(countryId);
+    }
+
+    @Test
+    void testCreateUserWhenCountryNotFound() {
+        User mappedUser = new User();
+        mappedUser.setUsername(userRegisterDto.getUsername());
+        mappedUser.setPassword(password);
+
+        when(userMapper.toUserEntity(userRegisterDto)).thenReturn(mappedUser);
+        when(avatarGeneratorService.generateAndUpload()).thenReturn(avatarKey);
+        when(countryRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.createUser(userRegisterDto));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testCreateUserWhenAvatarGenerationFails() {
+        User mappedUser = new User();
+        mappedUser.setUsername(userRegisterDto.getUsername());
+        mappedUser.setPassword(password);
+
+        when(userMapper.toUserEntity(userRegisterDto)).thenReturn(mappedUser);
+        when(avatarGeneratorService.generateAndUpload()).thenThrow(new AvatarGenerationException("S3 is down"));
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.createUser(userRegisterDto);
+
+        assertNotNull(result.getUserProfilePic());
+        assertNull(result.getUserProfilePic().getSmallFileId());
+        assertEquals(country, result.getCountry());
+        assertTrue(result.isActive());
     }
 }
