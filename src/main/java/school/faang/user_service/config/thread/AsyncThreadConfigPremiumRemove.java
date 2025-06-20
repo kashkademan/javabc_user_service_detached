@@ -1,4 +1,4 @@
-package school.faang.user_service.config.thread_config_premium_remove;
+package school.faang.user_service.config.thread;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
