@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
-@EnableAsync
 public class AsyncThreadConfigPremiumRemove {
 
     @Bean(name = "asyncTaskExecutorPremiumRemove")

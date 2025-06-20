@@ -70,7 +70,6 @@ public class PremiumServiceImpl implements PremiumService {
         return premiumMapper.toPremiumDto(savedPremium);
     }
 
-    @Async("asyncTaskExecutorPremiumRemove")
     @Override
     @Transactional
     public CompletableFuture<String> removePremium() {
