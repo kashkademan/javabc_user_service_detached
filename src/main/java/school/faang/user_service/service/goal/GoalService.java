@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.dto.goal.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
@@ -12,6 +13,7 @@ import school.faang.user_service.exception.goal.GoalNotExistException;
 import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
 import school.faang.user_service.filter.goal.GoalFilter;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
@@ -39,6 +41,8 @@ public class GoalService {
     private final UserService userService;
 
     private final List<GoalFilter> filters;
+
+    private final GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     @Transactional
     public Goal createGoal(Goal newGoalData, List<Long> skillsId, Long parentId) {
@@ -82,6 +86,12 @@ public class GoalService {
 
             involvedUsersId.forEach(userId ->
                     skillService.assignSkillsToUser(userId, dbGoal.getSkillsToAchieve()));
+
+            goalCompletedEventPublisher.publish(
+                    GoalCompletionNotificationEvent.builder()
+                    .goalTitle(dbGoal.getTitle())
+                    .build()
+            );
         }
 
         return goalRepository.save(dbGoal);
