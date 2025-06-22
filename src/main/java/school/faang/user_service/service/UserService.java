@@ -30,8 +30,8 @@ public class UserService {
         User user = getUserById(userId);
         UserProfilePic currentProfilePic = user.getUserProfilePic();
 
-        String oldFileId = currentProfilePic != null ? currentProfilePic.getFileId() : null;
-        String oldSmallFileId = currentProfilePic != null ? currentProfilePic.getSmallFileId() : null;
+        final String oldFileId = currentProfilePic != null ? currentProfilePic.getFileId() : null;
+        final String oldSmallFileId = currentProfilePic != null ? currentProfilePic.getSmallFileId() : null;
 
         UserProfilePic newProfilePic = currentProfilePic != null ? currentProfilePic : new UserProfilePic();
         newProfilePic.setFileId(newFileId);
