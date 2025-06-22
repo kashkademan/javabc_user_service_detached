@@ -104,7 +104,6 @@ jacoco {
     toolVersion = "0.8.12"
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
 }
-
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
