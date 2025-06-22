@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.promotion;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class PromotionController {
 
     @PostMapping("/event")
     public ResponseEntity<PromotionResponseDto> createPromotionForEvent
-            (@RequestBody PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
+            (@RequestBody @Valid PromotionEventCreateRequestDto promotionEventCreateRequestDto) {
         log.info("Promotion controller accepted request create promotion for event {}", promotionEventCreateRequestDto);
 
         PromotionResponseDto response = promotionFacade.createPromotionForEvent(promotionEventCreateRequestDto);
@@ -32,7 +33,7 @@ public class PromotionController {
 
     @PostMapping("/user")
     public ResponseEntity<PromotionResponseDto> createPromotionForUser
-            (@RequestBody PromotionUserCreateRequestDto promotionUserCreateRequestDto) {
+            (@RequestBody @Valid PromotionUserCreateRequestDto promotionUserCreateRequestDto) {
         log.info("Promotion controller accepted request create promotion for user {}", promotionUserCreateRequestDto);
 
         PromotionResponseDto response = promotionFacade.createPromotionForUser(promotionUserCreateRequestDto);

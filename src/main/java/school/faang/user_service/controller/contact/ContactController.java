@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.contact;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class ContactController {
 
     @PostMapping()
     public ResponseEntity<ContactPreferenceResponseDto> setPreferenceContactForUser
-            (@RequestBody ContactPreferenceRequestDto contactPreferenceRequestDto) {
+            (@RequestBody @Valid ContactPreferenceRequestDto contactPreferenceRequestDto) {
         log.debug("User controller accepted request set preference contact for user {}", contactPreferenceRequestDto);
 
         ContactPreferenceResponseDto response = contactFacade.setPreferenceContactForUser(contactPreferenceRequestDto);

@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class UserController {
 
     @PostMapping("/registration")
     public ResponseEntity<UserRegisterResponseDto> registrationUser
-            (@RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+            (@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
         log.debug("User controller accepted request registration user {}", userRegisterRequestDto);
 
         UserRegisterResponseDto response = userFacade.registrationUser(userRegisterRequestDto);

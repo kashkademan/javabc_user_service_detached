@@ -1,4 +1,4 @@
-package school.faang.user_service.convertor.local;
+package school.faang.user_service.convertor.locale;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
