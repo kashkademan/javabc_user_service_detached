@@ -8,7 +8,6 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     id("jacoco")
-    id("checkstyle")
 }
 
 group = "faang.school"
@@ -105,17 +104,6 @@ jacoco {
     toolVersion = "0.8.12"
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
 }
-
-checkstyle {
-    toolVersion = "10.3"
-    configFile = file("config/checkstyle/checkstyle.xml")
-}
-tasks.withType<Checkstyle> {
-    source = fileTree("src/main/java").matching {
-        exclude("**/build/generated-sources/**")
-    }
-}
-
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
