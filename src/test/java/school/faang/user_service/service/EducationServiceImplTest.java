@@ -16,6 +16,7 @@ import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.EducationRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.education.EducationService;
+import school.faang.user_service.service.education.EducationServiceImpl;
 
 import java.util.Optional;
 
@@ -42,7 +43,7 @@ public class EducationServiceImplTest {
     private EducationMapper educationMapper;
 
     @InjectMocks
-    private EducationService educationService;
+    private EducationServiceImpl educationService;
 
     private EducationDto createEducationDto() {
         EducationDto dto = new EducationDto();
