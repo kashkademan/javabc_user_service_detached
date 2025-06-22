@@ -2,6 +2,7 @@ package school.faang.user_service.service.event.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,8 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.event.EventSpecification;
+import school.faang.user_service.scheduler.event.EventCleanConfig;
+import school.faang.user_service.scheduler.event.EventCleaner;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.event.EventValidation;
 
@@ -36,6 +39,8 @@ public class EventServiceImpl implements EventService {
     private final SkillRepository skillRepository;
     private final EventValidation eventValidation;
     private final UserContext userContext;
+    private final EventCleaner eventCleaner;
+    private final EventCleanConfig eventCleanConfig;
 
     @Transactional
     @Override
@@ -134,5 +139,17 @@ public class EventServiceImpl implements EventService {
 
         eventRepository.deleteById(eventId);
         return String.format(DELETED_EVENT_MESSAGE, eventId);
+    }
+
+    @Transactional
+    public void deletePastEvents() {
+        int batchSize = eventCleanConfig.getBatchSize();
+        int fetchLimit = eventCleanConfig.getFetchLimit();
+
+        long start = System.currentTimeMillis();
+        List<Long> pastEvents = eventRepository.findPastEvents(fetchLimit);
+        log.info("All {} past events get for {} millis.", pastEvents.size(), (System.currentTimeMillis() - start));
+
+        ListUtils.partition(pastEvents, batchSize).forEach(eventCleaner::cleanEventsBatchAsync);
     }
 }
