@@ -11,10 +11,10 @@ import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.exception.common.FileException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.S3Client;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -28,7 +28,6 @@ import static school.faang.user_service.util.LogsConstants.UPLOAD_FAILED;
 @Slf4j
 @RequiredArgsConstructor
 public class S3Service {
-
     private final S3Client client;
 
     @Value("${services.s3.bucketName}")
@@ -51,7 +50,7 @@ public class S3Service {
             log.error(UPLOAD_FAILED, e);
             throw new FileException(UPLOAD_FAILED);
         }
-        return  key;
+        return key;
     }
 
     public void deleteFile(String key) {

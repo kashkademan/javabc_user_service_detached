@@ -19,6 +19,7 @@ import school.faang.user_service.exception.goal.MaxActiveGoalPerUserException;
 import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UpdateGoalWithActiveSubGoalsException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
+import school.faang.user_service.exception.payment.PaymentException;
 import school.faang.user_service.exception.skill.SkillNotExistException;
 import school.faang.user_service.exception.users.UserIdNotFoundException;
 import school.faang.user_service.exception.users.UserNotFoundException;
@@ -124,6 +125,15 @@ public class GlobalExceptionHandler {
                 e.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentException(PaymentException e) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.PAYMENT_REQUIRED.value(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.PAYMENT_REQUIRED);
     }
 
     @ExceptionHandler(Exception.class)
