@@ -17,6 +17,7 @@ import school.faang.user_service.exception.AlreadyPremiumUserException;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.messaging.publishers.PremiumBoughtEventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.UserService;
 
@@ -48,6 +49,9 @@ public class PremiumServiceImplTest {
 
     @Mock
     private PaymentServiceClient paymentServiceClient;
+
+    @Mock
+    private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Spy
     private UserContext userContext;
