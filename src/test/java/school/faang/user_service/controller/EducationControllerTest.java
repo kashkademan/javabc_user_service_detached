@@ -6,6 +6,7 @@ import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidati
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.controller.education.EducationController;
 import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.service.education.EducationService;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Controller
 @ExtendWith(MockitoExtension.class)
 public class EducationControllerTest {
 
