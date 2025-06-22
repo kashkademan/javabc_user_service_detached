@@ -225,7 +225,7 @@ public class PromotionServiceTest {
         secondPromotion.setStatus(PromotionStatus.ACTIVE);
         List<Promotion> mockPromotions = List.of(promotion, secondPromotion);
 
-        when(promotionRepository.findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE))
+        when(promotionRepository.findAllByStatus(PromotionStatus.ACTIVE))
                 .thenReturn(mockPromotions);
 
         List<Promotion> result = promotionService.getAllActivePromotion();
@@ -234,6 +234,6 @@ public class PromotionServiceTest {
         assertEquals(mockPromotions.size(), result.size());
         assertEquals(PromotionStatus.ACTIVE, result.get(0).getStatus());
         assertEquals(PromotionType.EVENT, result.get(0).getType());
-        verify(promotionRepository).findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE);
+        verify(promotionRepository).findAllByStatus(PromotionStatus.ACTIVE);
     }
 }

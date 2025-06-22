@@ -9,9 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventRedisMapperImpl;
-import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
@@ -27,14 +27,16 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EventRedisServiceTest {
-    @InjectMocks
-    private EventRedisService eventRedisService;
     @Mock
     private EventRedisRepository eventRedisRepository;
     @Spy
     private EventRedisMapperImpl eventRedisMapper;
+    @Mock
+    private RedisTtlProperties redisTtlProperties;
     @Captor
     private ArgumentCaptor<EventRedisModel> eventRedisModelCaptor;
+    @InjectMocks
+    private EventRedisService eventRedisService;
     private Event event;
     private static final long TTL = 30L;
 
@@ -52,7 +54,7 @@ public class EventRedisServiceTest {
 
         EventRedisModel capturedModel = eventRedisModelCaptor.getValue();
         assertNotNull(capturedModel);
-        assertEquals(RedisHashType.EVENT + ":" + event.getId(), capturedModel.getKey());
+        assertEquals(RedisKeyUtil.getSmallKeyById(event.getId()), capturedModel.getKey());
         assertEquals(event.getId(), capturedModel.getId());
     }
 
