@@ -13,7 +13,7 @@ public class Scheduler {
 
     private final EventServiceImpl eventService;
 
-    @Scheduled(cron = "${scheduler.past-event-clean.cron}")
+    @Scheduled(cron = "${scheduler.past-event-clean.cron}", zone = "${scheduler.past-event-clean.zone}")
     public void clearEvents() {
         long start = System.currentTimeMillis();
         log.info("Scheduled job started: clearing past events...");
