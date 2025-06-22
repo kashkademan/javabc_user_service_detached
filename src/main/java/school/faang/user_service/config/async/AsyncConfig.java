@@ -31,6 +31,17 @@ public class AsyncConfig {
         return executor;
     }
 
+    @Bean(name = "getEventExecutor")
+    public Executor getEventExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("DecrementCountViewExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
     @Bean(name = "generateRandomAvatarUserExecutor")
     public Executor generateRandomAvatarUserExecutor() {
         return new SimpleAsyncTaskExecutor();

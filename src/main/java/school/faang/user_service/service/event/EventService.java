@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class EventService {
-    private static final int NUM_THREADS = 10;
     private final UserService userService;
     private final SkillService skillService;
     private final EventRepository eventRepository;
@@ -44,14 +44,27 @@ public class EventService {
     private final EventValidator eventValidator;
     private final UserContext userContext;
     private final EventRedisService eventRedisService;
-    private final RedisTtlProperties redisTtlProperties;
     private final PromotionRedisService promotionRedisService;
-    // TODO: изменить
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
+    private final Executor executor;
 
-    @PreDestroy
-    public void destroy() {
-        GracefullyShutdownThreadPool.gracefullyShutdown(threadPool);
+    public EventService(UserService userService,
+                        SkillService skillService,
+                        EventRepository eventRepository,
+                        EventFilterRepository eventFilterRepository,
+                        EventValidator eventValidator,
+                        UserContext userContext,
+                        EventRedisService eventRedisService,
+                        PromotionRedisService promotionRedisService,
+                        @Qualifier("getEventExecutor") Executor executor) {
+        this.userService = userService;
+        this.skillService = skillService;
+        this.eventRepository = eventRepository;
+        this.eventFilterRepository = eventFilterRepository;
+        this.eventValidator = eventValidator;
+        this.userContext = userContext;
+        this.eventRedisService = eventRedisService;
+        this.promotionRedisService = promotionRedisService;
+        this.executor = executor;
     }
 
     @Transactional
@@ -138,10 +151,10 @@ public class EventService {
                 .map(eventId -> CompletableFuture.supplyAsync(() ->
                         eventRedisService.getEventFromRedisById(eventId)
                                 .orElseGet(() -> {
-                                    // TODO: ассинхронно не работает
-                                    addEventInRedis(eventId);
-                                    return getEventById(eventId);
-                                }), threadPool))
+                                    Event event = getEventById(eventId);
+                                    eventRedisService.addEventInRedis(event);
+                                    return event;
+                                }), executor))
                 .toList();
 
         List<Event> events = futureEvents.stream()
@@ -151,12 +164,5 @@ public class EventService {
         promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
 
         return events;
-    }
-
-    @Async("addEventInRedisExecutor")
-    public void addEventInRedis(long eventId) {
-        Event event = getEventById(eventId);
-        long ttl = redisTtlProperties.getEvent();
-        eventRedisService.saveEvent(event, ttl);
     }
 }

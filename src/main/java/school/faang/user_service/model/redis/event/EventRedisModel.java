@@ -22,7 +22,6 @@ public class EventRedisModel implements Serializable {
     @TimeToLive
     private Long ttl;
     private Long id;
-    private Long promotionId;
     private String title;
     private String description;
     private LocalDateTime startDate;

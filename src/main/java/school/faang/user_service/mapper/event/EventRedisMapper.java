@@ -11,7 +11,7 @@ import school.faang.user_service.model.redis.event.EventRedisModel;
         builder = @Builder(disableBuilder = true))
 public interface EventRedisMapper {
 
-    EventRedisModel toEventRedis(Event event);
+    EventRedisModel toEventRedisModel(Event event);
 
     Event toEventEntity(EventRedisModel eventRedisModel);
 }

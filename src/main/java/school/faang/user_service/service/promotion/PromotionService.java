@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
+import school.faang.user_service.entity.promotion.PromotionType;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.service.event.EventRedisService;
@@ -86,9 +87,15 @@ public class PromotionService {
         log.info("Promotion with id {} finished by time", promotionId);
     }
 
+    // TODO: тесты
     @Transactional(readOnly = true)
-    public List<Promotion> getAllActiveEventPromotion() {
-        return promotionRepository.findAllByTypeAndStatus(EVENT, ACTIVE);
+    public List<Promotion> getAllActivePromotion(PromotionType type) {
+        return promotionRepository.findAllByTypeAndStatus(type, ACTIVE);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Promotion> getAllActivePromotion() {
+        return promotionRepository.findAllByStatus(ACTIVE);
     }
 
     private long getTtlByPromotion(Promotion promotion) {

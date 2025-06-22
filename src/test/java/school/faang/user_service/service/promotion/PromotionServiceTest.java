@@ -228,7 +228,7 @@ public class PromotionServiceTest {
         when(promotionRepository.findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE))
                 .thenReturn(mockPromotions);
 
-        List<Promotion> result = promotionService.getAllActiveEventPromotion();
+        List<Promotion> result = promotionService.getAllActivePromotion();
 
         assertNotNull(result);
         assertEquals(mockPromotions.size(), result.size());

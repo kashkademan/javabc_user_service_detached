@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import school.faang.user_service.exception.redis.InvalidRedisKeyException;
 import school.faang.user_service.model.redis.RedisHashType;
 
+// TODO: исправить
 @UtilityClass
 public class RedisKeyUtil {
     private static final String HASH_KEY_SEPARATOR = ":";
