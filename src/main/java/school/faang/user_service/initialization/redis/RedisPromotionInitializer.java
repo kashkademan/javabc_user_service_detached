@@ -33,7 +33,7 @@ public class RedisPromotionInitializer {
 
     private void saveInRedis(Promotion promotion) {
         promotionRedisService.savePromotion(promotion);
-        eventRedisService.saveEvent(promotion.getEvent(), promotion.getId(), getTtlByPromotion(promotion));
+        eventRedisService.saveEvent(promotion.getEvent(), getTtlByPromotion(promotion));
     }
 
     private long getTtlByPromotion(Promotion promotion) {

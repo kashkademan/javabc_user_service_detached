@@ -3,7 +3,6 @@ package school.faang.user_service.service.event;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,10 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.utils.async.GracefullyShutdownThreadPool;
 import school.faang.user_service.validation.event.EventValidator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +46,7 @@ public class EventService {
     private final EventRedisService eventRedisService;
     private final RedisTtlProperties redisTtlProperties;
     private final PromotionRedisService promotionRedisService;
-    private final ApplicationContext applicationContext;
+    // TODO: изменить
     private final ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
 
     @PreDestroy
@@ -134,10 +136,10 @@ public class EventService {
 
         List<CompletableFuture<Event>> futureEvents = filteredEventIds.stream()
                 .map(eventId -> CompletableFuture.supplyAsync(() ->
-                        eventRedisService.getEventById(eventId)
+                        eventRedisService.getEventFromRedisById(eventId)
                                 .orElseGet(() -> {
-                                    EventService self = applicationContext.getBean(EventService.class);
-                                    self.addEventInRedis(eventId);
+                                    // TODO: ассинхронно не работает
+                                    addEventInRedis(eventId);
                                     return getEventById(eventId);
                                 }), threadPool))
                 .toList();

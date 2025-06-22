@@ -40,8 +40,6 @@ public class PromotionRedisServiceTest {
     private PromotionRedisRepository promotionRedisRepository;
     @Spy
     private PromotionRedisMapperImpl promotionRedisMapper;
-    @Mock
-    private RedisTemplate<String, Object> redisTemplate;
     private Executor executor = new SyncTaskExecutor();
     @Mock
     private RedisLockPromotionProperties props;
@@ -58,7 +56,6 @@ public class PromotionRedisServiceTest {
         promotionRedisService = new PromotionRedisService(
                 promotionRedisRepository,
                 promotionRedisMapper,
-                redisTemplate,
                 executor,
                 props);
     }

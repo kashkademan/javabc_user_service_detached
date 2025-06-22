@@ -65,7 +65,7 @@ public class EventRedisServiceTest {
         when(eventRedisRepository.findById(expectedKey)).thenReturn(Optional.of(redisModel));
         when(eventRedisMapper.toEventEntity(redisModel)).thenReturn(event);
 
-        Optional<Event> result = eventRedisService.getEventById(event.getId());
+        Optional<Event> result = eventRedisService.getEventFromRedisById(event.getId());
 
         assertTrue(result.isPresent());
         assertEquals(event, result.get());
@@ -79,7 +79,7 @@ public class EventRedisServiceTest {
 
         when(eventRedisRepository.findById(expectedKey)).thenReturn(Optional.empty());
 
-        Optional<Event> result = eventRedisService.getEventById(event.getId());
+        Optional<Event> result = eventRedisService.getEventFromRedisById(event.getId());
 
         assertTrue(result.isEmpty());
         verify(eventRedisRepository).findById(expectedKey);
