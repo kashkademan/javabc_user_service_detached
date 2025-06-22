@@ -20,7 +20,18 @@ public class AsyncConfig {
         return executor;
     }
 
-    @Bean(name = "decrementCountViewExecutorExecutor")
+    @Bean(name = "addUserInRedisExecutor")
+    public Executor addUserInRedisExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("RedisUserExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "decrementCountViewExecutor")
     public Executor decrementCountViewExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
@@ -33,6 +44,17 @@ public class AsyncConfig {
 
     @Bean(name = "getEventExecutor")
     public Executor getEventExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("DecrementCountViewExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "getUserExecutor")
+    public Executor getUserExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(10);

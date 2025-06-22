@@ -104,7 +104,7 @@ public class PromotionServiceTest {
             return saved;
         });
 
-        Promotion result = promotionService.createPromotion(event.getId(), tariff.getId());
+        Promotion result = promotionService.createPromotionForEvent(event.getId(), tariff.getId());
 
         assertNotNull(result);
         assertEquals(result, promotionCaptor.getValue());
@@ -126,7 +126,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 ActivePromotionAlreadyExistsException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verifyNoInteractions(
@@ -142,7 +142,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 EventNotFoundException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verify(eventService).getEventById(event.getId());
@@ -160,7 +160,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 PromotionTariffNotFoundException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verify(promotionTariffService).getPromotionTariffById(tariff.getId());

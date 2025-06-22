@@ -22,6 +22,7 @@ spring:
       host: localhost
       ttl:
         event: 1800
+        user: 1800
 
 server:
   port: 8080

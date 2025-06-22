@@ -1,18 +1,16 @@
 package school.faang.user_service.service.event;
 
-import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
@@ -21,18 +19,12 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.utils.async.GracefullyShutdownThreadPool;
 import school.faang.user_service.validation.event.EventValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
@@ -98,12 +90,17 @@ public class EventService {
 
     @Transactional
     public void deleteEventById(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new EventNotFoundException(eventId);
+        Event event = getEventById(eventId);
+
+        boolean hasActivePromotion = event.getPromotions().stream()
+                .anyMatch(promotion -> Objects.equals(promotion.getStatus(), PromotionStatus.ACTIVE));
+
+        if (hasActivePromotion) {
+            throw new ActivePromotionExistsException(eventId);
         }
 
         eventRepository.deleteById(eventId);
-        log.info("Событие с id={} успешно удалено", eventId);
+        log.info("Event {} has been deleted", event);
     }
 
     @Transactional

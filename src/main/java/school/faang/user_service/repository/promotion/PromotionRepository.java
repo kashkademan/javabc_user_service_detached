@@ -8,7 +8,6 @@ import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.promotion.PromotionType;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
@@ -16,11 +15,9 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     boolean existsByUserIdAndStatus(Long userId, PromotionStatus status);
 
-    Optional<Promotion> findByEventIdAndStatus(long eventId, PromotionStatus status);
-
-    @EntityGraph(attributePaths = {"event", "user"})
+    @EntityGraph(attributePaths = {"event", "user", "tariff"})
     List<Promotion> findAllByTypeAndStatus(PromotionType type, PromotionStatus status);
 
-    @EntityGraph(attributePaths = {"event", "user"})
+    @EntityGraph(attributePaths = {"event", "user", "tariff"})
     List<Promotion> findAllByStatus(PromotionStatus status);
 }

@@ -15,6 +15,7 @@ import school.faang.user_service.service.user.UserRedisService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Component
 @RequiredArgsConstructor
@@ -25,20 +26,16 @@ public class RedisPromotionInitializer {
     private final EventRedisService eventRedisService;
     private final UserRedisService userRedisService;
 
-    //TODO: возможно можно написать лучше
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
-        List<Promotion> eventPromotions = promotionService.getAllActivePromotion(PromotionType.EVENT);
+        initPromotions(PromotionType.EVENT, this::saveEventPromotionInRedis, "events");
+        initPromotions(PromotionType.USER, this::saveUserPromotionInRedis, "users");
+    }
 
-        eventPromotions.forEach(this::saveEventPromotionInRedis);
-
-        log.info("Redis initialized with {} promotions for events", eventPromotions.size());
-
-        List<Promotion> userPromotions = promotionService.getAllActivePromotion(PromotionType.USER);
-
-        userPromotions.forEach(this::saveUserPromotionInRedis);
-
-        log.info("Redis initialized with {} promotions for users", userPromotions.size());
+    private void initPromotions(PromotionType type, Consumer<Promotion> saver, String label) {
+        List<Promotion> promotions = promotionService.getAllActivePromotion(type);
+        promotions.forEach(saver);
+        log.info("Redis initialized with {} promotions for {}", promotions.size(), label);
     }
 
     private void saveEventPromotionInRedis(Promotion promotion) {

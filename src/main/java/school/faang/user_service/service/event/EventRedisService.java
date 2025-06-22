@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventRedisMapper;
-import school.faang.user_service.model.redis.RedisHashType;
 import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
@@ -29,7 +28,7 @@ public class EventRedisService {
 
         eventRedisModel.setTtl(ttl);
 
-        String eventKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
+        String eventKey = RedisKeyUtil.getSmallKeyById(event.getId());
         eventRedisModel.setKey(eventKey);
 
         EventRedisModel savedEvent = eventRedisRepository.save(eventRedisModel);
@@ -37,7 +36,7 @@ public class EventRedisService {
     }
 
     public Optional<Event> getEventFromRedisById(long eventId) {
-        String eventKey = RedisKeyUtil.getKeyById(eventId, RedisHashType.EVENT);
+        String eventKey = RedisKeyUtil.getSmallKeyById(eventId);
 
         return eventRedisRepository.findById(eventKey)
                 .map(eventRedisMapper::toEventEntity)

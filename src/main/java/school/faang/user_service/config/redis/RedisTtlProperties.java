@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class RedisTtlProperties {
     private long event;
+    private long user;
 }

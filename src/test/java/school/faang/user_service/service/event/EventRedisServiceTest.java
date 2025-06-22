@@ -58,7 +58,7 @@ public class EventRedisServiceTest {
 
     @Test
     void testGetEventById_presentInRedis() {
-        String expectedKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
+        String expectedKey = RedisKeyUtil.getSmallKeyById(event.getId());
         EventRedisModel redisModel = new EventRedisModel();
         redisModel.setKey(expectedKey);
 
@@ -75,7 +75,7 @@ public class EventRedisServiceTest {
 
     @Test
     void testGetEventById_notPresentInRedis() {
-        String expectedKey = RedisKeyUtil.getKeyById(event.getId(), RedisHashType.EVENT);
+        String expectedKey = RedisKeyUtil.getSmallKeyById(event.getId());
 
         when(eventRedisRepository.findById(expectedKey)).thenReturn(Optional.empty());
 
