@@ -87,17 +87,13 @@ public class EducationServiceImplTest {
     }
 
     @Test
-    public void testAddEducationUserNotFoundThrowsException() {
-        long userId = 1L;
+    public void testAddEducationWithNegativeUserIdThrowsException() {
+        long userId = -5L;
 
         EducationDto dto = createEducationDto();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
         DataValidationException exception = assertThrows(DataValidationException.class,
-                    () -> educationService.addEducation(userId, dto));
-
-        assertTrue(exception.getMessage().contains("User with id=%d not found"));
+                () -> educationService.addEducation(userId, dto));
     }
 
     @Test
