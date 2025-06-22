@@ -1,0 +1,4 @@
+ALTER TABLE user_premium
+    ADD COLUMN price DECIMAL(10, 2) NOT NULL,
+    ADD COLUMN currency VARCHAR(255) NOT NULL,
+    ADD COLUMN premium_period VARCHAR(255) NOT NULL;
