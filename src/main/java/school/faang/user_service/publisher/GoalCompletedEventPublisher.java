@@ -28,6 +28,5 @@ public class GoalCompletedEventPublisher {
             log.error("Failed to serialize to JSON. Event data: {}. Error message: {}",
                     event, e.getMessage(), e);
         }
-
     }
 }
