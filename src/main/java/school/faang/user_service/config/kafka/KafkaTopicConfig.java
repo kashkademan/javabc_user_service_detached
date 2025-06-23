@@ -13,10 +13,10 @@ import java.util.Map;
 @Configuration
 public class KafkaTopicConfig {
 
-    @Value(value = "${spring.data.kafka.bootstrap-servers}")
+    @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value(value = "${spring.data.kafka.topics.goal-completed-topic.name}")
+    @Value(value = "${spring.kafka.topics.goal-completed-topic.name}")
     private String goalCompletedTopicName;
 
     @Bean
