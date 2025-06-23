@@ -77,7 +77,7 @@ public class EducationControllerTest {
 
     @Test
     public void testGetByIdServiceThrowsException() {
-        Long id = -1L;
+        long id = -1L;
         when(educationService.getById(id)).thenThrow(new DataValidationException("Invalid education ID"));
 
         DataValidationException exception = assertThrows(DataValidationException.class,
