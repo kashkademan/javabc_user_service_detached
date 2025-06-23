@@ -16,7 +16,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import school.faang.user_service.config.EventListener;
-import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 
 import java.io.IOException;
