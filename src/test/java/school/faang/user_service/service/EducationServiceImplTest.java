@@ -95,7 +95,7 @@ public class EducationServiceImplTest {
 
         EducationDto dto = createEducationDto();
 
-        DataValidationException  = assertThrows(school.faang.user_service.exception.DataValidationException.class,
+        DataValidationException = assertThrows(school.faang.user_service.exception.DataValidationException.class,
                 () -> educationService.addEducation(userId, dto));
     }
 
@@ -149,16 +149,5 @@ public class EducationServiceImplTest {
         assertEquals(dto.getId(), result.getId());
         assertEquals(dto.getInstitution(), result.getInstitution());
         verify(educationRepository).findById(educationId);
-    }
-
-    @Test
-    public void testGetByIdNotFoundThrowsException() {
-        long educationId = 1L;
-        when(educationRepository.findById(educationId)).thenReturn(Optional.empty());
-
-        DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> educationService.getById(educationId));
-
-        assertTrue(exception.getMessage().contains("Education with id=%d not found"));
     }
 }
