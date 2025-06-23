@@ -2,6 +2,7 @@ package school.faang.user_service.config.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableConfigurationProperties(KafkaEventTopicProperties.class)
 public class KafkaProducerConfig {
 
     private final KafkaProperties kafkaProperties;
