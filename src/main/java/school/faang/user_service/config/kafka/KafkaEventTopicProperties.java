@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "spring.data.kafka.topic.event")
-@Configuration
 public class KafkaEventTopicProperties {
     private String name;
     private int partitions;
