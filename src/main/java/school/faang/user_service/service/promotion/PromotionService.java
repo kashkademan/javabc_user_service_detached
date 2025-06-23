@@ -25,6 +25,7 @@ import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_TIME;
 import static school.faang.user_service.entity.promotion.PromotionStatus.FINISHED_VIEW;
 import static school.faang.user_service.entity.promotion.PromotionType.EVENT;
+import static school.faang.user_service.entity.promotion.PromotionType.USER;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +57,7 @@ public class PromotionService {
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);
 
         Promotion promotion = createPromotion(tariff);
+        promotion.setType(EVENT);
         promotion.setEvent(event);
 
         Promotion savePromotion = promotionRepository.save(promotion);
@@ -77,6 +79,7 @@ public class PromotionService {
         PromotionTariff tariff = promotionTariffService.getPromotionTariffById(tariffId);
 
         Promotion promotion = createPromotion(tariff);
+        promotion.setType(USER);
         promotion.setUser(user);
 
         Promotion savePromotion = promotionRepository.save(promotion);
@@ -92,7 +95,6 @@ public class PromotionService {
 
     private Promotion createPromotion(PromotionTariff tariff) {
         Promotion promotion = new Promotion();
-        promotion.setType(EVENT);
         promotion.setTariff(tariff);
         promotion.setCountView(tariff.getCountView());
         promotion.setEndDate(LocalDateTime.now().plusDays(tariff.getDurationDays()));

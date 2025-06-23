@@ -19,9 +19,9 @@ public class PromotionRedisModel implements Serializable {
     private Integer countView;
     private Long id;
     @Indexed
-    private Integer eventId;
+    private Long eventId;
     @Indexed
-    private Integer userId;
+    private Long userId;
     private Long tariffId;
 }
 

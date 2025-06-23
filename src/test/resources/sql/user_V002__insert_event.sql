@@ -31,7 +31,7 @@ VALUES (
 
 INSERT INTO event (title, description, user_id, start_date, end_date, location, max_attendees, type, status, created_at, updated_at)
 VALUES (
-    'Розыгрыш курсов по программированию',
+    'Розыгрыш курсов',
     'Ежемесячный розыгрыш бесплатных курсов среди подписчиков',
     3,
     '2025-12-01 00:00:00',
