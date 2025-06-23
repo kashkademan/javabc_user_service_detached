@@ -1,4 +1,4 @@
-package school.faang.user_service.service.skill_offer;
+package school.faang.user_service.service.skill;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.service.skill.SkillOfferService;
 
 import java.util.ArrayList;
 import java.util.List;
