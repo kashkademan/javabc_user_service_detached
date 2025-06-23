@@ -141,7 +141,6 @@ public class EventServiceImpl implements EventService {
         return String.format(DELETED_EVENT_MESSAGE, eventId);
     }
 
-    @Transactional
     public void deletePastEvents() {
         int batchSize = eventCleanConfig.getBatchSize();
         int fetchLimit = eventCleanConfig.getFetchLimit();

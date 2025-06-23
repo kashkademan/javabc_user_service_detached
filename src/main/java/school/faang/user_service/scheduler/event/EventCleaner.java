@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class EventCleaner {
     private final EventRepository eventRepository;
 
     @Async("pastEventCleanExecutor")
+    @Transactional
     public void cleanEventsBatchAsync(List<Long> eventsIdBatch) {
         long start = System.currentTimeMillis();
         try {
