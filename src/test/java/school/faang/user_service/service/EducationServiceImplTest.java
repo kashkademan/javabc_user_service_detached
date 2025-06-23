@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,7 +42,7 @@ public class EducationServiceImplTest {
     @Spy
     private EducationMapper educationMapper;
 
-    @InjectMocks
+    @Mock
     private EducationService educationService;
     private DataValidationException DataValidationException;
 
