@@ -19,6 +19,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotExistException;
 import school.faang.user_service.exception.goal.UpdateComleteGoalException;
 import school.faang.user_service.exception.goal.UserNotGoalOwnerException;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
@@ -67,6 +68,8 @@ public class GoalServiceTest {
     private SkillValidator skillValidator;
     @Mock
     private UserService userService;
+    @Mock
+    private GoalCompletedEventPublisher publisher;
     @InjectMocks
     private GoalService goalService;
 
