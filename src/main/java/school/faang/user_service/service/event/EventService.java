@@ -15,7 +15,10 @@ import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
+import school.faang.user_service.facade.kafka.KafkaEventFacade;
+import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.model.event.EventFilter;
+import school.faang.user_service.publisher.EventKafkaPublisher;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
@@ -45,6 +48,7 @@ public class EventService {
     private final RedisTtlProperties redisTtlProperties;
     private final PromotionRedisService promotionRedisService;
     private final ApplicationContext applicationContext;
+    private final KafkaEventFacade kafkaFacade;
     private final ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
 
     @PreDestroy
@@ -66,7 +70,10 @@ public class EventService {
         }
 
         eventValidator.validateEventDates(event.getStartDate(), event.getEndDate());
-        return eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+
+        kafkaFacade.createEvent(savedEvent);
+        return savedEvent;
     }
 
     @Transactional(readOnly = true)

@@ -23,7 +23,7 @@ import java.util.List;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         builder = @Builder(disableBuilder = true))
-public interface EventEntityMapper {
+public interface EventMapper {
 
     Event toEntityFromCreateDto(EventCreateRequestDto dto);
 

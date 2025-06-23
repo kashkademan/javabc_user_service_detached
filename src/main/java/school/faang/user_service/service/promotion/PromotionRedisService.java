@@ -31,7 +31,7 @@ public class PromotionRedisService {
     public PromotionRedisService(PromotionRedisRepository promotionRedisRepository,
                                  PromotionRedisMapper promotionRedisMapper,
                                  RedisTemplate<String, Object> redisTemplate,
-                                 @Qualifier("decrementCountViewExecutorExecutor") Executor executor,
+                                 @Qualifier("decrementCountViewExecutor") Executor executor,
                                  RedisLockPromotionProperties props) {
         this.promotionRedisRepository = promotionRedisRepository;
         this.promotionRedisMapper = promotionRedisMapper;
@@ -63,7 +63,7 @@ public class PromotionRedisService {
         log.info("Promotion with key {} has been deleted", promotionKey);
     }
 
-    @Async("decrementCountViewExecutorExecutor")
+    @Async("decrementCountViewExecutor")
     public void decrementCountViewByEventIds(List<Long> eventIds) {
         eventIds.forEach(eventId -> executor.execute(() -> {
             promotionRedisRepository.findByEventId(eventId)

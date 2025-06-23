@@ -16,9 +16,8 @@ import school.faang.user_service.exception.skill.SkillNotFoundException;
 import school.faang.user_service.exception.skill_offer.NotEnoughSkillOffersException;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
+import school.faang.user_service.service.user.UserSkillGuaranteeService;
 import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.ArrayList;

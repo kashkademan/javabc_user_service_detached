@@ -12,8 +12,7 @@ import school.faang.user_service.entity.skill.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
-import school.faang.user_service.service.skill_offer.SkillOfferService;
+import school.faang.user_service.service.user.UserSkillGuaranteeService;
 import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.List;

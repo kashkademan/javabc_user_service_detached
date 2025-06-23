@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.skill.UserSkillGuarantee;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
+import school.faang.user_service.service.user.UserSkillGuaranteeService;
 
 import java.util.ArrayList;
 import java.util.List;
