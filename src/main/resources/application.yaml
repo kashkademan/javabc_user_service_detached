@@ -8,7 +8,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -75,3 +75,13 @@ services:
     version: 9.x
     style: pixel-art
     format: png
+
+scheduler:
+  past-event-clean:
+    cron: "0 0 4 * * *"
+    batch-size: 5000
+    fetch-limit: 1000000
+    executor-config:
+      core-pool-size: 20
+      max-pool-size: 50
+      thread-name-prefix: 'EventCleaner-'
