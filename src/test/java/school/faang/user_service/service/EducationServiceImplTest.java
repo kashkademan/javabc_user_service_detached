@@ -109,7 +109,7 @@ public class EducationServiceImplTest {
     public void testUpdateEducationNotFoundThrowsException() {
         long userId = 1L;
         EducationDto dto = createEducationDto();
-        dto.setId(1L); // важно установить ID
+        dto.setId(1L);
 
         when(educationRepository.findById(1L)).thenReturn(Optional.empty());
 
