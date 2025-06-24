@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class GoalCompletePublisherIT {
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, GoalCompletionNotificationEvent> kafkaTemplate;
 
     @Autowired
     private EventListener eventListener;
@@ -64,8 +64,7 @@ public class GoalCompletePublisherIT {
                 .goalTitle("test")
                 .build();
 
-        String msg = objectMapper.writeValueAsString(expectedEvent);
-        kafkaTemplate.send("goal-completed", msg);
+        kafkaTemplate.send("goal-completed", expectedEvent);
 
         await()
                 .pollInterval( 2, TimeUnit.SECONDS)
@@ -73,8 +72,7 @@ public class GoalCompletePublisherIT {
                 .untilAsserted(() -> {
                     assertNotNull(eventListener.getReceivedMessage());
 
-                    GoalCompletionNotificationEvent actualEvent = objectMapper.readValue(
-                            eventListener.getReceivedMessage(), GoalCompletionNotificationEvent.class);
+                    GoalCompletionNotificationEvent actualEvent = eventListener.getReceivedMessage();
 
                     assertEquals(expectedEvent.getGoalTitle(), actualEvent.getGoalTitle());
                 });

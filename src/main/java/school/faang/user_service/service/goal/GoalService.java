@@ -3,6 +3,7 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.annotation.PublishGoalCompletedEventKafka;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 import school.faang.user_service.entity.Skill;
@@ -60,6 +61,7 @@ public class GoalService {
     }
 
     @Transactional
+    @PublishGoalCompletedEventKafka
     public Goal update(long goalId, Goal newGoalData, List<Long> skillsId) {
         Goal dbGoal = getGoalById(goalId);
 
@@ -86,12 +88,6 @@ public class GoalService {
 
             involvedUsersId.forEach(userId ->
                     skillService.assignSkillsToUser(userId, dbGoal.getSkillsToAchieve()));
-
-            goalCompletedEventPublisher.publish(
-                    GoalCompletionNotificationEvent.builder()
-                    .goalTitle(dbGoal.getTitle())
-                    .build()
-            );
         }
 
         return goalRepository.save(dbGoal);
