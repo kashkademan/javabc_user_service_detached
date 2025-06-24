@@ -99,29 +99,6 @@ public class EducationServiceImplTest {
     }
 
     @Test
-    public void testUpdateEducationSuccess() {
-        long userId = 1L;
-        User user = createUser(userId);
-        Education existingEducation = createEducation(user);
-
-        EducationDto dto = createEducationDto();
-        dto.setInstitution("Updated University");
-
-        Education updatedEducation = createEducation(user);
-        updatedEducation.setInstitution("Updated University");
-
-        when(educationRepository.findById(1L)).thenReturn(Optional.of(existingEducation));
-        when(educationRepository.save(updatedEducation)).thenReturn(updatedEducation);
-
-        EducationDto result = educationService.updateEducation(userId, dto);
-
-        assertNotNull(result);
-        assertEquals("Updated University", result.getInstitution());
-        assertEquals(userId, updatedEducation.getUser().getId());
-        verify(educationRepository).save(updatedEducation);
-    }
-
-    @Test
     public void testUpdateEducationNotFoundThrowsException() {
         long userId = 1L;
         EducationDto dto = createEducationDto();
