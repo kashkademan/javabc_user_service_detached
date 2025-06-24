@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.annotation.PublishGoalCompletedEventKafka;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.dto.goal.filter.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;

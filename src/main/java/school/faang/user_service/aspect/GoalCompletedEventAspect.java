@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.annotation.PublishGoalCompletedEventKafka;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 import school.faang.user_service.entity.goal.Goal;
