@@ -30,6 +30,7 @@ spring:
           user_ban: user_ban
           goal_complete: goal_complete
           recommendation_event: recommendation_event
+          goal_attached: goal_attached
 
 server:
   port: 8080
