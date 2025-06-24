@@ -59,7 +59,7 @@ public class GoalCompletePublisherIT {
     }
 
     @Test
-    void testAnalyticsEventPublisher_UserExist() throws IOException {
+    void testPublishCompletedGoalSuccess() throws IOException {
         GoalCompletionNotificationEvent expectedEvent = GoalCompletionNotificationEvent.builder()
                 .goalTitle("test")
                 .build();
