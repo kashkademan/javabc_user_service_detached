@@ -10,7 +10,8 @@ public class SubscriptionMapper {
         return new SubscriptionDto(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail());
+                user.getEmail()
+        );
     }
 
     @Builder

@@ -3,6 +3,8 @@ package school.faang.user_service.service.subscription;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.annotation.PublishSubscriptionEventKafka;
+import school.faang.user_service.config.kafka.enums.SubscriptionEventType;
 import school.faang.user_service.dto.subscription.SubscriptionFilterDto;
 import school.faang.user_service.entity.Subscription;
 import school.faang.user_service.entity.User;
@@ -21,6 +23,7 @@ public class SubscriptionService {
     private final List<SubscriptionFilter> subscriptionFilters;
 
     @Transactional
+    @PublishSubscriptionEventKafka(type = SubscriptionEventType.SUBSCRIBE)
     public void followUser(long followerId, long followeeId) {
         boolean existSub = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
         SubscriptionValidation.validateFollowAction(followerId, followeeId);
@@ -34,6 +37,7 @@ public class SubscriptionService {
     }
 
     @Transactional
+    @PublishSubscriptionEventKafka(type = SubscriptionEventType.UNSUBSCRIBE)
     public void unfollowUser(long followerId, long followeeId) {
         boolean existSub = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
         SubscriptionValidation.validateUnfollowAction(followerId, followeeId);

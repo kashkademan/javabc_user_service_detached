@@ -20,6 +20,10 @@ spring:
     redis:
       port: 6379
       host: localhost
+    kafka:
+      bootstrap-server: "localhost:9092"
+      topic:
+        subscription: subscription-events
 
   servlet:
     multipart:
