@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 @Mapper(componentModel = "Spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
+    @Mapping(target = "preference", source = "contactPreference.preference")
     UserDto toUserDto(User user);
     User toUser(UserDto uSerDto);
     List<UserDto> mapListOfUsers(List<User> subscriptions);
