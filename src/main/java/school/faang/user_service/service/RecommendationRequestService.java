@@ -64,10 +64,6 @@ public class RecommendationRequestService {
                         + "only once per 6 months");
             }
 
-            if (recommendationRequest.skills() == null || recommendationRequest.skills().isEmpty()) {
-                throw new DataValidationException("Skills list must not be empty!");
-            }
-
             RecommendationRequest newRequest = recommendationRequestMapper.toEntity(recommendationRequest);
             newRequest.setRequester(requester);
             newRequest.setReceiver(receiver);
@@ -119,7 +115,7 @@ public class RecommendationRequestService {
     }
 
     @Transactional
-    public RecommendationResponseDto rejectRequest(long id, @Valid RecommendationRejectDto rejection) {
+    public RecommendationResponseDto rejectRequest(long id, RecommendationRejectDto rejection) {
         RecommendationRequest request = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation request not found with id: " + id));
 

@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.event.MentorshipRequestEvent;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipResponseDto;
 import school.faang.user_service.dto.mentorship_request.RejectionDto;
@@ -11,6 +12,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.RequestToResponseDto;
+import school.faang.user_service.publisher.MentorshipRequestEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship_request.RequestFilter;
 
@@ -27,6 +29,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final RequestToResponseDto responseMapper;
     private final List<RequestFilter> filters;
+    private final MentorshipRequestEventPublisher mentorshipRequestEventPublisher;
 
     @Transactional
     public MentorshipResponseDto requestMentorship(MentorshipRequestDto request) {
@@ -47,6 +50,12 @@ public class MentorshipRequestService {
         MentorshipRequest newMentorshipRequest = mentorshipRequestRepository
                 .create(request.requesterId(), request.receiverId(), request.description());
 
+        MentorshipRequestEvent event = new MentorshipRequestEvent(
+                request.requesterId(),
+                request.receiverId(),
+                newMentorshipRequest.getId()
+        );
+        mentorshipRequestEventPublisher.publish(event);
 
         return responseMapper.toDto(newMentorshipRequest);
     }
