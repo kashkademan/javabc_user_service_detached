@@ -75,6 +75,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:kafka")
 
     /**
      * Tests
@@ -84,11 +85,17 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.springframework.kafka:spring-kafka-test:3.3.6")
 
     /**
      * Swagger
      */
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
+    /**
+     * Message Broker
+     */
+    implementation("org.springframework.kafka:spring-kafka:3.3.6")
 }
 
 jsonSchema2Pojo {
