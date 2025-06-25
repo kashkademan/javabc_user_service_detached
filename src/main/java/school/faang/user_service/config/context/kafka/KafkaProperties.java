@@ -14,22 +14,29 @@ import java.util.Map;
 public class KafkaProperties {
 
     private String bootstrapServers;
-    private String acks = "all";
-    private int retries = 5;
-    private int deliveryTimeoutMs = 120000;
-    private int lingerMs = 5;
-    private int batchSize = 16384;
-    private boolean enableIdempotence = true;
+    private Producer producer = new Producer();
+
+    @Data
+    public static class Producer {
+        private String acks = "all";
+        private int retries = 5;
+        private int deliveryTimeoutMs = 100000;
+        private int lingerMs = 5;
+        private int requestTimeoutMs = 3000;
+        private int batchSize = 16384;
+        private boolean enableIdempotence = true;
+    }
 
     public Map<String, Object> getProducerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.put(ProducerConfig.ACKS_CONFIG, acks);
-        properties.put(ProducerConfig.RETRIES_CONFIG, retries);
-        properties.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, deliveryTimeoutMs);
-        properties.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
-        properties.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
-        properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, enableIdempotence);
+        properties.put(ProducerConfig.ACKS_CONFIG, producer.getAcks());
+        properties.put(ProducerConfig.RETRIES_CONFIG, producer.getRetries());
+        properties.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, producer.getDeliveryTimeoutMs());
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, producer.getLingerMs());
+        properties.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, producer.getRequestTimeoutMs());
+        properties.put(ProducerConfig.BATCH_SIZE_CONFIG, producer.getBatchSize());
+        properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, producer.isEnableIdempotence());
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return properties;

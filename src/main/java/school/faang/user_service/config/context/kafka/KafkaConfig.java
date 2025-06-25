@@ -20,8 +20,7 @@ public class KafkaConfig {
     private final KafkaProperties kafkaProperties;
     private final ObjectMapper objectMapper;
 
-    @Bean
-    public ProducerFactory<String, ProfileViewEventDto> profileViewProducerFactory() {
+    public <T> ProducerFactory<String, T> producerFactory() {
         return new DefaultKafkaProducerFactory<>(
                 kafkaProperties.getProducerProperties(),
                 new StringSerializer(),
@@ -29,8 +28,12 @@ public class KafkaConfig {
         );
     }
 
+    public <T> KafkaTemplate<String, T> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
     @Bean
     public KafkaTemplate<String, ProfileViewEventDto> profileViewKafkaTemplate() {
-        return new KafkaTemplate<>(profileViewProducerFactory());
+        return kafkaTemplate();
     }
 }

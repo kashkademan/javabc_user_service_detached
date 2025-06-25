@@ -17,7 +17,7 @@ public class ProfileViewActionService {
 
     public void registerProfileView(Long profileOwnerId) {
         Long viewerId = userContext.getUserId();
-        if (Objects.equals(viewerId, profileOwnerId)) {
+        if (Objects.equals(viewerId, profileOwnerId) || viewerId == 0) {
             return;
         }
 
