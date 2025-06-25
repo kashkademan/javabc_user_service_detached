@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
@@ -87,10 +88,10 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(dto)).thenReturn(user);
 
-        Long result = userService.createUser(dto);
+        UserDto result = userService.createUser(dto);
 
         assertNotNull(result);
-        assertEquals(userId, result);
+        assertEquals(userId, result.id());
     }
 
     @Test
@@ -108,10 +109,10 @@ class UserServiceTest {
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
         when(userMapper.toEntity(any())).thenReturn(user);
 
-        Long result = userService.createUser(dto);
+        UserDto result = userService.createUser(dto);
 
         assertNotNull(result);
-        assertEquals(userId, result);
+        assertEquals(userId, result.id());
     }
 
     @Test

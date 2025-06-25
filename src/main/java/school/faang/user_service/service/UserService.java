@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
@@ -38,7 +39,7 @@ public class UserService {
     }
 
     @Transactional
-    public Long createUser(UserFullDto userDto) {
+    public UserDto createUser(UserFullDto userDto) {
         validation(userDto);
         Country countryUser = countryService.getCountryById(userDto.countryId());
 
@@ -58,9 +59,9 @@ public class UserService {
         pic.setSmallFileId(userDto.email());
         user.setUserProfilePic(pic);
 
-        userRepo.save(user);
+        return userMapper.toDto(userRepo.save(user));
 
-        return user.getId();
+//        return user.getId();
     }
 
     private void validation(UserFullDto userFullDto) {
