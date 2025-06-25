@@ -48,3 +48,8 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+dicebear:
+  api-url: https://api.dicebear.com/9.x
+  style: pixel-art
+  default-seed: defaultUserSeed
