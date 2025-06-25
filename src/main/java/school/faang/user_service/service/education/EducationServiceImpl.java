@@ -24,6 +24,9 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDto addEducation(long userId, EducationDto educationDto) {
+        if (userId <= 0) {
+            throw new DataValidationException("User ID must be positive");
+        }
         if (educationDto.getYearFrom() >= Year.now().getValue()) {
             throw new DataValidationException("YearFrom must be less than current year");
         }
