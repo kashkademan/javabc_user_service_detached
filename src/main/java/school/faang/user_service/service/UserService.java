@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import school.faang.user_service.config.MinioService;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
@@ -27,7 +28,7 @@ public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
     private final CountryService countryService;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final MinioService minioService;
 
     @Value("${dice-bear-api}")
@@ -39,29 +40,27 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto createUser(UserFullDto userDto) {
-        validation(userDto);
-        Country countryUser = countryService.getCountryById(userDto.countryId());
+    public UserDto createUser(UserFullDto userFullDto) {
+        validation(userFullDto);
+        Country countryUser = countryService.getCountryById(userFullDto.countryId());
 
-        String api = createApiPath(userDto.defaultPhoto());
+        String api = createApiPath(userFullDto.defaultPhoto());
 
         minioService.createBucket();
         try {
-            putS3Client(api, userDto.email());
+            putS3Client(api, userFullDto.email());
         } catch (IOException e) {
             log.error("IOException {}", e.getMessage());
         }
-        User user = userMapper.toEntity(userDto);
+        User user = userMapper.toEntity(userFullDto);
         user.setCountry(countryUser);
 
         UserProfilePic pic = new UserProfilePic();
         pic.setFileId(api);
-        pic.setSmallFileId(userDto.email());
+        pic.setSmallFileId(userFullDto.email());
         user.setUserProfilePic(pic);
 
         return userMapper.toDto(userRepo.save(user));
-
-//        return user.getId();
     }
 
     private void validation(UserFullDto userFullDto) {

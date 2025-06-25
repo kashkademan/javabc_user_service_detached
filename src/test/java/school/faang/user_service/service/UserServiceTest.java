@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
+import school.faang.user_service.config.MinioService;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
@@ -86,7 +87,7 @@ class UserServiceTest {
 
         when(countryService.getCountryById(any())).thenReturn(country);
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
-        when(userMapper.toEntity(dto)).thenReturn(user);
+        when(userRepository.save(any())).thenReturn(user);
 
         UserDto result = userService.createUser(dto);
 
@@ -107,7 +108,7 @@ class UserServiceTest {
 
         when(countryService.getCountryById(any())).thenReturn(country);
         when(restTemplate.getForObject(testApi, String.class)).thenReturn(file);
-        when(userMapper.toEntity(any())).thenReturn(user);
+        when(userRepository.save(any())).thenReturn(user);
 
         UserDto result = userService.createUser(dto);
 
