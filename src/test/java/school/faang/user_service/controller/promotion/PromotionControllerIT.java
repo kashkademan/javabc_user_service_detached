@@ -32,20 +32,24 @@ import school.faang.user_service.model.redis.event.EventRedisModel;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
 import school.faang.user_service.model.redis.user.UserRedisModel;
 import school.faang.user_service.repository.event.EventRedisRepository;
+import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.promotion.PromotionRedisRepository;
 import school.faang.user_service.repository.promotion.PromotionRepository;
 import school.faang.user_service.repository.user.UserRedisRepository;
-import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.promotion.PromotionTariffService;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Sql(scripts = {
+        "/sql/insert_promotion.sql"
+}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {
+        "/sql/delete_promotion.sql"
+}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -63,9 +67,9 @@ public class PromotionControllerIT {
     @Autowired
     private EventRedisRepository eventRedisRepository;
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
-    private EventService eventService;
+    private EventRepository eventRepository;
     @Autowired
     private PromotionTariffService promotionTariffService;
 
@@ -97,19 +101,12 @@ public class PromotionControllerIT {
         registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
     }
 
-    @Sql(scripts = {
-            "/sql/user_V001__insert_promotion.sql",
-            "/sql/user_V002__insert_event.sql"
-    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = {
-            "/sql/user_V004__delete_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Test
     @DisplayName("Успешное создание промоушена для события с записью в БД и Redis")
     public void createEventPromotion_successfully() throws Exception {
-        long eventId = 1L;
+        long eventId = 202L;
         long userId = 9L;
-        long tariffId = 2L;
+        long tariffId = 101L;
 
         PromotionEventCreateRequestDto requestDto = PromotionEventCreateRequestDto.builder()
                 .eventId(eventId)
@@ -146,56 +143,17 @@ public class PromotionControllerIT {
         assertThat(responseDto.getUserId()).isNull();
 
 
-        Promotion promotionDB = promotionRepository.findById(responseDto.getId())
-                .orElseThrow(() -> new AssertionError("Promotion not found in DB"));
-
-        assertThat(promotionDB.getEvent().getId()).isEqualTo(eventId);
-        assertThat(promotionDB.getUser()).isNull();
-        assertThat(promotionDB.getTariff().getId()).isEqualTo(tariffId);
-        assertThat(promotionDB.getStatus()).isEqualTo(PromotionStatus.ACTIVE);
-        assertThat(promotionDB.getType()).isEqualTo(PromotionType.EVENT);
-
-        String promotionKey = RedisKeyUtil.getSmallKeyById(responseDto.getId());
-        String eventKey = RedisKeyUtil.getSmallKeyById(eventId);
-
-        PromotionRedisModel promotionRedis = promotionRedisRepository.findById(promotionKey)
-                .orElseThrow(() -> new AssertionError("Promotion not found in Redis"));
-        assertThat(promotionRedis.getEventId()).isEqualTo(eventId);
-        assertThat(promotionRedis.getUserId()).isNull();
-        assertThat(promotionRedis.getTariffId()).isEqualTo(tariffId);
-
-        EventRedisModel eventRedis = eventRedisRepository.findById(eventKey)
-                .orElseThrow(() -> new AssertionError("Event not found in Redis"));
-
-        Event event = eventService.getEventById(eventId);
-        assertThat(eventRedis)
-                .extracting(EventRedisModel::getTitle,
-                        EventRedisModel::getDescription,
-                        EventRedisModel::getStartDate,
-                        EventRedisModel::getEndDate,
-                        EventRedisModel::getLocation,
-                        EventRedisModel::getMaxAttendees,
-                        EventRedisModel::getType,
-                        EventRedisModel::getStatus
-                )
-                .containsExactly(
-                        event.getTitle(),
-                        event.getDescription(),
-                        event.getStartDate(),
-                        event.getEndDate(),
-                        event.getLocation(),
-                        event.getMaxAttendees(),
-                        event.getTitle(),
-                        event.getStatus()
-                );
+        checkPromotionEventDbAndRedis(responseDto.getId(), eventId, tariffId);
     }
 
     @Test
     @DisplayName("Создание промоушена для события, которого нет в БД")
     public void createEventPromotion_eventNotFound() throws Exception {
-        long eventId = 1L;
+        long eventId = 2000L;
         long userId = 9L;
-        long tariffId = 2L;
+        long tariffId = 101L;
+
+        long beforeCount = promotionRepository.count();
 
         PromotionEventCreateRequestDto requestDto = PromotionEventCreateRequestDto.builder()
                 .eventId(eventId)
@@ -214,25 +172,21 @@ public class PromotionControllerIT {
 
         assertThat(responseDto.getCodeResponse()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        List<Promotion> allPromotions = promotionRepository.findAll();
-        assertThat(allPromotions).isEmpty();
+        long afterCount = promotionRepository.count();
+        assertThat(afterCount).isEqualTo(beforeCount);
 
         Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
         assertThat(redisPromotions).isEmpty();
     }
 
-    @Sql(scripts = {
-            "/sql/user_V004__delete_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @Sql(scripts = {
-            "/sql/user_V002__insert_event.sql"
-    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Test
     @DisplayName("Создание промоушена для события с тарифом, которого нет в БД")
     public void createEventPromotion_tariffNotFound() throws Exception {
-        long eventId = 1L;
+        long eventId = 202L;
         long userId = 9L;
-        long tariffId = 2L;
+        long tariffId = 1001L;
+
+        long beforeCount = promotionRepository.count();
 
         PromotionEventCreateRequestDto requestDto = PromotionEventCreateRequestDto.builder()
                 .eventId(eventId)
@@ -251,25 +205,19 @@ public class PromotionControllerIT {
 
         assertThat(responseDto.getCodeResponse()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        List<Promotion> allPromotions = promotionRepository.findAll();
-        assertThat(allPromotions).isEmpty();
+        long afterCount = promotionRepository.count();
+        assertThat(afterCount).isEqualTo(beforeCount);
 
         Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
         assertThat(redisPromotions).isEmpty();
     }
 
-    @Sql(scripts = {
-            "/sql/user_V004__delete_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @Sql(scripts = {
-            "/sql/user_V003__insert_exists_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Test
     @DisplayName("Создание промоушена для события, у которого уже есть активных промоушен")
     public void createEventPromotion_existsActivePromotion() throws Exception {
-        long eventId = 1L;
+        long eventId = 201L;
         long userId = 9L;
-        long tariffId = 2L;
+        long tariffId = 101L;
 
         long beforeCount = promotionRepository.count();
 
@@ -295,19 +243,16 @@ public class PromotionControllerIT {
 
         long afterCount = promotionRepository.count();
         assertThat(afterCount).isEqualTo(beforeCount);
+
+        Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
+        assertThat(redisPromotions).isEmpty();
     }
 
-    @Sql(scripts = {
-            "/sql/user_V004__delete_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @Sql(scripts = {
-            "/sql/user_V001__insert_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Test
     @DisplayName("Успешное создание промоушена для пользователя с записью в БД и Redis")
     public void createUserPromotion_successfully() throws Exception {
-        long userId = 9L;
-        long tariffId = 2L;
+        long userId = 2L;
+        long tariffId = 101L;
 
         PromotionUserCreateRequestDto requestDto = PromotionUserCreateRequestDto.builder()
                 .userId(userId)
@@ -344,51 +289,16 @@ public class PromotionControllerIT {
         assertThat(responseDto.getEventId()).isNull();
 
 
-        Promotion promotionDB = promotionRepository.findById(responseDto.getId())
-                .orElseThrow(() -> new AssertionError("Promotion not found in DB"));
-
-        assertThat(promotionDB.getUser().getId()).isEqualTo(userId);
-        assertThat(promotionDB.getEvent()).isNull();
-        assertThat(promotionDB.getTariff().getId()).isEqualTo(tariffId);
-        assertThat(promotionDB.getStatus()).isEqualTo(PromotionStatus.ACTIVE);
-        assertThat(promotionDB.getType()).isEqualTo(PromotionType.USER);
-
-        String promotionKey = RedisKeyUtil.getSmallKeyById(responseDto.getId());
-        String userKey = RedisKeyUtil.getSmallKeyById(userId);
-
-        PromotionRedisModel promotionRedis = promotionRedisRepository.findById(promotionKey)
-                .orElseThrow(() -> new AssertionError("Promotion not found in Redis"));
-        assertThat(promotionRedis.getUserId()).isEqualTo(userId);
-        assertThat(promotionRedis.getEventId()).isNull();
-        assertThat(promotionRedis.getTariffId()).isEqualTo(tariffId);
-
-        UserRedisModel userRedis = userRedisRepository.findById(userKey)
-                .orElseThrow(() -> new AssertionError("User not found in Redis"));
-
-        User user = userService.getUserById(userId);
-        assertThat(userRedis)
-                .extracting(UserRedisModel::getUsername,
-                        UserRedisModel::getEmail,
-                        UserRedisModel::getPhone,
-                        UserRedisModel::getCity,
-                        UserRedisModel::getAboutMe,
-                        UserRedisModel::getExperience
-                )
-                .containsExactly(
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getPhone(),
-                        user.getCity(),
-                        user.getAboutMe(),
-                        user.getExperience()
-                );
+        checkUserInDbAndRedis(responseDto.getId(), userId, tariffId);
     }
 
     @Test
     @DisplayName("Создание промоушена для пользователя, которого нет в БД")
     public void createUserPromotion_userNotFound() throws Exception {
-        long userId = 10000L;
-        long tariffId = 2L;
+        long userId = 2000L;
+        long tariffId = 101L;
+
+        long beforeCount = promotionRepository.count();
 
         PromotionUserCreateRequestDto requestDto = PromotionUserCreateRequestDto.builder()
                 .userId(userId)
@@ -407,18 +317,20 @@ public class PromotionControllerIT {
 
         assertThat(responseDto.getCodeResponse()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        List<Promotion> allPromotions = promotionRepository.findAll();
-        assertThat(allPromotions).isEmpty();
+        long afterCount = promotionRepository.count();
+        assertThat(afterCount).isEqualTo(beforeCount);
 
         Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
         assertThat(redisPromotions).isEmpty();
     }
 
     @Test
-    @DisplayName("Создание промоушена для пользователя, которого нет в БД")
+    @DisplayName("Создание промоушена для пользователя с тарифом, которого нет в БД")
     public void createUserPromotion_tariffNotFound() throws Exception {
-        long userId = 9L;
-        long tariffId = 2L;
+        long userId = 2L;
+        long tariffId = 1010L;
+
+        long beforeCount = promotionRepository.count();
 
         PromotionUserCreateRequestDto requestDto = PromotionUserCreateRequestDto.builder()
                 .userId(userId)
@@ -437,24 +349,18 @@ public class PromotionControllerIT {
 
         assertThat(responseDto.getCodeResponse()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        List<Promotion> allPromotions = promotionRepository.findAll();
-        assertThat(allPromotions).isEmpty();
+        long afterCount = promotionRepository.count();
+        assertThat(afterCount).isEqualTo(beforeCount);
 
         Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
         assertThat(redisPromotions).isEmpty();
     }
 
-    @Sql(scripts = {
-            "/sql/user_V004__delete_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @Sql(scripts = {
-            "/sql/user_V003__insert_exists_promotion.sql"
-    }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Test
     @DisplayName("Создание промоушена для пользователя, у которого уже есть активных промоушен")
     public void createUserPromotion_existsActivePromotion() throws Exception {
         long userId = 9L;
-        long tariffId = 1L;
+        long tariffId = 101L;
 
         long beforeCount = promotionRepository.count();
 
@@ -480,5 +386,96 @@ public class PromotionControllerIT {
 
         long afterCount = promotionRepository.count();
         assertThat(afterCount).isEqualTo(beforeCount);
+
+        Iterable<PromotionRedisModel> redisPromotions = promotionRedisRepository.findAll();
+        assertThat(redisPromotions).isEmpty();
+    }
+
+    private void checkPromotionEventDbAndRedis(long promotionId, long eventId, long tariffId) {
+        Promotion promotionDB = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new AssertionError("Promotion not found in DB"));
+
+        assertThat(promotionDB.getEvent().getId()).isEqualTo(eventId);
+        assertThat(promotionDB.getUser()).isNull();
+        assertThat(promotionDB.getTariff().getId()).isEqualTo(tariffId);
+        assertThat(promotionDB.getStatus()).isEqualTo(PromotionStatus.ACTIVE);
+        assertThat(promotionDB.getType()).isEqualTo(PromotionType.EVENT);
+
+        String promotionKey = RedisKeyUtil.getSmallKeyById(promotionId);
+        String eventKey = RedisKeyUtil.getSmallKeyById(eventId);
+
+        PromotionRedisModel promotionRedis = promotionRedisRepository.findById(promotionKey)
+                .orElseThrow(() -> new AssertionError("Promotion not found in Redis"));
+        assertThat(promotionRedis.getEventId()).isEqualTo(eventId);
+        assertThat(promotionRedis.getUserId()).isNull();
+        assertThat(promotionRedis.getTariffId()).isEqualTo(tariffId);
+
+        EventRedisModel eventRedis = eventRedisRepository.findById(eventKey)
+                .orElseThrow(() -> new AssertionError("Event not found in Redis"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new AssertionError("Event not found in DB"));
+        assertThat(eventRedis)
+                .extracting(EventRedisModel::getTitle,
+                        EventRedisModel::getDescription,
+                        EventRedisModel::getStartDate,
+                        EventRedisModel::getEndDate,
+                        EventRedisModel::getLocation,
+                        EventRedisModel::getMaxAttendees,
+                        EventRedisModel::getType,
+                        EventRedisModel::getStatus
+                )
+                .containsExactly(
+                        event.getTitle(),
+                        event.getDescription(),
+                        event.getStartDate(),
+                        event.getEndDate(),
+                        event.getLocation(),
+                        event.getMaxAttendees(),
+                        event.getType(),
+                        event.getStatus()
+                );
+    }
+
+    private void checkUserInDbAndRedis(long promotionId, long userId, long tariffId) {
+        Promotion promotionDB = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new AssertionError("Promotion not found in DB"));
+
+        assertThat(promotionDB.getUser().getId()).isEqualTo(userId);
+        assertThat(promotionDB.getEvent()).isNull();
+        assertThat(promotionDB.getTariff().getId()).isEqualTo(tariffId);
+        assertThat(promotionDB.getStatus()).isEqualTo(PromotionStatus.ACTIVE);
+        assertThat(promotionDB.getType()).isEqualTo(PromotionType.USER);
+
+        String promotionKey = RedisKeyUtil.getSmallKeyById(promotionId);
+        String userKey = RedisKeyUtil.getSmallKeyById(userId);
+
+        PromotionRedisModel promotionRedis = promotionRedisRepository.findById(promotionKey)
+                .orElseThrow(() -> new AssertionError("Promotion not found in Redis"));
+        assertThat(promotionRedis.getUserId()).isEqualTo(userId);
+        assertThat(promotionRedis.getEventId()).isNull();
+        assertThat(promotionRedis.getTariffId()).isEqualTo(tariffId);
+
+        UserRedisModel userRedis = userRedisRepository.findById(userKey)
+                .orElseThrow(() -> new AssertionError("User not found in Redis"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AssertionError("User not found in DB"));
+        assertThat(userRedis)
+                .extracting(UserRedisModel::getUsername,
+                        UserRedisModel::getEmail,
+                        UserRedisModel::getPhone,
+                        UserRedisModel::getCity,
+                        UserRedisModel::getAboutMe,
+                        UserRedisModel::getExperience
+                )
+                .containsExactly(
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getPhone(),
+                        user.getCity(),
+                        user.getAboutMe(),
+                        user.getExperience()
+                );
     }
 }
