@@ -12,10 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.Person;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.service.TelegramService;
 import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final CsvMapper csvMapper;
     private final UserPictureService pictureService;
+    private final TelegramService telegramService;
 
     @Override
     public UserDto findUserById(Long userId) {
@@ -50,6 +54,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(UserDto userDto) {
+        telegramService.validateTelegramPreference(userDto);
+
         UserDto existingUser = findUserById(userDto.getId());
         existingUser.setEmail(userDto.getEmail());
         existingUser.setUsername(userDto.getUsername());
@@ -169,5 +175,35 @@ public class UserServiceImpl implements UserService {
 
         user.setBanned(false);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public UserTelegramDto addUserTelegram(UserTelegramDto userTelegramDto) {
+        User user = userRepository.findByTelegramUserName(userTelegramDto.getTelegramUserName())
+                .orElseThrow(() -> new EntityNotFoundException("User with presented user name not found"));
+        telegramService.validateTelegramUserId(userTelegramDto, user.getId());
+        telegramService.validateTelegramChatId(userTelegramDto.getTelegramChatId(), user.getTelegramChatId(), user.getId());
+        user.setTelegramChatId(userTelegramDto.getTelegramChatId());
+        userRepository.save(user);
+
+        return userMapper.toUserTelegramDto(user);
+    }
+
+    @Override
+    public UserTelegramDto getUserTelegram(long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+
+        return userMapper.toUserTelegramDto(user);
+    }
+
+    @Override
+    public UserTelegramDto getUserByTelegram(String telegramUserName) {
+        Optional<User> user = userRepository.findByTelegramUserName(telegramUserName);
+        if (user.isEmpty()) {
+            return new UserTelegramDto(null, telegramUserName, null);
+        }
+
+        return userMapper.toUserTelegramDto(user.get());
     }
 }

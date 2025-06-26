@@ -31,6 +31,8 @@ public class UserDto {
     private Integer experience;
 
     private String phone;
+
+    private String telegramUserName;
 }
 
 
