@@ -1,38 +1,28 @@
 package school.faang.user_service.service;
 
 import jakarta.annotation.PreDestroy;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-<<<<<<< feature-BJS2-77059-get-notifikation-achievement-handsome
 import org.springframework.transaction.annotation.Transactional;
-=======
 import org.springframework.web.client.RestTemplate;
 import school.faang.user_service.config.MinioService;
->>>>>>> kraken-master-stream10
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-<<<<<<< feature-BJS2-77059-get-notifikation-achievement-handsome
 import school.faang.user_service.event.ProfilePicEvent;
-=======
 import school.faang.user_service.exception.EntityNotFoundException;
->>>>>>> kraken-master-stream10
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.ProfilePicEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 
-<<<<<<< feature-BJS2-77059-get-notifikation-achievement-handsome
-import java.time.LocalDateTime;
-=======
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
->>>>>>> kraken-master-stream10
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +30,45 @@ import java.util.regex.Pattern;
 public class UserService {
     private final UserRepository userRepo;
     private final UserMapper userMapper;
-<<<<<<< feature-BJS2-77059-get-notifikation-achievement-handsome
+    private final CountryService countryService;
+    private final RestTemplate restTemplate;
+    private final MinioService minioService;
     private final ProfilePicEventPublisher eventPublisher;
+
+    @Value("${dice-bear-api}")
+    private String diceBearApi;
 
     public User getUserById(Long id) {
         return userRepo.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("User with id = " + id + " does not exist"));
+                new EntityNotFoundException("User with id = " + id + " does not exist"));
+    }
+
+    @Transactional
+    public UserDto createUser(UserFullDto userFullDto) {
+        validation(userFullDto);
+        Country countryUser = countryService.getCountryById(userFullDto.countryId());
+
+        String api = createApiPath(userFullDto.defaultPhoto());
+
+        minioService.createBucket();
+        try {
+            putS3Client(api, userFullDto.email());
+        } catch (IOException e) {
+            log.error("IOException {}", e.getMessage());
+        }
+        User user = userMapper.toEntity(userFullDto);
+        user.setCountry(countryUser);
+
+        UserProfilePic pic = new UserProfilePic();
+        pic.setFileId(api);
+        pic.setSmallFileId(userFullDto.email());
+        user.setUserProfilePic(pic);
+
+        User savedUser = userRepo.save(user);
+
+        publishProfilePictureEvent(savedUser.getId(), pic.getFileId(), pic.getSmallFileId(), null, null);
+
+        return userMapper.toDto(savedUser);
     }
 
     @Transactional
@@ -79,41 +102,6 @@ public class UserService {
                 .changedAt(LocalDateTime.now())
                 .build();
         eventPublisher.publish(event);
-=======
-    private final CountryService countryService;
-    private final RestTemplate restTemplate;
-    private final MinioService minioService;
-
-    @Value("${dice-bear-api}")
-    private String diceBearApi;
-
-    public User getUserById(Long id) {
-        return userRepo.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("The Requester with id = " + id + " does not exist"));
-    }
-
-    @Transactional
-    public UserDto createUser(UserFullDto userFullDto) {
-        validation(userFullDto);
-        Country countryUser = countryService.getCountryById(userFullDto.countryId());
-
-        String api = createApiPath(userFullDto.defaultPhoto());
-
-        minioService.createBucket();
-        try {
-            putS3Client(api, userFullDto.email());
-        } catch (IOException e) {
-            log.error("IOException {}", e.getMessage());
-        }
-        User user = userMapper.toEntity(userFullDto);
-        user.setCountry(countryUser);
-
-        UserProfilePic pic = new UserProfilePic();
-        pic.setFileId(api);
-        pic.setSmallFileId(userFullDto.email());
-        user.setUserProfilePic(pic);
-
-        return userMapper.toDto(userRepo.save(user));
     }
 
     private void validation(UserFullDto userFullDto) {
@@ -158,6 +146,5 @@ public class UserService {
         if (minioService != null) {
             minioService.shutdownBucket();
         }
->>>>>>> kraken-master-stream10
     }
 }
