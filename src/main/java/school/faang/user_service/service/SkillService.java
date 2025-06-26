@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SkillService {
-    private final static int MIN_SKILL_OFFERS = 3;
+    private static final int MIN_SKILL_OFFERS = 3;
 
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
