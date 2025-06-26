@@ -3,7 +3,6 @@ package school.faang.user_service.config.context.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,6 @@ public class KafkaConfig {
     private final ObjectMapper objectMapper;
 
     public <T> ProducerFactory<String, T> producerFactory() {
-        System.out.println(kafkaProperties.getProducerProperties().get(ProducerConfig.BATCH_SIZE_CONFIG));
         return new DefaultKafkaProducerFactory<>(
                 kafkaProperties.getProducerProperties(),
                 new StringSerializer(),
