@@ -34,6 +34,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Data
 @Builder
@@ -84,6 +85,9 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "locale")
+    private Locale locale;
 
     @ManyToMany
     @JoinTable(name = "subscription",
