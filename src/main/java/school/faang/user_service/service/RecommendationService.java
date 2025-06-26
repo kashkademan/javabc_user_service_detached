@@ -96,14 +96,14 @@ public class RecommendationService {
 
     private void checkForGuarantee(Recommendation recommendation, SkillOfferDto skillOfferDto) {
         if (recommendation.getReceiver().getSkills().contains(skillOfferMapper.toEntity(skillOfferDto).getSkill())) {
-            List<UserSkillGuarantee> userSkillGuarantees =
-                    skillOfferMapper.toEntity(skillOfferDto).getSkill().getGuarantees();
-            userSkillGuarantees.add(new UserSkillGuarantee(null,
-                    recommendation.getReceiver(),
-                    skillOfferMapper.toEntity(skillOfferDto).getSkill(),
-                    recommendation.getAuthor()));
-
-            skillOfferMapper.toEntity(skillOfferDto).getSkill().setGuarantees(userSkillGuarantees);
+//            List<UserSkillGuarantee> userSkillGuarantees =
+//                    skillOfferMapper.toEntity(skillOfferDto).getSkill().getGuarantees();
+//            userSkillGuarantees.add(new UserSkillGuarantee(null,
+//                    recommendation.getReceiver(),
+//                    skillOfferMapper.toEntity(skillOfferDto).getSkill(),
+//                    recommendation.getAuthor()));
+//
+//            skillOfferMapper.toEntity(skillOfferDto).getSkill().setGuarantees(userSkillGuarantees);
         }
     }
 

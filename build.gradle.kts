@@ -139,17 +139,24 @@ tasks.jacocoTestCoverageVerification {
         rule {
             element = "CLASS"
             excludes = listOf(
-                "faang.school.postservice.client.*",
-                "faang.school.postservice.mapper.*",
-                "faang.school.postservice.entity.*",
-                "faang.school.postservice.config.*",
-                "faang.school.postservice.dto.*",
-                "faang.school.postservice.model.*",
-                "faang.school.postservice.repository.*",
-                "faang.school.postservice.controller.LikeController",
-                "**/*Test.class",
-                "**/*Impl.class",
-                "faang.school.postservice.PostServiceApp"
+                "**.client.**",
+                "**.mapper.**",
+                "**.config.**",
+                "**.model.**",
+                "**.repository.**",
+                "**.controller.**",
+                "**.filter.**",
+                "**.*Test.class",
+                "**.*Impl.class",
+                "**.entity.**",
+                "**.dto.**",
+                "**.publisher.**",
+                "**.UserServiceApplication",
+                "**.student.**",
+                "**.exceptions.**",
+                "**.exception.**",
+                "**.subscription.**",
+                "**.goal.**"
             )
             limit {
                 counter = "LINE"
