@@ -15,6 +15,7 @@ import school.faang.user_service.exception.EventNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
 
 import java.util.ArrayList;
@@ -35,11 +36,13 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final UserService userService;
+    private final SkillService skillService;
     private final List<Filter<EventFilterDto, Event>> eventFilters;
 
     @Transactional
     public ResponseEventDto create(RequestEventDto requestEventDto) {
         Event event = eventMapper.toEntity(requestEventDto);
+        fillEvent(event, requestEventDto);
 
         validateUserSkills(requestEventDto, event);
 
@@ -49,10 +52,10 @@ public class EventService {
 
     @Transactional
     public ResponseEventDto updateEvent(RequestEventDto requestEventDto) {
-        Event eventFromDb = eventRepository.findById(requestEventDto.getId())
-                .orElseThrow(() -> new EventNotFoundException(EVENT_NOT_FOUND));
+        Event eventFromDb = getEventById(requestEventDto.getId());
 
         eventMapper.update(eventFromDb, requestEventDto);
+        fillEvent(eventFromDb, requestEventDto);
 
         validateUserSkills(requestEventDto, eventFromDb);
 
@@ -118,6 +121,7 @@ public class EventService {
                 .toList();
 
         if (!differences.isEmpty()) {
+            log.error(format(USER_VALIDATE_SKILLS, user.getUsername(), event.getTitle()));
             throw new DataValidationException(
                     format(USER_VALIDATE_SKILLS, user.getUsername(), event.getTitle()));
         }
@@ -125,5 +129,12 @@ public class EventService {
         event.setOwner(user);
         event.setType(requestEventDto.getEventType());
         event.setStatus(requestEventDto.getEventStatus());
+    }
+
+    private void fillEvent(Event event, RequestEventDto requestEventDto) {
+        User user = userService.getUserById(requestEventDto.getOwnerId());
+        event.setOwner(user);
+        List<Skill> skillList = skillService.getSkillsByIds(requestEventDto.getRelatedSkills());
+        event.setRelatedSkills(skillList);
     }
 }
