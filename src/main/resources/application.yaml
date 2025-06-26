@@ -23,14 +23,13 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9094
-    producer:
-      acks: all
-      retries: 5
-      delivery-timeout-ms: 20000
-      linger-ms: 5
-      request-timeout-ms: 3000
-      batch-size: 16384
-      enable-idempotence: true
+    acks: all
+    retries: 5
+    delivery-timeout-ms: 20000
+    linger-ms: 5
+    request-timeout-ms: 3000
+    batch-size: 16384
+    enable-idempotence: true
     topics:
       profile-view: profile-view-events
 
