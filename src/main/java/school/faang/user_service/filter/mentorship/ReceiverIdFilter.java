@@ -18,6 +18,6 @@ public class ReceiverIdFilter implements Filter<MentorshipFilterDto, MentorshipR
     public Stream<MentorshipRequest> apply(
             Stream<MentorshipRequest> mentorshipRequests, MentorshipFilterDto filterDto) {
         return mentorshipRequests
-                .filter(request -> filterDto.receiverId().equals(request.getReceiver()));
+                .filter(request -> filterDto.receiverId().equals(request.getReceiver().getId()));
     }
 }

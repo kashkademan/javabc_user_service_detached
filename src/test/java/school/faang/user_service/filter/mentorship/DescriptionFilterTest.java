@@ -18,49 +18,42 @@ public class DescriptionFilterTest {
 
     @Test
     @DisplayName("Description is good")
-    public void TestIsApplicableTrue() {
+    public void testIsApplicableTrue() {
         boolean result = descriptionFilter.isApplicable(new MentorshipFilterDto("Test description", null, null, null));
         assertTrue(result);
     }
 
     @Test
     @DisplayName("Description is empty")
-    public void TestIsApplicableFalseWhenDescriptionIsEmpty() {
+    public void testIsApplicableFalseWhenDescriptionIsEmpty() {
         boolean result = descriptionFilter.isApplicable(new MentorshipFilterDto("", null, null, null));
         assertFalse(result);
     }
 
     @Test
     @DisplayName("Description is blank")
-    public void TestIsApplicableFalseWhenDescriptionIsBlank() {
+    public void testIsApplicableFalseWhenDescriptionIsBlank() {
         boolean result = descriptionFilter.isApplicable(new MentorshipFilterDto("    ", null, null, null));
         assertFalse(result);
     }
 
     @Test
     @DisplayName("Description is null")
-    public void TestIsApplicableFalse() {
+    public void testIsApplicableFalse() {
         boolean result = descriptionFilter.isApplicable(new MentorshipFilterDto(null, null, null, null));
         assertFalse(result);
     }
 
     @Test
-    public void testApply() {
-        Stream<MentorshipRequest> mentorshipRequests = Stream.of(
-                MentorshipRequest.builder().description("Test").build(),
-                MentorshipRequest.builder().description("Request").build()
-        );
-        //заменить в коде
-//        List<MentorshipRequest> result = descriptionFilter
-//                .apply(Stream.of(request), filterDto)
-//                .toList();
+    @DisplayName("Apply Description filter")
+    void apply_shouldFilterRequests() {
+        MentorshipRequest r1 = MentorshipRequest.builder().description("Test").build();
+        MentorshipRequest r2 = MentorshipRequest.builder().description("Request").build();
 
+        MentorshipFilterDto dto = new MentorshipFilterDto("Test", null, null, null);
 
-        Stream<MentorshipRequest> request = descriptionFilter.apply(mentorshipRequests,
-                new MentorshipFilterDto("Test", null,null, null));
-        List<MentorshipRequest> requestList = request.toList();
-
-        assertEquals(1,requestList.size());
-        assertEquals("Test", requestList.get(0).getDescription());
+        List<MentorshipRequest> result = descriptionFilter.apply(Stream.of(r1, r2), dto).toList();
+        assertEquals(1, result.size());
+        assertEquals("Test", result.get(0).getDescription());
     }
 }

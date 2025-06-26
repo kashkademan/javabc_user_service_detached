@@ -2,7 +2,6 @@ package school.faang.user_service.filter.mentorship;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipFilterDto;
-import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.filter.Filter;
 
@@ -19,6 +18,6 @@ public class DescriptionFilter implements Filter<MentorshipFilterDto, Mentorship
     public Stream<MentorshipRequest> apply(
             Stream<MentorshipRequest> mentorshipRequests, MentorshipFilterDto filterDto) {
         return mentorshipRequests
-                .filter(request -> filterDto.description().contains(request.getDescription()));
+                .filter(request ->  request.getDescription().contains(filterDto.description()));
     }
 }
