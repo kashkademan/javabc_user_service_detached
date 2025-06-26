@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.exception.DataValidationException;
@@ -16,6 +16,7 @@ import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,28 +56,25 @@ public class SkillService {
 
     @Transactional
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
+        final Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new EntityNotFoundException("Skill with Id " + skillId + "wasn't found!"));
+        Optional<Skill> userSkill = skillRepository.findUserSkill(skillId, userId);
+
+        if (userSkill.isPresent()) {
             throw new DataValidationException("User already has this skill");
         }
-
-        List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(userId, skillId);
-        if (offers.size() < MIN_SKILL_OFFERS) {
-            throw new DataValidationException("Not enough offers to acquire this skill");
+        List<SkillOffer> allOffersOfSkill = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
+        if (allOffersOfSkill.size() < MIN_SKILL_OFFERS) {
+            throw new IllegalArgumentException("Not enough offers to acquire this skill");
         }
-
         skillRepository.assignSkillToUser(skillId, userId);
-
-        List<UserSkillGuarantee> guarantees = offers.stream()
-                .map(offer -> UserSkillGuarantee.builder()
-                        .user(new User(userId))
-                        .skill(new Skill(userId))
-                        .guarantor(new User(offer.getAuthorId()))
-                        .build())
-                .toList();
-        userSkillGuaranteeRepository.saveAll(guarantees);
-
-        Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new DataValidationException("Skill not found"));
+        for (SkillOffer offer : allOffersOfSkill) {
+            UserSkillGuarantee userSkillGuarantee = new UserSkillGuarantee();
+            userSkillGuarantee.setGuarantor(offer.getRecommendation().getAuthor());
+            userSkillGuarantee.setSkill(skill);
+            userSkillGuarantee.setUser(offer.getRecommendation().getReceiver());
+            userSkillGuaranteeRepository.save(userSkillGuarantee);
+        }
         return skillMapper.toDto(skill);
     }
 }
