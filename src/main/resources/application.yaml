@@ -39,3 +39,13 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+minio:
+  end_point: "http://localhost:9000"
+  access_key: "user"
+  secret_key: "password"
+  region: "us-east-1"
+  bucket: "user-pictures-bucket"
+  content_length: 20_971_520
+
+dice-bear-api: "https://api.dicebear.com/9.x/pixel-art/svg"
