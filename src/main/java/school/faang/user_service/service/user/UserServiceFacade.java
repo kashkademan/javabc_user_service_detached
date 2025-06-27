@@ -43,4 +43,9 @@ public class UserServiceFacade {
     public void deleteAvatar() {
         userService.deleteAvatar();
     }
+
+    public UserDto viewProfile(long viewerId) {
+        User user = userService.viewProfile(viewerId);
+        return userMapper.userToDto(user);
+    }
 }

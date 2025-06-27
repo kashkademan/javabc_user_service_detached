@@ -7,10 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.resource.S3FileDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.producer.KafkaServer;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.service.image.ImageResizer;
 import school.faang.user_service.validation.file.FileValidation;
@@ -37,6 +39,7 @@ public class UserService {
     private final S3Service s3Service;
     private final UserContext userContext;
     private final ImageResizer imageResizer;
+    private final KafkaServer kafkaServer;
 
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
@@ -107,5 +110,11 @@ public class UserService {
         S3FileDto fileDto = s3Service.downloadFile(key);
         log.info("Download file, key = {}, fileDto = {}", key, fileDto);
         return fileDto;
+    }
+
+    public User viewProfile(long profileId) {
+        long viewerId = userContext.getUserId();
+        kafkaServer.sendProfileViewNotification(profileId, viewerId);
+        return getUserById(profileId);
     }
 }

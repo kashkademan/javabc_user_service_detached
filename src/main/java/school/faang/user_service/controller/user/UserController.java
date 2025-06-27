@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.service.producer.KafkaServer;
 import school.faang.user_service.service.user.UserServiceFacade;
 
 import java.util.List;
@@ -65,5 +66,11 @@ public class UserController {
     public ResponseEntity<Void> deleteAvatar() {
         userService.deleteAvatar();
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/api/v1/users/{profileId}/view")
+    public ResponseEntity<UserDto> viewProfile(@PathVariable long profileId) {
+        UserDto userDto = userService.viewProfile(profileId);
+        return ResponseEntity.ok()
+                .body(userDto);
     }
 }

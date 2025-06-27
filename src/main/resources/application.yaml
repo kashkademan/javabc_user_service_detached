@@ -63,9 +63,8 @@ services:
     bucketName: corpbucket
 
 kafka:
-  producer:
-    server: localhost:9092
-    value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    producer.id: server.broadcast
+  bootstrap-servers: localhost:9092
+  consumer:
+    group-id: notification-service-group
   template:
     topic: "view-topic"
