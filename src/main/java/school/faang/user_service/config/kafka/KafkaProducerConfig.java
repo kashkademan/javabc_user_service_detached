@@ -10,6 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import school.faang.user_service.config.kafka.dto.SubscriptionEvent;
+import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,11 @@ public class KafkaProducerConfig {
 
     @Value(value = "${spring.data.kafka.bootstrap-server}")
     private String bootstrapServer;
+
+    @Bean
+    public KafkaTemplate<String, GoalCompletionNotificationEvent> kafkaTemplate() {
+        return new KafkaTemplate<>(jsonProducerFactory());
+    }
 
     @Bean
     public KafkaTemplate<String, SubscriptionEvent> subscriptionEventTemplate() {
