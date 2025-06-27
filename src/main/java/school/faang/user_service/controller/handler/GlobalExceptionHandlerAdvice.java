@@ -15,17 +15,18 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-public class RestControllerExceptionHandler {
+public class GlobalExceptionHandlerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValidException (MethodArgumentNotValidException e) {
+    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn("Validation failed: {}", e.getMessage());
 
-        Map <String, String> errors = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
+                errors.put(error.getField(), error.getDefaultMessage())
         );
+
         return errors;
     }
 
