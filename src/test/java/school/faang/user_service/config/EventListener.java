@@ -8,7 +8,7 @@ import school.faang.user_service.dto.notification.GoalCompletionNotificationEven
 public class EventListener {
     private GoalCompletionNotificationEvent receivedMessage;
 
-    @KafkaListener(topics = "${spring.kafka.topics.test-topic.name}", groupId = "user-service-group")
+    @KafkaListener(topics = "${spring.kafka.topics.goal-completed-topic.name}", groupId = "user-service-group")
     public void listen(GoalCompletionNotificationEvent event) {
         receivedMessage = event;
     }
