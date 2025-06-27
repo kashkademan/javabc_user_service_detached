@@ -11,6 +11,6 @@ import school.faang.user_service.dto.user.UserDto;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoalCompletionNotificationEvent implements NotificationEvent {
-    UserDto userDto;
-    String goalTitle;
+    private UserDto userDto;
+    private String goalTitle;
 }
