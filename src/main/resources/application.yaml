@@ -31,6 +31,7 @@ spring:
           goal_complete: goal_complete
           recommendation_event: recommendation_event
           goal_attached: goal_attached
+          premium_bought: premium_bought
 
 server:
   port: 8080
