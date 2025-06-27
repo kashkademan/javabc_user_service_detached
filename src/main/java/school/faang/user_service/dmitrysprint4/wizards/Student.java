@@ -22,5 +22,4 @@ public class Student {
         this.points = points;
     }
 
-
 }

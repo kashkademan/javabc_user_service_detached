@@ -8,6 +8,7 @@ public class School {
     private List<Student> team;
 
     public long getTotalPoints(List<Student> students, Task task) {
+
         students.stream().forEach(s -> s.setPoints(s.getPoints() + task.getReward()));
 
         return students.stream().mapToInt((Student::getPoints)).sum();

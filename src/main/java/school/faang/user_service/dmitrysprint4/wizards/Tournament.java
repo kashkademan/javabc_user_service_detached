@@ -6,8 +6,7 @@ import java.util.concurrent.CompletableFuture;
 public class Tournament {
 
     public CompletableFuture<School> startTask(School shcool, Task task) throws InterruptedException {
-        CompletableFuture<School> future = CompletableFuture.supplyAsync(() ->
-        {
+        CompletableFuture<School> future = CompletableFuture.supplyAsync(() -> {
             List<Student> students = shcool.getTeam();
             shcool.getTotalPoints(students, task);
             System.out.println(shcool.getTotalPoints(students, task) + " " + shcool.getName());
@@ -22,6 +21,5 @@ public class Tournament {
         });
 
         return future;
-
     }
 }

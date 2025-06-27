@@ -14,13 +14,15 @@ public class Filtration {
         strings.add("banana");
         strings.add("avocado");
         strings.add("apricot");
-        char sample = 'a';
-        System.out.println(fingAndSort(strings, sample));
 
+        char sample = 'a';
+
+        System.out.println(fingAndSort(strings, sample));
 
     }
 
     public static List<String> fingAndSort(List<String> strings, char sample) {
-        return strings.stream().filter(a -> a.charAt(0) == sample).sorted(Comparator.comparingInt(String::length)).collect(Collectors.toList());
+        return strings.stream().filter(a -> a.charAt(0) == sample)
+                .sorted(Comparator.comparingInt(String::length)).collect(Collectors.toList());
     }
 }

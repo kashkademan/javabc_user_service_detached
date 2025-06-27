@@ -1,6 +1,11 @@
 package school.faang.user_service.dmitrysprint2;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -8,6 +13,11 @@ public class MathStaticMethods {
 
     public static void main(String[] args) {
         List<Integer> sample = new ArrayList<>();
+        sample.add(5);
+        sample.add(4);
+        sample.add(2);
+        sample.add(1);
+
         List<String> strings = new ArrayList<>();
         strings.add("1ggfg");
         strings.add("grrddf");
@@ -15,14 +25,8 @@ public class MathStaticMethods {
         strings.add("zccdfd");
         strings.add("ggrgfdd");
         strings.add("ggtyuuu");
-        sample.add(5);
-        sample.add(4);
-        sample.add(2);
-        sample.add(1);
-
 
         Predicate<Integer> predicateInt = integer -> integer < 4;
-        Predicate<Integer> secondPredicate = integer -> integer < 3;
         System.out.println(fourNumbersSum(sample));
         System.out.println(maxValueFinder(sample));
         System.out.println(averageValueFinder(sample));
@@ -81,7 +85,7 @@ public class MathStaticMethods {
         long result = ints.stream().filter(predicate).count();
         if (result == ints.size()) {
             return true;
-        } else return false;
+        } else {return false;}
 
     }
 

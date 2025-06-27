@@ -1,6 +1,7 @@
 package school.faang.user_service.dmitrysprint2.part2;
 
 public class Pair {
+
     Integer first;
     Integer second;
 

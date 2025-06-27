@@ -22,9 +22,11 @@ public class dmitryspring2part2 {
     public static Set<Pair> specialPairCreator(Set<Integer> intSet, Integer sample) {
 
 
-        intSet.stream().flatMap(a -> intSet.stream().map(b -> new Pair(a, b))).filter(pair -> pair.first + pair.second == sample).collect(Collectors.toSet());
+        intSet.stream().flatMap(a -> intSet.stream().map(b -> new Pair(a, b)))
+                .filter(pair -> pair.first + pair.second == sample).collect(Collectors.toSet());
 
 
-        return intSet.stream().flatMap(a -> intSet.stream().map(b -> new Pair(a, b))).filter(pair -> pair.first + pair.second == sample).collect(Collectors.toSet());
+        return intSet.stream().flatMap(a -> intSet.stream().map(b -> new Pair(a, b)))
+                .filter(pair -> pair.first + pair.second == sample).collect(Collectors.toSet());
     }
 }

@@ -36,6 +36,5 @@ public class TournamentApplication {
         School tournamentWinner = winnerShool.get();
         System.out.println(tournamentWinner.getName());
 
-
     }
 }
