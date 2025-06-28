@@ -7,13 +7,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.event.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.SkillOfferMapper;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -31,6 +32,7 @@ public class RecommendationService {
     private final SkillOfferRepository skillOfferRepository;
     private final SkillOfferMapper skillOfferMapper;
     private final SkillRepository skillRepository;
+    private final RecommendationEventPublisher publisher;
     private final RecommendationMapper recommendationMapper;
 
     @Transactional
@@ -43,7 +45,12 @@ public class RecommendationService {
 
         Long id = recommendationRepository
                 .create(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
-
+        RecommendationEvent event = new RecommendationEvent(
+                recommendationDto.authorId(),
+                recommendationDto.receiverId(),
+                recommendationDto.content()
+        );
+        publisher.publish(event);
         return recommendationMapper.toDto(recommendationRepository.findById(id).get());
     }
 
