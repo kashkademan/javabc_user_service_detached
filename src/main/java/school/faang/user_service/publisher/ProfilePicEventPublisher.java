@@ -17,6 +17,9 @@ public class ProfilePicEventPublisher {
     }
 
     public void publish(ProfilePicEvent event) {
+        if (event == null) {
+            throw new NullPointerException("ProfilePicEvent cannot be null");
+        }
         redisTemplate.convertAndSend(profilePicTopic.getTopic(), event);
     }
 }
