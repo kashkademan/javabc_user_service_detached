@@ -61,9 +61,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
         Stream<MentorshipRequest> requestStream =
                 StreamSupport.stream(mentorshipRequestRepository.findAll().spliterator(), false);
-        filters.stream()
-                .filter(requestFilter -> requestFilter.isApplicable(filter))
-                .forEach(requestFilter -> requestFilter.apply(requestStream, filter));
+        for (MentorshipRequestFilter requestFilter : filters) {
+            if (requestFilter.isApplicable(filter)) {
+                requestStream = requestFilter.apply(requestStream, filter);
+            }
+        }
         return mentorshipRequestMapper.toMentorshipRequestDtoList(requestStream.toList());
     }
 

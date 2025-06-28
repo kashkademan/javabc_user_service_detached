@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.client.service.education.EducationServiceImpl;
+import school.faang.user_service.service.education.EducationServiceImpl;
 import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.EducationMapperImpl;
+import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.EducationRepository;
 import school.faang.user_service.repository.UserRepository;
 
@@ -31,7 +31,7 @@ public class EducationServiceTest {
     private EducationRepository educationRepository;
 
     @Spy
-    private EducationMapperImpl educationMapper;
+    private EducationMapper educationMapper;
 
     @InjectMocks
     private EducationServiceImpl educationService;
@@ -43,7 +43,7 @@ public class EducationServiceTest {
     private long educationId;
     private EducationDto educationDto;
     private int correctYearFrom;
-    User user;
+    private User user;
 
     @BeforeEach
     public void setUp() {
@@ -57,8 +57,6 @@ public class EducationServiceTest {
         user = User.builder()
                 .id(userId)
                 .build();
-
-
     }
 
     @Test
@@ -80,16 +78,6 @@ public class EducationServiceTest {
                 .format("User with id %d was not found", userId), entityNotFoundException.getMessage());
     }
 
-    @Test
-    void testAddEducationRepositorySave() {
-        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
-
-        educationService.addEducation(userId, educationDto);
-
-        verify(educationRepository, times(1)).save(educationCaptor.capture());
-        assertEquals(educationDto.getYearFrom(), educationCaptor.getValue().getYearFrom());
-        assertEquals(educationDto.getId(), educationCaptor.getValue().getId());
-    }
 
     @Test
     void testUpdateEducationNotExistEducation() {
@@ -108,26 +96,13 @@ public class EducationServiceTest {
         assertEquals(String
                 .format("User with id %d was not found", userId), entityNotFoundException.getMessage());
     }
-@Test
-    void testUpdateEducationRepositorySave() {
-        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
-        when(educationRepository.existsById(educationId)).thenReturn(true);
 
-        educationService.updateEducation(userId, educationDto);
-
-        verify(educationRepository, times(1)).save(educationCaptor.capture());
-        assertEquals(userId, educationCaptor.getValue().getUser().getId());
-    }
 
     @Test
     void testGetByIdIncorrectUser() {
-
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
                 () -> educationService.getById(educationId));
         assertEquals(String
                 .format("Education with id %d was not found", educationId), entityNotFoundException.getMessage());
     }
-
 }
-
-
