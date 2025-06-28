@@ -39,8 +39,6 @@ public class PremiumServiceImpl implements PremiumService {
     private final UserMapper userMapper;
     private final PaymentServiceClient paymentServiceClient;
     private final UserContext userContext;
-    @Value("${app.scheduler.premium-remove.batch-size}")
-    private final int batchSize;
 
     @Override
     public PremiumDto buyPremium(long userId, PremiumPeriod period) {
@@ -69,7 +67,7 @@ public class PremiumServiceImpl implements PremiumService {
 
     @Override
     @Transactional
-    public CompletableFuture<String> removePremium() {
+    public void removePremium(int batchSize) {
         LocalDateTime now = LocalDateTime.now();
         List<Premium> expiredPremium = premiumRepository.findAllByEndDateBefore(now);
         Stream<List<Premium>> stream = IntStream.range(0, (expiredPremium.size() + batchSize - 1 / batchSize))
@@ -79,8 +77,5 @@ public class PremiumServiceImpl implements PremiumService {
 
         batches.parallelStream()
                 .forEach(premiumRepository::deleteAll);
-
-        return CompletableFuture.completedFuture(expiredPremium.size() +
-                "expired premium subscribes was deleted");
     }
 }

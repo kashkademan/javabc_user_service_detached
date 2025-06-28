@@ -31,6 +31,14 @@ app:
       enabled: true
       batch-size: 100
 
+  thread:
+    pool:
+      premium-remove:
+        core-pool-size: 1
+        max-pool-size: 16
+        queue-capacity: 15
+        thread-name-prefix: "Premium-remove-async-thread"
+
 server:
   port: 8080
 

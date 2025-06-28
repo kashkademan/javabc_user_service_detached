@@ -8,5 +8,5 @@ import java.util.concurrent.CompletableFuture;
 public interface PremiumService {
     PremiumDto buyPremium(long userId, PremiumPeriod period);
 
-    CompletableFuture<String> removePremium();
+    void removePremium(int batchSize);
 }

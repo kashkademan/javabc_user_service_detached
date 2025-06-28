@@ -1,5 +1,7 @@
 package school.faang.user_service.config.thread;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -8,15 +10,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AsyncThreadConfigPremiumRemove {
 
     @Bean(name = "asyncTaskExecutorPremiumRemove")
+    @ConfigurationProperties(prefix = "app.thread.pool.premium-remove")
     public ThreadPoolTaskExecutor asyncTaskExecutorPremiumRemove() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(16);
-        executor.setQueueCapacity(15);
-        executor.setThreadNamePrefix("Premium-remove-async-thread");
         executor.initialize();
 
         return executor;
     }
-
 }
