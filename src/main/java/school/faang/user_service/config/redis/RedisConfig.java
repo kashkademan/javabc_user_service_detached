@@ -43,6 +43,7 @@ public class RedisConfig {
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
         return template;
     }
+
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
