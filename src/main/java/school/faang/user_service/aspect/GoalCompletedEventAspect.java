@@ -27,7 +27,7 @@ public class GoalCompletedEventAspect {
         if (result.getStatus() == GoalStatus.COMPLETED) {
             goalCompletedEventPublisher.publish(
                     GoalCompletionNotificationEvent.builder()
-                            .userDto(userServiceFacade.getUserById(userContext.getUserId()))
+                            .owner(userServiceFacade.getUserById(userContext.getUserId()))
                             .goalTitle(result.getTitle())
                             .build()
             );
