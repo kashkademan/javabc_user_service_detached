@@ -3,6 +3,7 @@ package school.faang.user_service.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.exception.DataValidationException;
@@ -56,6 +57,12 @@ public class RecommendationValidator {
     public void validatorExistenceRecommendation(long id) {
         if (!recommendationRepository.existsById(id)) {
             throw new DataValidationException("Такой рекомендации не существует!");
+        }
+    }
+
+    public void validatorNullSKillOfferTru(List<SkillOfferDto> skillOffers){
+        if (skillOffers != null && skillOffers.isEmpty()){
+            throw new DataValidationException("В рекомендации нет skillOffer!");
         }
     }
 }

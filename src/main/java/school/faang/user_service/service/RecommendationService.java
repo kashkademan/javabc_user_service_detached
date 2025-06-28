@@ -7,8 +7,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.builder.NotificationEventBuilder;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.NotificationEventType;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
@@ -42,16 +45,20 @@ public class RecommendationService {
     private final UserValidator userValidator;
     private final UserRepository userRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final NotificationEventBuilder eventBuilder;
 
+    @Transactional
     public RecommendationDto create(RecommendationDto recommendation) {
 
         userValidator.validatorUserExistence(recommendation.getReceiverId());
+        recommendationValidator.validatorNullSKillOfferTru(recommendation.getSkillOffers());
         checkValidDateRecommendation(recommendation);
         checkGeneralRecommendationSkillOffer(recommendation);
 
         long newRecommendationId = saveCreateRecommendation(recommendation);
         saveOrCreateSkillOffers(recommendation, newRecommendationId);
 
+        eventBuilder.createPublish(recommendation.getReceiverId(), NotificationEventType.CREATE_RECOMMENDATION);
         return recommendationMapper.toDto(recommendationRepository.findById(newRecommendationId)
                 .orElseThrow(() -> new IllegalStateException("Ошибка сохранения рекомендации!")));
     }
@@ -77,25 +84,27 @@ public class RecommendationService {
         return !recommendationRepository.existsById(id);
     }
 
-    public Page<RecommendationDto> getAllUserRecommendations(long id, int page, int size){
+    public Page<RecommendationDto> getAllUserRecommendations(long id, int page, int size) {
 
         userValidator.validatorUserExistence(id);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Recommendation> recommendationPage= recommendationRepository.findAllByReceiverId(id,pageable);
+        Page<Recommendation> recommendationPage = recommendationRepository.findAllByReceiverId(id, pageable);
 
         return recommendationPage.map(recommendationMapper::toDto);
     }
 
-    public Page<RecommendationDto> getAllGivenRecommendations(long id, int page, int size){
+    public Page<RecommendationDto> getAllGivenRecommendations(long id, int page, int size) {
         userValidator.validatorUserExistence(id);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Recommendation> recommendationPage= recommendationRepository.findAllByAuthorId(id,pageable);
+        Page<Recommendation> recommendationPage = recommendationRepository.findAllByAuthorId(id, pageable);
 
         return recommendationPage.map(recommendationMapper::toDto);
     }
 
     private void saveOrCreateSkillOffers(RecommendationDto recommendation, long newRecommendationId) {
-        for (SkillOfferDto skillOffer : recommendation.getSkillOffers()) {
+        List<SkillOfferDto> skillOffers = recommendation.getSkillOffers();
+
+        for (SkillOfferDto skillOffer : skillOffers) {
             long skillId = skillOffer.getSkillId();
             if (skillRepository.findUserSkill(skillId, recommendation.getReceiverId()).isPresent()) {
                 saveSkillGuarantees(recommendation, skillId);
@@ -106,7 +115,9 @@ public class RecommendationService {
     }
 
     private void checkGeneralRecommendationSkillOffer(RecommendationDto recommendation) {
-        if (!recommendation.getSkillOffers().isEmpty()) {
+        List<SkillOfferDto> skillOffers = recommendation.getSkillOffers();
+
+        if (skillOffers != null && skillOffers.isEmpty()) {
             List<Long> skillIds = recommendation.getSkillOffers().stream()
                     .map(SkillOfferDto::getSkillId)
                     .toList();

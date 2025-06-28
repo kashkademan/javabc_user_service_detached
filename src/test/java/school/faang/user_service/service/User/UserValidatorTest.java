@@ -48,6 +48,9 @@ public class UserValidatorTest {
     }
 
     private @NotNull UserDto prepareDataUserDto() {
-        return new UserDto(1L, "Name");
+        return UserDto.builder()
+                .id(1L)
+                .username("Name")
+                .build();
     }
 }
