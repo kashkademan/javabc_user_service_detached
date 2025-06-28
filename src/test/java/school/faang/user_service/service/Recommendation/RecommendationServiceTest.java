@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.builder.NotificationEventBuilder;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
@@ -61,6 +62,8 @@ public class RecommendationServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    @Mock
+    private  NotificationEventBuilder eventBuilder;
     @Captor
     private ArgumentCaptor<UserSkillGuarantee> captorListUserSkillGuarantee;
     @Captor
@@ -83,7 +86,6 @@ public class RecommendationServiceTest {
     private static final String CONTENT = "Test1";
     private static final String TITlE_SKILL = "Test";
     private static final long NEW_RECOMMENDATION_ID = 0;
-    private static final long SKILL_OFFER_ID = 1;
 
     @Test
     public void createExistingReceiverSkills() {

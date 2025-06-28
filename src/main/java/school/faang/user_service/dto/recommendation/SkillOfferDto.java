@@ -14,6 +14,6 @@ public class SkillOfferDto {
     private long id;
     @NotNull
     private long skillId;
-    @NotNull
+
     private long recommendationId;
 }

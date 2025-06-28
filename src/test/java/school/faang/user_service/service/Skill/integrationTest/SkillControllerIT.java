@@ -10,8 +10,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Skill;
@@ -59,10 +61,19 @@ public class SkillControllerIT {
             new PostgreSQLContainer<>("postgres:13.3");
 
     @DynamicPropertySource
-    static void setPostgreSqlContainer(DynamicPropertyRegistry registry) {
+    static void setPostgresSqlContainer(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
+    }
+
+    @Container
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0")).withKraft();
+
+
+    @DynamicPropertySource
+    static void setKafkaProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.kafka.producer.bootstrap-servers", KAFKA_CONTAINER::getBootstrapServers);
     }
 
     @BeforeEach
