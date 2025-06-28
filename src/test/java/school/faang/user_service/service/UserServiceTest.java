@@ -211,8 +211,8 @@ class UserServiceTest {
         Long userId = 1L;
         String oldFileId = "old.jpg";
         String oldSmallFileId = "old_small.jpg";
-        String newFileId = "new.jpg";
-        String newSmallFileId = "new_small.jpg";
+        final String newFileId = "new.jpg";
+        final String newSmallFileId = "new_small.jpg";
 
         UserProfilePic existingPic = new UserProfilePic();
         existingPic.setFileId(oldFileId);
@@ -229,12 +229,12 @@ class UserServiceTest {
         userService.updateUserProfilePicture(userId, newFileId, newSmallFileId);
 
         verify(eventPublisher).publish(argThat(event ->
-                event.getUserId().equals(userId) &&
-                        event.getNewFileId().equals(newFileId) &&
-                        event.getNewSmallFileId().equals(newSmallFileId) &&
-                        event.getOldFileId().equals(oldFileId) &&
-                        event.getOldSmallFileId().equals(oldSmallFileId) &&
-                        event.getChangedAt() != null
+                event.getUserId().equals(userId)
+                        && event.getNewFileId().equals(newFileId)
+                        && event.getNewSmallFileId().equals(newSmallFileId)
+                        && event.getOldFileId().equals(oldFileId)
+                        && event.getOldSmallFileId().equals(oldSmallFileId)
+                        && event.getChangedAt() != null
         ));
     }
 
