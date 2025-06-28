@@ -13,19 +13,21 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import school.faang.user_service.dto.mentorship.MentorshipFilterDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipResponseDto;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.mentorship.MentorshipResponseMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.MentorshipRequestService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -48,6 +50,9 @@ public class MentorshipRequestServiceTest {
 
     @Captor
     private ArgumentCaptor<MentorshipRequest> requestCaptor;
+
+    @Mock
+    private Filter<MentorshipFilterDto, MentorshipRequest> filter;
 
     @BeforeEach
     void setup() {
@@ -74,6 +79,41 @@ public class MentorshipRequestServiceTest {
         verify(mentorshipRequestRepository, times(1)).create(1L, 2L,
                 "Test description");
         verifyNoMoreInteractions(mentorshipRequestRepository);
+    }
+
+    @Test
+    @DisplayName("getRequests applies only applicable filters and maps to response")
+    void testGetRequests_appliesFilters_andMapsToDto() {
+        // given
+        MentorshipRequest r1 = MentorshipRequest.builder().description("desc1").build();
+        MentorshipRequest r2 = MentorshipRequest.builder().description("desc2").build();
+        List<MentorshipRequest> mockRequests = List.of(r1, r2);
+
+        when(mentorshipRequestRepository.findAll()).thenReturn(mockRequests);
+        when(filter.isApplicable(any())).thenReturn(true);
+        when(filter.apply(any(), any())).thenAnswer(invocation -> {
+            Stream<MentorshipRequest> input = invocation.getArgument(0);
+            return input.filter(r -> "desc1".equals(r.getDescription())); // отфильтровать вручную
+        });
+
+        MentorshipResponseDto dto = new MentorshipResponseDto(1, 1L, 2L, "PENDING", "desc1", LocalDateTime.now());
+        when(mentorshipResponseMapper.toResponseDto(any())).thenReturn(dto);
+
+        MentorshipRequestService service = new MentorshipRequestService(
+                mentorshipRequestRepository,
+                mentorshipResponseMapper,
+                List.of(),                // validators
+                List.of(filter)           // filters
+        );
+
+        MentorshipFilterDto filterDto = new MentorshipFilterDto("desc1", null, null, null);
+
+        // when
+        List<MentorshipResponseDto> result = service.getRequests(filterDto);
+
+        // then
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("desc1", result.get(0).description());
     }
 
     @Test

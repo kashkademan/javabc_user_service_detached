@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,7 +47,7 @@ public class MentorshipRequestService {
     public List<MentorshipResponseDto> getRequests(MentorshipFilterDto filterDto) {
         Stream<MentorshipRequest> filteredRequests = mentorshipRequestRepository.findAll().stream();
 
-        for (Filter mentorshipFilter : filters) {
+        for (Filter<MentorshipFilterDto, MentorshipRequest> mentorshipFilter : filters) {
             if (mentorshipFilter.isApplicable(filterDto)) {
                 filteredRequests = mentorshipFilter.apply(filteredRequests, filterDto);
             }
