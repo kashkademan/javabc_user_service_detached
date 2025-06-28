@@ -5,9 +5,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.faang.user_service.ApplicationContextTest;
 import school.faang.user_service.config.EventListener;
 import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
 
@@ -21,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Import(EventListener.class)
 @Testcontainers
 @SpringBootTest
+@ContextConfiguration(initializers = ApplicationContextTest.class)
 public class GoalCompletePublisherIT {
 
     @Autowired
