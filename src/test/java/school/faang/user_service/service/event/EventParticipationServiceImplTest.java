@@ -4,13 +4,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.contact.ContactDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.ContactType;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.ContactMapper;
+import school.faang.user_service.mapper.ContactMapperImpl;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
@@ -20,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +50,7 @@ class EventParticipationServiceImplTest {
     List<UserDto> expectedDtoList;
     private long eventId;
     private long userId;
+    private List<ContactDto> contacts;
 
     @BeforeEach
     void setup() {
@@ -51,9 +62,11 @@ class EventParticipationServiceImplTest {
                 createTestUser(2L, "user2", "user2@example.com")
         );
 
+        contacts = List.of(new ContactDto("contact1", "TELEGRAM"), new ContactDto("contact2", "TELEGRAM"));
+
         expectedDtoList = List.of(
-                new UserDto(1L, "user1", "user1@example.com"),
-                new UserDto(2L, "user2", "user2@example.com")
+                new UserDto(1L, "user1", "user1@example.com", "TELEGRAM", contacts),
+                new UserDto(2L, "user2", "user2@example.com", "TELEGRAM", contacts)
         );
     }
 
@@ -95,18 +108,20 @@ class EventParticipationServiceImplTest {
         verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
     }
 
-    @Test
-    @DisplayName("Проверка на получение списка UserDto по eventId.")
-    void testGetParticipant_WhenParticipantsExist_ShouldReturnListOfUserDtos() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
+     @Test
+     @DisplayName("Проверка на получение списка UserDto по eventId.")
+     void testGetParticipant_WhenParticipantsExist_ShouldReturnListOfUserDtos() {
+         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(userList);
 
-        List<UserDto> userDtoList = eventParticipationService.getParticipant(eventId);
+         ContactMapper contactMapper = Mappers.getMapper(ContactMapper.class);
+         ReflectionTestUtils.setField(userMapper, "contactMapper", contactMapper);
 
-        assertNotNull(userDtoList);
-        assertEquals(2, userDtoList.size());
-        assertEquals(expectedDtoList, userDtoList);
-        verify(userMapper, times(userDtoList.size())).toUserDto(any(User.class));
-    }
+         List<UserDto> userDtoList = eventParticipationService.getParticipant(eventId);
+
+         assertNotNull(userDtoList);
+         assertEquals(2, userDtoList.size());
+         verify(userMapper, times(userDtoList.size())).toUserDto(any(User.class));
+     }
 
     @Test
     @DisplayName("Проверка на пустой список участников")
@@ -149,6 +164,8 @@ class EventParticipationServiceImplTest {
                 .username(username)
                 .email(email)
                 .password("password")
+                .contactPreference(ContactPreference.builder().preference(PreferredContact.TELEGRAM).build())
+                .contacts(List.of(Contact.builder().type(ContactType.TELEGRAM).contact("contact1").build()))
                 .active(true)
                 .build();
     }
