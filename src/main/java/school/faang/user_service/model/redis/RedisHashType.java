@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum RedisHashType {
     PROMOTION("PROMOTION"),
-    EVENT("EVENT");
+    EVENT("EVENT"),
+    USER("USER");
 
     private final String hashName;
 

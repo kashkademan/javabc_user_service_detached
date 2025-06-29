@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.user.UserFilterRequestDto;
 import school.faang.user_service.dto.user.UserNotificationResponseDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.dto.user.UserRegisterResponseDto;
@@ -27,7 +29,7 @@ public class UserController {
 
     @PostMapping("/registration")
     public ResponseEntity<UserRegisterResponseDto> registrationUser
-            (@RequestBody UserRegisterRequestDto userRegisterRequestDto) {
+            (@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
         log.debug("User controller accepted request registration user {}", userRegisterRequestDto);
 
         UserRegisterResponseDto response = userFacade.registrationUser(userRegisterRequestDto);
@@ -68,6 +70,24 @@ public class UserController {
 
         List<UserResponseDto> response = userFacade.getUsersByIds(userIds);
         log.debug("User controller return response get users {}", response);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/notification")
+    public ResponseEntity<List<UserNotificationResponseDto>> getNotificationUserByIds(@RequestParam List<Long> userIds) {
+        log.debug("User controller accepted request get users with ids {}", userIds);
+
+        List<UserNotificationResponseDto> response = userFacade.getNotificationUserByIds(userIds);
+        log.debug("User controller return response get users {}", response);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<UserResponseDto>> getUserByFilter(@RequestBody UserFilterRequestDto filterDto) {
+        log.debug("User controller accepted request get users by filter {}", filterDto);
+
+        List<UserResponseDto> response = userFacade.filter(filterDto);
+        log.debug("User controller return response get users by filter {}", response);
         return ResponseEntity.ok(response);
     }
 }

@@ -1,18 +1,16 @@
 package school.faang.user_service.service.event;
 
-import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
@@ -21,20 +19,16 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.utils.async.GracefullyShutdownThreadPool;
 import school.faang.user_service.validation.event.EventValidator;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class EventService {
-    private static final int NUM_THREADS = 10;
     private final UserService userService;
     private final SkillService skillService;
     private final EventRepository eventRepository;
@@ -42,14 +36,27 @@ public class EventService {
     private final EventValidator eventValidator;
     private final UserContext userContext;
     private final EventRedisService eventRedisService;
-    private final RedisTtlProperties redisTtlProperties;
     private final PromotionRedisService promotionRedisService;
-    private final ApplicationContext applicationContext;
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
+    private final Executor executor;
 
-    @PreDestroy
-    public void destroy() {
-        GracefullyShutdownThreadPool.gracefullyShutdown(threadPool);
+    public EventService(UserService userService,
+                        SkillService skillService,
+                        EventRepository eventRepository,
+                        EventFilterRepository eventFilterRepository,
+                        EventValidator eventValidator,
+                        UserContext userContext,
+                        EventRedisService eventRedisService,
+                        PromotionRedisService promotionRedisService,
+                        @Qualifier("getEventExecutor") Executor executor) {
+        this.userService = userService;
+        this.skillService = skillService;
+        this.eventRepository = eventRepository;
+        this.eventFilterRepository = eventFilterRepository;
+        this.eventValidator = eventValidator;
+        this.userContext = userContext;
+        this.eventRedisService = eventRedisService;
+        this.promotionRedisService = promotionRedisService;
+        this.executor = executor;
     }
 
     @Transactional
@@ -83,12 +90,17 @@ public class EventService {
 
     @Transactional
     public void deleteEventById(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new EventNotFoundException(eventId);
+        Event event = getEventById(eventId);
+
+        boolean hasActivePromotion = event.getPromotions().stream()
+                .anyMatch(promotion -> Objects.equals(promotion.getStatus(), PromotionStatus.ACTIVE));
+
+        if (hasActivePromotion) {
+            throw new ActivePromotionExistsException(eventId);
         }
 
         eventRepository.deleteById(eventId);
-        log.info("Событие с id={} успешно удалено", eventId);
+        log.info("Event {} has been deleted", event);
     }
 
     @Transactional
@@ -134,12 +146,12 @@ public class EventService {
 
         List<CompletableFuture<Event>> futureEvents = filteredEventIds.stream()
                 .map(eventId -> CompletableFuture.supplyAsync(() ->
-                        eventRedisService.getEventById(eventId)
+                        eventRedisService.getEventFromRedisById(eventId)
                                 .orElseGet(() -> {
-                                    EventService self = applicationContext.getBean(EventService.class);
-                                    self.addEventInRedis(eventId);
-                                    return getEventById(eventId);
-                                }), threadPool))
+                                    Event event = getEventById(eventId);
+                                    eventRedisService.addEventInRedis(event);
+                                    return event;
+                                }), executor))
                 .toList();
 
         List<Event> events = futureEvents.stream()
@@ -149,12 +161,5 @@ public class EventService {
         promotionRedisService.decrementCountViewByEventIds(filteredEventIds);
 
         return events;
-    }
-
-    @Async("addEventInRedisExecutor")
-    public void addEventInRedis(long eventId) {
-        Event event = getEventById(eventId);
-        long ttl = redisTtlProperties.getEvent();
-        eventRedisService.saveEvent(event, ttl);
     }
 }

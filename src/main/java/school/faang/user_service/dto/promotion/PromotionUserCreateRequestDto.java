@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PromotionEventCreateRequestDto {
-    @NotNull(message = "EventId is mandatory")
-    private Long eventId;
+public class PromotionUserCreateRequestDto {
+    @NotNull(message = "UserId is mandatory")
+    private Long userId;
     @NotNull(message = "TariffId is mandatory")
     private Long tariffId;
 }

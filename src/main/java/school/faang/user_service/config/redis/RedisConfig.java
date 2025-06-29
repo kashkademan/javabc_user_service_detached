@@ -3,6 +3,7 @@ package school.faang.user_service.config.redis;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -14,13 +15,10 @@ public class RedisConfig {
     @Value("${spring.data.redis.host}")
     private String host;
     @Value("${spring.data.redis.port}")
-    private int post;
+    private int port;
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
-        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
-        jedisConnectionFactory.getStandaloneConfiguration().setHostName(host);
-        jedisConnectionFactory.getStandaloneConfiguration().setPort(post);
-        return jedisConnectionFactory;
+        return new JedisConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
     @Bean
     RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory factory) {
