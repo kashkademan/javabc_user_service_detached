@@ -21,6 +21,26 @@ spring:
       port: 6379
       host: localhost
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: score-trackers
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: '*'
+    producer:
+      acks: all
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+    topics:
+      user-score-changed: user.score.changed
+    retry:
+      attempts: 3
+      backoff: 3000
+
 server:
   port: 8080
 

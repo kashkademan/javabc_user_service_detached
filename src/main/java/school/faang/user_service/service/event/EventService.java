@@ -11,7 +11,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.model.event.EventFilter;
-import school.faang.user_service.aspect.score.ActionType;
+import school.faang.user_service.aspect.score.ScoreActionType;
 import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -69,7 +69,7 @@ public class EventService {
     }
 
     @Transactional
-    @TrackActionScore(ActionType.COMPLETE_EVENT)
+    @TrackActionScore(ScoreActionType.COMPLETE_EVENT)
     public Event updateEventData(Event event, List<Long> relatedSkillIds) {
         long userId = userContext.getUserId();
         if (!Objects.equals(userId, event.getOwner().getId())) {

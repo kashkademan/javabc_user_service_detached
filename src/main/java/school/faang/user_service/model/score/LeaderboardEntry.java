@@ -1,15 +1,17 @@
-package school.faang.user_service.model.user_score;
+package school.faang.user_service.model.score;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash("Leaderboard")
 @Getter
 @Setter
+@RedisHash("leaderboard")
+@AllArgsConstructor
 public class LeaderboardEntry {
     @Id
     private long userId;
-    private int totalScore;
+    private double totalScore;
 }

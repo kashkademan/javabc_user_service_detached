@@ -50,10 +50,23 @@ public class UserService {
                     log.error("User not found");
                     return new UserNotFoundException(userId);
                 });
+
         UserScore userScore = user.getScore();
         userScore.setScore(userScore.getScore() + scoreDelta);
         user.setScore(userScore);
 
         userRepository.save(user);
+    }
+
+    @Transactional
+    public int getUserScore(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found");
+                    return new UserNotFoundException(userId);
+                });
+
+        UserScore userScore = user.getScore();
+        return userScore.getScore();
     }
 }

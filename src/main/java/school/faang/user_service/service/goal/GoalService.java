@@ -11,7 +11,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.goal.GoalNotFoundException;
 import school.faang.user_service.model.goal.GoalFilter;
-import school.faang.user_service.aspect.score.ActionType;
+import school.faang.user_service.aspect.score.ScoreActionType;
 import school.faang.user_service.aspect.score.TrackActionScore;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -120,7 +120,7 @@ public class GoalService {
         return goal;
     }
 
-    @TrackActionScore(ActionType.COMPLETE_GOAL)
+    @TrackActionScore(ScoreActionType.COMPLETE_GOAL)
     private void completeGoal(Goal goal) {
         List<Long> userIds = goal.getUsers().stream()
                 .map(User::getId)

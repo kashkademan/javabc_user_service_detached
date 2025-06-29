@@ -44,7 +44,7 @@ public class SkillService {
                 userIds.forEach(userId ->
                         skillRepository.findUserSkill(skillId, userId)
                                 .ifPresentOrElse(
-                                        skill -> log.debug(
+                                        skill -> log.info(
                                                 "User with id {} already has skill with id {}", userId, skillId),
                                         () -> {
                                             skillRepository.assignSkillToUser(skillId, userId);

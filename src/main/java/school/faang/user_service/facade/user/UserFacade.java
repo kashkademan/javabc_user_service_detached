@@ -21,7 +21,7 @@ public class UserFacade {
         User user = userService.getCurrentUser();
 
         UserResponseDto userResponseDto = userMapper.toUserResponseDto(user);
-        log.debug("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
+        log.info("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
                 user, userResponseDto);
         return userResponseDto;
     }
@@ -30,7 +30,7 @@ public class UserFacade {
         User user = userService.getUserByIdOrThrow(userId);
 
         UserResponseDto userResponseDto = userMapper.toUserResponseDto(user);
-        log.debug("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
+        log.info("Mapping User entity to UserResponseDto. Entity content: {}. DTO content: {}.",
                 user, userResponseDto);
         return userResponseDto;
     }
@@ -39,7 +39,7 @@ public class UserFacade {
         List<User> users = userService.getUsersByIds(userIds);
 
         List<UserResponseDto> userResponseDtoList = userMapper.toUserResponseDtoList(users);
-        log.debug("Mapping User entity list to UserResponseDto list. Entity content: {}. DTO content: {}.",
+        log.info("Mapping User entity list to UserResponseDto list. Entity content: {}. DTO content: {}.",
                 users, userResponseDtoList);
         return userResponseDtoList;
     }

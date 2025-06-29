@@ -4,14 +4,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 public class AspectUtils {
 
-    private AspectUtils() {
-
-    }
-
-    public static <T> T requireArgumentOfType(ProceedingJoinPoint joinPoint, Class<T> clazz) {
+    public static <T> T extractArgument(ProceedingJoinPoint joinPoint, Class<T> clazz) {
         T value = findArgumentOfType(joinPoint, clazz);
         if (value == null) {
-            throw new IllegalArgumentException("Argument of type " + clazz.getSimpleName() + " not found in join point");
+            throw new IllegalArgumentException(String.format("Argument of type %s not founded in joinPoint: %s",
+                    clazz.getSimpleName(), joinPoint.getSignature()));
         }
         return value;
     }

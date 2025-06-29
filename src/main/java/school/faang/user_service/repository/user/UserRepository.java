@@ -1,6 +1,6 @@
 package school.faang.user_service.repository.user;
 
-import feign.Param;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,10 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE up.end_date > NOW()
             """)
     Stream<User> findPremiumUsers();
-
-    @Modifying
-    @Query("UPDATE User u SET u.score = u.score + :scoreDelta WHERE u.id = :id")
-    void incrementScore(@Param("id") Long id, @Param("scoreDelta") int scoreDelta);
 
     List<User> findByUsernameLike(String username);
 }
