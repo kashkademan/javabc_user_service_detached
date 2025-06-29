@@ -61,8 +61,8 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ needs.setup.outputs.cache-key }}
 
-      - name: Run tests
-        run: ./gradlew test --no-daemon
+      - name: Run checks (tests + jacoco verification)
+        run: ./gradlew check --no-daemon
 
   notify:
     name: Comment on PR

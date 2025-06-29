@@ -1,5 +1,6 @@
 package school.faang.user_service.mapper.goal;
 
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -8,7 +9,7 @@ import school.faang.user_service.dto.goal.GoalCreateRequestDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.GoalUpdateRequestDto;
-import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
@@ -19,9 +20,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        builder = @Builder(disableBuilder = true))
 public interface GoalMapper {
-    Goal toGoalEntity(final GoalCreateRequestDto goalCreateRequestDto);
+    Goal toGoalEntity(GoalCreateRequestDto goalCreateRequestDto);
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdAt", target = "createdDate")
@@ -30,9 +32,9 @@ public interface GoalMapper {
     @Mapping(target = "invitationsIds", expression = "java(mapInvitationIds(goal.getInvitations()))")
     @Mapping(target = "usersIds", expression = "java(mapUserIds(goal.getUsers()))")
     @Mapping(target = "skillToAchieveIds", expression = "java(mapSkillIds(goal.getSkillsToAchieve()))")
-    GoalResponseDto toGoalResponseDto(final Goal goal);
+    GoalResponseDto toGoalResponseDto(Goal goal);
 
-    void update(@MappingTarget Goal goal, final GoalUpdateRequestDto goalUpdateRequestDto);
+    void update(@MappingTarget Goal goal, GoalUpdateRequestDto goalUpdateRequestDto);
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdAt", target = "createdDate")

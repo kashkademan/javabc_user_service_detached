@@ -8,7 +8,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -20,6 +20,9 @@ spring:
     redis:
       port: 6379
       host: localhost
+      ttl:
+        event: 1800
+        user: 1800
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -48,10 +51,33 @@ logging:
   level:
     root: info
 
-project-service:
-  host: localhost
-  port: 8082
+services:
+  project-service:
+    host: localhost
+    port: 8082
 
-payment-service:
-  host: localhost
-  port: 9080
+  payment-service:
+    host: localhost
+    port: 9080
+
+  dice-bear:
+    url: https://api.dicebear.com
+    version: 9.x
+
+  s3:
+    host: localhost
+    post: 9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+
+jobs:
+  promotion:
+    close:
+      view:
+        cron: "*/15 * * * * *"
+          # Каждые 15 секунд
+      time:
+        cron: "*/15 * * * * *"
+        # Каждые 15 секунд
+

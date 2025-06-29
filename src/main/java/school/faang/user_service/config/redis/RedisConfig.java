@@ -42,4 +42,11 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
+	@Bean
+    RedisMessageListenerContainer listenerContainer(JedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        return container;
+    }
 }

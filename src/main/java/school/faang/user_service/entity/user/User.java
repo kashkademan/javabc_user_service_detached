@@ -17,38 +17,41 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Career;
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.WorkSchedule;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.skill.Skill;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = {"country", "followers", "followees", "ownedEvents", "mentees",
+        "receivedMentorshipRequests", "sentMentorshipRequests", "sentGoalInvitations",
+        "receivedGoalInvitations", "setGoals", "goals", "skills", "participatedEvents",
+        "recommendationsGiven", "contacts", "ratings", "contactPreference",
+        "premium", "education", "career", "workSchedule"})
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -94,43 +97,43 @@ public class User {
     @ManyToMany
     @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private List<User> followers;
+    private List<User> followers = new ArrayList<>();
 
     @ManyToMany(mappedBy = "followers")
-    private List<User> followees;
+    private List<User> followees = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner")
-    private List<Event> ownedEvents;
+    private List<Event> ownedEvents = new ArrayList<>();
 
     @ManyToMany(mappedBy = "mentors")
-    private List<User> mentees;
+    private List<User> mentees = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "mentorship",
             joinColumns = @JoinColumn(name = "mentee_id"),
             inverseJoinColumns = @JoinColumn(name = "mentor_id"))
-    private List<User> mentors;
+    private List<User> mentors = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver")
-    private List<MentorshipRequest> receivedMentorshipRequests;
+    private List<MentorshipRequest> receivedMentorshipRequests = new ArrayList<>();
 
     @OneToMany(mappedBy = "requester")
-    private List<MentorshipRequest> sentMentorshipRequests;
+    private List<MentorshipRequest> sentMentorshipRequests = new ArrayList<>();
 
     @OneToMany(mappedBy = "inviter")
-    private List<GoalInvitation> sentGoalInvitations;
+    private List<GoalInvitation> sentGoalInvitations = new ArrayList<>();
 
     @OneToMany(mappedBy = "invited")
-    private List<GoalInvitation> receivedGoalInvitations;
+    private List<GoalInvitation> receivedGoalInvitations = new ArrayList<>();
 
     @OneToMany(mappedBy = "mentor")
-    private List<Goal> setGoals;
+    private List<Goal> setGoals = new ArrayList<>();
 
     @ManyToMany(mappedBy = "users")
-    private List<Goal> goals;
+    private List<Goal> goals = new ArrayList<>();
 
     @ManyToMany(mappedBy = "users")
-    private List<Skill> skills;
+    private List<Skill> skills = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -138,19 +141,19 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private List<Event> participatedEvents;
+    private List<Event> participatedEvents = new ArrayList<>();
 
     @OneToMany(mappedBy = "author")
-    private List<Recommendation> recommendationsGiven;
+    private List<Recommendation> recommendationsGiven = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver")
-    private List<Recommendation> recommendationsReceived;
+    private List<Recommendation> recommendationsReceived = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Contact> contacts;
+    private List<Contact> contacts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Rating> ratings;
+    private List<Rating> ratings = new ArrayList<>();
 
     @Embedded
     @AttributeOverrides({
@@ -166,14 +169,14 @@ public class User {
     private Premium premium;
 
     @OneToMany(mappedBy = "user")
-    private List<Education> education;
+    private List<Education> education = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Career> career;
+    private List<Career> career = new ArrayList<>();
 
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
 
-    @OneToOne(mappedBy = "user")
-    private UserScore score;
+    @OneToMany(mappedBy = "user")
+    private List<Promotion> promotions = new ArrayList<>();
 }
