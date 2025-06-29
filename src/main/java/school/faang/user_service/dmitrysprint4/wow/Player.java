@@ -7,9 +7,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class Player {
 
-
         private String name;
+
         private int level;
+
         private long expirience;
 
 
