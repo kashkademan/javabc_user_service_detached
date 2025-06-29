@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,6 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.SkillOfferMapper;
-import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -28,12 +28,15 @@ public class RecommendationService {
     private static final int RECOMMENDATIONS_PER_PAGE = 100;
     private static final Sort PAGE_SORT = Sort.by("updated_at").descending();
 
+    @Value("${kafka.topic-name}")
+    private String topic;
+
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillOfferMapper skillOfferMapper;
     private final SkillRepository skillRepository;
-    private final RecommendationEventPublisher publisher;
     private final RecommendationMapper recommendationMapper;
+    private final KafkaProducerService producer;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -50,7 +53,8 @@ public class RecommendationService {
                 recommendationDto.receiverId(),
                 recommendationDto.content()
         );
-        publisher.publish(event);
+
+        producer.sendMessage(event, topic);
         return recommendationMapper.toDto(recommendationRepository.findById(id).get());
     }
 
