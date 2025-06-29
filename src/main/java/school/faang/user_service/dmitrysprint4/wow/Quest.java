@@ -1,16 +1,19 @@
-package school.faang.user_service.dmitrysprint4.wizards;
+package school.faang.user_service.dmitrysprint4.wow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Task {
+public class Quest {
 
     private String name;
 
     private int difficulty;
 
+
     private int reward;
+
+
 
 }
