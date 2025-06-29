@@ -1,7 +1,14 @@
 package school.faang.user_service.dmitrysprint4.wizards;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
+
+@Slf4j
+@Data
+@AllArgsConstructor
 public class School {
     private String name;
 
@@ -14,21 +21,9 @@ public class School {
         return students.stream().mapToInt((Student::getPoints)).sum();
     }
 
-    public School(String name, List<Student> team) {
-        this.name = name;
-        this.team = team;
-    }
-
     public long getTaskResultPoints() {
 
         return team.stream().mapToInt((Student::getPoints)).sum();
     }
 
-    public List<Student> getTeam() {
-        return team;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

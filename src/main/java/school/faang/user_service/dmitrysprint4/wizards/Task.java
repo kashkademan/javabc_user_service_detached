@@ -1,5 +1,10 @@
 package school.faang.user_service.dmitrysprint4.wizards;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Task {
 
     private String name;
@@ -8,21 +13,4 @@ public class Task {
 
     private int reward;
 
-    public Task(String name, int difficulty, int reward) {
-        this.name = name;
-        this.difficulty = difficulty;
-        this.reward = reward;
-    }
-
-    public int getReward() {
-        return reward;
-    }
-
-    public void setReward(int reward) {
-        this.reward = reward;
-    }
-
-    public int getDifficulty() {
-        return difficulty;
-    }
 }
