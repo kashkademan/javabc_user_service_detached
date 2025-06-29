@@ -120,7 +120,6 @@ public class SkillServiceTest {
         when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
         verify(skillRepository, times(1)).findById(skillId);
-
     }
 
     @Test
