@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/main/java/school/faang/user_service/entity/user/UserSkillGuarantee.java
-package school.faang.user_service.entity.user;
-========
 package school.faang.user_service.entity.skill;
->>>>>>>> remotes/origin/cerberus-master-stream10:src/main/java/school/faang/user_service/entity/skill/UserSkillGuarantee.java
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,11 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-<<<<<<<< HEAD:src/main/java/school/faang/user_service/entity/user/UserSkillGuarantee.java
-import school.faang.user_service.entity.Skill;
-========
 import school.faang.user_service.entity.user.User;
->>>>>>>> remotes/origin/cerberus-master-stream10:src/main/java/school/faang/user_service/entity/skill/UserSkillGuarantee.java
 
 @Data
 @Builder

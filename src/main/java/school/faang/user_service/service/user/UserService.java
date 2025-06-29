@@ -11,6 +11,7 @@ import school.faang.user_service.entity.country.Country;
 import school.faang.user_service.entity.resource.Resource;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
+import school.faang.user_service.entity.user.UserScore;
 import school.faang.user_service.exception.user.UserNotFoundException;
 import school.faang.user_service.model.user.UserFilter;
 import school.faang.user_service.repository.user.UserFilterRepository;
@@ -102,7 +103,7 @@ public class UserService {
 
     @Async(value = "generateRandomAvatarUserExecutor")
     public void createAvatarUser(long userId) {
-        User user = getUserById(userId);
+        User user = getUserByIdOrThrow(userId);
 
         Resource file = imageService.generateRandomUserAvatar(userId);
         UserProfilePic userProfilePic = new UserProfilePic();
@@ -121,7 +122,7 @@ public class UserService {
                 .map(userId -> CompletableFuture.supplyAsync(() ->
                         userRedisService.getUserFromRedisById(userId)
                                 .orElseGet(() -> {
-                                    User user = getUserById(userId);
+                                    User user = getUserByIdOrThrow(userId);
                                     userRedisService.addUserInRedis(user);
                                     return user;
                                 }), executor))

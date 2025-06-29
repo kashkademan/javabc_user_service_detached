@@ -64,7 +64,7 @@ public class EventService {
     @Transactional
     public Event createEvent(Event event, List<Long> relatedSkillIds) {
         long userId = userContext.getUserId();
-        User owner = userService.getUserById(userId);
+        User owner = userService.getUserByIdOrThrow(userId);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
 

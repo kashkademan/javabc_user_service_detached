@@ -59,7 +59,7 @@ public class UserFacade {
     }
 
     public UserNotificationResponseDto getNotificationUserById(long userId) {
-        User user = userService.getUserById(userId);
+        User user = userService.getUserByIdOrThrow(userId);
 
         UserNotificationResponseDto userResponseDto = userEntityMapper.toUserNotificationResponseDto(user);
         log.debug("Mapping User entity to UserNotificationResponseDto. Entity content: {}. DTO content: {}.",
