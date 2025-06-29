@@ -91,7 +91,7 @@ class UserServiceTest {
         UserDto actualUserDto = userService.getUser(user.getId());
         UserDto expectedUserDto = userMapper.toDto(user);
         assertEquals(expectedUserDto, actualUserDto);
-        assertEquals(1L, actualUserDto.getUserId());
+        assertEquals(1L, actualUserDto.getId());
     }
 
     @Test
@@ -114,6 +114,6 @@ class UserServiceTest {
         List<UserDto> actualUserDtos = userService.getUsersByIds(ids);
         List<UserDto> expectedUserDtos = userMapper.toDtos(users);
         assertEquals(expectedUserDtos, actualUserDtos);
-        assertEquals(1L, actualUserDtos.get(0).getUserId());
+        assertEquals(1L, actualUserDtos.get(0).getId());
     }
 }

@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserDto {
-    private long id;
-    private String username;
-    private String email;
+public class CountResponse {
+    private long count;
 }
