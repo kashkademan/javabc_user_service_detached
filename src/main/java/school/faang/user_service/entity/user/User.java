@@ -177,6 +177,9 @@ public class User {
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
 
+    @OneToOne(mappedBy = "user")
+    private UserScore score;
+
     @OneToMany(mappedBy = "user")
     private List<Promotion> promotions = new ArrayList<>();
 }
