@@ -19,6 +19,7 @@ import school.faang.user_service.filter.mentorship_request.ReceiverFilter;
 import school.faang.user_service.filter.mentorship_request.RequesterFilter;
 import school.faang.user_service.filter.mentorship_request.StatusFilter;
 import school.faang.user_service.mapper.RequestToResponseDtoImpl;
+import school.faang.user_service.publisher.MentorshipRequestEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,8 @@ class MentorshipRequestServiceTest {
     private MentorshipRequestService mentorshipRequestService;
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
+    @Mock
+    private MentorshipRequestEventPublisher mentorshipRequestEventPublisher;
     @Spy
     private RequestToResponseDtoImpl responseMapper;
 
@@ -56,7 +59,8 @@ class MentorshipRequestServiceTest {
         mentorshipRequestService = new MentorshipRequestService(
                 mentorshipRequestRepository,
                 responseMapper,
-                List.of(descriptionFilter, receiverFilter, requesterFilter, statusFilter)
+                List.of(descriptionFilter, receiverFilter, requesterFilter, statusFilter),
+                mentorshipRequestEventPublisher
         );
     }
 
