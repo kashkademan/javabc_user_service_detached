@@ -11,7 +11,7 @@ public class EducationMapper {
         return null;
     }
 
-    Education toEntity(EducationDto educationDto) {
+    Education toEntity(Education existingEducation, EducationDto educationDto) {
         return null;
     }
 }

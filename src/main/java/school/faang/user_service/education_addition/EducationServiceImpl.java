@@ -24,7 +24,7 @@ public class EducationServiceImpl implements EducationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id=" + userId + " not found"));
 
-        Education education = educationMapper.toEntity(educationDto);
+        Education education = educationMapper.toEntity(existingEducation, educationDto);
         education.setUser(user);
 
         return educationMapper.toDto(educationRepository.save(education));
@@ -37,7 +37,7 @@ public class EducationServiceImpl implements EducationService {
 
         educationValidationService.validateOnUpdate(userId, existingEducation, educationDto);
 
-        educationMapper.updateEntity(existingEducation, educationDto);
+        educationMapper.toEntity(existingEducation, educationDto);
         return educationMapper.toDto(educationRepository.save(existingEducation));
     }
 
