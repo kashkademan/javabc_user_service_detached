@@ -23,9 +23,8 @@ import java.util.stream.Stream;
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
     private final EventMapper eventMapper;
-    private final UserService userService;
+    private final List<EventFilter> filters;
 
     public EventDto create(EventDto eventDto) {
         User owner = getEventById(eventDto.getOwnerId()).getOwner();
@@ -40,8 +39,6 @@ public class EventService {
         Event event = getEventById(eventId);
         return eventMapper.toDto(event);
     }
-
-    private final List<EventFilter> filters;
 
     public List<EventDto> getEventsByFilter(EventFilterDto filterDto) {
         List<Event> allEvents = eventRepository.findAll();
