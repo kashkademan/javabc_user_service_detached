@@ -58,7 +58,6 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
 
     /**
@@ -78,6 +77,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.mockito:mockito-core:5.5.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+
+    /**
+     *  Kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka:4.0.0-M2")
 }
 
 jsonSchema2Pojo {
