@@ -32,6 +32,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -179,6 +181,41 @@ public class SkillServiceTest {
         List<UserSkillGuarantee> capturedGuarantees = captor.getAllValues();
         assertNotNull(capturedGuarantees, "Captured guarantees list is null");
         assertEquals(3, capturedGuarantees.size(), "Unexpected number of guarantees saved");
+    }
+
+    @Test
+    void createSkill_whenSkillAlreadyExists_shouldThrowException() {
+        SkillDto dto = new SkillDto();
+        dto.setTitle("Java");
+
+        when(skillRepository.existsByTitle("Java")).thenReturn(true);
+
+        assertThrows(DataValidationException.class, () -> skillService.create(dto));
+
+        verify(skillRepository, times(1)).existsByTitle("Java");
+        verifyNoMoreInteractions(skillRepository);
+        verifyNoInteractions(skillMapper);
+    }
+
+    @Test
+    void createSkill_whenSkillDoesNotExist_shouldSaveAndReturn() {
+        SkillDto dto = new SkillDto();
+        dto.setTitle("Java");
+        Skill skill = new Skill();
+        skill.setTitle("Java");
+
+        when(skillRepository.existsByTitle("Java")).thenReturn(false);
+        when(skillMapper.toEntity(dto)).thenReturn(skill);
+        when(skillMapper.toDto(skill)).thenReturn(dto);
+
+        SkillDto result = skillService.create(dto);
+
+        verify(skillRepository, times(1)).existsByTitle("Java");
+        verify(skillMapper, times(1)).toEntity(dto);
+        verify(skillRepository, times(1)).save(skill);
+        verify(skillMapper, times(1)).toDto(skill);
+
+        assertEquals(dto.getTitle(), result.getTitle());
     }
 }
 
