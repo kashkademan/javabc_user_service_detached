@@ -53,9 +53,6 @@ public class SkillServiceTest {
     @InjectMocks
     private SkillService skillService;
 
-    @Captor
-    private ArgumentCaptor<Skill> captor;
-
     private final long skillId = 1L;
     private final long userId = 1L;
 
