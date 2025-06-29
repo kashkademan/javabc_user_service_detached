@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -216,6 +216,28 @@ public class SkillServiceTest {
         verify(skillMapper, times(1)).toDto(skill);
 
         assertEquals(dto.getTitle(), result.getTitle());
+    }
+
+    @Test
+    void getOfferedSkills_shouldGroupAndMapCorrectly() {
+        Skill skill = new Skill();
+        skill.setId(1L);
+        skill.setTitle("Java");
+
+        SkillDto skillDto = new SkillDto();
+        skillDto.setId(1L);
+        skillDto.setTitle("Java");
+
+        when(skillRepository.findSkillsOfferedToUser(userId))
+                .thenReturn(List.of(skill, skill, skill));
+        when(skillMapper.toDto(skill)).thenReturn(skillDto);
+
+        List<SkillCandidateDto> result = skillService.getOfferedSkills(userId);
+
+        assertEquals(1, result.size());
+        SkillCandidateDto candidate = result.get(0);
+        assertEquals("Java", candidate.getSkill().getTitle());
+        assertEquals(3L, candidate.getOffersAmount());
     }
 }
 
