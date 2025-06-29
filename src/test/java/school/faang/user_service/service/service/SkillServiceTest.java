@@ -45,7 +45,6 @@ public class SkillServiceTest {
     @Mock
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-
     @Spy
     private SkillMapperImpl skillMapper;
 
@@ -57,7 +56,6 @@ public class SkillServiceTest {
 
     private final long skillId = 1L;
     private final long userId = 1L;
-
 
     @Test
     public void createExistingSkill() {
@@ -97,14 +95,12 @@ public class SkillServiceTest {
         assertEquals(dto.getTitle(), userSkills.get(0).getTitle());
     }
 
-
     @Test
     public void acquireSkillFromOffers_WithSkillNull() {
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(null);
         Optional<Skill> userSkill = skillRepository.findUserSkill(skillId, userId);
         assertNull(userSkill);
     }
-
 
     @Test
     public void acquireSkillFromOffers_SkillNotFound() {

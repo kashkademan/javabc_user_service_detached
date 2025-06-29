@@ -11,7 +11,6 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
 
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
