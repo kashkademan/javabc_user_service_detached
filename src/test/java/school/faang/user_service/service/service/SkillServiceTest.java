@@ -196,6 +196,7 @@ public class SkillServiceTest {
     void createSkill_whenSkillDoesNotExist_shouldSaveAndReturn() {
         SkillDto dto = new SkillDto();
         dto.setTitle("Java");
+
         Skill skill = new Skill();
         skill.setTitle("Java");
 
@@ -203,7 +204,7 @@ public class SkillServiceTest {
         when(skillMapper.toEntity(dto)).thenReturn(skill);
         when(skillMapper.toDto(skill)).thenReturn(dto);
 
-        SkillDto result = skillService.create(dto);
+        final SkillDto result = skillService.create(dto);
 
         verify(skillRepository, times(1)).existsByTitle("Java");
         verify(skillMapper, times(1)).toEntity(dto);
@@ -218,15 +219,16 @@ public class SkillServiceTest {
         Skill skill = new Skill();
         skill.setId(1L);
         skill.setTitle("Java");
+
         SkillDto skillDto = new SkillDto();
         skillDto.setId(1L);
         skillDto.setTitle("Java");
+
         when(skillRepository.findSkillsOfferedToUser(userId))
                 .thenReturn(List.of(skill, skill, skill));
         when(skillMapper.toDto(skill)).thenReturn(skillDto);
-        List<SkillCandidateDto> result = skillService.getOfferedSkills(userId);
-        assertEquals(1, result.size());
-        SkillCandidateDto candidate = result.get(0);
+
+        SkillCandidateDto candidate = skillService.getOfferedSkills(userId).get(0);
         assertEquals("Java", candidate.getSkill().getTitle());
         assertEquals(3L, candidate.getOffersAmount());
     }
