@@ -8,13 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
@@ -61,18 +61,32 @@ public class SkillServiceTest {
     public void createExistingSkill() {
         SkillDto skillDto = new SkillDto();
         skillDto.setTitle("title");
+
         when(skillRepository.existsByTitle(skillDto.getTitle()))
                 .thenReturn(true);
-        assertThrows(DataAccessException.class, () -> skillService.create(skillDto));
+
+        assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 
     @Test
     public void testCreate() {
         SkillDto skillDto = new SkillDto();
         skillDto.setTitle("title");
-        when(skillRepository.existsByTitle(skillDto.getTitle()))
-                .thenReturn(false);
-        verify(skillRepository, times(1)).save(any());
+
+        Skill entity = new Skill();
+        entity.setTitle("title");
+
+        when(skillRepository.existsByTitle("title")).thenReturn(false);
+        when(skillMapper.toEntity(skillDto)).thenReturn(entity);
+        when(skillRepository.save(entity)).thenReturn(entity);
+        when(skillMapper.toDto(entity)).thenReturn(skillDto);
+
+        SkillDto result = skillService.create(skillDto);
+
+        assertNotNull(result);
+        assertEquals("title", result.getTitle());
+
+        verify(skillRepository, times(1)).save(entity);
     }
 
     @Test
