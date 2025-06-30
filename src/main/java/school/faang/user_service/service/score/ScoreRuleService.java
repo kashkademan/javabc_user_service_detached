@@ -3,30 +3,22 @@ package school.faang.user_service.service.score;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.aspect.score.ScoreActionType;
-import school.faang.user_service.provider.score.ScoreRuleProvider;
+import school.faang.user_service.entity.score.ScoreRule;
+import school.faang.user_service.repository.score.ScoreRuleRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ScoreRuleService {
 
-    private static final String ATTENDEE_ROLE = "ATTENDEE";
-    private static final String OWNER_ROLE = "OWNER";
+    private final ScoreRuleRepository scoreRuleRepository;
 
-    private final ScoreRuleProvider scoreRuleProvider;
-
-    public int getScore(ScoreActionType type) {
-        return scoreRuleProvider.getScore(type);
+    public int getScoreByType(ScoreActionType type) {
+        ScoreRule scoreRule = scoreRuleRepository.findByType(type);
+        return scoreRule.getScore();
     }
 
-    public int getParticipationScore(ScoreActionType type) {
-        return getScoreByRole(type, ATTENDEE_ROLE);
-    }
-
-    public int getOwnerScore(ScoreActionType type) {
-        return getScoreByRole(type, OWNER_ROLE);
-    }
-
-    private int getScoreByRole(ScoreActionType type, String role) {
-        return scoreRuleProvider.getScoreByRole(type, role);
+    public int getScoreByRole(ScoreActionType type, String role) {
+        ScoreRule scoreRule = scoreRuleRepository.findByTypeAndRole_Name(type, role);
+        return scoreRule.getScore();
     }
 }

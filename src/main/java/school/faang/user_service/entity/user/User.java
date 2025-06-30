@@ -37,6 +37,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.score.UserScore;
 import school.faang.user_service.entity.skill.Skill;
 
 import java.time.LocalDateTime;

@@ -1,33 +1,14 @@
 package school.faang.user_service.repository.score;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import school.faang.user_service.aspect.score.ScoreActionType;
+import school.faang.user_service.entity.score.ScoreRule;
 
 @Repository
-public class ScoreRuleRepository {
+public interface ScoreRuleRepository extends JpaRepository<ScoreRule, Long> {
 
-    private static final String GLOBAL_PREFIX = "score:rules:";
-    private static final String ROLE_PREFIX = "score:rulesByRole:";
+    ScoreRule findByType(ScoreActionType type);
 
-    @Autowired
-    @Qualifier("integerRedisTemplate")
-    private RedisTemplate<String, Integer> redisTemplate;
-
-    public Integer getScore(String type) {
-        return redisTemplate.opsForValue().get(GLOBAL_PREFIX + type);
-    }
-
-    public Integer getScoreByRole(String type, String role) {
-        return redisTemplate.opsForValue().get(ROLE_PREFIX + type + ":" + role.toUpperCase());
-    }
-
-    public void setScore(String type, int value) {
-        redisTemplate.opsForValue().set(GLOBAL_PREFIX + type, value);
-    }
-
-    public void setScoreByRole(String type, String role, int value) {
-        redisTemplate.opsForValue().set(ROLE_PREFIX + type + ":" + role.toUpperCase(), value);
-    }
+    ScoreRule findByTypeAndRole_Name(ScoreActionType type, String role);
 }

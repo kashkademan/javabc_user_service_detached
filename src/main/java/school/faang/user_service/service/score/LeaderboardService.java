@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.user.UserScore;
+import school.faang.user_service.entity.score.UserScore;
 import school.faang.user_service.model.score.LeaderboardEntry;
 
 import java.util.Comparator;

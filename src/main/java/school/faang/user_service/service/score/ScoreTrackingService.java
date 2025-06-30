@@ -2,16 +2,16 @@ package school.faang.user_service.service.score;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.aspect.score.ScoreActionType;
+import school.faang.user_service.entity.Role;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.model.score.ScoreEventSource;
-import school.faang.user_service.model.score.UserScoreChangedEvent;
+import school.faang.user_service.model.user.RoleThesaurus;
+import school.faang.user_service.service.role.RoleService;
 
 @RequiredArgsConstructor
 @Component
@@ -19,48 +19,36 @@ import school.faang.user_service.model.score.UserScoreChangedEvent;
 public class ScoreTrackingService {
 
     private final UserScoreService userScoreService;
-    private final ApplicationEventPublisher eventPublisher;
     private final ScoreRuleService scoreRuleService;
+    private final LeaderboardService leaderboardService;
+    private final RoleService roleService;
 
     @Transactional
     public void trackAfterCompleteGoal(Goal goal) {
-        int scoreDelta = scoreRuleService.getScore(ScoreActionType.COMPLETE_GOAL);
+        int scoreDelta = scoreRuleService.getScoreByType(ScoreActionType.COMPLETE_GOAL);
 
         for (User user : goal.getUsers()) {
-            int newScore = userScoreService.incrementUserScore(user.getId(), scoreDelta);
-            eventPublisher.publishEvent(new UserScoreChangedEvent(
-                user.getId(),
-                newScore,
-                ScoreEventSource.GOAL_COMPLETED.name(),
-                goal.getId()
-            ));
+            int newScore = userScoreService.updateScore(user.getId(), scoreDelta);
+            leaderboardService.updateLeaderboard(user.getId(), newScore);
         }
     }
 
     @Transactional
     public void trackAfterCompleteEvent(Event event) {
-        if (event.getStatus() != EventStatus.COMPLETED) return;
-
-        long eventId = event.getId();
-
-        int attendeeScore = scoreRuleService.getParticipationScore(ScoreActionType.COMPLETE_EVENT);
-        for (User attendee : event.getAttendees()) {
-            int newScore = userScoreService.incrementUserScore(attendee.getId(), attendeeScore);
-            eventPublisher.publishEvent(new UserScoreChangedEvent(
-                attendee.getId(),
-                newScore,
-                ScoreEventSource.EVENT_COMPLETED_ATTENDEE.name(),
-                eventId
-            ));
+        if (event.getStatus() != EventStatus.COMPLETED) {
+            return;
         }
 
-        int ownerScore = scoreRuleService.getOwnerScore(ScoreActionType.COMPLETE_EVENT);
-        int newScore = userScoreService.incrementUserScore(event.getOwner().getId(), ownerScore);
-        eventPublisher.publishEvent(new UserScoreChangedEvent(
-            event.getOwner().getId(),
-            newScore,
-            ScoreEventSource.EVENT_COMPLETED_OWNER.name(),
-            eventId
-        ));
+        Role attendeeRole = roleService.getByNameOrThrow(RoleThesaurus.ATTENDEE);
+        int attendeeScore = scoreRuleService.getScoreByRole(ScoreActionType.COMPLETE_EVENT, attendeeRole.getName().name());
+        for (User attendee : event.getAttendees()) {
+            int newScore = userScoreService.updateScore(attendee.getId(), attendeeScore);
+            leaderboardService.updateLeaderboard(attendee.getId(), newScore);
+        }
+
+        Role ownerRole = roleService.getByNameOrThrow(RoleThesaurus.OWNER);
+        int ownerScore = scoreRuleService.getScoreByRole(ScoreActionType.COMPLETE_EVENT, ownerRole.getName().name());
+        int newScore = userScoreService.updateScore(event.getOwner().getId(), ownerScore);
+        leaderboardService.updateLeaderboard(event.getOwner().getId(), newScore);
     }
 }

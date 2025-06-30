@@ -46,18 +46,6 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Integer> integerRedisTemplate(JedisConnectionFactory jedisConnectionFactory) {
-        RedisTemplate<String, Integer> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory);
-
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
-
-        return template;
-    }
-
-
-    @Bean
     RedisMessageListenerContainer listenerContainer(JedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
