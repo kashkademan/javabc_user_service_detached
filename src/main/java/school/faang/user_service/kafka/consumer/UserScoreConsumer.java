@@ -16,7 +16,7 @@ public class UserScoreConsumer {
     private final UserScoreProcessor processor;
 
     @KafkaListener(
-            topics = "${spring.kafka.topics.user-score-changed}",
+            topics = "${topics.user-score-changed}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )

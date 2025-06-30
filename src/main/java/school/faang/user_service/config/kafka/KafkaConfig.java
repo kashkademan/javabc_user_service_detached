@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import school.faang.user_service.model.score.UserScoreChangedEvent;
 
@@ -21,13 +22,18 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, UserScoreChangedEvent> producerFactory() {
-        Map<String, Object> properties = new HashMap<>(kafkaProperties.buildProducerProperties());
-        return new DefaultKafkaProducerFactory<>(properties);
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildProducerProperties());
+        return new DefaultKafkaProducerFactory<>(props);
     }
 
     @Bean
     public ConsumerFactory<String, UserScoreChangedEvent> consumerFactory() {
-        Map<String, Object> properties = new HashMap<>(kafkaProperties.buildConsumerProperties());
-        return new DefaultKafkaConsumerFactory<>(properties);
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, UserScoreChangedEvent> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 }

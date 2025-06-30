@@ -119,14 +119,14 @@ public class UserService {
         List<Long> filteredUserIds = userFilterRepository.findByFilter(filter);
 
         List<CompletableFuture<User>> futureUsers = filteredUserIds.stream()
-                .map(userId -> CompletableFuture.supplyAsync(() ->
-                        userRedisService.getUserFromRedisById(userId)
-                                .orElseGet(() -> {
-                                    User user = getUserByIdOrThrow(userId);
-                                    userRedisService.addUserInRedis(user);
-                                    return user;
-                                }), executor))
-                .toList();
+            .map(userId -> CompletableFuture.supplyAsync(() ->
+                    userRedisService.getUserFromRedisById(userId)
+                            .orElseGet(() -> {
+                                User user = getUserByIdOrThrow(userId);
+                                userRedisService.addUserInRedis(user);
+                                return user;
+                            }), executor))
+            .toList();
 
         List<User> users = futureUsers.stream()
                 .map(CompletableFuture::join)
@@ -136,28 +136,20 @@ public class UserService {
 
         return users;
     }
+
     @Transactional
     public void incrementUserScore(long userId, int scoreDelta) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found");
-                    return new UserNotFoundException(userId);
-                });
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
 
-        UserScore userScore = user.getScore();
-        userScore.setScore(userScore.getScore() + scoreDelta);
-        user.setScore(userScore);
-
-        userRepository.save(user);
+        userRepository.upsertAndIncrementScore(userId, scoreDelta);
     }
 
     @Transactional
     public int getUserScore(long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found");
-                    return new UserNotFoundException(userId);
-                });
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         UserScore userScore = user.getScore();
         return userScore.getScore();

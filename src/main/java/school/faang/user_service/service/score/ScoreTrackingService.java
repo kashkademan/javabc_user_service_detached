@@ -24,17 +24,16 @@ public class ScoreTrackingService {
     public void trackAfterCompleteGoal(Goal goal, int scoreDelta) {
         log.info("Начато начисление очков за выполнение цели. GoalId={}, Delta={}", goal.getId(), scoreDelta);
 
-        goal.getUsers().parallelStream()
-            .map(User::getId)
-            .forEach(userId -> {
-                userService.incrementUserScore(userId, scoreDelta);
-                kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
-                    userId,
-                    scoreDelta,
-                    "GOAL_COMPLETED",
-                    goal.getId()
-                ));
-            });
+        for (User user : goal.getUsers()) {
+            long userId = user.getId();
+            userService.incrementUserScore(userId, scoreDelta);
+            kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
+                userId,
+                scoreDelta,
+                "GOAL_COMPLETED",
+                goal.getId()
+            ));
+        }
 
         log.info("Завершено начисление очков за цель goalId={}", goal.getId());
     }
@@ -46,16 +45,28 @@ public class ScoreTrackingService {
             return;
         }
 
-        long userId = event.getOwner().getId();
-        userService.incrementUserScore(userId, scoreDelta);
+        long eventId = event.getId();
 
+        for (User attendee : event.getAttendees()) {
+            long userId = attendee.getId();
+            userService.incrementUserScore(userId, scoreDelta);
+            kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
+                    userId,
+                    scoreDelta,
+                    "EVENT_COMPLETED_ATTENDEE",
+                    eventId
+            ));
+            log.info("Очки начислены участнику userId={}, eventId={}", userId, eventId);
+        }
+
+        long ownerId = event.getOwner().getId();
+        userService.incrementUserScore(ownerId, scoreDelta);
         kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
-            userId,
-            scoreDelta,
-            "EVENT_COMPLETED",
-            event.getId()
+                ownerId,
+                scoreDelta,
+                "EVENT_COMPLETED_OWNER",
+                eventId
         ));
-
-        log.info("Отправлено Kafka-событие о начислении очков: userId={}, delta={}, eventId={}", userId, scoreDelta, event.getId());
+        log.info("Очки начислены владельцу userId={}, eventId={}", ownerId, eventId);
     }
 }

@@ -35,10 +35,10 @@ public class LeaderboardService {
         log.info("Инициализация Leaderboard начата");
 
         userScoreRepository.findAll().stream()
-                .sorted(Comparator.comparing(UserScore::getScore).reversed())
-                .limit(LEADERBOARD_LIMIT)
-                .map(userScore -> new LeaderboardEntry(userScore.getUser().getId(), userScore.getScore()))
-                .forEach(entry -> updateLeaderboard(entry.getUserId(), entry.getTotalScore()));
+            .sorted(Comparator.comparing(UserScore::getScore).reversed())
+            .limit(LEADERBOARD_LIMIT)
+            .map(userScore -> new LeaderboardEntry(userScore.getUser().getId(), userScore.getScore()))
+            .forEach(entry -> updateLeaderboard(entry.getUserId(), entry.getTotalScore()));
 
         log.info("Инициализация Leaderboard завершена (записей={})", LEADERBOARD_LIMIT);
     }

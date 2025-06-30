@@ -13,10 +13,11 @@ import school.faang.user_service.model.score.UserScoreChangedEvent;
 public class UserScoreProducer {
 
     private final KafkaTemplate<String, UserScoreChangedEvent> kafkaTemplate;
-    private final KafkaTopicsProperties kafkaTopics;
+    private final KafkaTopicsProperties topics;;
 
     public void sendScoreChanged(UserScoreChangedEvent changeScoreEvent) {
-        kafkaTemplate.send(kafkaTopics.getUserScoreChanged(), String.valueOf(changeScoreEvent.getUserId()), changeScoreEvent);
-        log.info("Message {} sended to topic {}", changeScoreEvent, kafkaTopics.getUserScoreChanged());
+        String topic = topics.getUserScoreChanged();
+        kafkaTemplate.send(topic, String.valueOf(changeScoreEvent.getUserId()), changeScoreEvent);
+        log.info("Message {} sended to topic {}", changeScoreEvent, topic);
     }
 }

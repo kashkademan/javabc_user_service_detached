@@ -1,9 +1,9 @@
 package school.faang.user_service.repository.user;
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.user.User;
 
@@ -27,6 +27,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE up.end_date > NOW()
             """)
     Stream<User> findPremiumUsers();
+
+    @Modifying
+    @Query(value = """
+    INSERT INTO user_score(user_id, score)
+    VALUES (:userId, :delta)
+    ON CONFLICT (user_id)
+    DO UPDATE SET score = user_score.score + EXCLUDED.score
+    """, nativeQuery = true)
+    void upsertAndIncrementScore(@Param("userId") long userId, @Param("delta") int delta);
 
     List<User> findByUsernameLike(String username);
 

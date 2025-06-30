@@ -25,24 +25,26 @@ spring:
         user: 1800
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:29092
     consumer:
       group-id: score-trackers
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       enable-auto-commit: false
       properties:
         spring.json.trusted.packages: '*'
     producer:
       acks: all
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
-    topics:
-      user-score-changed: user.score.changed
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     retry:
       attempts: 3
       backoff: 3000
+
+topics:
+  user-score-changed: user.score.changed
+  user-score-changed-dlt: user.score.changed.dlt
 
 server:
   port: 8080

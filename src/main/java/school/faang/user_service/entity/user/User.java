@@ -2,6 +2,7 @@ package school.faang.user_service.entity.user;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -177,7 +178,7 @@ public class User {
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserScore score;
 
     @OneToMany(mappedBy = "user")
