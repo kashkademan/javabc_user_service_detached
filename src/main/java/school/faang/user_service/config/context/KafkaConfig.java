@@ -80,9 +80,4 @@ public class KafkaConfig {
 
         return new KafkaAdmin(configs);
     }
-
-    @Bean
-    public NewTopic topic() {
-        return new NewTopic(topic, partitions, (short) replicationFactor);
-    }
 }
