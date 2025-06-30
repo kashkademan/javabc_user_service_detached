@@ -1,11 +1,10 @@
-package school.faang.user_service.kafka.processor;
+package school.faang.user_service.kafka.processor.score;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.model.score.UserScoreChangedEvent;
 import school.faang.user_service.service.score.LeaderboardService;
-import school.faang.user_service.service.user.UserService;
 
 @Component
 @RequiredArgsConstructor
@@ -13,20 +12,18 @@ import school.faang.user_service.service.user.UserService;
 public class UserScoreProcessor {
 
     private final LeaderboardService leaderboardService;
-    private final UserService userService;
 
     public void process(UserScoreChangedEvent changeScoreEvent) {
         long userId = changeScoreEvent.getUserId();
-        int delta = changeScoreEvent.getScoreDelta();
+        int newScore = changeScoreEvent.getUpdatedScore();
 
-        if (delta == 0) {
+        if (newScore == 0) {
             log.warn("Событие {} пропущено", changeScoreEvent);
             return;
         }
 
-        int userScore = userService.getUserScore(userId);
-        leaderboardService.updateLeaderboard(userId, userScore);
+        leaderboardService.updateLeaderboard(userId, newScore);
 
-        log.info("Очки обновлены: userId={}, delta={}, score={}", userId, delta, userScore);
+        log.info("Очки обновлены: userId={}, newScore={}", userId, newScore);
     }
 }

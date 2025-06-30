@@ -7,7 +7,6 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.user.UserScore;
 import school.faang.user_service.model.score.LeaderboardEntry;
-import school.faang.user_service.repository.user.UserScoreRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +22,7 @@ public class LeaderboardService {
     private static final int LEADERBOARD_LIMIT = 100;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final UserScoreRepository userScoreRepository;
+    private final UserScoreService userScoreService;
 
     public synchronized void init() {
         Long currentSize = redisTemplate.opsForZSet().size(LEADERBOARD_KEY);
@@ -34,7 +33,7 @@ public class LeaderboardService {
 
         log.info("Инициализация Leaderboard начата");
 
-        userScoreRepository.findAll().stream()
+        userScoreService.getUserScores().stream()
             .sorted(Comparator.comparing(UserScore::getScore).reversed())
             .limit(LEADERBOARD_LIMIT)
             .map(userScore -> new LeaderboardEntry(userScore.getUser().getId(), userScore.getScore()))

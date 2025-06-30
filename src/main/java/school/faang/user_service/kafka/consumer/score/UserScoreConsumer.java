@@ -1,11 +1,11 @@
-package school.faang.user_service.kafka.consumer;
+package school.faang.user_service.kafka.consumer.score;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.kafka.processor.UserScoreProcessor;
+import school.faang.user_service.kafka.processor.score.UserScoreProcessor;
 import school.faang.user_service.model.score.UserScoreChangedEvent;
 
 @Component

@@ -1,4 +1,4 @@
-package school.faang.user_service.kafka.producer;
+package school.faang.user_service.kafka.producer.score;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

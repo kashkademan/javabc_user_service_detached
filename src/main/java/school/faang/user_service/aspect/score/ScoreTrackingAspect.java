@@ -23,15 +23,14 @@ public class ScoreTrackingAspect {
         Object result = joinPoint.proceed();
 
         ScoreActionType type = trackActionScore.value();
-        int score = Math.max(type.getDefaultScore(), 0);
         switch (type) {
             case COMPLETE_GOAL -> {
                 Goal goal = extractArgument(joinPoint, Goal.class);
-                scoreTrackingService.trackAfterCompleteGoal(goal, score);
+                scoreTrackingService.trackAfterCompleteGoal(goal);
             }
             case COMPLETE_EVENT -> {
                 Event event = extractArgument(joinPoint, Event.class);
-                scoreTrackingService.trackAfterCompleteEvent(event, score);
+                scoreTrackingService.trackAfterCompleteEvent(event);
             }
         }
 

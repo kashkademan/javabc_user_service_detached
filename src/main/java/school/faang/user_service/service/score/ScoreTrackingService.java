@@ -2,71 +2,66 @@ package school.faang.user_service.service.score;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.aspect.score.ScoreActionType;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.kafka.producer.UserScoreProducer;
+import school.faang.user_service.model.score.ScoreEventSource;
 import school.faang.user_service.model.score.UserScoreChangedEvent;
 import school.faang.user_service.service.user.UserService;
 
-@Component
 @RequiredArgsConstructor
+@Component
 @Slf4j
 public class ScoreTrackingService {
 
-    private final UserService userService;
-    private final UserScoreProducer kafkaProducer;
+    private final UserScoreService userScoreService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ScoreRuleService scoreRuleService;
 
     @Transactional
-    public void trackAfterCompleteGoal(Goal goal, int scoreDelta) {
-        log.info("Начато начисление очков за выполнение цели. GoalId={}, Delta={}", goal.getId(), scoreDelta);
+    public void trackAfterCompleteGoal(Goal goal) {
+        int scoreDelta = scoreRuleService.getDefaultScore(ScoreActionType.COMPLETE_GOAL);
 
         for (User user : goal.getUsers()) {
-            long userId = user.getId();
-            userService.incrementUserScore(userId, scoreDelta);
-            kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
-                userId,
-                scoreDelta,
-                "GOAL_COMPLETED",
+            int newScore = userScoreService.incrementUserScore(user.getId(), scoreDelta);
+            eventPublisher.publishEvent(new UserScoreChangedEvent(
+                user.getId(),
+                newScore,
+                ScoreEventSource.GOAL_COMPLETED.name(),
                 goal.getId()
             ));
         }
-
-        log.info("Завершено начисление очков за цель goalId={}", goal.getId());
     }
 
     @Transactional
-    public void trackAfterCompleteEvent(Event event, int scoreDelta) {
-        if (event.getStatus() != EventStatus.COMPLETED) {
-            log.debug("Пропущено начисление очков: событие eventId={} не завершено. Статус={}", event.getId(), event.getStatus());
-            return;
-        }
+    public void trackAfterCompleteEvent(Event event) {
+        if (event.getStatus() != EventStatus.COMPLETED) return;
 
         long eventId = event.getId();
 
+        int attendeeScore = scoreRuleService.getParticipationScore(ScoreActionType.COMPLETE_EVENT);
         for (User attendee : event.getAttendees()) {
-            long userId = attendee.getId();
-            userService.incrementUserScore(userId, scoreDelta);
-            kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
-                    userId,
-                    scoreDelta,
-                    "EVENT_COMPLETED_ATTENDEE",
-                    eventId
+            int newScore = userScoreService.incrementUserScore(attendee.getId(), attendeeScore);
+            eventPublisher.publishEvent(new UserScoreChangedEvent(
+                attendee.getId(),
+                newScore,
+                ScoreEventSource.EVENT_COMPLETED_ATTENDEE.name(),
+                eventId
             ));
-            log.info("Очки начислены участнику userId={}, eventId={}", userId, eventId);
         }
 
-        long ownerId = event.getOwner().getId();
-        userService.incrementUserScore(ownerId, scoreDelta);
-        kafkaProducer.sendScoreChanged(new UserScoreChangedEvent(
-                ownerId,
-                scoreDelta,
-                "EVENT_COMPLETED_OWNER",
-                eventId
+        int ownerScore = scoreRuleService.getOwnerScore(ScoreActionType.COMPLETE_EVENT);
+        int newScore = userScoreService.incrementUserScore(event.getOwner().getId(), ownerScore);
+        eventPublisher.publishEvent(new UserScoreChangedEvent(
+            event.getOwner().getId(),
+            newScore,
+            ScoreEventSource.EVENT_COMPLETED_OWNER.name(),
+            eventId
         ));
-        log.info("Очки начислены владельцу userId={}, eventId={}", ownerId, eventId);
     }
 }

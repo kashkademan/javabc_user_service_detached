@@ -28,15 +28,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Stream<User> findPremiumUsers();
 
-    @Modifying
-    @Query(value = """
-    INSERT INTO user_score(user_id, score)
-    VALUES (:userId, :delta)
-    ON CONFLICT (user_id)
-    DO UPDATE SET score = user_score.score + EXCLUDED.score
-    """, nativeQuery = true)
-    void upsertAndIncrementScore(@Param("userId") long userId, @Param("delta") int delta);
-
     List<User> findByUsernameLike(String username);
 
     boolean existsByUsername(String username);

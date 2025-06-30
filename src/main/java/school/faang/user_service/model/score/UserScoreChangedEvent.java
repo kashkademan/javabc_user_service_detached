@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserScoreChangedEvent {
     private long userId;
-    private int scoreDelta;
+    private int updatedScore;
     private String sourceType;
     private long sourceId;
 }

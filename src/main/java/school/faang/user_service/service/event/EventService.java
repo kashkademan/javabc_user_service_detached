@@ -85,11 +85,6 @@ public class EventService {
                         eventId));
     }
 
-    @Transactional(readOnly = true)
-    public List<Event> getAllEvents(long eventId) {
-        return eventRepository.findAll();
-    }
-
     @Transactional
     public void deleteEventById(long eventId) {
         Event event = getEventById(eventId);

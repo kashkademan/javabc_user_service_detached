@@ -85,6 +85,15 @@ public class UserService {
         return userRepository.findAllById(userIds);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByIdOrThrow(long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+
+        return true;
+    }
+
     @Transactional
     public User registrationUser(User user, Long countryId) {
         userValidator.validateUser(user);
@@ -135,23 +144,5 @@ public class UserService {
         promotionRedisService.decrementCountViewByUserIds(filteredUserIds);
 
         return users;
-    }
-
-    @Transactional
-    public void incrementUserScore(long userId, int scoreDelta) {
-        if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(userId);
-        }
-
-        userRepository.upsertAndIncrementScore(userId, scoreDelta);
-    }
-
-    @Transactional
-    public int getUserScore(long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        UserScore userScore = user.getScore();
-        return userScore.getScore();
     }
 }
