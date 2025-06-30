@@ -3,11 +3,12 @@ package school.faang.user_service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.MappingConstants;
 import school.faang.user_service.dto.EducationDto;
 import school.faang.user_service.entity.Education;
 import school.faang.user_service.entity.User;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EducationMapper {
 
     @Mapping(source =  "educationDto.id", target = "id")
