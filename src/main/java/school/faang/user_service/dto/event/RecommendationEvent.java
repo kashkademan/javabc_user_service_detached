@@ -4,5 +4,4 @@ public record RecommendationEvent(
         long authorId,
         long receiverId,
         String text
-        ) {
-}
+) {}
