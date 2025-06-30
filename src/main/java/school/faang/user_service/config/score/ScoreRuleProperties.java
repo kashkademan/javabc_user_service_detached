@@ -1,27 +1,27 @@
 package school.faang.user_service.config.score;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.aspect.score.ScoreActionType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "score.rules")
-@Getter
-@Setter
+@Component
 public class ScoreRuleProperties {
-    private Map<String, Integer> defaultValues = new HashMap<>();
-    private Map<String, Map<String, Integer>> roleValues = new HashMap<>();
+    private final Map<String, Integer> scoreRules = new HashMap<>();
+    private final Map<String, Map<String, Integer>> scoreRulesByRole = new HashMap<>();
 
-    public int getScore(ScoreActionType type, String role) {
-        return roleValues.getOrDefault(type.name(), Map.of())
+
+    public ScoreRuleProperties() {
+    }
+
+    public int getScoreByRole(ScoreActionType type, String role) {
+        return scoreRulesByRole.getOrDefault(type.name(), Map.of())
                 .getOrDefault(role.toUpperCase(), 0);
     }
 
-    public int getDefaultScore(ScoreActionType type) {
-        return defaultValues.getOrDefault(type.name(), 0);
+    public int getScore(ScoreActionType type) {
+        return scoreRules.getOrDefault(type.name(), 0);
     }
 }
-

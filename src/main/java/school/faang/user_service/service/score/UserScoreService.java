@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.user.UserScore;
-import school.faang.user_service.repository.user.UserScoreRepository;
+import school.faang.user_service.repository.score.UserScoreRepository;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;

@@ -46,15 +46,6 @@ topics:
   user-score-changed: user.score.changed
   user-score-changed-dlt: user.score.changed.dlt
 
-score:
-  rules:
-    default-values:
-      COMPLETE_GOAL: 10
-    role-values:
-      COMPLETE_EVENT:
-        OWNER: 5
-        ATTENDEE: 2
-
 server:
   port: 8080
 

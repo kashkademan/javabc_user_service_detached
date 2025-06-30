@@ -12,7 +12,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.model.score.ScoreEventSource;
 import school.faang.user_service.model.score.UserScoreChangedEvent;
-import school.faang.user_service.service.user.UserService;
 
 @RequiredArgsConstructor
 @Component
@@ -25,7 +24,7 @@ public class ScoreTrackingService {
 
     @Transactional
     public void trackAfterCompleteGoal(Goal goal) {
-        int scoreDelta = scoreRuleService.getDefaultScore(ScoreActionType.COMPLETE_GOAL);
+        int scoreDelta = scoreRuleService.getScore(ScoreActionType.COMPLETE_GOAL);
 
         for (User user : goal.getUsers()) {
             int newScore = userScoreService.incrementUserScore(user.getId(), scoreDelta);
