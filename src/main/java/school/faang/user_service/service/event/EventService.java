@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
@@ -40,10 +43,8 @@ public class EventService {
     private final UserContext userContext;
     private final EventRedisService eventRedisService;
     private final PromotionRedisService promotionRedisService;
-    private final ApplicationContext applicationContext;
     private final Executor executor;
     private final KafkaEventFacade kafkaFacade;
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
 
     public EventService(UserService userService,
                         SkillService skillService,
@@ -53,6 +54,7 @@ public class EventService {
                         UserContext userContext,
                         EventRedisService eventRedisService,
                         PromotionRedisService promotionRedisService,
+                        KafkaEventFacade kafkaFacade,
                         @Qualifier("getEventExecutor") Executor executor) {
         this.userService = userService;
         this.skillService = skillService;
@@ -62,6 +64,7 @@ public class EventService {
         this.userContext = userContext;
         this.eventRedisService = eventRedisService;
         this.promotionRedisService = promotionRedisService;
+        this.kafkaFacade = kafkaFacade;
         this.executor = executor;
     }
 
