@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.aspect.score.ScoreActionType;
 import school.faang.user_service.entity.score.ScoreRule;
+import school.faang.user_service.exception.score.ScoreRuleNotFoundException;
 import school.faang.user_service.repository.score.ScoreRuleRepository;
 
 @Service
@@ -12,13 +13,15 @@ public class ScoreRuleService {
 
     private final ScoreRuleRepository scoreRuleRepository;
 
-    public int getScoreByType(ScoreActionType type) {
-        ScoreRule scoreRule = scoreRuleRepository.findByType(type);
+    public int getScoreByTypeOrThrow(ScoreActionType type) {
+        ScoreRule scoreRule = scoreRuleRepository.findByType(type)
+                .orElseThrow(() -> new ScoreRuleNotFoundException(type.name()));
         return scoreRule.getScore();
     }
 
-    public int getScoreByRole(ScoreActionType type, String role) {
-        ScoreRule scoreRule = scoreRuleRepository.findByTypeAndRole_Name(type, role);
+    public int getScoreByRoleOrThrow(ScoreActionType type, String role) {
+        ScoreRule scoreRule = scoreRuleRepository.findByTypeAndRole_Name(type, role)
+                .orElseThrow(() -> new ScoreRuleNotFoundException(type.name()));
         return scoreRule.getScore();
     }
 }

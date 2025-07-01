@@ -25,10 +25,10 @@ public class ScoreTrackingService {
 
     @Transactional
     public void trackAfterCompleteGoal(Goal goal) {
-        int scoreDelta = scoreRuleService.getScoreByType(ScoreActionType.COMPLETE_GOAL);
+        int scoreDelta = scoreRuleService.getScoreByTypeOrThrow(ScoreActionType.COMPLETE_GOAL);
 
         for (User user : goal.getUsers()) {
-            int newScore = userScoreService.updateScore(user.getId(), scoreDelta);
+            int newScore = userScoreService.incrementScore(user.getId(), scoreDelta);
             leaderboardService.updateLeaderboard(user.getId(), newScore);
         }
     }
@@ -40,15 +40,15 @@ public class ScoreTrackingService {
         }
 
         Role attendeeRole = roleService.getByNameOrThrow(RoleThesaurus.ATTENDEE);
-        int attendeeScore = scoreRuleService.getScoreByRole(ScoreActionType.COMPLETE_EVENT, attendeeRole.getName().name());
+        int attendeeScore = scoreRuleService.getScoreByRoleOrThrow(ScoreActionType.COMPLETE_EVENT, attendeeRole.getName().name());
         for (User attendee : event.getAttendees()) {
-            int newScore = userScoreService.updateScore(attendee.getId(), attendeeScore);
+            int newScore = userScoreService.incrementScore(attendee.getId(), attendeeScore);
             leaderboardService.updateLeaderboard(attendee.getId(), newScore);
         }
 
         Role ownerRole = roleService.getByNameOrThrow(RoleThesaurus.OWNER);
-        int ownerScore = scoreRuleService.getScoreByRole(ScoreActionType.COMPLETE_EVENT, ownerRole.getName().name());
-        int newScore = userScoreService.updateScore(event.getOwner().getId(), ownerScore);
+        int ownerScore = scoreRuleService.getScoreByRoleOrThrow(ScoreActionType.COMPLETE_EVENT, ownerRole.getName().name());
+        int newScore = userScoreService.incrementScore(event.getOwner().getId(), ownerScore);
         leaderboardService.updateLeaderboard(event.getOwner().getId(), newScore);
     }
 }

@@ -51,8 +51,8 @@ public class LeaderboardService {
                 .stream()
                 .filter(tuple -> tuple.getValue() != null && tuple.getScore() != null)
                 .map(tuple -> {
-                    long userId = (Long) tuple.getValue();
-                    double score = tuple.getScore();
+                    long userId = ((Number) tuple.getValue()).longValue();
+                    long score = tuple.getScore().longValue();
                     return new LeaderboardEntry(userId, score);
                 })
                 .toList();

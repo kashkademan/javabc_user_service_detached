@@ -21,7 +21,7 @@ public class UserScoreService {
     }
 
     @Transactional
-    public int updateScore(long userId, int scoreDelta) {
+    public int incrementScore(long userId, int scoreDelta) {
         Optional<UserScore> optional = userScoreRepository.findForUpdate(userId);
 
         if (optional.isPresent()) {
