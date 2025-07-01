@@ -1,12 +1,12 @@
 package school.faang.user_service.service.score;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.configuration.TestContainersConfig;
 import school.faang.user_service.entity.score.UserScore;
 import school.faang.user_service.entity.user.User;
@@ -23,31 +23,36 @@ class LeaderboardServiceIT extends TestContainersConfig {
     @Autowired
     private LeaderboardService leaderboardService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @MockBean
     private UserScoreService userScoreService;
 
+    private static final String LEADERBOARD_KEY = "Leaderboard";
     private static final int LEADERBOARD_LIMIT = 100;
 
     @BeforeEach
-    void setUp() {
-        leaderboardService.init();
+    void clearRedis() {
+        redisTemplate.delete(LEADERBOARD_KEY);
     }
 
     @Test
     void testInitLeaderboard() {
         int multiplier = 10;
         List<UserScore> scores = IntStream.range(1, LEADERBOARD_LIMIT * 2)
-            .mapToObj(i -> {
-                User user = new User();
-                user.setId((long) i);
+                .mapToObj(i -> {
+                    User user = new User();
+                    user.setId((long) i);
 
-                UserScore userScore = new UserScore();
-                userScore.setUser(user);
-                userScore.setScore(i * multiplier);
+                    UserScore userScore = new UserScore();
+                    userScore.setUser(user);
+                    userScore.setScore(i * multiplier);
 
-                return userScore;
-            })
-            .toList();
+                    return userScore;
+                })
+                .toList();
+
         long expectedUser = LEADERBOARD_LIMIT * 2 - 1;
         long expectedScore = (LEADERBOARD_LIMIT * 2 - 1) * multiplier;
 
