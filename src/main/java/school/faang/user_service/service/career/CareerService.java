@@ -4,34 +4,58 @@ import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
+/**
+ * Сервис для управления карьерной информацией пользователей.
+ * <p>
+ * Предоставляет методы для добавления, обновления и получения записей о карьере.
+ */
 public interface CareerService {
 
     /**
-     * Создает новую карьерную запись для указанного сотрудника.
+     * Создаёт новую запись о карьере для указанного пользователя.
+     * <p>
+     * Условия:
+     * <ul>
+     *     <li>Дата начала карьеры {@code from} не может быть в будущем — иначе выбрасывается
+     *     {@link DataValidationException}.</li>
+     *     <li>Пользователь должен существовать — иначе выбрасывается {@code EntityNotFoundException}.</li>
+     * </ul>
      *
-     * @param careerDto DTO-объект с данными для создания карьерной записи
-     * @param userId пользователь который хочет добавить карьеру
-     * @return созданная карьерная запись
-     * @throws DataValidationException если дата больше чем настоящее
+     * @param userId    идентификатор пользователя, добавляющего карьеру
+     * @param careerDto объект {@link CareerDto}, содержащий данные для создания записи
+     * @return объект {@link CareerDto}, представляющий созданную запись
      */
     CareerDto addCareer(long userId, CareerDto careerDto);
 
     /**
-     * Обновляет существующую карьерную запись.
+     * Обновляет существующую запись о карьере пользователя.
+     * <p>
+     * Условия:
+     * <ul>
+     *     <li>Дата начала карьеры {@code from} не может быть в будущем — иначе выбрасывается
+     *     {@link DataValidationException}.</li>
+     *     <li>Обновление разрешено только владельцу записи — иначе выбрасывается
+     *     {@link ForbiddenException}.</li>
+     *     <li>Запись должна существовать — иначе выбрасывается {@code EntityNotFoundException}.</li>
+     * </ul>
      *
-     * @param userId идентификатор карьерной записи для обновления
-     * @param careerDto DTO-объект с обновленными данными
-     * @return обновленная карьерная запись
-     * @throws DataValidationException если дата больше чем настоящее
-     * @throws ForbiddenException если пользователь пытается обновить не свои данные
+     * @param userId    идентификатор пользователя, выполняющего обновление
+     * @param careerId  идентификатор обновляемой записи
+     * @param careerDto объект {@link CareerDto}, содержащий обновлённые данные
+     * @return объект {@link CareerDto}, представляющий обновлённую запись
      */
     CareerDto updateCareer(long userId, long careerId, CareerDto careerDto);
 
     /**
-     * Возвращает карьерную запись по указанному идентификатору.
+     * Возвращает запись о карьере по её идентификатору.
+     * <p>
+     * Условия:
+     * <ul>
+     *     <li>Если запись не найдена — выбрасывается {@code EntityNotFoundException}.</li>
+     * </ul>
      *
-     * @param careerId  идентификатор карьерной записи
-     * @return карьерная запись
+     * @param careerId идентификатор карьерной записи
+     * @return объект {@link CareerDto}, представляющий найденную запись
      */
     CareerDto getById(long careerId);
 }
