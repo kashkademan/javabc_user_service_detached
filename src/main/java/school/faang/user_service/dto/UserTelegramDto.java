@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserTelegramDto {
-    private Long id;
+    private Long userId;
 
     @NotNull(message = "Telegram user name must be provided")
     private String telegramUserName;

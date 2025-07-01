@@ -31,6 +31,7 @@ public interface UserMapper {
     @Mapping(target = "pictureFileId", source = "userProfilePic.fileId")
     UserPersonalDto toUserPersonalDto(User user);
 
+    @Mapping(target = "userId", source = "id")
     UserTelegramDto toUserTelegramDto(User user);
 
     default String buildAboutMe(Person person) {

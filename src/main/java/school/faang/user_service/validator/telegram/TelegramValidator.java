@@ -1,22 +1,21 @@
-package school.faang.user_service.service.telegram;
+package school.faang.user_service.validator.telegram;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.TelegramService;
 
-@Service
-public class TelegramServiceImpl implements TelegramService {
+@Component
+public class TelegramValidator implements school.faang.user_service.validator.TelegramValidator {
     @Override
     public void validateTelegramUserId(UserTelegramDto userTelegramDto, long userId) {
-        if (userTelegramDto.getId() == null || userTelegramDto.getId() == userId) {
+        if (userTelegramDto.getUserId() == null || userTelegramDto.getUserId() == userId) {
             return;
         }
 
         throw new DataValidationException(String.format(
-                "Provided user id and existing user id fot telegram user name \"%s\" must be the same",
+                "Provided user id and existing user id for telegram user name \"%s\" must be the same",
                 userTelegramDto.getTelegramUserName()));
     }
 

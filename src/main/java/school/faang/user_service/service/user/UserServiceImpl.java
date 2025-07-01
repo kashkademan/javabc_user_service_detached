@@ -17,7 +17,7 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.service.TelegramService;
+import school.faang.user_service.validator.TelegramValidator;
 import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final CsvMapper csvMapper;
     private final UserPictureService pictureService;
-    private final TelegramService telegramService;
+    private final TelegramValidator telegramValidator;
 
     @Override
     public UserDto findUserById(Long userId) {
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto updateUser(UserDto userDto) {
-        telegramService.validateTelegramPreference(userDto);
+        telegramValidator.validateTelegramPreference(userDto);
 
         UserDto existingUser = findUserById(userDto.getId());
         existingUser.setEmail(userDto.getEmail());
@@ -179,12 +179,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserTelegramDto addUserTelegram(UserTelegramDto userTelegramDto) {
-        User user = userRepository.findByTelegramUserName(userTelegramDto.getTelegramUserName())
-                .orElseThrow(() -> new EntityNotFoundException("User with presented user name not found"));
-        telegramService.validateTelegramUserId(userTelegramDto, user.getId());
-        telegramService.validateTelegramChatId(userTelegramDto.getTelegramChatId(), user.getTelegramChatId(), user.getId());
-        user.setTelegramChatId(userTelegramDto.getTelegramChatId());
+    public UserTelegramDto addUserTelegram(UserTelegramDto userTelegram) {
+        User user = userRepository.findByTelegramUserName(userTelegram.getTelegramUserName())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with presented user name [%s] not found",
+                        userTelegram.getTelegramUserName())));
+        telegramValidator.validateTelegramUserId(userTelegram, user.getId());
+        telegramValidator.validateTelegramChatId(userTelegram.getTelegramChatId(), user.getTelegramChatId(), user.getId());
+        user.setTelegramChatId(userTelegram.getTelegramChatId());
         userRepository.save(user);
 
         return userMapper.toUserTelegramDto(user);
@@ -192,18 +193,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserTelegramDto getUserTelegram(long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new EntityNotFoundException(String.format("Telegram for user [%d] not found", userId)));
 
         return userMapper.toUserTelegramDto(user);
     }
 
     @Override
     public UserTelegramDto getUserByTelegram(String telegramUserName) {
-        Optional<User> user = userRepository.findByTelegramUserName(telegramUserName);
-        if (user.isEmpty()) {
-            return new UserTelegramDto(null, telegramUserName, null);
-        }
+        User user = userRepository.findByTelegramUserName(telegramUserName).orElseThrow(()
+                -> new EntityNotFoundException(String.format("User with telegram name [%s] not found", telegramUserName)));
 
-        return userMapper.toUserTelegramDto(user.get());
+        return userMapper.toUserTelegramDto(user);
     }
 }
