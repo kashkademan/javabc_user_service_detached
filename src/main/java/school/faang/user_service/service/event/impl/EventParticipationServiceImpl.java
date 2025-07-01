@@ -12,7 +12,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.event.EventParticipationService;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service

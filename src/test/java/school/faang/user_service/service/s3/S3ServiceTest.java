@@ -133,4 +133,3 @@ public class S3ServiceTest {
         assertThrows(FileException.class, () -> s3Service.downloadFile(KEY));
     }
 }
-

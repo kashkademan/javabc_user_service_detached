@@ -23,7 +23,7 @@ public final class LogsConstants {
     // Сообщения об ошибках при работе с User
     public static final String USER_NOT_FOUND = "User with id = %s is not found";
     public static final String USER_PICTURE_NOT_FOUND = "User profile picture is not found for userId = %s";
-
+    public static final String USER_COUNTRY_NOT_FOUND = "Country with id = %s is not found";
 
     // Сообщения об ошибках при работе с Skill
     public static final String SKILL_ALREADY_EXIST = "Skill '%s' is already existed";
@@ -46,6 +46,13 @@ public final class LogsConstants {
     public static final String UPLOAD_FAILED = "File uploading failed";
     public static final String DOWNLOAD_FAILED = "Failed to download file from storage";
     public static final String DELETION_FAILED = "File deletion failed";
+    public static final String PRESIGNED_URL_GENERATION_FAILED = "Failed to generate presigned url for file";
 
+    //Сообщения при работе с подписками Premium
+    public static final String SUBSCRIPTION_NOT_FOUND = "There is no subscription with a duration of %s days";
+    public static final String USER_HAS_PREMIUM = "User already has premium";
+
+    //Сообщения при оплате
+    public static final String PAYMENT_PROBLEMS = "There are some problems during the payment processing";
 
 }
