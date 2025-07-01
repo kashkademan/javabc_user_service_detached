@@ -68,9 +68,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/api/v1/users/{profileId}/view")
-    public ResponseEntity<UserDto> viewProfile(@PathVariable long profileId) {
-        UserDto userDto = userService.viewProfile(profileId);
-        return ResponseEntity.ok()
-                .body(userDto);
+    public ResponseEntity<Void> viewProfile(@PathVariable long profileId) {
+        userService.viewProfile(profileId);
+        return ResponseEntity.noContent().build();
     }
 }

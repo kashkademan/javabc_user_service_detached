@@ -11,6 +11,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.users.UserNotFoundException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.producer.KafkaServer;
 import school.faang.user_service.service.s3.S3Service;
@@ -41,6 +42,7 @@ public class UserService {
     private final ImageResizer imageResizer;
     private final KafkaServer kafkaServer;
 
+    private final UserMapper userMapper;
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
        return userRepository.findById(userId).orElseThrow(() -> {
@@ -112,9 +114,12 @@ public class UserService {
         return fileDto;
     }
 
-    public User viewProfile(long profileId) {
+    public void viewProfile(long profileId) {
         long viewerId = userContext.getUserId();
-        kafkaServer.sendProfileViewNotification(profileId, viewerId);
-        return getUserById(profileId);
+        User userViewer = getUserById(viewerId);
+        User userProfile = getUserById(profileId);
+        UserDto profileUserDto = userMapper.userToDto(userProfile);
+        UserDto viewerUserDto = userMapper.userToDto(userViewer);
+        kafkaServer.sendProfileViewNotification(profileUserDto, viewerUserDto);
     }
 }
