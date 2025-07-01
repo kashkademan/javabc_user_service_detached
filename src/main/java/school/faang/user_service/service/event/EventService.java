@@ -55,7 +55,7 @@ public class EventService {
                         EventRedisService eventRedisService,
                         PromotionRedisService promotionRedisService,
                         KafkaEventFacade kafkaFacade,
-                        @Qualifier("getEventExecutor") Executor executor) {
+                        @Qualifier("getEventInRedisExecutor") Executor executor) {
         this.userService = userService;
         this.skillService = skillService;
         this.eventRepository = eventRepository;

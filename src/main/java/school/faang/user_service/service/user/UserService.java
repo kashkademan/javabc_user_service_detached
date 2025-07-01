@@ -47,7 +47,7 @@ public class UserService {
                        UserFilterRepository userFilterRepository,
                        UserRedisService userRedisService,
                        PromotionRedisService promotionRedisService,
-                       @Qualifier("getUserExecutor") Executor executor) {
+                       @Qualifier("getUserInRedisExecutor") Executor executor) {
         this.userRepository = userRepository;
         this.userContext = userContext;
         this.userValidator = userValidator;

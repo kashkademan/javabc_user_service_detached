@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 public class ExecutorsProperties {
 
     private ExecutorProps addEventInRedis;
+    private ExecutorProps addUserInRedis;
+    private ExecutorProps getUserInRedis;
+    private ExecutorProps getEventInRedis;
     private ExecutorProps decrementCountView;
     private ExecutorProps kafkaMessage;
 

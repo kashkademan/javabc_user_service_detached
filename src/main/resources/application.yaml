@@ -68,6 +68,24 @@ executors:
     queue-capacity: 100
     thread-name-prefix: RedisEventExecutor-
 
+  add-user-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: RedisUserExecutor-
+
+  get-user-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: DecrementCountViewExecutor-
+
+  get-event-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: DecrementCountViewExecutor-
+
   decrement-count-view:
     core-pool-size: 1
     max-pool-size: 10

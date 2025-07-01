@@ -19,10 +19,21 @@ public class ExecutorsConfig {
         return buildExecutor(properties.getAddEventInRedis());
     }
 
-    @Bean(name = "decrementCountViewExecutor")
-    public Executor decrementCountViewExecutor() {
-        return buildExecutor(properties.getDecrementCountView());
+    @Bean(name = "addUserInRedisExecutor")
+    public Executor addUserInRedisExecutor() {
+        return buildExecutor(properties.getAddUserInRedis());
     }
+
+    @Bean(name = "getUserInRedisExecutor")
+    public Executor getUserInRedisExecutor() {
+        return buildExecutor(properties.getGetUserInRedis());
+    }
+
+    @Bean(name = "getEventInRedisExecutor")
+    public Executor getEventInRedisExecutor() { return buildExecutor(properties.getGetEventInRedis()); }
+
+    @Bean(name = "decrementCountViewExecutor")
+    public Executor decrementCountViewExecutor() { return buildExecutor(properties.getDecrementCountView()); }
 
     @Bean(name = "kafkaMessageExecutor")
     public Executor kafkaMessageExecutor() {
