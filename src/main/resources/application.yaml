@@ -46,7 +46,8 @@ minio:
 
 kafka:
   host: "localhost:9092"
-  topic-name: "recommendation"
+  topics:
+    recommendation: "recommendation"
   partitions: 3
   replication-factor: 1
   properties:
