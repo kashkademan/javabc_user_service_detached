@@ -109,7 +109,7 @@ tasks.jacocoTestReport {
                             "**/utils/**",
                             "**/job/**",
                             "**/initialization/**",
-                            "**/convertor/**"
+                            "**/converter/**"
                     )
                 }
             })
@@ -155,8 +155,8 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
                     "school.faang.user_service.job.*",
                     "school.faang.user_service.initialization",
                     "school.faang.user_service.initialization.*",
-                    "school.faang.user_service.convertor",
-                    "school.faang.user_service.convertor.*",
+                    "school.faang.user_service.converter",
+                    "school.faang.user_service.converter.*",
                     "school.faang.user_service.utils",
                     "school.faang.user_service.utils.*",
                     "school.faang.user_service"

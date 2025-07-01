@@ -104,7 +104,7 @@ public class PromotionServiceTest {
             return saved;
         });
 
-        Promotion result = promotionService.createPromotion(event.getId(), tariff.getId());
+        Promotion result = promotionService.createPromotionForEvent(event.getId(), tariff.getId());
 
         assertNotNull(result);
         assertEquals(result, promotionCaptor.getValue());
@@ -126,7 +126,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 ActivePromotionAlreadyExistsException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verifyNoInteractions(
@@ -142,7 +142,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 EventNotFoundException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verify(eventService).getEventById(event.getId());
@@ -160,7 +160,7 @@ public class PromotionServiceTest {
 
         assertThrows(
                 PromotionTariffNotFoundException.class,
-                () -> promotionService.createPromotion(event.getId(), tariff.getId())
+                () -> promotionService.createPromotionForEvent(event.getId(), tariff.getId())
         );
         verify(promotionValidator).checkActivePromotionForEvent(event.getId());
         verify(promotionTariffService).getPromotionTariffById(tariff.getId());
@@ -225,15 +225,15 @@ public class PromotionServiceTest {
         secondPromotion.setStatus(PromotionStatus.ACTIVE);
         List<Promotion> mockPromotions = List.of(promotion, secondPromotion);
 
-        when(promotionRepository.findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE))
+        when(promotionRepository.findAllByStatus(PromotionStatus.ACTIVE))
                 .thenReturn(mockPromotions);
 
-        List<Promotion> result = promotionService.getAllActiveEventPromotion();
+        List<Promotion> result = promotionService.getAllActivePromotion();
 
         assertNotNull(result);
         assertEquals(mockPromotions.size(), result.size());
         assertEquals(PromotionStatus.ACTIVE, result.get(0).getStatus());
         assertEquals(PromotionType.EVENT, result.get(0).getType());
-        verify(promotionRepository).findAllByTypeAndStatus(PromotionType.EVENT, PromotionStatus.ACTIVE);
+        verify(promotionRepository).findAllByStatus(PromotionStatus.ACTIVE);
     }
 }

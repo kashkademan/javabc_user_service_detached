@@ -3,6 +3,7 @@ package school.faang.user_service.dto.promotion;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.entity.promotion.PromotionStatus;
 import school.faang.user_service.entity.promotion.PromotionType;
 
 import java.time.LocalDateTime;
@@ -18,4 +19,5 @@ public class PromotionResponseDto {
     private Long tariffId;
     private LocalDateTime endDate;
     private Integer countView;
+    private PromotionStatus status;
 }

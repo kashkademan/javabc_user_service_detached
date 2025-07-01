@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import school.faang.user_service.dto.error.UserServiceErrorResponseDto;
 import school.faang.user_service.exception.authorization.UserUnauthorizedException;
 import school.faang.user_service.exception.country.CountryNotFoundException;
+import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.exception.goal.CountActiveGoalMoreMaxException;
@@ -55,6 +56,7 @@ public class UserServiceExceptionHandler {
         HTTP_STATUS_MAP.put(ActivePromotionAlreadyExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(EventValidationException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(UserAlreadyExistsException.class, HttpStatus.CONFLICT);
+        HTTP_STATUS_MAP.put(ActivePromotionExistsException.class, HttpStatus.CONFLICT);
         HTTP_STATUS_MAP.put(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST);
         HTTP_STATUS_MAP.put(FeignException.class, HttpStatus.BAD_GATEWAY);
         HTTP_STATUS_MAP.put(RetryableException.class, HttpStatus.BAD_GATEWAY);
@@ -84,6 +86,7 @@ public class UserServiceExceptionHandler {
             NotEnoughSkillOffersException.class,
             ActivePromotionAlreadyExistsException.class,
             EventValidationException.class,
+            ActivePromotionExistsException.class,
             UserAlreadyExistsException.class,
             MethodArgumentNotValidException.class,
             FeignException.class,

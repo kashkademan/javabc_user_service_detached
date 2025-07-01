@@ -7,13 +7,12 @@ import school.faang.user_service.model.redis.RedisHashType;
 @UtilityClass
 public class RedisKeyUtil {
     private static final String HASH_KEY_SEPARATOR = ":";
-    private static final String LOCK = "lock";
-    public static String getKeyById(Long id, RedisHashType redisHashType) {
+    public static String getKeyById(long id, RedisHashType redisHashType) {
         return redisHashType.getHashName() + HASH_KEY_SEPARATOR + id;
     }
 
-    public static String getLockNameByKey(String key) {
-        return LOCK + HASH_KEY_SEPARATOR + key;
+    public static String getSmallKeyById(long id) {
+        return String.valueOf(id);
     }
 
     public static Long getIdByKey(String redisKey) {

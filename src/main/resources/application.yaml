@@ -22,11 +22,7 @@ spring:
       host: localhost
       ttl:
         event: 1800
-      lock:
-        promotion:
-          expire-time: 3000
-          max-retries: 10
-          retry-delay: 300
+        user: 1800
 
   kafka:
     bootstrap-servers: localhost:29092
@@ -87,6 +83,10 @@ executors:
 jobs:
   promotion:
     close:
-      cron: "*/15 * * * * *"
+      view:
+        cron: "*/15 * * * * *"
+          # Каждые 15 секунд
+      time:
+        cron: "*/15 * * * * *"
         # Каждые 15 секунд
 

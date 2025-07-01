@@ -12,15 +12,22 @@ import school.faang.user_service.entity.user.User;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserMapper {
+public interface UserEntityMapper {
     User toUserEntity(UserRegisterRequestDto userRegisterRequestDto);
 
     UserRegisterResponseDto toUserRegisterResponseDto(User user);
 
-    UserResponseDto toUserResponseDto(User user);
+    UserResponseDto toUserLiteResponseDto(User user);
+
+    List<UserResponseDto> toUserLiteResponseDtoList(List<User> users);
+
     @Mapping(source = "contactPreference.preference", target = "preference")
     @Mapping(source = "country.locale", target = "locale")
     UserNotificationResponseDto toUserNotificationResponseDto(User user);
+
+    @Mapping(source = "contactPreference.preference", target = "preference")
+    @Mapping(source = "country.locale", target = "locale")
+    List<UserNotificationResponseDto> toUserNotificationResponseDtoList(List<User> users);
 
     List<UserResponseDto> toUserResponseDtoList(List<User> users);
 }

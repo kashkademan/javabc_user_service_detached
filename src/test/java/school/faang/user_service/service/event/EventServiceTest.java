@@ -10,8 +10,12 @@ import org.springframework.context.ApplicationContext;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.promotion.PromotionStatus;
+import school.faang.user_service.entity.promotion.PromotionType;
 import school.faang.user_service.entity.skill.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
 import school.faang.user_service.facade.kafka.KafkaEventFacade;
@@ -30,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,9 +126,9 @@ public class EventServiceTest {
     }
 
     @Test
-    void deleteEvent_existingId_shouldDelete() {
+    void deleteEvent_successfully() {
         long eventId = 1L;
-        when(eventRepository.existsById(eventId)).thenReturn(true);
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
         eventService.deleteEventById(eventId);
 
@@ -131,11 +136,29 @@ public class EventServiceTest {
     }
 
     @Test
-    void deleteEvent_nonexistentId_shouldThrow() {
+    void testDeleteEvent_eventNotFound() {
         long eventId = 1L;
-        when(eventRepository.existsById(eventId)).thenReturn(false);
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
         assertThrows(EventNotFoundException.class, () -> eventService.deleteEventById(eventId));
+
+        verify(eventRepository, never()).deleteById(eventId);
+    }
+
+    @Test
+    void testDeleteEvent_ExistsActivePromotion() {
+        long eventId = 1L;
+        Promotion promotion = new Promotion();
+        promotion.setId(18L);
+        promotion.setType(PromotionType.EVENT);
+        promotion.setStatus(PromotionStatus.ACTIVE);
+        event.setPromotions(List.of(promotion));
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        assertThrows(ActivePromotionExistsException.class, () -> eventService.deleteEventById(eventId));
+
+        verify(eventRepository, never()).deleteById(eventId);
     }
 
     @Test
