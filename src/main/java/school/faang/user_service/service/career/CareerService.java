@@ -1,6 +1,5 @@
 package school.faang.user_service.service.career;
 
-import org.mapstruct.Mapper;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -9,6 +8,7 @@ public interface CareerService {
 
     /**
      * Создает новую карьерную запись для указанного сотрудника.
+     *
      * @param careerDto DTO-объект с данными для создания карьерной записи
      * @param userId пользователь который хочет добавить карьеру
      * @return созданная карьерная запись
@@ -18,6 +18,7 @@ public interface CareerService {
 
     /**
      * Обновляет существующую карьерную запись.
+     *
      * @param userId идентификатор карьерной записи для обновления
      * @param careerDto DTO-объект с обновленными данными
      * @return обновленная карьерная запись
@@ -28,6 +29,7 @@ public interface CareerService {
 
     /**
      * Возвращает карьерную запись по указанному идентификатору.
+     *
      * @param careerId  идентификатор карьерной записи
      * @return карьерная запись
      */

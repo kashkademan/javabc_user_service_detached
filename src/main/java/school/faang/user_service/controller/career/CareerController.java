@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
-import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.service.career.CareerService;
 
 @RestController
