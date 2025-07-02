@@ -58,6 +58,7 @@ public class RedisConfig {
         redisTemplate.setValueSerializer(serializer);
         return redisTemplate;
     }
+
     @Value("${redis.channels.profile_pic}")
     private String profilePicChannel;
 
