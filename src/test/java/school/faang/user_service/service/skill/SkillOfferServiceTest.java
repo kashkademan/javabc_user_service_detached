@@ -1,4 +1,4 @@
-package school.faang.user_service.service.skill_offer;
+package school.faang.user_service.service.skill;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

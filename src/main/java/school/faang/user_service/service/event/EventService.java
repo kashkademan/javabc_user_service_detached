@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -13,7 +14,10 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
+import school.faang.user_service.facade.kafka.KafkaEventFacade;
+import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.model.event.EventFilter;
+import school.faang.user_service.publisher.EventKafkaPublisher;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
@@ -25,6 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
@@ -38,6 +44,7 @@ public class EventService {
     private final EventRedisService eventRedisService;
     private final PromotionRedisService promotionRedisService;
     private final Executor executor;
+    private final KafkaEventFacade kafkaFacade;
 
     public EventService(UserService userService,
                         SkillService skillService,
@@ -47,7 +54,8 @@ public class EventService {
                         UserContext userContext,
                         EventRedisService eventRedisService,
                         PromotionRedisService promotionRedisService,
-                        @Qualifier("getEventExecutor") Executor executor) {
+                        KafkaEventFacade kafkaFacade,
+                        @Qualifier("getEventInRedisExecutor") Executor executor) {
         this.userService = userService;
         this.skillService = skillService;
         this.eventRepository = eventRepository;
@@ -56,6 +64,7 @@ public class EventService {
         this.userContext = userContext;
         this.eventRedisService = eventRedisService;
         this.promotionRedisService = promotionRedisService;
+        this.kafkaFacade = kafkaFacade;
         this.executor = executor;
     }
 
@@ -73,7 +82,10 @@ public class EventService {
         }
 
         eventValidator.validateEventDates(event.getStartDate(), event.getEndDate());
-        return eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+
+        kafkaFacade.createEvent(savedEvent);
+        return savedEvent;
     }
 
     @Transactional(readOnly = true)

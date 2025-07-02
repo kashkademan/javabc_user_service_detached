@@ -24,6 +24,16 @@ spring:
         event: 1800
         user: 1800
 
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    topic:
+      event:
+        name: event_topic
+        partitions: 1
+
 server:
   port: 8080
 
@@ -50,6 +60,43 @@ services:
     accessKey: user
     secretKey: password
     bucketName: corpbucket
+
+executors:
+  add-event-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: RedisEventExecutor-
+
+  add-user-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: RedisUserExecutor-
+
+  get-user-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: DecrementCountViewExecutor-
+
+  get-event-in-redis:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: DecrementCountViewExecutor-
+
+  decrement-count-view:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: DecrementCountViewExecutor-
+
+  kafka-message:
+    core-pool-size: 1
+    max-pool-size: 10
+    queue-capacity: 100
+    thread-name-prefix: KafkaMessageExecutor-
 
 jobs:
   promotion:

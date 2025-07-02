@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user_skill_guarantee;
+package school.faang.user_service.service.user;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

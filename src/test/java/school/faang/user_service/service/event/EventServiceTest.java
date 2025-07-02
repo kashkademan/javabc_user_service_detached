@@ -18,6 +18,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.event.ActivePromotionExistsException;
 import school.faang.user_service.exception.event.EventNotFoundException;
 import school.faang.user_service.exception.event.EventValidationException;
+import school.faang.user_service.facade.kafka.KafkaEventFacade;
 import school.faang.user_service.repository.event.EventFilterRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.promotion.PromotionRedisService;
@@ -61,6 +62,8 @@ public class EventServiceTest {
     private EventRedisService eventRedisService;
     @Mock
     private ApplicationContext applicationContext;
+    @Mock
+    private KafkaEventFacade kafkaFacade;
 
     private Event event;
     private User user;
