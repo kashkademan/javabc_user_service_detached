@@ -32,4 +32,8 @@ public class SkillOffer {
     @ManyToOne
     @JoinColumn(name = "recommendation_id", nullable = false)
     private Recommendation recommendation;
+
+    public Long getAuthorId() {
+        return recommendation.getAuthor().getId();
+    }
 }

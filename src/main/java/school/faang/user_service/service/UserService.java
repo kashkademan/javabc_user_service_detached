@@ -1,11 +1,11 @@
 package school.faang.user_service.service;
 
 import jakarta.annotation.PreDestroy;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import school.faang.user_service.config.MinioService;
 import school.faang.user_service.dto.UserDto;
@@ -13,11 +13,14 @@ import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.event.ProfilePicEvent;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.ProfilePicEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,13 +33,14 @@ public class UserService {
     private final CountryService countryService;
     private final RestTemplate restTemplate;
     private final MinioService minioService;
+    private final ProfilePicEventPublisher eventPublisher;
 
     @Value("${dice-bear-api}")
     private String diceBearApi;
 
     public User getUserById(Long id) {
         return userRepo.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("The Requester with id = " + id + " does not exist"));
+                new EntityNotFoundException("User with id = " + id + " does not exist"));
     }
 
     @Transactional
@@ -60,7 +64,44 @@ public class UserService {
         pic.setSmallFileId(userFullDto.email());
         user.setUserProfilePic(pic);
 
-        return userMapper.toDto(userRepo.save(user));
+        User savedUser = userRepo.save(user);
+
+        publishProfilePictureEvent(savedUser.getId(), pic.getFileId(), pic.getSmallFileId(), null, null);
+
+        return userMapper.toDto(savedUser);
+    }
+
+    @Transactional
+    public UserDto updateUserProfilePicture(Long userId, String newFileId, String newSmallFileId) {
+        User user = getUserById(userId);
+        UserProfilePic currentProfilePic = user.getUserProfilePic();
+
+        final String oldFileId = currentProfilePic != null ? currentProfilePic.getFileId() : null;
+        final String oldSmallFileId = currentProfilePic != null ? currentProfilePic.getSmallFileId() : null;
+
+        UserProfilePic newProfilePic = currentProfilePic != null ? currentProfilePic : new UserProfilePic();
+        newProfilePic.setFileId(newFileId);
+        newProfilePic.setSmallFileId(newSmallFileId);
+        user.setUserProfilePic(newProfilePic);
+
+        User savedUser = userRepo.save(user);
+
+        publishProfilePictureEvent(userId, newFileId, newSmallFileId, oldFileId, oldSmallFileId);
+
+        return userMapper.toDto(savedUser);
+    }
+
+    private void publishProfilePictureEvent(Long userId, String newFileId, String newSmallFileId,
+                                            String oldFileId, String oldSmallFileId) {
+        ProfilePicEvent event = ProfilePicEvent.builder()
+                .userId(userId)
+                .newFileId(newFileId)
+                .newSmallFileId(newSmallFileId)
+                .oldFileId(oldFileId)
+                .oldSmallFileId(oldSmallFileId)
+                .changedAt(LocalDateTime.now())
+                .build();
+        eventPublisher.publish(event);
     }
 
     private void validation(UserFullDto userFullDto) {

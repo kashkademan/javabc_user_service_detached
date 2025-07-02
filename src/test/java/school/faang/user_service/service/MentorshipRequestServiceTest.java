@@ -114,7 +114,7 @@ class MentorshipRequestServiceTest {
         MentorshipRequest mentorshipRequest =
                 new MentorshipRequest(1L, "asdf", requester, receiver, RequestStatus.ACCEPTED, "",
                         LocalDateTime.of(2025, 1, 1, 1, 1),
-                        LocalDateTime.of(2025, 4, 1, 1, 1));
+                        LocalDateTime.of(2025, 5, 1, 1, 1));
 
         when(mentorshipRequestRepository
                 .findLatestRequest(dto.requesterId(), dto.receiverId())).thenReturn(optionalMentorshipRequest);
@@ -126,7 +126,7 @@ class MentorshipRequestServiceTest {
         MentorshipResponseDto responseDto = new MentorshipResponseDto(1L, "asdf", requesterId, receiverId,
                 RequestStatus.ACCEPTED,
                 LocalDateTime.of(2025, 1, 1, 1, 1),
-                LocalDateTime.of(2025, 4, 1, 1, 1));
+                LocalDateTime.of(2025, 5, 1, 1, 1));
 
         assertNotNull(result);
         assertEquals(responseDto, result);
