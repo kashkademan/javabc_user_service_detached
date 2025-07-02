@@ -38,7 +38,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     @Override
     public void unfollowUser(long followerId, long followeeId) {
-        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.error("the user {} is trying to unsubscribe from the user {}", followerId, followeeId);
             throw new DataValidationException("the subscription does not exists");
         }
@@ -73,16 +73,16 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         List<User> followersList = subscriptionRepository.findByFolloweeId(followeeId).toList();
         log.info("Get followers");
         return followersList.stream()
-                .map(user -> userMapper.toUserDto(user))
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
     @Override
     public List<UserDto> getFollowees(long followerId) {
         List<User> followeesList = subscriptionRepository.findByFollowerId(followerId).toList();
-        log.info("Get followees count");
+        log.info("Get followees");
         return followeesList.stream()
-                .map(user -> userMapper.toUserDto(user))
+                .map(userMapper::toUserDto)
                 .toList();
     }
 }

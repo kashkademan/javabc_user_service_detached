@@ -1,7 +1,11 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
@@ -10,34 +14,64 @@ import school.faang.user_service.service.user.UserSubscriptionService;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class UserSubscriptionController {
     private final UserSubscriptionService subscriptionService;
     private final UserContext userContext;
 
-    public void followUser(long followeeId) {
+    /**
+     * Подписка текущего пользователя на другого пользователя.
+     * POST /api/subscriptions/{followeeId}
+     */
+    @PostMapping("/{followeeId}")
+    public void followUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.followUser(followerId, followeeId);
     }
 
-    public void unfollowUser(long followeeId) {
+    /**
+     * Отписка текущего пользователя от другого пользователя.
+     * DELETE /api/subscriptions/{followeeId}
+     */
+    @DeleteMapping("/{followeeId}")
+    public void unfollowUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public CountResponse getFollowersCount(long followeeId) {
+    /**
+     * Получение количества подписчиков указанного пользователя.
+     * GET /api/subscriptions/{followeeId}/followers/count
+     */
+    @GetMapping("/{followeeId}/followers/count")
+    public CountResponse getFollowersCount(@PathVariable Long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
-    public CountResponse getFolloweesCount(long followerId) {
+    /**
+     * Получение количества подписок указанного пользователя.
+     * GET /api/subscriptions/{followerId}/followees/count
+     */
+    @GetMapping("/{followerId}/followees/count")
+    public CountResponse getFolloweesCount(@PathVariable Long followerId) {
         return subscriptionService.getFolloweesCount(followerId);
     }
 
-    public List<UserDto> getFollowers(long followeeId) {
+    /**
+     * Получение списка всех подписчиков указанного пользователя.
+     * GET /api/subscriptions/{followeeId}/followers
+     */
+    @GetMapping("/{followeeId}/followers")
+    public List<UserDto> getFollowers(@PathVariable Long followeeId) {
         return subscriptionService.getFollowers(followeeId);
     }
 
-    public List<UserDto> getFollowees(long followerId) {
+    /**
+     * Получение списка всех подписок указанного пользователя.
+     * GET /api/subscriptions/{followerId}/followees
+     */
+    @GetMapping("/{followerId}/followees")
+    public List<UserDto> getFollowees(@PathVariable Long followerId) {
         return subscriptionService.getFollowees(followerId);
     }
 }
