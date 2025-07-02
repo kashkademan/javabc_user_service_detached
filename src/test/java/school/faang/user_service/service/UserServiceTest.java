@@ -15,10 +15,16 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.event.ProfilePicEvent;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.publisher.ProfilePicEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -39,6 +45,8 @@ class UserServiceTest {
     private MinioService minioService;
     @Mock
     private RestTemplate restTemplate;
+    @Mock
+    private ProfilePicEventPublisher eventPublisher;
     @InjectMocks
     private UserService userService;
 
@@ -138,6 +146,96 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(id, result.getId());
+    }
+
+    @Test
+    void updateUserProfilePictureWhenUserExistsShouldUpdatePicture() {
+        Long userId = 1L;
+        String newFileId = "new_file.jpg";
+        String newSmallFileId = "new_small_file.jpg";
+
+        User user = User.builder()
+                .id(userId)
+                .userProfilePic(new UserProfilePic())
+                .build();
+
+        UserDto expectedDto = new UserDto(userId, "test", "test@test.com");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(userMapper.toDto(user)).thenReturn(expectedDto);
+
+        UserDto result = userService.updateUserProfilePicture(userId, newFileId, newSmallFileId);
+
+        assertNotNull(result);
+        assertEquals(userId, result.id());
+        assertEquals(newFileId, user.getUserProfilePic().getFileId());
+        assertEquals(newSmallFileId, user.getUserProfilePic().getSmallFileId());
+
+        verify(eventPublisher).publish(any(ProfilePicEvent.class));
+    }
+
+    @Test
+    void updateUserProfilePictureWhenUserHasNoPreviousPictureShouldCreateNewPicture() {
+        Long userId = 1L;
+        String newFileId = "new_file.jpg";
+        String newSmallFileId = "new_small_file.jpg";
+
+        User user = User.builder()
+                .id(userId)
+                .userProfilePic(null)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+
+        userService.updateUserProfilePicture(userId, newFileId, newSmallFileId);
+
+        assertNotNull(user.getUserProfilePic());
+        assertEquals(newFileId, user.getUserProfilePic().getFileId());
+        assertEquals(newSmallFileId, user.getUserProfilePic().getSmallFileId());
+    }
+
+    @Test
+    void updateUserProfilePictureWhenUserNotFoundShouldThrowException() {
+        Long userId = 999L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.updateUserProfilePicture(userId, "new.jpg", "new_small.jpg"));
+    }
+
+    @Test
+    void updateUserProfilePictureShouldPublishCorrectEvent() {
+        Long userId = 1L;
+        String oldFileId = "old.jpg";
+        String oldSmallFileId = "old_small.jpg";
+        final String newFileId = "new.jpg";
+        final String newSmallFileId = "new_small.jpg";
+
+        UserProfilePic existingPic = new UserProfilePic();
+        existingPic.setFileId(oldFileId);
+        existingPic.setSmallFileId(oldSmallFileId);
+
+        User user = User.builder()
+                .id(userId)
+                .userProfilePic(existingPic)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+
+        userService.updateUserProfilePicture(userId, newFileId, newSmallFileId);
+
+        verify(eventPublisher).publish(argThat(event ->
+                event.getUserId().equals(userId)
+                        && event.getNewFileId().equals(newFileId)
+                        && event.getNewSmallFileId().equals(newSmallFileId)
+                        && event.getOldFileId().equals(oldFileId)
+                        && event.getOldSmallFileId().equals(oldSmallFileId)
+                        && event.getChangedAt() != null
+        ));
     }
 
     private UserFullDto createDto(String username, String email, String phone,
