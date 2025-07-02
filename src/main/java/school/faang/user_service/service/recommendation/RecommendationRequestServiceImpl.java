@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.CreateRecommendationRequestDto;
-import school.faang.user_service.dto.user.RecommendationRequestDto;
-import school.faang.user_service.dto.user.RecommendationRequestFilterDto;
-import school.faang.user_service.dto.user.RejectionDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.RecommendationRequestFilter;
+import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -35,7 +35,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest recommendationRequest = recommendationRequestMapper
                 .toRecommendationRequest(recommendationDto);
         validateRecommendationIsRequest(recommendationRequest.getReceiver().getId(),
-                recommendationRequest.getRequester().getId(), "receiverId");
+                userContext.getUserId(), "receiverId");
         validateTimeOutSixMount(recommendationRequest.getCreatedAt(), "Date");
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequestRepository.save(recommendationRequest);
@@ -64,7 +64,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     @Override
     public void accept(long id) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.getByIdOrThrow(id);
-        validateRecommendationToRequest(recommendationRequest.getReceiver().getId(), id, "id");
+        validateRecommendationToRequest(userContext.getUserId(), id, "id");
         validateStatus(recommendationRequest.getStatus(), "Status");
         recommendationRequest.setStatus(RequestStatus.ACCEPTED);
         recommendationRequestRepository.save(recommendationRequest);
@@ -73,7 +73,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     @Override
     public void reject(long id, RejectionDto rejection) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.getByIdOrThrow(id);
-        validateRecommendationToRequest(recommendationRequest.getReceiver().getId(), id, "id");
+        validateRecommendationToRequest(userContext.getUserId(), id, "id");
         validateStatus(recommendationRequest.getStatus(), "Status");
         recommendationRequest.setRejectionReason(rejection.reason());
         recommendationRequest.setStatus(RequestStatus.REJECTED);
