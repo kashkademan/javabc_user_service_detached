@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(nativeQuery = true, value = """
-            SELECT user_score
+            SELECT *
             FROM user_score
             WHERE id = :userId
             """)

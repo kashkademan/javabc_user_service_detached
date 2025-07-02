@@ -43,7 +43,7 @@ class AspectUtilsTest {
 
         assertThatThrownBy(() -> AspectUtils.extractArgument(joinPoint, Dummy.class))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Argument of type Dummy not founded")
+                .hasMessageContaining("Argument of type Dummy not found")
                 .hasMessageContaining("mockMethod()");
     }
 }

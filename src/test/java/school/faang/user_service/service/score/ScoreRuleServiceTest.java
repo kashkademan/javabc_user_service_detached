@@ -31,7 +31,7 @@ class ScoreRuleServiceTest {
     void getScoreByTypeOrThrow_shouldReturnScore() {
         ScoreActionType type = ScoreActionType.COMPLETE_EVENT;
         ScoreRule rule = new ScoreRule();
-        rule.setType(type.name());
+        rule.setType(type);
         rule.setScore(50);
 
         Mockito.when(scoreRuleRepository.findByType(type)).thenReturn(Optional.of(rule));
@@ -62,7 +62,7 @@ class ScoreRuleServiceTest {
         role.setName(RoleThesaurus.OWNER);
 
         ScoreRule rule = new ScoreRule();
-        rule.setType(type.name());
+        rule.setType(type);
         rule.setRole(role);
         rule.setScore(100);
 

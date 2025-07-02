@@ -85,12 +85,10 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean existsByIdOrThrow(long userId) {
+    public void verifyUserExistsOrThrow(long userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
-
-        return true;
     }
 
     @Transactional

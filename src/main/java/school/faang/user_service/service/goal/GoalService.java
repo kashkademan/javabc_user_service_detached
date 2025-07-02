@@ -121,7 +121,7 @@ public class GoalService {
     }
 
     @TrackActionScore(ScoreActionType.COMPLETE_GOAL)
-    private void completeGoal(Goal goal) {
+    public void completeGoal(Goal goal) {
         List<Long> userIds = goal.getUsers().stream()
                 .map(User::getId)
                 .toList();

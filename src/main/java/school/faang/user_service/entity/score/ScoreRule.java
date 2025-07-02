@@ -10,6 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import school.faang.user_service.aspect.score.ScoreActionType;
 import school.faang.user_service.entity.Role;
 
 @Entity
@@ -23,7 +24,7 @@ public class ScoreRule {
     private Long id;
 
     @Column(name = "type")
-    private String type;
+    private ScoreActionType type;
 
     @OneToOne
     @JoinColumn(name = "role_id")
