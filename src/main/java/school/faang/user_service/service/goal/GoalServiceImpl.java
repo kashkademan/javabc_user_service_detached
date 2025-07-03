@@ -25,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
     private static final String USER_HAS_NO_ACCESS = "user has no access to provided goal";
+    private static final String USER_HAS_TO_MANY_ACTIVE_GOALS = "user has too many ACTIVE goals";
     private static final String GOAL_COMPLETED = "goal completed";
     private static final String FIELD_NOT_VALID_FORMAT = "goal's \"%s\" should be present!";
     private static final String DEADLINE_NOT_VALID_MESSAGE = "goal deadline can not to be null or date before than now";
@@ -52,11 +53,11 @@ public class GoalServiceImpl implements GoalService {
 
         List<User> users = new ArrayList<>();
         if (createGoalDto.userIds() != null) {
-            createGoalDto.userIds().forEach(id -> users.add(userRepository.getByIdOrThrow(id)));
+            createGoalDto.userIds().forEach(id -> users.add(getUserByIdOrThrow(id)));
         }
         goal.setUsers(users);
         if (!userIsMentor && !goalContainsUser(goal, userId)) {
-            users.add(userRepository.getByIdOrThrow(userId));
+            users.add(getUserByIdOrThrow(userId));
             goal.setUsers(users);
         }
 
@@ -71,7 +72,11 @@ public class GoalServiceImpl implements GoalService {
         long userId = userContext.getUserId();
 
         Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (updateGoalDto.mentorId() != userId && goalContainsUser(goal, userId)) {
+        boolean hasMentor = goal.getMentor() != null;
+        if (hasMentor && goal.getMentor().getId() != userId
+                || !hasMentor && !goalContainsUser(goal, userId)
+                || GoalStatus.COMPLETED.equals(updateGoalDto.status())
+                && hasMentor && goal.getMentor().getId() != userId) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
 
@@ -125,5 +130,20 @@ public class GoalServiceImpl implements GoalService {
         if (dto.deadline() == null || dto.deadline().isBefore(LocalDateTime.now())) {
             throw new DataValidationException(DEADLINE_NOT_VALID_MESSAGE);
         }
+    }
+
+    private User getUserByIdOrThrow(long userId) {
+        User user = userRepository.getByIdOrThrow(userId);
+        List<Goal> goals = user.getGoals();
+        if (goals == null || goals.isEmpty()) {
+            return user;
+        }
+        long size = goals.stream()
+                .filter(g -> g.getStatus().equals(GoalStatus.ACTIVE))
+                .count();
+        if (size > 1) {
+            throw new DataValidationException(USER_HAS_TO_MANY_ACTIVE_GOALS);
+        }
+        return user;
     }
 }
