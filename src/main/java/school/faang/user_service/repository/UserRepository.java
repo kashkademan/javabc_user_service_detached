@@ -27,4 +27,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUsernameLike(String username);
 
     boolean existsByEmail(String email);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(g.id) FROM users u
+            JOIN user_goal ug ON ug.user_id = u.id
+            JOIN goal g ON ug.goal_id = g.id
+            WHERE u.id = ?1 AND g.id IN (?2)
+            """)
+    int countOwnedGoals(long userId, List<Long> ids);
 }

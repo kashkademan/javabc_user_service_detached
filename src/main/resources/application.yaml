@@ -20,6 +20,9 @@ spring:
     redis:
       port: 6379
       host: localhost
+  
+  api:
+    base-path-goal: /api/v1
 
 server:
   port: 8080

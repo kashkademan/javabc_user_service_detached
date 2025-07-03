@@ -1,20 +1,24 @@
 package school.faang.user_service.controller.goal;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.service.goal.GoalService;
 
 @RestController
+@RequestMapping("${spring.api.base-path-goal}/goals")
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
 
-    public void createGoal(Long userId, Goal goal) {
-        goalService.createGoal();
+    @PostMapping
+    public void createGoal(@Valid GoalDto goalDto) {
+        goalService.createGoal(goalDto);
     }
 
     public void updateeGoal(Long goalId, GoalDto goal) {
