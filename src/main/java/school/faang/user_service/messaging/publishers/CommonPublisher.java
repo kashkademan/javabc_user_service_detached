@@ -32,7 +32,7 @@ public class CommonPublisher {
             String json = mapper.writeValueAsString(event);
             kafkaTemplate.send(topic, String.valueOf(event.hashCode()), json);
         } catch (JsonProcessingException e) {
-            log.error("Convert to json exception", e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }
