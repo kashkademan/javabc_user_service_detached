@@ -34,6 +34,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
         RecommendationRequest recommendationRequest = recommendationRequestMapper
                 .toRecommendationRequest(recommendationDto);
+        recommendationRequest.setReceiver(userRepository.getByIdOrThrow(recommendationDto.receiverId()));
         validateRecommendationIsRequest(recommendationRequest.getReceiver().getId(),
                 userContext.getUserId(), "receiverId");
         validateTimeOutSixMount(recommendationRequest.getCreatedAt(), "Date");
@@ -100,8 +101,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         }
     }
 
-    private void validateRecommendationToRequest(Long Id, Long receiverId, String paramName) {
-        if (!Id.equals(receiverId)) {
+    private void validateRecommendationToRequest(Long id, Long receiverId, String paramName) {
+        if (!id.equals(receiverId)) {
             throw new DataValidationException(paramName + " invalid recipient!");
         }
     }

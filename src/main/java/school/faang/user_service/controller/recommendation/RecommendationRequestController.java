@@ -14,7 +14,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 import java.util.List;
 
-@RequestMapping(value = "/lol")
+@RequestMapping(value = "/request")
 @RestController
 @RequiredArgsConstructor
 public class RecommendationRequestController {
