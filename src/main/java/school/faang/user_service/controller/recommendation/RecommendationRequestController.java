@@ -12,6 +12,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestFilterD
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
+
 import java.util.List;
 
 @RequestMapping(value = "/request")
@@ -19,18 +20,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
+
     @PostMapping(value = "/create")
-    public RecommendationRequestDto create (@RequestBody CreateRecommendationRequestDto recommendationDto) {
+    public RecommendationRequestDto create(@RequestBody CreateRecommendationRequestDto recommendationDto) {
         validateString(recommendationDto.message(), "message");
         validateNotNull(recommendationDto.receiverId(), "receiverId");
         return recommendationRequestService.create(recommendationDto);
     }
+
     @PostMapping(value = "/getf")
     public List<RecommendationRequestDto> getByFilters(RecommendationRequestFilterDto filters) {
         validateNotNull(filters.receiverId(), "receiverId");
         validateNotNull(filters.requesterId(), "requesterId");
         return recommendationRequestService.getByFilters(filters);
     }
+
     @PostMapping(value = "/getid")
     public RecommendationRequestDto getById(long id) {
         return recommendationRequestService.getById(id);
@@ -40,7 +44,7 @@ public class RecommendationRequestController {
         recommendationRequestService.accept(id);
     }
 
-     public void reject(long id, RejectionDto rejection) {
+    public void reject(long id, RejectionDto rejection) {
         validateString(rejection.reason(), "reason");
         recommendationRequestService.reject(id, rejection);
     }
