@@ -32,9 +32,7 @@ public class ValidationExceptionHandler {
 
         if (rootCause instanceof InvalidFormatException invalid) {
             String field = extractField(invalid.getPath());
-            //String expectedType = invalid.getTargetType().getSimpleName();
-            //String message = "Invalid format for field '" + field + "'. Expected type: " + expectedType;
-            String message = "Invalid format for field '" + field;
+            String message = "Invalid format for field '" + field + "'";
 
             return ResponseEntity
                     .badRequest()
@@ -43,6 +41,7 @@ public class ValidationExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
+                //todo сделать корректную обработку ошибки, не отдавать детали в фронт
                 .body(Map.of("error", rootCause.getMessage()));
     }
 

@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.goal;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -22,6 +23,9 @@ public record CreateGoalDto(
         Long mentorId,
 
         @NotEmpty(message = "Не заданы пользователи цели")
-        List<Long> userIds
+        List<Long> userIds,
+
+        @Nullable
+        List<Long> skillIds
 ) {
 }
