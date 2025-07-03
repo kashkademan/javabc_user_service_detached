@@ -5,9 +5,10 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.validator.TelegramValidator;
 
 @Component
-public class TelegramValidator implements school.faang.user_service.validator.TelegramValidator {
+public class TelegramValidatorImpl implements TelegramValidator {
     @Override
     public void validateTelegramUserId(UserTelegramDto userTelegramDto, long userId) {
         if (userTelegramDto.getUserId() == null || userTelegramDto.getUserId() == userId) {
