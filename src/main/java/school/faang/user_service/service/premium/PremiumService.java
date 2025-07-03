@@ -1,7 +1,10 @@
 package school.faang.user_service.service.premium;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.PremiumRemoverProperties;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
@@ -18,7 +21,15 @@ import java.util.concurrent.Future;
 public class PremiumService {
 
     private final PremiumRepository premiumRepository;
-    private final ExecutorService executor = Executors.newFixedThreadPool(5);
+    @Qualifier("premiumRemoverProperties")
+    private final PremiumRemoverProperties properties;
+    private ExecutorService executor;
+
+
+    @PostConstruct
+    public void init() {
+        this.executor = Executors.newFixedThreadPool(properties.getPoolSize());
+    }
 
 
     public void removeExpiredPremiums(int batchSize) {

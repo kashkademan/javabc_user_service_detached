@@ -12,8 +12,7 @@ public class PremiumRemover {
     private final PremiumService premiumService;
     private final PremiumRemoverProperties properties;
 
-
-    @Scheduled(cron = "#{@premiumRemoverProperties.cron}")
+    @Scheduled(cron = "${premium.remover.cron}")
     private void premiumRemover() {
         premiumService.removeExpiredPremiums(properties.getBatchSize());
     }

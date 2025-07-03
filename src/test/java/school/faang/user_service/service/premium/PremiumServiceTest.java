@@ -1,11 +1,13 @@
 package school.faang.user_service.service.premium;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.PremiumRemoverProperties;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
@@ -19,9 +21,17 @@ public class PremiumServiceTest {
     @Mock
     private PremiumRepository premiumRepository;
 
+    @Mock
+    private PremiumRemoverProperties properties;
+
     @InjectMocks
     private PremiumService premiumService;
 
+    @BeforeEach
+    public void setUp() {
+        Mockito.when(properties.getPoolSize()).thenReturn(2);
+        premiumService.init();
+    }
 
     @Test
     public void testRemoveExpiredPremiums_mocked() {
