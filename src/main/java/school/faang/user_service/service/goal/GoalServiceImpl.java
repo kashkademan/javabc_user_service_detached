@@ -10,8 +10,8 @@ import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.AccessDeniedException;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -19,7 +19,6 @@ import school.faang.user_service.repository.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -73,7 +72,7 @@ public class GoalServiceImpl implements GoalService {
 
         Goal goal = goalRepository.getByIdOrThrow(goalId);
         if (updateGoalDto.mentorId() != userId && goalContainsUser(goal, userId)) {
-            throw new AccessDeniedException(USER_HAS_NO_ACCESS);
+            throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
 
         if (GoalStatus.COMPLETED.equals(goal.getStatus())) {

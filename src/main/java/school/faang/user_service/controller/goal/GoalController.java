@@ -13,9 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
-import school.faang.user_service.exception.AccessDeniedException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.service.goal.GoalService;
 
 @Slf4j
@@ -45,8 +45,8 @@ public class GoalController {
         } catch (DataValidationException | IllegalArgumentException dataValidationE) {
             log.info("api/goal/{}/update : {}", goalId, dataValidationE.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } catch (AccessDeniedException accessDeniedE) {
-            log.info("api/goal/{}/update : {}", goalId, accessDeniedE.getMessage());
+        } catch (ForbiddenException forbiddenE) {
+            log.info("api/goal/{}/update : {}", goalId, forbiddenE.getMessage());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } catch (IllegalStateException illegalStateE) {
             log.info("api/goal/{}/update : {}", goalId, illegalStateE.getMessage());
