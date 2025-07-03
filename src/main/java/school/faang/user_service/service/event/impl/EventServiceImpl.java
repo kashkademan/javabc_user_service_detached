@@ -3,7 +3,6 @@ package school.faang.user_service.service.event.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,9 +43,6 @@ public class EventServiceImpl implements EventService {
     private final UserContext userContext;
     private final EventCleaner eventCleaner;
     private final EventCleanConfig eventCleanConfig;
-
-    private final ApplicationEventPublisher applicationEventPublisher;
-
 
     @Transactional
     @Override

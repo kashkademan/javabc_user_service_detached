@@ -11,7 +11,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.EventStartEventPublisher;
-import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.user.UserServiceFacade;
 
 import java.util.List;

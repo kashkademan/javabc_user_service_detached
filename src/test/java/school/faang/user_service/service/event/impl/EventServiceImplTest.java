@@ -14,7 +14,6 @@ import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.common.RecordNotFoundException;
 import school.faang.user_service.exception.event.EventCreationNotAllowedException;
 import school.faang.user_service.repository.SkillRepository;
@@ -508,7 +507,7 @@ class EventServiceImplTest {
         when(eventRepository.save(any(Event.class))).thenReturn(any(Event.class));
         ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
 
-        Event result = eventService.startEvent(eventId);
+        eventService.startEvent(eventId);
 
         verify(eventRepository).save(captor.capture());
         assertEquals(IN_PROGRESS, captor.getValue().getStatus());
