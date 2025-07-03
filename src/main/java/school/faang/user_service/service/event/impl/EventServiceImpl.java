@@ -3,14 +3,17 @@ package school.faang.user_service.service.event.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.annotation.PublishStartEventKafka;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.filter.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.common.RecordNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -41,6 +44,9 @@ public class EventServiceImpl implements EventService {
     private final UserContext userContext;
     private final EventCleaner eventCleaner;
     private final EventCleanConfig eventCleanConfig;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     @Transactional
     @Override
@@ -150,5 +156,14 @@ public class EventServiceImpl implements EventService {
         log.info("All {} past events get for {} millis.", pastEvents.size(), (System.currentTimeMillis() - start));
 
         ListUtils.partition(pastEvents, batchSize).forEach(eventCleaner::cleanEventsBatchAsync);
+    }
+
+    @Transactional
+    @PublishStartEventKafka
+    @Override
+    public Event startEvent(long eventId) {
+        Event event = getEvent(eventId);
+        event.setStatus(EventStatus.IN_PROGRESS);
+        return eventRepository.save(event);
     }
 }
