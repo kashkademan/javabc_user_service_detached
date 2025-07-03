@@ -1,6 +1,7 @@
 package school.faang.user_service.repository.goal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.goal.Goal;
@@ -10,7 +11,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Stream;
 
-public interface GoalRepository extends JpaRepository<Goal, Long> {
+public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificationExecutor<Goal> {
 
     @Query(nativeQuery = true, value = """
             SELECT g.* FROM goal g
