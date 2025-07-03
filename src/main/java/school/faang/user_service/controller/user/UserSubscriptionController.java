@@ -19,58 +19,34 @@ public class UserSubscriptionController {
     private final UserSubscriptionService subscriptionService;
     private final UserContext userContext;
 
-    /**
-     * Подписка текущего пользователя на другого пользователя.
-     * POST /api/subscriptions/{followeeId}
-     */
-    @PostMapping("/{followeeId}")
+    @PostMapping()
     public void followUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.followUser(followerId, followeeId);
     }
 
-    /**
-     * Отписка текущего пользователя от другого пользователя.
-     * DELETE /api/subscriptions/{followeeId}
-     */
-    @DeleteMapping("/{followeeId}")
+    @DeleteMapping()
     public void unfollowUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    /**
-     * Получение количества подписчиков указанного пользователя.
-     * GET /api/subscriptions/{followeeId}/followers/count
-     */
-    @GetMapping("/{followeeId}/followers/count")
+    @GetMapping()
     public CountResponse getFollowersCount(@PathVariable Long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
-    /**
-     * Получение количества подписок указанного пользователя.
-     * GET /api/subscriptions/{followerId}/followees/count
-     */
-    @GetMapping("/{followerId}/followees/count")
+    @GetMapping()
     public CountResponse getFolloweesCount(@PathVariable Long followerId) {
         return subscriptionService.getFolloweesCount(followerId);
     }
 
-    /**
-     * Получение списка всех подписчиков указанного пользователя.
-     * GET /api/subscriptions/{followeeId}/followers
-     */
-    @GetMapping("/{followeeId}/followers")
+    @GetMapping()
     public List<UserDto> getFollowers(@PathVariable Long followeeId) {
         return subscriptionService.getFollowers(followeeId);
     }
 
-    /**
-     * Получение списка всех подписок указанного пользователя.
-     * GET /api/subscriptions/{followerId}/followees
-     */
-    @GetMapping("/{followerId}/followees")
+    @GetMapping()
     public List<UserDto> getFollowees(@PathVariable Long followerId) {
         return subscriptionService.getFollowees(followerId);
     }
