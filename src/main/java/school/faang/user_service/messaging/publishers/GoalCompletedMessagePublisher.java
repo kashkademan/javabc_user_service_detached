@@ -2,7 +2,8 @@ package school.faang.user_service.messaging.publishers;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.redis.RedisProperties;
 import school.faang.user_service.entity.User;
@@ -15,22 +16,23 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class GoalCompletedMessagePublisher implements MessagePublisher<Goal> {
-    private static final String TOPIC_NAME = "goal_complete";
+    private static final String TOPIC_KEY = "goal_complete";
 
     private final RedisProperties properties;
     private String topic;
-    private final RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private CommonPublisher publisher;
 
     @PostConstruct
     private void init() {
-        this.topic = properties.getChannels().get(TOPIC_NAME);
+        this.topic = properties.getChannels().get(TOPIC_KEY);
     }
 
     @Override
     public void publishMessage(Goal goal) {
         List<Long> userIds = goal.getUsers().stream().map(User::getId).toList();
-
         GoalCompletedEvent event = new GoalCompletedEvent(goal.getId(), goal.getTitle(), userIds, LocalDateTime.now());
-        redisTemplate.convertAndSend(topic, event);
+        publisher.sendRedis(topic, event);
+        publisher.sendKafka(topic, event);
     }
 }

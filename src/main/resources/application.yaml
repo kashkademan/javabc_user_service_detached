@@ -32,6 +32,8 @@ spring:
           recommendation_event: recommendation_event
           goal_attached: goal_attached
           premium_bought: premium_bought
+    kafka:
+      bootstrap-servers: localhost:9092, localhost:9192, localhost:9292
 
 server:
   port: 8080
