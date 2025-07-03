@@ -1,4 +1,4 @@
-package school.faang.user_service.kafka;
+package school.faang.user_service.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -29,9 +29,6 @@ public class KafkaConfig {
 
     @Value("${kafka.host}")
     private String host;
-
-    @Value("${kafka.topic-name}")
-    private String topic;
 
     @Value("${kafka.partitions}")
     private int partitions;

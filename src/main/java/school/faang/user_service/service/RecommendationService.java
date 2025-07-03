@@ -29,7 +29,7 @@ public class RecommendationService {
     private static final int RECOMMENDATIONS_PER_PAGE = 100;
     private static final Sort PAGE_SORT = Sort.by("updated_at").descending();
 
-    @Value("${kafka.topic-name}")
+    @Value("${kafka.topics.recommendation}")
     private String topic;
 
     private final RecommendationRepository recommendationRepository;
