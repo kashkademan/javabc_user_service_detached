@@ -1,9 +1,9 @@
 package school.faang.user_service.service.event;
 
-import school.faang.user_service.dto.event.CreateEventDto;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 
 import java.util.List;
 
@@ -24,10 +24,10 @@ public interface EventService {
      *     <li>Если пользователь не найден — выбрасывается {@code IllegalStateException}.</li>
      * </ul>
      *
-     * @param eventDto объект {@link CreateEventDto}, содержащий данные для создания события
-     * @return объект {@link EventDto}, представляющий созданное событие
+     * @param eventDto объект {@link EventCreateDto}, содержащий данные для создания события
+     * @return объект {@link EventViewDto}, представляющий созданное событие
      */
-    EventDto create(CreateEventDto eventDto);
+    EventViewDto create(EventCreateDto eventDto);
 
     /**
      * Обновляет существующее событие по его идентификатору.
@@ -43,10 +43,10 @@ public interface EventService {
      * </ul>
      *
      * @param eventId идентификатор обновляемого события
-     * @param updateEventDto объект {@link UpdateEventDto}, содержащий обновлённые данные
-     * @return объект {@link EventDto}, представляющий обновлённое событие
+     * @param eventUpdateDto объект {@link EventUpdateDto}, содержащий обновлённые данные
+     * @return объект {@link EventViewDto}, представляющий обновлённое событие
      */
-    EventDto update(long eventId, UpdateEventDto updateEventDto);
+    EventViewDto update(long eventId, EventUpdateDto eventUpdateDto);
 
     /**
      * Возвращает список событий, удовлетворяющих указанным фильтрам.
@@ -61,9 +61,9 @@ public interface EventService {
      * </ul>
      *
      * @param filters объект {@link EventFilterDto}, содержащий критерии фильтрации
-     * @return список {@link EventDto}, соответствующих фильтру
+     * @return список {@link EventViewDto}, соответствующих фильтру
      */
-    List<EventDto> getByFilters(EventFilterDto filters);
+    List<EventViewDto> getList(EventFilterDto filters);
 
     /**
      * Удаляет событие по его идентификатору.

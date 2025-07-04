@@ -6,15 +6,24 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO для создания нового пользовательского события.
+ * <p>
+ *     Используется для передачи данных в теле запроса при создании события.
+ *     Содержит обязательные поля: название, описание, дата начала и окончания, тип события.
+ * </p>
+ *
+ * @see school.faang.user_service.entity.event.Event
+ * @author JekaCAP
+ */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UpdateEventDto {
+@NoArgsConstructor
+public class EventCreateDto {
 
     @NotBlank(message = "Title must not be blank")
     private String title;
@@ -32,7 +41,4 @@ public class UpdateEventDto {
 
     @NotNull(message = "Event type must be provided")
     private EventType type;
-
-    @NotNull(message = "Event status must be provided")
-    private EventStatus status;
 }

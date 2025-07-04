@@ -1,28 +1,31 @@
 package school.faang.user_service.service.event;
 
-import com.amazonaws.services.kms.model.NotFoundException;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.event.CreateEventDto;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
+import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.filter.EventFilter;
+import school.faang.user_service.service.filter.EventFilterFactory;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -30,68 +33,67 @@ public class EventServiceImpl implements EventService {
     private final UserContext userContext;
 
     @Override
-    public EventDto create(CreateEventDto eventDto) {
-        Event event = eventMapper.toEvent(eventDto);
+    @Transactional
+    public EventViewDto create(EventCreateDto eventDto) {
+        Event event = eventMapper.toEntity(eventDto);
 
-        event.setOwner(userRepository.findById(userContext.getUserId())
-                .orElseThrow(() -> new IllegalStateException("User not found")));
+        Long userId = userContext.getUserId();
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        event.setOwner(owner);
 
         validateOwnerSkills(event);
 
         event = eventRepository.save(event);
         log.info("Event created: {}", event.getId());
-        return eventMapper.toEventDto(event);
+        return eventMapper.toViewDto(event);
     }
 
     @Override
-    public EventDto update(long eventId, UpdateEventDto updateEventDto) {
+    @Transactional
+    public EventViewDto update(long eventId, EventUpdateDto eventUpdateDto) {
         long requesterId = userContext.getUserId();
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event event = eventRepository.getByIdOrThrow(eventId);
 
         if (event.getOwner().getId() != requesterId) {
             throw new ForbiddenException("User " + requesterId + " is not owner of event " + eventId);
         }
 
-        eventMapper.update(updateEventDto, event);
+        eventMapper.update(eventUpdateDto, event);
 
         validateOwnerSkills(event);
 
         event = eventRepository.save(event);
         log.info("Event updated: {}", event.getId());
-        return eventMapper.toEventDto(event);
+        return eventMapper.toViewDto(event);
     }
 
     @Override
-    public List<EventDto> getByFilters(EventFilterDto filters) {
+    @Transactional
+    public List<EventViewDto> getList(EventFilterDto filters) {
         List<Event> events = eventRepository.findAll();
 
-        Stream<Event> stream = events.stream()
-                .filter(event -> filters.getTitleContains() == null
-                                 || event.getTitle().toLowerCase().contains(filters.getTitleContains().toLowerCase()))
-                .filter(event -> filters.getDescriptionContains() == null
-                                 || event.getDescription().toLowerCase()
-                                         .contains(filters.getDescriptionContains().toLowerCase()))
-                .filter(event -> filters.getOwnerId() == null
-                                 || event.getOwner().getId().equals(filters.getOwnerId()))
-                .filter(event -> filters.getParticipantId() == null
-                                 || event.getAttendees().stream()
-                                         .anyMatch(user -> user.getId().equals(filters.getParticipantId())))
-                .filter(event -> filters.getType() == null
-                                 || event.getType() == filters.getType());
+        List<EventFilter> filterChain = EventFilterFactory.buildFilters(filters);
 
-        return stream.map(eventMapper::toEventDto).toList();
+        Stream<Event> stream = events.stream();
+        for (EventFilter filter : filterChain) {
+            stream = stream.filter(filter::test);
+        }
+
+        return stream.map(eventMapper::toViewDto).toList();
     }
 
     @Override
+    @Transactional
     public void delete(long eventId) {
         long requesterId = userContext.getUserId();
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+
+        Event event = eventRepository.getByIdOrThrow(eventId);
 
         if (event.getOwner().getId() != requesterId) {
             throw new ForbiddenException("User " + requesterId + " is not owner of event " + eventId);
         }
+
         eventRepository.delete(event);
         log.info("Event deleted: {}", event.getId());
     }

@@ -8,10 +8,20 @@ import school.faang.user_service.entity.event.EventType;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO для отображения информации о событии.
+ * <p>
+ * Содержит все основные поля события, необходимые для вывода клиенту.
+ * Включает идентификаторы, описание, даты, статус и время создания.
+ * </p>
+ *
+ * @see school.faang.user_service.entity.event.Event
+ * @author JekaCAP
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDto {
+public class EventViewDto {
 
     private Long id;
     private String title;
