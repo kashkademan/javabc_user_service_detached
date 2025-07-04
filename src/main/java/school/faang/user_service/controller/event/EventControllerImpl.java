@@ -86,4 +86,10 @@ public class EventControllerImpl {
         String response = eventService.deleteEvent(id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/startEvent")
+    public ResponseEntity<EventResponseDto> startEvent(@NotNull @Positive @PathVariable long id) {
+        EventResponseDto responseDto = eventMapper.eventToEventResponse(eventService.startEvent(id));
+        return ResponseEntity.ok(responseDto);
+    }
 }
