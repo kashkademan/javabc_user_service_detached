@@ -1,6 +1,5 @@
 package school.faang.user_service.dto.career;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
