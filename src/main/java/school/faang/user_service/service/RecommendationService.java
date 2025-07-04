@@ -2,14 +2,16 @@ package school.faang.user_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.kafka.KafkaProducerService;
+import school.faang.user_service.dto.event.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapper;
@@ -27,11 +29,15 @@ public class RecommendationService {
     private static final int RECOMMENDATIONS_PER_PAGE = 100;
     private static final Sort PAGE_SORT = Sort.by("updated_at").descending();
 
+    @Value("${kafka.topics.recommendation}")
+    private String topic;
+
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillOfferMapper skillOfferMapper;
     private final SkillRepository skillRepository;
     private final RecommendationMapper recommendationMapper;
+    private final KafkaProducerService producer;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -43,7 +49,13 @@ public class RecommendationService {
 
         Long id = recommendationRepository
                 .create(recommendationDto.authorId(), recommendationDto.receiverId(), recommendationDto.content());
+        RecommendationEvent event = new RecommendationEvent(
+                recommendationDto.authorId(),
+                recommendationDto.receiverId(),
+                recommendationDto.content()
+        );
 
+        producer.sendMessage(event, topic);
         return recommendationMapper.toDto(recommendationRepository.findById(id).get());
     }
 

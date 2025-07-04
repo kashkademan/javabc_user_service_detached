@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import school.faang.user_service.kafka.KafkaProducerService;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -34,6 +35,8 @@ public class RecommendationServiceTest {
     private SkillOfferRepository skillOfferRepository;
     @Mock
     private SkillRepository skillRepository;
+    @Mock
+    private KafkaProducerService producer;
 
     @Spy
     private RecommendationMapperImpl recommendationMapper;
