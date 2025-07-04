@@ -13,22 +13,23 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class GoalAttachedMessagePublisher implements MessagePublisher<GoalAttachedEvent> {
-    private static final String TOPIC_KEY = "goal_attached";
+    private static final String REDIS_TOPIC_KEY = "goal_attached";
+    public static final String KAFKA_TOPIC = "goal_attached";
 
     private final RedisProperties properties;
-    private String topic;
+    private String redisTopic;
     @Autowired
     private CommonPublisher publisher;
 
     @PostConstruct
     private void init() {
-        this.topic = properties.getChannels().get(TOPIC_KEY);
+        this.redisTopic = properties.getChannels().get(REDIS_TOPIC_KEY);
     }
 
     @Override
     public void publishMessage(GoalAttachedEvent event) {
-        publisher.sendRedis(topic, event);
-        publisher.sendKafka(topic, event);
+        publisher.sendRedis(redisTopic, event);
+        publisher.sendKafka(KAFKA_TOPIC, event);
     }
 
     public void createAndPublishMessage(Goal goal, Long userId) {
