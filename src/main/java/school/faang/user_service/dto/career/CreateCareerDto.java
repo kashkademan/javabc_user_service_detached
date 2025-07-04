@@ -15,12 +15,10 @@ import java.time.LocalDate;
 public class CreateCareerDto {
 
     @NonNull
-    @NotBlank(message = "The date cannot be empty or null")
     @Future(message = "The variable cannot be created in the future")
     private LocalDate from;
 
     @NonNull
-    @NotBlank(message = "The date cannot be empty or null")
     @Future(message = "The variable cannot be created in the future")
     private LocalDate to;
 

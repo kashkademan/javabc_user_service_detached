@@ -1,5 +1,6 @@
 package school.faang.user_service.service.career;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,11 +54,12 @@ public class CareerServiceImpl implements CareerService {
         return careerMapper.toCareerDto(updateCareer);
     }
 
+
     @Override
     public CareerDto getById(long careerId) {
         log.info("getting career data for {}", careerId);
-        careerRepository.getByIdOrThrow(careerId);
-        return careerMapper.toCareerDto(careerRepository.getById(careerId));
+        Career career = careerRepository.getByIdOrThrow(careerId);
+        return careerMapper.toCareerDto(career);
     }
 
 
