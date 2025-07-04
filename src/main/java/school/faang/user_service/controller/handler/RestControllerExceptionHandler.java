@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.handler;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +30,20 @@ public class RestControllerExceptionHandler {
                 .body(new ErrorResponse("not_found", e.getMessage()));
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e) {
+        log.warn("Not found: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("not_found", e.getMessage()));
+    }
+
     @ExceptionHandler(AvatarException.class)
     public ResponseEntity<String> handleAvatarException(AvatarException exception) {
         log.error("AvatarException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
+
 }
