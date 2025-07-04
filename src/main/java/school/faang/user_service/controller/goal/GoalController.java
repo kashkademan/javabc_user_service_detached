@@ -81,7 +81,7 @@ public class GoalController {
             description = "Позволяет удалить цель"
     )
     @DeleteMapping("{id}")
-    public ResponseEntity<List<GoalDto>> delete(
+    public ResponseEntity<Object> delete(
             @PathVariable("id") Long id
     ) {
         goalService.delete(id);
