@@ -1,7 +1,10 @@
 package school.faang.user_service.controller.goal;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,12 +28,18 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/goals")
+
+@Tag(name = "Цели", description = "Взаимодействие с целями")
 public class GoalController {
     private final GoalService goalService;
 
+    @Operation(
+            summary = "Список целей",
+            description = "Позволяет позволяет получить список отфильтрованных целей"
+    )
     @GetMapping
     public ResponseEntity<List<GoalDto>> index(
-            @RequestBody IndexGoalDto dto
+            @ParameterObject IndexGoalDto dto
     ) {
         List<GoalDto> result = goalService.get(dto);
         return ResponseEntity
@@ -38,10 +47,13 @@ public class GoalController {
                 .body(result);
     }
 
+    @Operation(
+            summary = "Создать цель",
+            description = "Позволяет создать цель"
+    )
     @PostMapping
     public ResponseEntity<GoalDto> create(
-            @Valid @RequestBody
-            CreateGoalDto createGoalDto
+            @ParameterObject @Valid CreateGoalDto createGoalDto
 
     ) {
         GoalDto result = goalService.create(createGoalDto);
@@ -50,6 +62,25 @@ public class GoalController {
                 .body(result);
     }
 
+    @Operation(
+            summary = "Изменить цель",
+            description = "Позволяет изменить цель"
+    )
+    @PatchMapping("{id}")
+    public ResponseEntity<GoalDto> update(
+            @PathVariable("id") Long id,
+            @ParameterObject @Valid UpdateGoalDto updateGoalDto
+    ) {
+        GoalDto result = goalService.update(id, updateGoalDto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @Operation(
+            summary = "Удалить цель",
+            description = "Позволяет удалить цель"
+    )
     @DeleteMapping("{id}")
     public ResponseEntity<List<GoalDto>> delete(
             @PathVariable("id") Long id
@@ -57,17 +88,5 @@ public class GoalController {
         goalService.delete(id);
         return ResponseEntity
                 .ok().build();
-    }
-
-
-    @PatchMapping("{id}")
-    public ResponseEntity<GoalDto> update(
-            @PathVariable("id") Long id,
-            @RequestBody @Valid UpdateGoalDto updateGoalDto
-    ) {
-        GoalDto result = goalService.update(id, updateGoalDto);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
     }
 }

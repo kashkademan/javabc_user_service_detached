@@ -41,7 +41,7 @@ public class ValidationExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                //todo сделать корректную обработку ошибки, не отдавать детали в фронт
+                //todo сделать корректную обработку ошибки, не возвращать детали
                 .body(Map.of("error", rootCause.getMessage()));
     }
 
