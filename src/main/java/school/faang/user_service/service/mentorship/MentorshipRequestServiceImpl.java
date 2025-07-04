@@ -1,5 +1,6 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +36,9 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
             throw new DataValidationException("Cannot request mentorship from yourself");
         }
         User requester = userRepository.findById(dto.getRequesterId())
-                .orElseThrow(() -> new DataValidationException("Requester not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Requester not found"));
         User receiver = userRepository.findById(dto.getReceiverId())
-                .orElseThrow(() -> new DataValidationException("Receiver not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
 
         Optional<MentorshipRequest> latest = mentorshipRequestRepository.findLatestRequest(dto.getRequesterId(), dto.getReceiverId());
         if (latest.isPresent() && latest.get().getCreatedAt().isAfter(LocalDateTime.now().minusMonths(3))) {
@@ -71,7 +72,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Transactional
     public void acceptRequest(long id) {
         MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("Request not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Request not found"));
         User mentee = request.getRequester();
         User mentor = request.getReceiver();
 
@@ -86,7 +87,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Transactional
     public void rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest request = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("Request not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Request not found"));
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getReason());
         mentorshipRequestRepository.save(request);

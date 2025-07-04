@@ -4,6 +4,6 @@ Content-Type: application/json
 {
   "requesterId": 1,
   "receiverId": 2,
-  "description": "Хочу получить менторство для развития навыков Java",
+  "description": "java",
   "status": "PENDING"
 }
