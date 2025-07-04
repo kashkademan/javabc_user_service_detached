@@ -8,6 +8,7 @@ import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.dto.user.UserRegisterResponseDto;
+import school.faang.user_service.dto.user.UserViewProfileDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
@@ -53,7 +54,8 @@ public class UserServiceFacade {
         return userMapper.toUserRegisterResponseDto(user);
     }
 
-    public void viewProfile(long viewerId) {
-        userService.viewProfile(viewerId);
+    public UserViewProfileDto viewUserProfile(long owner, long follower){
+        User user = userService.viewUserProfile(owner, follower);
+        return userMapper.toUserViewProfileDto(user);
     }
 }

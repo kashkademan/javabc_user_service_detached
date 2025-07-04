@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.dto.user.UserRegisterResponseDto;
+import school.faang.user_service.dto.user.UserViewProfileDto;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public interface UserMapper {
     User toUserEntity(UserRegisterRequestDto userRegisterRequestDto);
 
     UserRegisterResponseDto toUserRegisterResponseDto(User user);
+
+    UserViewProfileDto toUserViewProfileDto(User user);
 
     default List<UserDto> toEventResponses(List<User> users) {
         return users.stream()

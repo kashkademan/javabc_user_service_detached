@@ -12,6 +12,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import school.faang.user_service.dto.notification.NewFollowerEvent;
 import school.faang.user_service.dto.notification.GoalCompletionNotificationEvent;
+import school.faang.user_service.dto.notification.ViewProfile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,10 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, GoalCompletionNotificationEvent> goalCompletionEventTemplate() {
+        return new KafkaTemplate<>(jsonProducerFactory());
+    }
+    @Bean
+    public KafkaTemplate<String, ViewProfile> viewUserProfile(){
         return new KafkaTemplate<>(jsonProducerFactory());
     }
 

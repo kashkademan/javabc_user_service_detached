@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.annotation.PublishViewUserProfileKafka;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
@@ -20,7 +21,6 @@ import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.avatar.AvatarGeneratorService;
-import school.faang.user_service.service.producer.KafkaServer;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.service.image.ImageResizer;
 import school.faang.user_service.service.s3.S3Service;
@@ -49,6 +49,9 @@ public class UserService {
     private final S3Service s3Service;
     private final UserContext userContext;
     private final ImageResizer imageResizer;
+    private final AvatarGeneratorService avatarGeneratorService;
+    private final CountryRepository countryRepository;
+    private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
     public User getUserById(long userId) {
@@ -154,12 +157,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void viewProfile(long profileId) {
-        long viewerId = userContext.getUserId();
-        User userViewer = getUserById(viewerId);
-        User userProfile = getUserById(profileId);
-        UserDto profileUserDto = userMapper.userToDto(userProfile);
-        UserDto viewerUserDto = userMapper.userToDto(userViewer);
-        kafkaServer.sendProfileViewNotification(profileUserDto, viewerUserDto);
+    @Transactional
+    @PublishViewUserProfileKafka
+    public User viewUserProfile(long owner, long follower) {
+        return getUserById(follower);
     }
 }

@@ -11,6 +11,8 @@ spring:
           name: new-follower-events
         unfollow-topic:
           name: unfollow-events
+      profile:
+        name: view-profile
 
   datasource:
     driver-class-name: org.postgresql.Driver
