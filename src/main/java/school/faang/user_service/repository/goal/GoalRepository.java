@@ -53,4 +53,9 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             VALUES (?1, ?2)
             """)
     void addSkillToGoal(long goalId, long skillId);
+
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal_skill WHERE goal_id = ?1 AND skill_id = ?2
+            """)
+    void deleteSkillFromGoal(long goalId, long skillId);
 }

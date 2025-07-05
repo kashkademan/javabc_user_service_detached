@@ -14,6 +14,6 @@ public class GoalDto {
     @NotEmpty
     private String title;
     private GoalStatus status;
-    private List<Long> skillsToAchie;
+    private List<Long> skillsToAchieve;
     private List<Long> users;
 }
