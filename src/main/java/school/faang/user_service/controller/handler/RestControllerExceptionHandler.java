@@ -46,10 +46,4 @@ public class RestControllerExceptionHandler {
                 .body(exception.getMessage());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumet(IllegalAccessException exception) {
-        log.error("IllegalArgument: {}", exception.getMessage(), exception);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(exception.getMessage());
-    }
 }
