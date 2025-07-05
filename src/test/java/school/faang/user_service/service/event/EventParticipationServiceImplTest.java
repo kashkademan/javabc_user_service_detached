@@ -1,6 +1,7 @@
 package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Тесты участия в эвентах")
 class EventParticipationServiceImplTest {
 
     @Mock
@@ -46,6 +48,7 @@ class EventParticipationServiceImplTest {
     }
 
     @Test
+    @DisplayName("Успешная регистрация участника")
     void registerParticipant_success() {
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)).thenReturn(false);
@@ -56,6 +59,7 @@ class EventParticipationServiceImplTest {
     }
 
     @Test
+    @DisplayName("Падает при регистрации, если событие не найдено")
     void registerParticipant_eventNotFound_throws() {
         when(eventRepository.existsById(eventId)).thenReturn(false);
 
@@ -65,6 +69,7 @@ class EventParticipationServiceImplTest {
     }
 
     @Test
+    @DisplayName("Падает при отмене регистрации, если участник не зарегистрирован")
     void unregisterParticipant_notRegistered_throws() {
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)).thenReturn(false);
@@ -75,6 +80,7 @@ class EventParticipationServiceImplTest {
     }
 
     @Test
+    @DisplayName("Возвращает количество участников")
     void countParticipants_returnsCount() {
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(5);
@@ -85,6 +91,7 @@ class EventParticipationServiceImplTest {
     }
 
     @Test
+    @DisplayName("Возвращает список участников с данными UserDto")
     void getAllParticipants_returnsUserDtoList() {
         when(eventRepository.existsById(eventId)).thenReturn(true);
 
