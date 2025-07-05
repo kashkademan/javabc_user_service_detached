@@ -49,4 +49,7 @@ public class EventUpdateDto {
 
     @NotNull(message = "Event status must be provided")
     private EventStatus status;
+
+    @NotBlank(message = "Location must not be blank")
+    private String location;
 }

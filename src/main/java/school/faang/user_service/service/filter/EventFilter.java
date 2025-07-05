@@ -1,18 +1,32 @@
 package school.faang.user_service.service.filter;
 
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
+import java.util.stream.Stream;
+
 /**
- * EventFilter — функциональный интерфейс для фильтрации событий.
+ * Интерфейс фильтра для событий.
  * <p>
- * Определяет контракт для фильтра, который принимает объект Event и возвращает true,
- * если событие удовлетворяет определённому условию фильтрации.
+ * Используется для фильтрации списка событий по заданным параметрам.
  * </p>
- *
- * @author agent
- * @since 04.07.2025
  */
-@FunctionalInterface
 public interface EventFilter {
-    boolean test(Event event);
+
+    /**
+     * Проверяет, нужно ли применять этот фильтр для заданных параметров.
+     *
+     * @param dto параметры фильтрации
+     * @return true, если фильтр должен быть применён
+     */
+    boolean isApplicable(EventFilterDto dto);
+
+    /**
+     * Применяет фильтр к потоку событий.
+     *
+     * @param events поток событий
+     * @param dto    параметры фильтрации
+     * @return отфильтрованный поток событий
+     */
+    Stream<Event> filter(Stream<Event> events, EventFilterDto dto);
 }

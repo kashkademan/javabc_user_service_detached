@@ -1,7 +1,11 @@
 package school.faang.user_service.service.filter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+
+import java.util.stream.Stream;
 
 /**
  * TitleContainsFilter — фильтр для проверки наличия ключевого слова в заголовке события.
@@ -15,12 +19,18 @@ import school.faang.user_service.entity.event.Event;
  * @author agent
  * @since 04.07.2025
  */
+@Component
 @RequiredArgsConstructor
 public class TitleContainsFilter implements EventFilter {
-    private final String keyword;
 
     @Override
-    public boolean test(Event event) {
-        return keyword == null || event.getTitle().toLowerCase().contains(keyword.toLowerCase());
+    public boolean isApplicable(EventFilterDto dto) {
+        return dto.getTitleContains() != null;
+    }
+
+    @Override
+    public Stream<Event> filter(Stream<Event> events, EventFilterDto dto) {
+        String keyword = dto.getTitleContains().toLowerCase();
+        return events.filter(event -> event.getTitle().toLowerCase().contains(keyword));
     }
 }

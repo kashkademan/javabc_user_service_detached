@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +58,7 @@ public class EventServiceImplTest {
         user.setId(userId);
         user.setSkills(List.of(skill));
 
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+        when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
 
         EventCreateDto dto = new EventCreateDto();
         Event event = new Event();
@@ -81,7 +82,7 @@ public class EventServiceImplTest {
         assertEquals("Test", result.getTitle());
 
         verify(userContext).getUserId();
-        verify(userRepository).findById(userId);
+        verify(userRepository).getByIdOrThrow(userId);
         verify(eventRepository).save(event);
         verify(eventMapper).toViewDto(savedEvent);
     }
@@ -90,7 +91,9 @@ public class EventServiceImplTest {
     @DisplayName("Падает при создании, если пользователь не найден")
     void shouldFailCreateIfUserNotFound() {
         when(userContext.getUserId()).thenReturn(123L);
-        when(userRepository.findById(123L)).thenReturn(java.util.Optional.empty());
+        when(userRepository.getByIdOrThrow(123L))
+                .thenThrow(new IllegalStateException("User not found"));
+        when(eventMapper.toEntity(any(EventCreateDto.class))).thenReturn(new Event());
 
         EventCreateDto dto = new EventCreateDto();
 

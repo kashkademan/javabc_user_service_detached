@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventViewDto;
@@ -26,6 +27,7 @@ public interface EventMapper {
     /**
      * Преобразует сущность {@link Event} в DTO для отображения.
      */
+    @Mapping(target = "ownerId", source = "owner.id")
     EventViewDto toViewDto(Event event);
 
     /**

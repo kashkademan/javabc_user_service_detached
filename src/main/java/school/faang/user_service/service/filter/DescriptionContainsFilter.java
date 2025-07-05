@@ -1,7 +1,11 @@
 package school.faang.user_service.service.filter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+
+import java.util.stream.Stream;
 
 /**
  * DescriptionContainsFilter — фильтр для проверки наличия ключевого слова в описании события.
@@ -13,13 +17,18 @@ import school.faang.user_service.entity.event.Event;
  * @author agent
  * @since 04.07.2025
  */
+@Component
 @RequiredArgsConstructor
 public class DescriptionContainsFilter implements EventFilter {
-    private final String keyword;
 
     @Override
-    public boolean test(Event event) {
-        return keyword == null
-               || event.getDescription().toLowerCase().contains(keyword.toLowerCase());
+    public boolean isApplicable(EventFilterDto dto) {
+        return dto.getDescriptionContains() != null;
+    }
+
+    @Override
+    public Stream<Event> filter(Stream<Event> events, EventFilterDto dto) {
+        String keyword = dto.getDescriptionContains().toLowerCase();
+        return events.filter(event -> event.getDescription().contains(keyword));
     }
 }

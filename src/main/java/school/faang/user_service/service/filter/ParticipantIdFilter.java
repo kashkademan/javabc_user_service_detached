@@ -1,7 +1,11 @@
 package school.faang.user_service.service.filter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+
+import java.util.stream.Stream;
 
 /**
  * ParticipantIdFilter — фильтр для проверки участия пользователя в событии.
@@ -13,14 +17,24 @@ import school.faang.user_service.entity.event.Event;
  * @author agent
  * @since 04.07.2025
  */
+@Component
 @RequiredArgsConstructor
 public class ParticipantIdFilter implements EventFilter {
-    private final Long participantId;
-
 
     @Override
-    public boolean test(Event event) {
-        return participantId == null || event.getAttendees().stream()
-                .anyMatch(attendee -> attendee.getId().equals(participantId));
+    public boolean isApplicable(EventFilterDto dto) {
+        return dto.getParticipantId() != null;
+    }
+
+    @Override
+    public Stream<Event> filter(Stream<Event> events, EventFilterDto dto) {
+        long participantId = dto.getParticipantId();
+
+        return events.filter(event ->
+                event.getAttendees() != null
+                && event.getAttendees().stream()
+                        .anyMatch(user -> user.getId() != null
+                                          && user.getId().equals(participantId))
+        );
     }
 }

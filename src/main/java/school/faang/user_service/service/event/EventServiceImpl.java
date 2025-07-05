@@ -10,6 +10,7 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -18,7 +19,6 @@ import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.EventFilter;
-import school.faang.user_service.service.filter.EventFilterFactory;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,16 +31,21 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final UserContext userContext;
+    private final List<EventFilter> filters;
 
     @Override
     @Transactional
     public EventViewDto create(EventCreateDto eventDto) {
         Event event = eventMapper.toEntity(eventDto);
 
-        Long userId = userContext.getUserId();
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
+        if (event.getStatus() == null) {
+            event.setStatus(EventStatus.PLANNED);
+        }
+
+        long userId = userContext.getUserId();
+        User owner = userRepository.getByIdOrThrow(userId);
         event.setOwner(owner);
+        log.info("Create event request by userId: {}", userId);
 
         validateOwnerSkills(event);
 
@@ -70,17 +75,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventViewDto> getList(EventFilterDto filters) {
-        List<Event> events = eventRepository.findAll();
+    public List<EventViewDto> getList(EventFilterDto dto) {
+        Stream<Event> stream = eventRepository.findAll().stream();
 
-        List<EventFilter> filterChain = EventFilterFactory.buildFilters(filters);
-
-        Stream<Event> stream = events.stream();
-        for (EventFilter filter : filterChain) {
-            stream = stream.filter(filter::test);
+        for (EventFilter filter : filters) {
+            if (filter.isApplicable(dto)) {
+                stream = filter.filter(stream, dto);
+            }
         }
 
-        return stream.map(eventMapper::toViewDto).toList();
+        return stream
+                .map(eventMapper::toViewDto)
+                .toList();
     }
 
     @Override
@@ -105,7 +111,7 @@ public class EventServiceImpl implements EventService {
         }
         List<Skill> ownerSkills = event.getOwner().getSkills();
         if (ownerSkills == null) {
-            throw new DataValidationException("Ownew does not have any skills");
+            throw new DataValidationException("Owner does not have any skills");
         }
         boolean allSkillsPresent = eventSkills.stream()
                 .allMatch(eventSkill -> ownerSkills.stream()
