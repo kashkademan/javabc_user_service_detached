@@ -10,9 +10,10 @@ import school.faang.user_service.entity.goal.GoalStatus;
 public class GoalDto {
     private Long id;
     private String description;
-    private Long parentId;
+    private Long parent;
     @NotEmpty
     private String title;
     private GoalStatus status;
-    private List<Long> skillIds;
+    private List<Long> skillsToAchie;
+    private List<Long> users;
 }
