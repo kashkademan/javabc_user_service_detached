@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
@@ -16,6 +17,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.FilterService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
     private final UserContext userContext;
+    private final FilterService<Goal, GoalFilterDto> filterService;
 
     @Override
     @Transactional
@@ -122,6 +125,16 @@ public class GoalServiceImpl implements GoalService {
         }
 
         goalRepository.deleteUserFromGoal(userId, goalId);
+    }
+
+    @Override
+    public List<GoalDto> getByFilters(GoalFilterDto filterDto) {
+        userContext.getUserId();
+        List<Goal> goals = goalRepository.findAll();
+        goals = filterService.toList(goals, filterDto);
+        return goals.stream()
+                .map(goalMapper::toGoalDto)
+                .toList();
     }
 
     private boolean goalContainsUser(Goal goal, long userId) {

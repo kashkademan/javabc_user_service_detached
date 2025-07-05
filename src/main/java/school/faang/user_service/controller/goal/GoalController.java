@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.service.goal.GoalService;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -92,5 +95,10 @@ public class GoalController {
             log.error("api/goal/{} error: {}", goalId, e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping
+    public List<GoalDto> get(@RequestBody GoalFilterDto goalFilterDto) {
+        return goalService.getByFilters(goalFilterDto);
     }
 }
