@@ -1,5 +1,8 @@
 package school.faang.user_service.controller.goal;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,16 +33,19 @@ public class GoalController {
         return goalService.updateGoal(goalDto);
     }
 
-    public void deleteGoal(long goalId) {
-        goalService.deleteGoal();
+    @DeleteMapping("/{goalId}")
+    public void deleteGoal(@PathVariable long goalId) {
+        goalService.deleteGoal(goalId);
     }
 
-    public void findSubtasksByGoalId(long goalId) {
-        goalService.findSubtasksByGoalId();        
+    @GetMapping("/{goalId}/subtasks")
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable Long goalId, @RequestBody GoalFilterDto filterDto) {
+        return goalService.findSubtasksByGoalId(goalId, filterDto);        
     }
 
-    public void getGoalsByUser(Long userId, GoalFilterDto filter) {
-        goalService.findGoalsByUserId();
+    @GetMapping("/user/{userId}")
+    public List<GoalDto> getGoalsByUser(@PathVariable Long userId, @RequestBody GoalFilterDto filter) {
+        return goalService.findGoalsByUserId(userId, filter);
     }
 
     @GetMapping("/{goalId}")

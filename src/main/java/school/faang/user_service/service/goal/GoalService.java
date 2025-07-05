@@ -2,18 +2,22 @@ package school.faang.user_service.service.goal;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -28,10 +32,12 @@ public class GoalService {
     private final UserRepository userRepository;
     private final GoalMapper goalMapper;
     private final UserContext userContext;
+    private final List<GoalFilter> goalFilters;
 
     public GoalDto createGoal(GoalDto goalDto) {
         User user = getAndValidateAUser();
         List<Skill> skills = getAndValidateSkills(goalDto.getSkillsToAchieve());
+        Goal parentGoal = (goalDto.getParent() == null) ? null : getGoalData(goalDto.getParent());
         
         Goal goalToSave = Goal.builder()
             .title(goalDto.getTitle())
@@ -39,6 +45,7 @@ public class GoalService {
             .status(GoalStatus.ACTIVE)
             .users(List.of(user))
             .skillsToAchieve(skills)
+            .parent(parentGoal)
             .build();
         Goal savedGoal = goalRepository.save(goalToSave);
 
@@ -49,6 +56,7 @@ public class GoalService {
         Goal goal = getGoalData(goalDto.getId());
         List<Skill> skills = getAndValidateSkills(goalDto.getSkillsToAchieve());
 
+        // [1]
         // Денис, вот этот код не работает который закомментил :(
         // for (Skill skill : goal.getSkillsToAchieve()) {
         //     goalRepository.deleteSkillFromGoal(goal.getId(), skill.getId());
@@ -69,16 +77,34 @@ public class GoalService {
         return goalMapper.toDto(updatedGoal);
     }
 
-    public void deleteGoal() {
-
+    public void deleteGoal(Long goalId) {
+        goalRepository.deleteById(goalId);
     }
 
-    public void findSubtasksByGoalId() {
+    @Transactional
+    public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto goalFilterDto) {
+        Stream<Goal> subtasks = goalRepository.findByParent(goalId);
 
+        for (GoalFilter goalFilter : goalFilters) {
+            if (goalFilter.isApplicable(goalFilterDto)) {
+                subtasks = goalFilter.apply(subtasks, goalFilterDto);
+            }
+        }
+
+        return subtasks.map(goalMapper::toDto).toList();
     }
 
-    public void findGoalsByUserId() {
+    @Transactional
+    public List<GoalDto> findGoalsByUserId(Long userId, GoalFilterDto goalFilterDto) {
+        Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
 
+        for (GoalFilter goalFilter : goalFilters) {
+            if (goalFilter.isApplicable(goalFilterDto)) {
+                goals = goalFilter.apply(goals, goalFilterDto);
+            }
+        }
+
+        return goals.map(goalMapper::toDto).toList();
     }
 
     public GoalDto getGoalById(Long goalId) {
@@ -122,8 +148,9 @@ public class GoalService {
     private void updateUsersSkills(List<Skill> skills, List<User> users) {
         for (Skill skill : skills) {
             for (User user : users) {
+                // [1]
                 // Денис, вот этот код не работает который закомментил :(
-                // почему то тут юзер не обновляется :(
+                // почему то тут юзер не обновляется
                 List<Skill> userSkills = user.getSkills();
                 userSkills.add(skill);
                 user.setSkills(userSkills);
