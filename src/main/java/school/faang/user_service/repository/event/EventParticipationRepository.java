@@ -29,4 +29,12 @@ public interface EventParticipationRepository extends JpaRepository<User, Long> 
             WHERE ue.event_id = :eventId
             """)
     int countParticipants(long eventId);
+
+    @Query(nativeQuery = true, value = """
+        SELECT EXISTS (
+            SELECT 1 FROM user_event
+            WHERE event_id = :eventId AND user_id = :userId
+        )
+        """)
+    boolean existsByEventIdAndUserId(long eventId, long userId);
 }
