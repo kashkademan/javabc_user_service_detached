@@ -12,10 +12,10 @@ import school.faang.user_service.entity.event.EventType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@RedisHash("event")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RedisHash("event")
 public class EventRedisModel implements Serializable {
     @Id
     private String key;

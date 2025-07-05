@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.promotion;
+package school.faang.user_service.redis;
 
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.repository.CrudRepository;
@@ -9,9 +9,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@EnableRedisRepositories(repositoryImplementationPostfix = "NativeImpl")
-public interface PromotionRedisRepository extends CrudRepository<PromotionRedisModel, String>,
-        PromotionRedisRepositoryNative {
+public interface PromotionRedisRepository extends CrudRepository<PromotionRedisModel, String>
+//        ,
+//        PromotionRedisRepositoryNative
+{
     Optional<PromotionRedisModel> findByEventId(Long eventId);
 
     Optional<PromotionRedisModel> findByUserId(Long userId);

@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.user;
+package school.faang.user_service.redis;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

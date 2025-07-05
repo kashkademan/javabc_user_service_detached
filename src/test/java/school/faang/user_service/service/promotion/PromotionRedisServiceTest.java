@@ -12,7 +12,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.mapper.promotion.PromotionRedisMapperImpl;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
-import school.faang.user_service.repository.promotion.PromotionRedisRepository;
+import school.faang.user_service.redis.PromotionRedisRepository;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.List;

@@ -9,10 +9,10 @@ import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
 
-@RedisHash("promotion")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RedisHash("promotion")
 public class PromotionRedisModel implements Serializable {
     @Id
     private String key;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.mapper.promotion.PromotionRedisMapper;
 import school.faang.user_service.model.redis.promotion.PromotionRedisModel;
-import school.faang.user_service.repository.promotion.PromotionRedisRepository;
+import school.faang.user_service.redis.PromotionRedisRepository;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.List;
@@ -69,6 +69,6 @@ public class PromotionRedisService {
     }
 
     private void decrementCountView(String promotionKey) {
-        promotionRedisRepository.decrementCountView(promotionKey);
+//        promotionRedisRepository.decrementCountView(promotionKey);
     }
 }

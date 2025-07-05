@@ -7,10 +7,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-@RedisHash("user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RedisHash("user")
 public class UserRedisModel {
     @Id
     private String key;
