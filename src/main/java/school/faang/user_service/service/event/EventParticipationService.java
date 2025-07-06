@@ -1,10 +1,13 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
@@ -15,30 +18,40 @@ import java.util.stream.Collectors;
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
+    private boolean isUserRegistered(List<User> participants, long userId) {
+        return participants.stream()
+                .anyMatch(user -> user.getId() == userId);
+    }
+
+    @Transactional
     public void registerParticipant(long eventId, long userId) {
-        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
-        boolean alreadyRegistered = participants.stream()
-                .allMatch(user -> user.getId() == userId);
-
-        if (alreadyRegistered) {
-            throw new IllegalArgumentException("User is already registered for the event");
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User with ID " + userId + " does not exist");
         }
 
+        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
+
+        if (isUserRegistered(participants, userId)) {
+            throw new IllegalArgumentException("User is already registered for the event");
+        }
         eventParticipationRepository.register(eventId, userId);
     }
 
+    @Transactional
     public void unregisterParticipant(long eventId, long userId) {
-        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
 
-        boolean alreadyRegistered = participants.stream()
-                .allMatch(user -> user.getId() == userId);
-
-        if (!alreadyRegistered) {
-            throw new IllegalArgumentException("User is already unregistered from the event");
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User with ID " + userId + " does not exist");
         }
 
+        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
+
+        if (!isUserRegistered(participants, userId)) {
+            throw new IllegalArgumentException("User is already unregistered from the event");
+        }
         eventParticipationRepository.unregister(eventId, userId);
     }
 
