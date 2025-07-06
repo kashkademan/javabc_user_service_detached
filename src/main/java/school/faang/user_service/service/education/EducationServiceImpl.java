@@ -1,25 +1,18 @@
 package school.faang.user_service.service.education;
 
-<<<<<<<< HEAD:src/main/java/school/faang/user_service/client/service/education/EducationService.java
-========
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
->>>>>>>> kelpie-master-stream10:src/main/java/school/faang/user_service/service/education/EducationServiceImpl.java
 import school.faang.user_service.dto.EducationDto;
+import school.faang.user_service.entity.Education;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.EducationMapper;
+import school.faang.user_service.repository.EducationRepository;
+import school.faang.user_service.repository.UserRepository;
 
-<<<<<<<< HEAD:src/main/java/school/faang/user_service/client/service/education/EducationService.java
-public interface EducationService {
-
-    EducationDto addEducation(long userId, EducationDto educationDto);
-
-    EducationDto updateEducation(long userId, EducationDto educationDto);
-
-    EducationDto getById(long educationId);
-
-========
 @Service
 @RequiredArgsConstructor
 public class EducationServiceImpl implements EducationService {
@@ -74,5 +67,4 @@ public class EducationServiceImpl implements EducationService {
             throw new DataValidationException("Year of start must be early");
         }
     }
->>>>>>>> kelpie-master-stream10:src/main/java/school/faang/user_service/service/education/EducationServiceImpl.java
 }
