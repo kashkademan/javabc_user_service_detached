@@ -17,18 +17,18 @@ public class SkillController {
     private final UserContext userContext;
 
     public SkillDto create(CreateSkillDto skillDto) {
-        validateStringNotEmpty(skillDto.title());
+        validateSkillNameNotNull(skillDto.title());
         return skillService.create(skillDto);
+    }
+
+    private void validateSkillNameNotNull(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Поле навыка пустое");
+        }
     }
 
     public List<SkillDto> getByUserId(Long userId) {
         return skillService.getByUserId(userId);
-    }
-
-    private void validateStringNotEmpty(String value) {
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("Наименование навыка не может быть пустым или отсутствовать");
-        }
     }
 
     public List<SkillCandidateDto> getOfferedSkills() {

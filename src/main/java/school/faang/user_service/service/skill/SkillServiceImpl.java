@@ -3,6 +3,7 @@ package school.faang.user_service.service.skill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -15,6 +16,7 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,13 +32,18 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
-        if (skillRepository.existsByTitle(skillDto.title())) {
-            throw new IllegalArgumentException("Наименование навыка не может быть пустым");
-        }
+        validationSkillInTheDataBase(skillDto.title());
+
         Skill skill = skillMapper.toSkill(skillDto);
         skill = skillRepository.save(skill);
         log.info("Skill {} created", skill.getTitle());
         return skillMapper.toSkillDto(skill);
+    }
+
+    private void validationSkillInTheDataBase(String title) {
+        if (skillRepository.existsByTitle(title)) {
+            throw new DataIntegrityViolationException("Навык '%s' уже существует в базе".formatted(title));
+        }
     }
 
     @Override
@@ -63,9 +70,21 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void acquireSkillFromOffers(long skillId, long userId) {
+        validationCountOfferOfSkill(skillId, userId);
+        validationSkillOfUser(skillId, userId);
+        skillRepository.assignSkillToUser(skillId, userId);
+    }
+
+    private void validationCountOfferOfSkill(long skillId, long userId) {
         if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < countOfSkillRecommendation) {
             throw new DataValidationException("Недостаточное колличество рекоммендаций навыка, добавление невозможно");
         }
-        skillRepository.assignSkillToUser(skillId, userId);
+    }
+
+    private void validationSkillOfUser(long skillId, long userId) {
+        Optional<Skill> optional = skillRepository.findUserSkill(skillId, userId);
+        if (optional.isPresent()) {
+            throw new DataIntegrityViolationException("Навык '%s' уже есть у пользователя".formatted(optional));
+        }
     }
 }
