@@ -21,9 +21,9 @@ public class SkillController {
         return skillService.create(skillDto);
     }
 
-   public List<SkillDto> getByUserId(Long userId){
+    public List<SkillDto> getByUserId(Long userId) {
         return skillService.getByUserId(userId);
-   }
+    }
 
     private void validateStringNotEmpty(String value) {
         if (value == null || value.isEmpty()) {
@@ -31,9 +31,9 @@ public class SkillController {
         }
     }
 
-   public List<SkillCandidateDto> getOfferedSkills(){
-       return skillService.getOfferedSkills(userContext.getUserId());
-   }
+    public List<SkillCandidateDto> getOfferedSkills() {
+        return skillService.getOfferedSkills(userContext.getUserId());
+    }
 
     public void acquireSkillFromOffers(long skillId) {
         skillService.acquireSkillFromOffers(skillId, userContext.getUserId());

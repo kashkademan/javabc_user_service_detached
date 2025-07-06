@@ -30,9 +30,9 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
-if (skillRepository.existsByTitle(skillDto.title())){
-    throw new IllegalArgumentException("Наименование навыка не может быть пустым");
-}
+        if (skillRepository.existsByTitle(skillDto.title())) {
+            throw new IllegalArgumentException("Наименование навыка не может быть пустым");
+        }
         Skill skill = skillMapper.toSkill(skillDto);
         skill = skillRepository.save(skill);
         log.info("Skill {} created", skill.getTitle());
@@ -41,9 +41,9 @@ if (skillRepository.existsByTitle(skillDto.title())){
 
     @Override
     public List<SkillDto> getByUserId(Long userId) {
-        List<Skill> skillList =skillRepository.findAllByUserId( userId);
-        List<SkillDto>skillDtoList = new ArrayList<>();
-        for (Skill skill : skillList){
+        List<Skill> skillList = skillRepository.findAllByUserId(userId);
+        List<SkillDto> skillDtoList = new ArrayList<>();
+        for (Skill skill : skillList) {
             skillDtoList.add(skillMapper.toSkillDto(skill));
         }
         return skillDtoList;
@@ -53,10 +53,10 @@ if (skillRepository.existsByTitle(skillDto.title())){
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> skillList = skillRepository.findSkillsOfferedToUser(userId);
         List<SkillCandidateDto> skillCandidateDtoList = new ArrayList<>();
-        for (Skill skill : skillList){
+        for (Skill skill : skillList) {
             int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
-            SkillCandidateDto skillCandidateDto = new SkillCandidateDto(skillMapper.toSkillDto(skill),offersAmount);
-           skillCandidateDtoList.add(skillCandidateDto);
+            SkillCandidateDto skillCandidateDto = new SkillCandidateDto(skillMapper.toSkillDto(skill), offersAmount);
+            skillCandidateDtoList.add(skillCandidateDto);
         }
         return skillCandidateDtoList;
     }
