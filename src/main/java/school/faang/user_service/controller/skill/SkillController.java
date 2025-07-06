@@ -34,4 +34,8 @@ public class SkillController {
    public List<SkillCandidateDto> getOfferedSkills(){
        return skillService.getOfferedSkills(userContext.getUserId());
    }
+
+    public void acquireSkillFromOffers(long skillId) {
+        skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
+    }
 }
