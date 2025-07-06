@@ -10,7 +10,6 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -37,10 +36,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventViewDto create(EventCreateDto eventDto) {
         Event event = eventMapper.toEntity(eventDto);
-
-        if (event.getStatus() == null) {
-            event.setStatus(EventStatus.PLANNED);
-        }
 
         long userId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(userId);

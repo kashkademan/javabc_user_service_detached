@@ -48,7 +48,7 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventViewDto>> getByFilters(@Valid @ModelAttribute EventFilterDto filters) {
+    public ResponseEntity<List<EventViewDto>> getList(@Valid @ModelAttribute EventFilterDto filters) {
         return ResponseEntity.ok(eventService.getList(filters));
     }
 
