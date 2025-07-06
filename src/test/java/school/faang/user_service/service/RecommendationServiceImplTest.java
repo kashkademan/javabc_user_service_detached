@@ -22,6 +22,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.mapper.SkillOfferMapperImpl;
+import school.faang.user_service.messaging.publishers.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -63,6 +64,9 @@ public class RecommendationServiceImplTest {
 
     @Mock
     private SkillRepository skillRepository;
+
+    @Mock
+    private RecommendationReceivedEventPublisher publisher;
 
     @Spy
     private SkillOfferMapperImpl skillOfferMapper;
@@ -133,6 +137,7 @@ public class RecommendationServiceImplTest {
         verify(recommendationRepository).create(AUTHOR_ID, RECEIVER_ID, inputDto.getContent());
         verify(skillOfferRepository).create(SKILL_ID, EXPECTED_DTO_ID);
         verify(skillRepository).existsById(SKILL_ID);
+        verify(publisher).publishMessage(any(Recommendation.class));
     }
 
     @Test
@@ -213,6 +218,7 @@ public class RecommendationServiceImplTest {
         verify(skillOfferRepository).deleteAllByRecommendationId(EXPECTED_DTO_ID);
         verify(skillOfferRepository).create(SKILL_ID, EXPECTED_DTO_ID);
         verify(skillRepository).existsById(SKILL_ID);
+        verify(publisher).publishMessage(any(Recommendation.class));
     }
 
     @Test

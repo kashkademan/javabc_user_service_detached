@@ -8,7 +8,6 @@ import school.faang.user_service.exception.DataValidationException;
 public class WorkScheduleDtoValidator {
 
     public void validateDto(WorkScheduleDto workScheduleDto) {
-        checkValidFields(workScheduleDto);
         checkValidTimeLine(workScheduleDto);
     }
 
@@ -20,17 +19,6 @@ public class WorkScheduleDtoValidator {
         }
         throw new DataValidationException("startTime should be before startLunch. " +
                 "both of them should be before endLunch. And all of them should be before endTime");
-    }
-
-    private void checkValidFields(WorkScheduleDto workScheduleDto) {
-        if (workScheduleDto.getId() == 0
-                || workScheduleDto.getTimezone() == null
-                || workScheduleDto.getStartTime() == null
-                || workScheduleDto.getStartLunch() == null
-                || workScheduleDto.getEndLunch() == null
-                || workScheduleDto.getEndTime() == null) {
-            throw new DataValidationException("All fields should be filled");
-        }
     }
 }
 

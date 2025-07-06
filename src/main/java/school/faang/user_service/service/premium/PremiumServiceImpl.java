@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
-import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
 import school.faang.user_service.dto.PremiumDto;
@@ -18,6 +17,7 @@ import school.faang.user_service.exception.AlreadyPremiumUserException;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messaging.publishers.PremiumBoughtEventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.PremiumService;
 import school.faang.user_service.service.UserService;
@@ -36,7 +36,7 @@ public class PremiumServiceImpl implements PremiumService {
     private final PremiumMapper premiumMapper;
     private final UserMapper userMapper;
     private final PaymentServiceClient paymentServiceClient;
-    private final UserContext userContext;
+    private final PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Override
     public PremiumDto buyPremium(long userId, PremiumPeriod period) {
@@ -56,10 +56,14 @@ public class PremiumServiceImpl implements PremiumService {
         }
         Premium boughtPremium = Premium.builder()
                 .user(userMapper.toUser(userDto))
+                .price(BigDecimal.valueOf(period.getPrice()))
+                .currency(Currency.USD)
+                .premiumPeriod(period)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusDays(period.getDays()))
                 .build();
         Premium savedPremium = premiumRepository.save(boughtPremium);
+        premiumBoughtEventPublisher.publishMessage(savedPremium);
         return premiumMapper.toPremiumDto(savedPremium);
     }
 

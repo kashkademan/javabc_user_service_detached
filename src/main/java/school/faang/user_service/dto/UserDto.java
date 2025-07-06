@@ -3,9 +3,11 @@ package school.faang.user_service.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
+import school.faang.user_service.entity.contact.PreferredContact;
+
 import java.util.List;
 
 @Builder
@@ -21,4 +23,14 @@ public class UserDto {
     private String email;
     @NotNull
     private List<UserDto> mentors;
+
+    private PreferredContact preference;
+
+    private String aboutMe;
+
+    private Integer experience;
+
+    private String phone;
 }
+
+
