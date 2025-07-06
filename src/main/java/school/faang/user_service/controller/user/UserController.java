@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
@@ -109,5 +111,20 @@ public class UserController {
     @PostMapping("/{userId}/unban")
     public void unbanUser(@PathVariable Long userId) {
         userService.unbanUser(userId);
+    }
+
+    @PostMapping("/telegram")
+    public UserTelegramDto addUserTelegram(@RequestBody @Valid UserTelegramDto userTelegramDto) {
+        return userService.addUserTelegram(userTelegramDto);
+    }
+
+    @GetMapping("/{userId}/telegram")
+    public UserTelegramDto getUserTelegram(@PathVariable long userId) {
+        return userService.getUserTelegram(userId);
+    }
+
+    @GetMapping("/telegram/{telegramUserName}")
+    public UserTelegramDto getUserByTelegram(@PathVariable String telegramUserName) {
+        return userService.getUserByTelegram(telegramUserName);
     }
 }
