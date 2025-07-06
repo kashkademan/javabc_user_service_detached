@@ -15,6 +15,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.messaging.publishers.GoalAttachedMessagePublisher;
 import school.faang.user_service.messaging.publishers.GoalCompletedMessagePublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -42,6 +43,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalInvitationRepository goalInvitationRepository;
     private final List<GoalFilter> goalFilters;
     private final GoalCompletedMessagePublisher goalCompletedMessagePublisher;
+    private final GoalAttachedMessagePublisher goalAttachedMessagePublisher;
 
     @Override
     @Transactional
@@ -70,6 +72,8 @@ public class GoalServiceImpl implements GoalService {
 
         addGoalToUser(userId, createdGoal);
         addGoalToSkills(createdGoal);
+
+        goalAttachedMessagePublisher.createAndPublishMessage(createdGoal, userId);
 
         return goalMapper.toGoalDTO(createdGoal);
     }

@@ -18,6 +18,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
+import school.faang.user_service.messaging.publishers.GoalAttachedMessagePublisher;
 import school.faang.user_service.messaging.publishers.GoalCompletedMessagePublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -49,6 +50,8 @@ class GoalServiceImplTest {
     private GoalInvitationRepository goalInvitationRepository;
     @Mock
     GoalCompletedMessagePublisher goalCompletedMessagePublisher;
+    @Mock
+    GoalAttachedMessagePublisher goalAttachedMessagePublisher;
 
     private GoalFilter titleStubFilter = new GoalFilter() {
         @Override
@@ -88,7 +91,8 @@ class GoalServiceImplTest {
                 userRepository,
                 goalInvitationRepository,
                 List.of(titleStubFilter, skillTitlesStubFilter),
-                goalCompletedMessagePublisher
+                goalCompletedMessagePublisher,
+                goalAttachedMessagePublisher
         );
         ReflectionTestUtils.setField(goalService, "maximumAllowedActiveGoals", 3);
     }

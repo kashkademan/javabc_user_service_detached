@@ -31,7 +31,19 @@ spring:
           goal_complete: goal_complete
           recommendation_event: recommendation_event
           follower_event: follower_event
+          goal_attached: goal_attached
           premium_bought: premium_bought
+    kafka:
+      bootstrap-servers: localhost:9092, localhost:9192, localhost:9292
+      group_id: event-listeners
+      auto_offset: earliest
+      concurrency: 3
+
+  async:
+    core_pool_size: 2
+    max_pool_size: 2
+    queue_capacity: 500
+    thread_name_prefix: publisher-
 
 server:
   port: 8080
