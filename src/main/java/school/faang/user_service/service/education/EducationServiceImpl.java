@@ -2,7 +2,6 @@ package school.faang.user_service.service.education;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EducationDto;
