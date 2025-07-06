@@ -13,16 +13,17 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.FilterService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -31,8 +32,8 @@ public class GoalServiceImpl implements GoalService {
     private static final String USER_HAS_NO_ACCESS = "user has no access to provided goal";
     private static final String USER_HAS_TO_MANY_ACTIVE_GOALS = "user has too many ACTIVE goals";
     private static final String GOAL_COMPLETED = "goal completed";
-    private static final String FIELD_NOT_VALID_FORMAT = "goal's \"%s\" should be present!";
-    private static final String DEADLINE_NOT_VALID_MESSAGE = "goal deadline can not to be null or date before than now";
+    private static final String MENTOR_HAS_NO_MENTEES = "mentor has no mentees";
+    private static final String USER_NOT_FOUND = "user not found";
 
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
@@ -43,43 +44,67 @@ public class GoalServiceImpl implements GoalService {
     @Override
     @Transactional
     public GoalDto create(GoalCreateDto goalCreateDto) {
-        validateCreateGoalDto(goalCreateDto);
+        long userId = userContext.getUserId();
         Goal goal = goalMapper.toGoal(goalCreateDto);
         goal.setStatus(GoalStatus.ACTIVE);
         if (goalCreateDto.parentId() != null) {
             goal.setParent(goalRepository.getByIdOrThrow(goalCreateDto.parentId()));
         }
 
-        long userId = userContext.getUserId();
         boolean userIsMentor = false;
         if (goalCreateDto.mentorId() != null) {
             userIsMentor = userId == goalCreateDto.mentorId();
+            if (!userIsMentor) {
+                throw new ForbiddenException(USER_HAS_NO_ACCESS);
+            }
             goal.setMentor(userRepository.getByIdOrThrow(goalCreateDto.mentorId()));
         }
 
-        List<User> users = new ArrayList<>();
-        if (goalCreateDto.userIds() != null) {
-            goalCreateDto.userIds().forEach(id -> users.add(getUserByIdOrThrow(id)));
-        }
-        goal.setUsers(users);
-        if (!userIsMentor && !goalContainsUser(goal, userId)) {
-            users.add(getUserByIdOrThrow(userId));
-            goal.setUsers(users);
-        }
-
-        log.info("users {}", users.stream().map(User::getId).toArray());
+        User user = userRepository.getByIdOrThrow(userId);
+        goal.setUsers(getUsersForGoalOrThrow(userIsMentor, user, goalCreateDto.userIds()));
         goal = goalRepository.save(goal);
         return goalMapper.toGoalDto(goal);
+    }
+
+    private List<User> getUsersForGoalOrThrow(boolean isMentor, User user, List<Long> userIds) {
+        List<User> users = List.of(user);
+
+        if (isMentor) {
+            users = user.getMentees();
+            if (users == null || users.isEmpty()) {
+                throw new EntityNotFoundException(MENTOR_HAS_NO_MENTEES);
+            }
+        }
+
+        List<User> usersForGoal = new ArrayList<>();
+        for (Long id : userIds) {
+            User userForGoal = users.stream()
+                    .filter(u -> u.getId().equals(id))
+                    .findAny()
+                    .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
+
+            if (userForGoal.getGoals() == null || userForGoal.getGoals().isEmpty()) {
+                usersForGoal.add(userForGoal);
+                continue;
+            }
+            long activeGoalsCount = userForGoal.getGoals().stream()
+                    .filter(g -> g.getStatus().equals(GoalStatus.ACTIVE))
+                    .count();
+            if (activeGoalsCount > 1) {
+                throw new DataValidationException(USER_HAS_TO_MANY_ACTIVE_GOALS);
+            }
+            usersForGoal.add(userForGoal);
+        }
+        return usersForGoal;
     }
 
     @Override
     @Transactional
     public GoalDto update(long goalId, GoalUpdateDto goalUpdateDto) {
-        validateUpdateGoalDto(goalUpdateDto);
         long userId = userContext.getUserId();
 
         Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (!isUserTaskParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(userId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
 
@@ -96,7 +121,7 @@ public class GoalServiceImpl implements GoalService {
     public GoalDto getById(long goalId) {
         long userId = userContext.getUserId();
         Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (!isUserTaskParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(userId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
         return goalMapper.toGoalDto(goal);
@@ -108,7 +133,7 @@ public class GoalServiceImpl implements GoalService {
         long userId = userContext.getUserId();
         Goal goal = goalRepository.getByIdOrThrow(goalId);
         boolean hasMentor = goal.getMentor() != null;
-        if (!isUserTaskParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(userId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
 
         }
@@ -129,8 +154,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public List<GoalDto> getByFilters(GoalFilterDto filterDto) {
-        userContext.getUserId();
-        List<Goal> goals = goalRepository.findAll();
+        long userId = userContext.getUserId();
+        List<Goal> goals = goalRepository.findGoalsByUserId(userId).toList();
         goals = filterService.toList(goals, filterDto);
         return goals.stream()
                 .map(goalMapper::toGoalDto)
@@ -147,52 +172,7 @@ public class GoalServiceImpl implements GoalService {
                 .anyMatch(id -> userId == id);
     }
 
-    private void validateCreateGoalDto(GoalCreateDto dto) {
-        if (dto.title() == null || dto.title().isBlank()) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "title"));
-        }
-        if (dto.description() == null || dto.description().isBlank()) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "description"));
-        }
-        if (dto.deadline() == null || dto.deadline().isBefore(LocalDateTime.now())) {
-            throw new DataValidationException(DEADLINE_NOT_VALID_MESSAGE);
-        }
-        if (dto.userIds() == null || dto.userIds().isEmpty()) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "userIds"));
-        }
-    }
-
-    private void validateUpdateGoalDto(GoalUpdateDto dto) {
-        if (dto.title() == null || dto.title().isBlank()) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "title"));
-        }
-        if (dto.description() == null || dto.description().isBlank()) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "description"));
-        }
-        if (dto.deadline() == null || dto.deadline().isBefore(LocalDateTime.now())) {
-            throw new DataValidationException(DEADLINE_NOT_VALID_MESSAGE);
-        }
-        if (dto.status() == null) {
-            throw new DataValidationException(String.format(FIELD_NOT_VALID_FORMAT, "status"));
-        }
-    }
-
-    private User getUserByIdOrThrow(long userId) {
-        User user = userRepository.getByIdOrThrow(userId);
-        List<Goal> goals = user.getGoals();
-        if (goals == null || goals.isEmpty()) {
-            return user;
-        }
-        long size = goals.stream()
-                .filter(g -> g.getStatus().equals(GoalStatus.ACTIVE))
-                .count();
-        if (size > 1) {
-            throw new DataValidationException(USER_HAS_TO_MANY_ACTIVE_GOALS);
-        }
-        return user;
-    }
-
-    private boolean isUserTaskParticipant(long userId, Goal goal) {
+    private boolean isUserGoalParticipant(long userId, Goal goal) {
         if (goal.getMentor() != null && goal.getMentor().getId() == userId) {
             return true;
         }

@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping("/create")
-    public GoalDto create(@RequestBody GoalCreateDto goalCreateDto) {
+    public GoalDto create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
         try {
             return goalService.create(goalCreateDto);
         } catch (DataValidationException | IllegalArgumentException dataValidationE) {
@@ -44,7 +45,7 @@ public class GoalController {
     }
 
     @PutMapping("/{goalId}/update")
-    public GoalDto update(@PathVariable long goalId, @RequestBody GoalUpdateDto goalUpdateDto) {
+    public GoalDto update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
         try {
             return goalService.update(goalId, goalUpdateDto);
         } catch (DataValidationException | IllegalArgumentException dataValidationE) {
@@ -97,8 +98,8 @@ public class GoalController {
         }
     }
 
-    @GetMapping
-    public List<GoalDto> get(@RequestBody GoalFilterDto goalFilterDto) {
+    @PostMapping("/search")
+    public List<GoalDto> searchByFilters(@RequestBody GoalFilterDto goalFilterDto) {
         return goalService.getByFilters(goalFilterDto);
     }
 }
