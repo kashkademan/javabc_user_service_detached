@@ -56,11 +56,6 @@ public class GoalService {
         Goal goal = getGoalData(goalDto.getId());
         List<Skill> skills = getAndValidateSkills(goalDto.getSkillsToAchieve());
 
-        // [1]
-        // Денис, вот этот код не работает который закомментил :(
-        // for (Skill skill : goal.getSkillsToAchieve()) {
-        //     goalRepository.deleteSkillFromGoal(goal.getId(), skill.getId());
-        // }
         goal.setSkillsToAchieve(Collections.emptyList());
         goalRepository.save(goal);
 
@@ -145,6 +140,7 @@ public class GoalService {
         });
     }
 
+    @Transactional
     private void updateUsersSkills(List<Skill> skills, List<User> users) {
         for (Skill skill : skills) {
             for (User user : users) {

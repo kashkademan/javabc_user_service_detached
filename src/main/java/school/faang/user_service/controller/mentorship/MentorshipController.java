@@ -19,7 +19,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/mentorship")
+@RequestMapping("/mentorship")
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 

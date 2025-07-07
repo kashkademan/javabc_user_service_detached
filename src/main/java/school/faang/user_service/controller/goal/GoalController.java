@@ -18,7 +18,7 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.goal.GoalService;
 
 @RestController
-@RequestMapping("${spring.api.base-path-goal}/goal")
+@RequestMapping("/goals")
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;

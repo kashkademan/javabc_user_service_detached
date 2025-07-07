@@ -24,8 +24,15 @@ spring:
   api:
     base-path-goal: /api/v1
 
+  web:
+    mvc:
+      pathmatch:
+        matching-strategy: ant_path_matcher # Uses traditional path matching
+
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1 # All endpoints get this prefix
 
 logging:
   level:
