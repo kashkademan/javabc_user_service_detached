@@ -1,8 +1,9 @@
 package school.faang.user_service.util.recommendation;
 
+import lombok.experimental.UtilityClass;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
-
+@UtilityClass
 public class RecommendationValidatorUtil {
     public static void validate(RecommendationDto recommendationDto) {
         if (recommendationDto == null) {
