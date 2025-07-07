@@ -33,30 +33,30 @@ import java.util.List;
 @RequestMapping("/events/{eventId}/participants")
 @RequiredArgsConstructor
 public class EventParticipationController {
-    private final EventParticipationService eventParticipationService;
+    private final EventParticipationService service;
     private final UserContext userContext;
 
     @PostMapping
     public ResponseEntity<Void> registerParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
-        eventParticipationService.registerParticipant(eventId, userId);
+        service.registerParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> unregisterParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
-        eventParticipationService.unregisterParticipant(eventId, userId);
+        service.unregisterParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllParticipants(@PathVariable long eventId) {
-        return ResponseEntity.ok(eventParticipationService.getAllParticipantsByEventId(eventId));
+        return ResponseEntity.ok(service.getAllParticipantsByEventId(eventId));
     }
 
     @GetMapping("/count")
     public ResponseEntity<CountResponse> countParticipants(@PathVariable long eventId) {
-        return ResponseEntity.ok(eventParticipationService.countParticipantsByEventId(eventId));
+        return ResponseEntity.ok(service.countParticipantsByEventId(eventId));
     }
 }
