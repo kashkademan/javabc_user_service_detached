@@ -30,14 +30,18 @@ public interface ValidatableWorkSchedule {
     String timezone();
 
     default void validate() {
-        if (!(startTime().isBefore(startLunch())
-              && startLunch().isBefore(endLunch())
-              && endLunch().isBefore(endTime()))) {
-            throw new DataValidationException("Time order invalid");
+        if (!startTime().isBefore(startLunch())) {
+            throw new DataValidationException("Start time must be before lunch start");
+        }
+        if (!startLunch().isBefore(endLunch())) {
+            throw new DataValidationException("Lunch start must be before lunch end");
+        }
+        if (!endLunch().isBefore(endTime())) {
+            throw new DataValidationException("Lunch end must be before end time");
         }
 
         try {
-            ZoneId zoneId = ZoneId.of(timezone());
+            ZoneId.of(timezone());
         } catch (DateTimeException e) {
             throw new DataValidationException("Invalid timezone");
         }

@@ -10,6 +10,7 @@ import school.faang.user_service.dto.workschedule.WorkScheduleViewDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.exception.UnauthorizedException;
 import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
@@ -50,17 +51,17 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             throw new ForbiddenException("User not allowed to update work schedule");
         }
         workScheduleMapper.updateWorkScheduleFromDto(dto, workSchedule);
-        workSchedule.setUser(user);
 
         return workScheduleMapper.toWorkScheduleDto(repository.save(workSchedule));
     }
 
     @Override
     public WorkScheduleViewDto getById(long workScheduleId) {
-        log.info("Getting Work Schedule by id: {}", workScheduleId);
+        long currentUserId = context.getUserId();
+
+        log.info("Getting Work Schedule by id: {} for userId={}", workScheduleId, currentUserId);
 
         WorkSchedule schedule = repository.getByIdOrThrow(workScheduleId);
-        long currentUserId = context.getUserId();
 
         if (!schedule.getUser().getId().equals(currentUserId)) {
             throw new ForbiddenException("You are not allowed to view this schedule");
@@ -69,12 +70,18 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         return workScheduleMapper.toWorkScheduleDto(schedule);
     }
 
+
     @Override
     public void deleteWorkSchedule(long workScheduleId) {
-        log.info("Deleting Work Schedule by id: {}", workScheduleId);
+        Long userId = context.getUserId();
+        if (userId == null) {
+            throw new UnauthorizedException("User not authorized");
+        }
+
+        log.info("Deleting Work Schedule id={} for userId={}", workScheduleId, userId);
 
         WorkSchedule schedule = repository.getByIdOrThrow(workScheduleId);
-        if (!schedule.getUser().getId().equals(context.getUserId())) {
+        if (!schedule.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You are not allowed to delete this schedule");
         }
 

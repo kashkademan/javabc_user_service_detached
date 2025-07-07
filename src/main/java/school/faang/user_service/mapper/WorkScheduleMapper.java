@@ -2,6 +2,7 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleViewDto;
@@ -16,7 +17,7 @@ import school.faang.user_service.entity.user.WorkSchedule;
  * @author agent
  * @since 07.07.2025
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface WorkScheduleMapper {
 
     /**

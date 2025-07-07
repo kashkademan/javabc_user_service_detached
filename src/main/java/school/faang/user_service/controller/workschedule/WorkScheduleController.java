@@ -62,8 +62,7 @@ public class WorkScheduleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkSchedule(@PathVariable long id) {
-        long userId = context.getUserId();
-        service.deleteWorkSchedule(userId);
+        service.deleteWorkSchedule(id);
         return ResponseEntity.noContent().build();
     }
 }

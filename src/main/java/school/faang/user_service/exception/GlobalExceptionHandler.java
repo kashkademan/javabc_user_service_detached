@@ -24,16 +24,18 @@ import java.util.stream.Collectors;
  *
  * <p>В данном классе реализованы обработчики для:
  * <ul>
- *     <li>Некорректного формата JSON в запросах (HttpMessageNotReadableException)</li>
- *     <li>Ошибок валидации данных (@Valid) (MethodArgumentNotValidException)</li>
- *     <li>Ошибок бизнес-логики, например,
- *     при некорректной структуре временных интервалов (DataValidationException)</li>
- *     <li>Случаев, когда ресурс не найден (EntityNotFoundException)</li>
- *     <li>И любых других необработанных исключений (Exception)</li>
+ *     <li>Некорректного формата JSON в запросах ({@link HttpMessageNotReadableException})</li>
+ *     <li>Ошибок валидации данных (@Valid) ({@link MethodArgumentNotValidException})</li>
+ *     <li>Ошибок бизнес-логики, например, при некорректной структуре временных интервалов
+ *     ({@link DataValidationException})</li>
+ *     <li>Случаев, когда ресурс не найден ({@link EntityNotFoundException})</li>
+ *     <li>Ошибок авторизации, когда пользователь не предоставил заголовок
+ *     {@code x-user-id} ({@link UnauthorizedException})</li>
+ *     <li>И любых других необработанных исключений ({@link Exception})</li>
  * </ul>
  * </p>
  *
- * <p>Каждый обработчик возвращает объект ErrorResponse с HTTP-статусом, сообщением и отметкой времени.</p>
+ * <p>Каждый обработчик возвращает объект {@link ErrorResponse} с HTTP-статусом, сообщением и отметкой времени.</p>
  *
  * @author agent
  * @since 05.07.2025
@@ -100,5 +102,15 @@ public class GlobalExceptionHandler {
                 Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }
