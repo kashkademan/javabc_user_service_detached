@@ -23,22 +23,24 @@ public class DefaultGoalUpdatePolicy implements GoalUpdatePolicy {
 
         boolean isGoalCompleted = goal.getStatus() == GoalStatus.COMPLETED;
         if (isGoalCompleted) {
-            deny(dto, goal);
+            deny(dto, goal, currentUserId);
         }
 
-        boolean isMentor = goal.getMentor() != null && goal.getMentor().getId() == currentUserId;
-        boolean isParticipant = goal.getUsers().stream()
+        boolean isMentor = goal.getMentor() != null
+                && goal.getMentor().getId() == currentUserId;
+        boolean isParticipant = goal.getUsers() != null
+                && goal.getUsers().stream()
                 .anyMatch(user -> user.getId() == currentUserId);
 
         if (!isMentor && !isParticipant) {
-            deny(dto, goal);
+            deny(dto, goal, currentUserId);
         }
     }
 
-    private void deny(UpdateGoalDto dto, Goal goal) {
+    private void deny(UpdateGoalDto dto, Goal goal, long currentUserId) {
         String msg = String.format(
                 "Cannot update goal. Goal ID: %d, Status: %s, CurrentUserId: %d, DTO : %s",
-                goal.getId(), goal.getStatus(), userContext.getUserId(), dto
+                goal.getId(), goal.getStatus(), currentUserId, dto
         );
         log.error("AccessDenied: {}", msg);
         throw new IllegalArgumentException(msg);

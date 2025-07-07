@@ -2,6 +2,8 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +11,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.FilterGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
-import school.faang.user_service.dto.goal.IndexGoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.filter.goal.GoalFilterBuilderInterface;
 import school.faang.user_service.entity.goal.Goal;
@@ -27,6 +28,7 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.UserSkillGuaranteeRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
+    public static final int MIN_USERS_TO_DELETE_GOAL = 1;
+
     private final UserContext userContext;
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
@@ -51,18 +55,27 @@ public class GoalServiceImpl implements GoalService {
         goalCreatePolicy.validate(createGoalDto);
         Goal goal = goalMapper.toGoal(createGoalDto);
 
-        List<User> users = userRepository.findAllById(createGoalDto.userIds());
+        List<User> users = createGoalDto.userIds() == null || createGoalDto.userIds().isEmpty()
+                ? Collections.emptyList()
+                : userRepository.findAllById(createGoalDto.userIds());
 
         goal.setUsers(users);
         goal.setStatus(GoalStatus.ACTIVE);
 
+        setGuaranteeAndSkills(createGoalDto, users, goal);
+
+        goalRepository.save(goal);
+        return goalMapper.toGoalDto(goal);
+    }
+
+    private void setGuaranteeAndSkills(CreateGoalDto createGoalDto, List<User> users, Goal goal) {
         if (createGoalDto.skillIds() != null && !createGoalDto.skillIds().isEmpty()) {
             List<Skill> skills = skillRepository.findAllById(createGoalDto.skillIds());
             userRepository.findById(createGoalDto.mentorId())
                     .ifPresent(mentor -> {
                         List<UserSkillGuarantee> guarantees = new ArrayList<>();
-                        skills.forEach(skill -> {
-                            users.forEach(user -> {
+                        users.forEach(user -> {
+                            skills.forEach(skill -> {
                                 UserSkillGuarantee userSkillGuarantee = new UserSkillGuarantee();
                                 userSkillGuarantee.setUser(user);
                                 userSkillGuarantee.setSkill(skill);
@@ -75,16 +88,13 @@ public class GoalServiceImpl implements GoalService {
                     });
             goal.setSkillsToAchieve(skills);
         }
-
-        goalRepository.save(goal);
-        return goalMapper.toGoalDto(goal);
     }
 
     @Override
-    public List<GoalDto> get(IndexGoalDto dto) {
-        Specification<Goal> specification = goalFilter.buildSpecification(dto.filters(), null);
-        List<Goal> goals = goalRepository.findAll(specification);
-        return goalMapper.toGoalDtoList(goals);
+    public Page<GoalDto> get(FilterGoalDto dto, Pageable pageable) {
+        Specification<Goal> specification = goalFilter.buildSpecification(dto, null);
+        Page<Goal> goals = goalRepository.findAll(specification, pageable);
+        return goals.map(goalMapper::toGoalDto);
     }
 
     @Override
@@ -107,7 +117,7 @@ public class GoalServiceImpl implements GoalService {
 
         goalMapper.update(goal, updateGoalDto);
 
-        if (goal.getStatus() == GoalStatus.COMPLETED && goal.getSkillsToAchieve() != null) {
+        if (goal.getStatus() == GoalStatus.COMPLETED && goal.getSkillsToAchieve() != null && goal.getUsers() != null) {
             for (Skill skill : goal.getSkillsToAchieve()) {
                 for (User user : goal.getUsers()) {
                     skillRepository.assignSkillToUser(skill.getId(), user.getId());
@@ -127,7 +137,7 @@ public class GoalServiceImpl implements GoalService {
         long currentUserId = userContext.getUserId();
         boolean isMentor = goal.getMentor() != null
                 && goal.getMentor().getId().equals(currentUserId);
-        if (isMentor || usersSize <= 1) {
+        if (isMentor || usersSize <= MIN_USERS_TO_DELETE_GOAL) {
             goalRepository.deleteById(id);
         } else {
             goalRepository.deleteUserFromGoal(currentUserId, goal.getId());

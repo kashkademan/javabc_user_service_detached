@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 
@@ -70,4 +71,22 @@ public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificat
                 () -> new EntityNotFoundException(String.format("Goal %d not found", goalId))
         );
     }
+
+    @Query("""
+              SELECT COUNT(u.id)
+                FROM User u
+              WHERE u.id IN :userIds
+                AND (
+                  SELECT COUNT(g)
+                    FROM Goal g
+                    JOIN g.users u2
+                  WHERE u2.id = u.id
+                    AND g.status = :status
+                ) < :threshold
+            """)
+    long countUsersExceedingGoals(
+            List<Long> userIds,
+            GoalStatus status,
+            long threshold
+    );
 }

@@ -19,17 +19,19 @@ public class DefaultGoalDeletePolicy implements GoalDeletePolicy {
     @Override
     public void validate(Goal goal) {
         Long currentUserId = userContext.getUserId();
-        boolean isMentor = goal.getMentor() != null && goal.getMentor().getId().equals(currentUserId);
-        boolean isParticipant = goal.getUsers().stream().map(User::getId).anyMatch(val -> val.equals(currentUserId));
+        boolean isMentor = goal.getMentor() != null
+                && goal.getMentor().getId().equals(currentUserId);
+        boolean isParticipant = goal.getUsers() != null
+                && goal.getUsers().stream().map(User::getId).anyMatch(val -> val.equals(currentUserId));
         if (!isMentor && !isParticipant) {
-            deny(goal);
+            deny(goal, currentUserId);
         }
     }
 
-    private void deny(Goal goal) {
+    private void deny(Goal goal, long currentUserId) {
         String msg = String.format(
                 "Cannot update goal. Goal ID: %d, Status: %s, CurrentUserId: %d",
-                goal.getId(), goal.getStatus(), userContext.getUserId()
+                goal.getId(), goal.getStatus(), currentUserId
         );
         log.error("AccessDenied: {}", msg);
         throw new IllegalArgumentException(msg);

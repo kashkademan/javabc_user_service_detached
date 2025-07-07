@@ -1,16 +1,16 @@
 package school.faang.user_service.service.goal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.FilterGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
-import school.faang.user_service.dto.goal.IndexGoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
-
-import java.util.List;
 
 public interface GoalService {
     GoalDto create(CreateGoalDto createGoalDto);
 
-    List<GoalDto> get(IndexGoalDto dto);
+    Page<GoalDto> get(FilterGoalDto dto, Pageable pageable);
 
     void delete(Long id);
 
