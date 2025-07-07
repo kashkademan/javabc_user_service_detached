@@ -34,7 +34,6 @@ public class UserService {
     private final RestTemplate restTemplate;
     private final MinioService minioService;
     private final ProfilePicEventPublisher eventPublisher;
-    private final UserRepository userRepository;
 
     @Value("${dice-bear-api}")
     private String diceBearApi;
@@ -150,6 +149,6 @@ public class UserService {
     }
 
     public boolean existsById(long userId) {
-        return userRepository.existsById(userId);
+        return userRepo.existsById(userId);
     }
 }
