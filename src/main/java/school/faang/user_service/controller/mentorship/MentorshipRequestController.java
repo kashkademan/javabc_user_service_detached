@@ -1,0 +1,59 @@
+package school.faang.user_service.controller.mentorship;
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
+import school.faang.user_service.dto.mentorship.RejectionDto;
+import school.faang.user_service.entity.user.MentorshipRequest;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.service.mentorship.MentorshipRequestService;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/mentorship/requests")
+public class MentorshipRequestController {
+
+    private final MentorshipRequestService mentorshipRequestService;
+    private final MentorshipRequestMapper mentorshipRequestMapper;
+
+    @PostMapping
+    public MentorshipRequestDto create(@RequestBody CreateMentorshipRequestDto dto) {
+        return mentorshipRequestService.create(dto);
+    }
+
+    @PostMapping("/filter")
+    public List<MentorshipRequestDto> getByFilters(@RequestBody MentorshipRequestFilterDto filterDto) {
+        return mentorshipRequestService.getByFilters(filterDto);
+    }
+
+    @PostMapping("/{requestId}/accept")
+    public void accept(@PathVariable long requestId) {
+        mentorshipRequestService.accept(requestId);
+    }
+
+    @PostMapping("/{requestId}/reject")
+    public void reject(@PathVariable long requestId, @RequestBody RejectionDto rejectionDto) {
+        mentorshipRequestService.reject(requestId, rejectionDto);
+    }
+
+    public MentorshipRequestDto toMentorshipRequestDto(MentorshipRequest mentorshipRequest) {
+        if (mentorshipRequest == null
+                || mentorshipRequest.getRequester() == null
+                || mentorshipRequest.getReceiver() == null
+                || !StringUtils.hasText(mentorshipRequest.getDescription())) {
+            throw new DataValidationException("Некорректный объект запроса на менторство");
+        }
+
+        return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
+    }
+}
