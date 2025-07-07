@@ -21,8 +21,8 @@ jobs:
 
       - name: Build with Gradle
         run: 
-          ./gradlew build --no-daemon --stacktrace --info
           ./gradlew clean compileJava --stacktrace --no-daemon
+          ./gradlew build --no-daemon --stacktrace --info
 
       # Optional cache setup (improves performance)
       - name: Cache Gradle packages
