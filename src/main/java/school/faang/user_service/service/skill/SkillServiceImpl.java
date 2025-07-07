@@ -20,11 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class SkillServiceImpl implements SkillService {
-    SkillRepository skillRepository;
-    SkillMapper skillMapper;
-    SkillOfferRepository skillOfferRepository;
+    private final SkillRepository skillRepository;
+    private final SkillMapper skillMapper;
+    private final SkillOfferRepository skillOfferRepository;
 
     @Override
+    @Transactional
     public SkillDto create(CreateSkillDto skillDto) {
         log.info("Получили новый объект по RestAPI: {} ", skillDto);
         Skill skill = skillMapper.toSkill(skillDto);
@@ -41,9 +42,6 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public List<SkillDto> getByUserId(Long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
-        if (skills.isEmpty()) {
-            throw new EntityNotFoundException("По заданному id не найдено ни одной записи");
-        }
         return skills.stream()
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .toList();
