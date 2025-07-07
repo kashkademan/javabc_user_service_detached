@@ -1,0 +1,83 @@
+package school.faang.user_service.service.workschedule;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleViewDto;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.WorkSchedule;
+import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.mapper.WorkScheduleMapper;
+import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.repository.user.WorkScheduleRepository;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class WorkScheduleServiceImpl implements WorkScheduleService {
+    private final WorkScheduleRepository repository;
+    private final UserRepository userRepository;
+    private final WorkScheduleMapper workScheduleMapper;
+    private final UserContext context;
+
+    @Override
+    public WorkScheduleViewDto addWorkSchedule(long userId, WorkScheduleCreateDto dto) {
+        log.info("added Work Schedule");
+        dto.validate();
+
+        User user = userRepository.getByIdOrThrow(userId);
+
+        WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(dto);
+        workSchedule.setUser(user);
+
+        WorkSchedule saved = repository.save(workSchedule);
+
+        return workScheduleMapper.toWorkScheduleDto(saved);
+    }
+
+    @Override
+    public WorkScheduleViewDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleUpdateDto dto) {
+        log.info("updated Work Schedule");
+        dto.validate();
+
+        User user = userRepository.getByIdOrThrow(userId);
+        WorkSchedule workSchedule = repository.getByIdOrThrow(workScheduleId);
+
+        if (!workSchedule.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("User not allowed to update work schedule");
+        }
+        workScheduleMapper.updateWorkScheduleFromDto(dto, workSchedule);
+        workSchedule.setUser(user);
+
+        return workScheduleMapper.toWorkScheduleDto(repository.save(workSchedule));
+    }
+
+    @Override
+    public WorkScheduleViewDto getById(long workScheduleId) {
+        log.info("Getting Work Schedule by id: {}", workScheduleId);
+
+        WorkSchedule schedule = repository.getByIdOrThrow(workScheduleId);
+        long currentUserId = context.getUserId();
+
+        if (!schedule.getUser().getId().equals(currentUserId)) {
+            throw new ForbiddenException("You are not allowed to view this schedule");
+        }
+
+        return workScheduleMapper.toWorkScheduleDto(schedule);
+    }
+
+    @Override
+    public void deleteWorkSchedule(long workScheduleId) {
+        log.info("Deleting Work Schedule by id: {}", workScheduleId);
+
+        WorkSchedule schedule = repository.getByIdOrThrow(workScheduleId);
+        if (!schedule.getUser().getId().equals(context.getUserId())) {
+            throw new ForbiddenException("You are not allowed to delete this schedule");
+        }
+
+        repository.deleteById(workScheduleId);
+    }
+}

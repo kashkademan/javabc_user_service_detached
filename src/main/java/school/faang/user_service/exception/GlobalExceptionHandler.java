@@ -1,5 +1,6 @@
 package school.faang.user_service.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ import java.util.stream.Collectors;
  * <ul>
  *     <li>Некорректного формата JSON в запросах (HttpMessageNotReadableException)</li>
  *     <li>Ошибок валидации данных (@Valid) (MethodArgumentNotValidException)</li>
+ *     <li>Ошибок бизнес-логики, например,
+ *     при некорректной структуре временных интервалов (DataValidationException)</li>
  *     <li>Случаев, когда ресурс не найден (EntityNotFoundException)</li>
  *     <li>И любых других необработанных исключений (Exception)</li>
  * </ul>
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
  * @author agent
  * @since 05.07.2025
  */
+@Slf4j
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
@@ -67,6 +71,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(DataValidationException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessValidation(DataValidationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -79,10 +93,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
-        ex.printStackTrace();
+        log.error("Unexpected error occurred", ex);
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal server error",
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
