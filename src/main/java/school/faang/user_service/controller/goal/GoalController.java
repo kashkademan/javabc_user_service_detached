@@ -3,6 +3,8 @@ package school.faang.user_service.controller.goal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,27 +30,28 @@ public class GoalController {
     private final GoalService service;
 
     @PostMapping
-    public GoalDto create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
-        return service.create(goalCreateDto);
+    public ResponseEntity<GoalDto> create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
+        return new ResponseEntity<>(service.create(goalCreateDto), HttpStatus.OK);
     }
 
     @PutMapping("/{goalId}")
-    public GoalDto update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
-        return service.update(goalId, goalUpdateDto);
+    public ResponseEntity<GoalDto> update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
+        return new ResponseEntity<>(service.update(goalId, goalUpdateDto), HttpStatus.OK);
     }
 
     @GetMapping("/{goalId}")
-    public GoalDto getById(@PathVariable long goalId) {
-        return service.getById(goalId);
+    public ResponseEntity<GoalDto> getById(@PathVariable long goalId) {
+        return new ResponseEntity<>(service.getById(goalId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{goalId}")
-    public void delete(@PathVariable long goalId) {
+    public ResponseEntity<Void> delete(@PathVariable long goalId) {
         service.delete(goalId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/search")
-    public List<GoalDto> getList(@Valid @ModelAttribute GoalFilterDto goalFilterDto) {
-        return service.getByFilters(goalFilterDto);
+    public ResponseEntity<List<GoalDto>> getList(@Valid @ModelAttribute GoalFilterDto goalFilterDto) {
+        return new ResponseEntity<>(service.getByFilters(goalFilterDto), HttpStatus.OK);
     }
 }
