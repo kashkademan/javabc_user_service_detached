@@ -54,8 +54,8 @@ public class UserServiceFacade {
         return userMapper.toUserRegisterResponseDto(user);
     }
 
-    public UserViewProfileDto viewUserProfile(long owner, long follower){
-        User user = userService.viewUserProfile(owner, follower);
+    public UserViewProfileDto viewUserProfile(long viewerId){
+        User user = userService.viewUserProfile(viewerId);
         return userMapper.toUserViewProfileDto(user);
     }
 }

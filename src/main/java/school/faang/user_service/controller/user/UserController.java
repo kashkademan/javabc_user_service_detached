@@ -77,10 +77,10 @@ public class UserController {
         userService.deleteAvatar();
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/api/v1/users/view/{ownerId}")
-    public ResponseEntity<UserViewProfileDto> viewUserProfile(@PathVariable("ownerId") long ownerId,
-                                                              @RequestParam long follower) {
-        UserViewProfileDto userDto = userService.viewUserProfile(ownerId, follower);
+    @GetMapping("/api/v1/users/view/{profileId}")
+    public ResponseEntity<UserViewProfileDto> viewUserProfile(@PathVariable("profileId") long profileId,
+                                                              @RequestParam long viewerId) {
+        UserViewProfileDto userDto = userService.viewUserProfile(viewerId);
         return ResponseEntity.ok()
                 .body(userDto);
     }

@@ -159,7 +159,7 @@ public class UserService {
 
     @Transactional
     @PublishViewUserProfileKafka
-    public User viewUserProfile(long owner, long follower) {
-        return getUserById(follower);
+    public User viewUserProfile(long viewerId) {
+        return getUserById(viewerId);
     }
 }

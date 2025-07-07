@@ -20,15 +20,13 @@ public class ViewUserProfileAspect {
     @AfterReturning(pointcut = "@annotation(viewUserProfile)", argNames = "joinPoint,viewUserProfile")
     public void publishProfileView(JoinPoint joinPoint, PublishViewUserProfileKafka viewUserProfile) {
         Object[] args = joinPoint.getArgs();
-        if (args.length < 2) {
-            throw new IllegalArgumentException("\"Expected at least 2 arguments: followerId and followeeId\"");
+        if (args.length < 1) {
+            throw new IllegalArgumentException("\"Expected at least 1 arguments: viewerId \"");
         }
-        long ownerId = (long) args[0];
-        long follower = (long) args[1];
+        long viewerUserId = (long) args[0];
         viewUserProfilePublisher.publish(
                 new ViewProfile(
-                        kafkaMessageService.getUserDtoById(ownerId),
-                        kafkaMessageService.getUserDtoById(follower)
+                        kafkaMessageService.getUserDtoById(viewerUserId)
                 )
         );
     }
