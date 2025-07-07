@@ -1,7 +1,5 @@
 package school.faang.user_service.service;
 
-import org.springframework.stereotype.Component;
-
 import java.util.stream.Stream;
 
 public interface Filter<E, D> {
