@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.persistence.EntityNotFoundException;
+// import jakarta.persistence.EntityNotFoundException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.avatar.AvatarException;
 import school.faang.user_service.exception.UserNotFoundException;
@@ -31,13 +31,13 @@ public class RestControllerExceptionHandler {
                 .body(new ErrorResponse("not_found", e.getMessage()));
     }
     
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e) {
-        log.warn("Not found: {}", e.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("not_found", e.getMessage()));
-    }
+    // @ExceptionHandler(EntityNotFoundException.class)
+    // public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e) {
+    //     log.warn("Not found: {}", e.getMessage());
+    //     return ResponseEntity
+    //             .status(HttpStatus.NOT_FOUND)
+    //             .body(new ErrorResponse("not_found", e.getMessage()));
+    // }
 
     @ExceptionHandler(AvatarException.class)
     public ResponseEntity<String> handleAvatarException(AvatarException exception) {

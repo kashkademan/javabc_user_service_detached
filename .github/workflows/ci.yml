@@ -20,7 +20,9 @@ jobs:
           java-version: 17
 
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon --stacktrace --info
+        run: 
+          ./gradlew build --no-daemon --stacktrace --info
+          ./gradlew clean compileJava --stacktrace --no-daemon
 
       # Optional cache setup (improves performance)
       - name: Cache Gradle packages
