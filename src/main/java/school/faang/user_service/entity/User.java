@@ -170,4 +170,10 @@ public class User {
 
     @Column(name = "banned")
     private boolean banned;
+
+    @Column(name = "telegram_user_name")
+    private String telegramUserName;
+
+    @Column(name = "telegram_chat_id")
+    private Long telegramChatId;
 }

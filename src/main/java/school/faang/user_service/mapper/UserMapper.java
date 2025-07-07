@@ -6,6 +6,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.Person;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
+import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -29,6 +30,9 @@ public interface UserMapper {
     @Mapping(target = "pictureSmallFileId", source = "userProfilePic.smallFileId")
     @Mapping(target = "pictureFileId", source = "userProfilePic.fileId")
     UserPersonalDto toUserPersonalDto(User user);
+
+    @Mapping(target = "userId", source = "id")
+    UserTelegramDto toUserTelegramDto(User user);
 
     default String buildAboutMe(Person person) {
         return Stream.of(
