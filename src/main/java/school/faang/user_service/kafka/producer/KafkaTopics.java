@@ -28,6 +28,9 @@ public class KafkaTopics {
     @Value("${spring.kafka.topics.profile-view-event-topic.name}")
     private String profileViewedTopic;
 
+    @Value("${spring.kafka.topics.recommendation.name}")
+    private String recommendationEventsTopic;
+
     @Value("${spring.kafka.topics.recommendation-request.name}")
     private String recommendationRequestTopic;
 }
