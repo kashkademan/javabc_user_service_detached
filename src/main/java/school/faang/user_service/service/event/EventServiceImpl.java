@@ -45,7 +45,6 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.getByIdOrThrow(eventId);
         checkOwner(event);
         eventMapper.update(updateEventDto, event);
-        User owner = userRepository.getByIdOrThrow(updateEventDto.ownerId());
         event = eventRepository.save(event);
         log.info("Event {} updated", event.getId());
         return eventMapper.toEventDto(event);
