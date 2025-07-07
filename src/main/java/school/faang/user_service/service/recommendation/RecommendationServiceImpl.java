@@ -25,7 +25,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
-    private final int REPEAT_RECOMMENDATION_TIME_LIMIT = 6;
+    private final int repeatRecommendationTimeLimit = 6;
 
 
     @Override
@@ -90,6 +90,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .sorted(Comparator.comparing(Recommendation::getCreatedAt).reversed())
                 .findFirst().orElseThrow();
 
-        return ChronoUnit.MONTHS.between(latestRecommendation.getCreatedAt(), LocalDateTime.now()) > REPEAT_RECOMMENDATION_TIME_LIMIT;
+        return ChronoUnit.MONTHS.between(latestRecommendation.getCreatedAt(),
+                LocalDateTime.now()) > repeatRecommendationTimeLimit;
     }
 }
