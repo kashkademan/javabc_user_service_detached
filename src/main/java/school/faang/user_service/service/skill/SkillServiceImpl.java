@@ -43,6 +43,11 @@ public class SkillServiceImpl implements SkillService {
     public List<SkillDto> getByUserId(Long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         return skills.stream()
+                .peek(skill -> {
+                    if (skill == null) {
+                        throw new EntityNotFoundException("Skill with id " + userId + " not found");
+                    }
+                })
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .toList();
     }
@@ -51,6 +56,11 @@ public class SkillServiceImpl implements SkillService {
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
         return skills.stream()
+                .peek(skill -> {
+                    if (skill == null) {
+                        throw new EntityNotFoundException("Skill with id " + userId + " not found");
+                    }
+                })
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .map(skill -> {
                     int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.id(), userId);

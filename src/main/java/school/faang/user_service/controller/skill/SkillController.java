@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class SkillController {
 
     private final SkillServiceImpl skillService;
@@ -36,5 +38,6 @@ public class SkillController {
     public List<SkillCandidateDto> getOfferedSkills() {
         return skillService.getOfferedSkills(userContext.getUserId());
     }
+
 
 }
