@@ -34,6 +34,7 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -161,7 +162,7 @@ public class User {
     private Premium premium;
 
     @OneToMany(mappedBy = "user")
-    private List<Education> education;
+    private List<Education> education = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Career> career;

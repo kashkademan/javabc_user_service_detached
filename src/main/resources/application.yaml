@@ -40,3 +40,7 @@ user:
   password:
     min:
       length: 6
+
+springdoc:
+  swagger-ui:
+    enabled: true
