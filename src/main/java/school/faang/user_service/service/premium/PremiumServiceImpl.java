@@ -1,7 +1,9 @@
 package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.dto.PaymentRequest;
 import school.faang.user_service.dto.PaymentResponse;
@@ -19,10 +21,13 @@ import school.faang.user_service.messaging.publishers.PremiumBoughtEventPublishe
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.PremiumService;
 import school.faang.user_service.service.UserService;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PremiumServiceImpl implements PremiumService {
@@ -60,5 +65,19 @@ public class PremiumServiceImpl implements PremiumService {
         Premium savedPremium = premiumRepository.save(boughtPremium);
         premiumBoughtEventPublisher.publishMessage(savedPremium);
         return premiumMapper.toPremiumDto(savedPremium);
+    }
+
+    @Override
+    @Transactional
+    public void removePremium(int batchSize) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Premium> expiredPremium = premiumRepository.findAllByEndDateBefore(now);
+        Stream<List<Premium>> stream = IntStream.range(0, (expiredPremium.size() + batchSize - 1 / batchSize))
+                .mapToObj(i -> expiredPremium.subList(i * batchSize, Math.min((i + 1) * batchSize ,
+                        expiredPremium.size())));
+        List<List<Premium>> batches = stream.toList();
+
+        batches.parallelStream()
+                .forEach(premiumRepository::deleteAll);
     }
 }

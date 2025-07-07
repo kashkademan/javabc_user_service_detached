@@ -44,6 +44,21 @@ spring:
     queue_capacity: 500
     thread_name_prefix: publisher-
 
+app:
+  scheduler:
+    premium-remove:
+      cron: "0 59 23 * * SUN"
+      enabled: true
+      batch-size: 100
+
+  thread:
+    pool:
+      premium-remove:
+        core-pool-size: 1
+        max-pool-size: 16
+        queue-capacity: 15
+        thread-name-prefix: "Premium-remove-async-thread"
+
 server:
   port: 8080
 
