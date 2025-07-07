@@ -19,11 +19,6 @@ jobs:
           distribution: 'corretto'
           java-version: 17
 
-      - name: Build with Gradle
-        run: 
-          ./gradlew clean compileJava --stacktrace --no-daemon
-          ./gradlew build --no-daemon --stacktrace --info
-
       # Optional cache setup (improves performance)
       - name: Cache Gradle packages
         uses: actions/cache@v3
@@ -34,3 +29,8 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: 
+          ./gradlew clean compileJava --stacktrace --no-daemon
+          ./gradlew build --no-daemon --stacktrace --info
