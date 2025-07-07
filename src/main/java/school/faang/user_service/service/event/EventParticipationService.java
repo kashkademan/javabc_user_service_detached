@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private boolean isUserRegistered(List<User> participants, long userId) {
         return participants.stream()
@@ -28,7 +28,7 @@ public class EventParticipationService {
     @Transactional
     public void registerParticipant(long eventId, long userId) {
 
-        if (!userRepository.existsById(userId)) {
+        if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with ID " + userId + " does not exist");
         }
 
@@ -43,7 +43,7 @@ public class EventParticipationService {
     @Transactional
     public void unregisterParticipant(long eventId, long userId) {
 
-        if (!userRepository.existsById(userId)) {
+        if (!userService.existsById(userId)) {
             throw new EntityNotFoundException("User with ID " + userId + " does not exist");
         }
 
