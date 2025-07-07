@@ -3,6 +3,7 @@ package school.faang.user_service.service.event.impl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -497,5 +499,17 @@ class EventServiceImplTest {
 
         assertEquals(expectedMessage, exception.getMessage());
         verify(eventValidation).isUserEventOwner(ownerId, userWithoutSkillsId);
+    }
+
+    @Test
+    void startEvent() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventRepository.save(any(Event.class))).thenReturn(any(Event.class));
+        ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+
+        eventService.startEvent(eventId);
+
+        verify(eventRepository).save(captor.capture());
+        assertEquals(IN_PROGRESS, captor.getValue().getStatus());
     }
 }

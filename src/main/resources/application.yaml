@@ -13,6 +13,8 @@ spring:
           name: unfollow-events
       profile:
         name: view-profile
+      event-start-topic:
+        name: event-start
 
   datasource:
     driver-class-name: org.postgresql.Driver
