@@ -9,34 +9,41 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-//TODO: 6 months last recommendation check - method, add to create()
 @Service
 @RequiredArgsConstructor
 public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
+    private final int REPEAT_RECOMMENDATION_TIME_LIMIT = 6;
+
 
     @Override
-    public RecommendationDto create(CreateRecommendationDto createRecommendationDto) {
-        if (!createRecommendationDto.receiverId().equals(userContext.getUserId())) {
-            long authorId = userContext.getUserId();
-            long receiverId = createRecommendationDto.receiverId();
-            String content = createRecommendationDto.content();
-            long newRecommendationId = recommendationRepository.create(authorId,
-                    receiverId, content);
-            return recommendationMapper.toRecommendationDto(recommendationRepository
-                    .findById(newRecommendationId).orElseThrow(EntityNotFoundException::new));
+    public RecommendationDto create(CreateRecommendationDto newRecommendationDto) {
+        if (!newRecommendationDto.receiverId().equals(userContext.getUserId())) {
+            if (latestRecommendationCheck(newRecommendationDto)) {
+                long authorId = userContext.getUserId();
+                long receiverId = newRecommendationDto.receiverId();
+                String content = newRecommendationDto.content();
+                long newRecommendationId = recommendationRepository.create(authorId,
+                        receiverId, content);
+                return recommendationMapper.toRecommendationDto(recommendationRepository
+                        .findById(newRecommendationId).orElseThrow(EntityNotFoundException::new));
+            } else {
+                throw new ForbiddenException("Latest recommendation limit");
+            }
         } else {
-            throw new DataValidationException("Self recommending is forbidden, but nice try...");
+            throw new ForbiddenException("Self recommending is forbidden, but nice try...");
         }
     }
 
@@ -72,5 +79,17 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .filter(s -> s.getReceiver().getId().equals(filters.receiverId()))
                 .map(recommendationMapper::toRecommendationDto)
                 .toList();
+    }
+
+    public boolean latestRecommendationCheck(CreateRecommendationDto newRecommendationDto) {
+        long author = userContext.getUserId();
+        long receiver = newRecommendationDto.receiverId();
+        Recommendation latestRecommendation = recommendationRepository.findAll().stream()
+                .filter(s -> s.getAuthor().getId().equals(author)
+                        && s.getReceiver().getId().equals(receiver))
+                .sorted(Comparator.comparing(Recommendation::getCreatedAt).reversed())
+                .findFirst().orElseThrow();
+
+        return ChronoUnit.MONTHS.between(latestRecommendation.getCreatedAt(), LocalDateTime.now()) > REPEAT_RECOMMENDATION_TIME_LIMIT;
     }
 }
