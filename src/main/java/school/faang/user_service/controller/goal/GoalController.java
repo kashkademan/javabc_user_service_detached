@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,80 +27,33 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/goal")
+@RequestMapping("/goals")
 @RequiredArgsConstructor
 public class GoalController {
-    private final GoalService goalService;
+    private final GoalService service;
 
-    @PostMapping("/create")
+    @PostMapping
     public GoalDto create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
-        try {
-            return goalService.create(goalCreateDto);
-        } catch (DataValidationException | IllegalArgumentException dataValidationE) {
-            log.info("api/goal/create : {}", dataValidationE.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            log.error("api/goal/create error: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return service.create(goalCreateDto);
     }
 
-    @PutMapping("/{goalId}/update")
+    @PutMapping("/{goalId}")
     public GoalDto update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
-        try {
-            return goalService.update(goalId, goalUpdateDto);
-        } catch (DataValidationException | IllegalArgumentException dataValidationE) {
-            log.info("api/goal/{}/update : {}", goalId, dataValidationE.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } catch (ForbiddenException forbiddenE) {
-            log.info("api/goal/{}/update : {}", goalId, forbiddenE.getMessage());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        } catch (IllegalStateException illegalStateE) {
-            log.info("api/goal/{}/update : {}", goalId, illegalStateE.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        } catch (Exception e) {
-            log.error("api/goal/{}/update error: {}", goalId, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return service.update(goalId, goalUpdateDto);
     }
 
     @GetMapping("/{goalId}")
     public GoalDto getById(@PathVariable long goalId) {
-        try {
-            return goalService.getById(goalId);
-        } catch (EntityNotFoundException entityNotFoundE) {
-            log.info("api/goal/{} get : {}", goalId, entityNotFoundE.getMessage());
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found with ID: " + goalId);
-        } catch (ForbiddenException forbiddenE) {
-            log.info("api/goal/{} get : {}", goalId, forbiddenE.getMessage());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            log.info("api/goal/{} error: {}", goalId, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return service.getById(goalId);
     }
 
     @DeleteMapping("/{goalId}")
     public void delete(@PathVariable long goalId) {
-        try {
-            goalService.delete(goalId);
-        } catch (IllegalArgumentException illegalArgumentE) {
-            log.info("api/goal/{} delete :{}", goalId, illegalArgumentE.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } catch (EntityNotFoundException entityNotFoundE) {
-            log.info("api/goal/{} delete : {}", goalId, entityNotFoundE.getMessage());
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found with ID: " + goalId);
-        } catch (ForbiddenException forbiddenE) {
-            log.info("api/goal/{} delete : {}", goalId, forbiddenE.getMessage());
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            log.error("api/goal/{} error: {}", goalId, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        service.delete(goalId);
     }
 
-    @PostMapping("/search")
-    public List<GoalDto> searchByFilters(@RequestBody GoalFilterDto goalFilterDto) {
-        return goalService.getByFilters(goalFilterDto);
+    @GetMapping("/search")
+    public List<GoalDto> getList(@Valid @ModelAttribute GoalFilterDto goalFilterDto) {
+        return service.getByFilters(goalFilterDto);
     }
 }

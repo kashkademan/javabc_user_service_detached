@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
     private static final String USER_HAS_NO_ACCESS = "user has no access to provided goal";
+    private static final String USER_HAS_NO_ACCESS_TO_CREATE = "user has no access to create goal for provided users";
     private static final String USER_HAS_TO_MANY_ACTIVE_GOALS = "user has too many ACTIVE goals";
     private static final String GOAL_COMPLETED = "goal completed";
     private static final String MENTOR_HAS_NO_MENTEES = "mentor has no mentees";
-    private static final String USER_NOT_FOUND = "user not found";
 
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
@@ -45,22 +45,33 @@ public class GoalServiceImpl implements GoalService {
     public GoalDto create(GoalCreateDto goalCreateDto) {
         long userId = userContext.getUserId();
         Goal goal = goalMapper.toGoal(goalCreateDto);
-        goal.setStatus(GoalStatus.ACTIVE);
         if (goalCreateDto.parentId() != null) {
-            goal.setParent(goalRepository.getByIdOrThrow(goalCreateDto.parentId()));
+            goal.setParent(
+                    goalRepository.getByIdOrThrow(
+                            goalCreateDto.parentId()
+                    )
+            );
         }
 
         boolean userIsMentor = false;
         if (goalCreateDto.mentorId() != null) {
-            userIsMentor = userId == goalCreateDto.mentorId();
+            userIsMentor = (userId == goalCreateDto.mentorId());
             if (!userIsMentor) {
                 throw new ForbiddenException(USER_HAS_NO_ACCESS);
             }
-            goal.setMentor(userRepository.getByIdOrThrow(goalCreateDto.mentorId()));
+            goal.setMentor(
+                    userRepository.getByIdOrThrow(
+                            goalCreateDto.mentorId()
+                    )
+            );
         }
 
         User user = userRepository.getByIdOrThrow(userId);
-        goal.setUsers(getUsersForGoalOrThrow(userIsMentor, user, goalCreateDto.userIds()));
+        goal.setUsers(
+                getUsersForGoalOrThrow(
+                        userIsMentor, user, goalCreateDto.userIds()
+                )
+        );
         goal = goalRepository.save(goal);
         return goalMapper.toGoalDto(goal);
     }
@@ -71,7 +82,7 @@ public class GoalServiceImpl implements GoalService {
         if (isMentor) {
             users = user.getMentees();
             if (users == null || users.isEmpty()) {
-                throw new EntityNotFoundException(MENTOR_HAS_NO_MENTEES);
+                throw new ForbiddenException(MENTOR_HAS_NO_MENTEES);
             }
         }
 
@@ -80,7 +91,7 @@ public class GoalServiceImpl implements GoalService {
             User userForGoal = users.stream()
                     .filter(u -> u.getId().equals(id))
                     .findAny()
-                    .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
+                    .orElseThrow(() -> new ForbiddenException(USER_HAS_NO_ACCESS_TO_CREATE));
 
             if (userForGoal.getGoals() == null || userForGoal.getGoals().isEmpty()) {
                 usersForGoal.add(userForGoal);
@@ -117,6 +128,7 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public GoalDto getById(long goalId) {
         long userId = userContext.getUserId();
         Goal goal = goalRepository.getByIdOrThrow(goalId);
@@ -152,6 +164,7 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public List<GoalDto> getByFilters(GoalFilterDto filterDto) {
         long userId = userContext.getUserId();
         List<Goal> goals = goalRepository.findGoalsByUserId(userId).toList();

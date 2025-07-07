@@ -16,6 +16,7 @@ import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalMapper {
+    @Mapping(target="status", expression = "java(GoalStatus.ACTIVE)")
     Goal toGoal(GoalCreateDto goalCreateDto);
 
     @Mapping(target = "userIds", expression = "java(getUserIds(goal.getUsers()))")
