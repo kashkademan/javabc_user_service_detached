@@ -2,13 +2,12 @@ package school.faang.user_service.bjs283607;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ToString
-@Slf4j
 @EqualsAndHashCode
 public class Schedule {
     private Map<String, Event> schedule = new HashMap<>();
@@ -18,15 +17,15 @@ public class Schedule {
         this.name = name;
     }
 
-    public void addSchedule(String day, String starthour, String startminet) {
-        schedule.put(day, new Event(starthour, startminet));
+    public void addSchedule(String day, String startHour, String startMinutes) {
+        schedule.put(day, new Event(startHour, startMinutes));
     }
 
-    public void updateSchedule(String day, String starthour, String startminet) {
+    public void updateSchedule(String day, String startHour, String startMinutes) {
         if (schedule.containsKey(day)) {
-            schedule.put(day, new Event(starthour, startminet));
+            schedule.put(day, new Event(startHour, startMinutes));
         } else {
-            log.info("Записи не найдено!");
+            throw new EntityNotFoundException("Записи не найдено!");
         }
     }
 }
