@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface RecommendationRequestRepository extends JpaRepository<RecommendationRequest, Long> {
@@ -22,4 +23,9 @@ public interface RecommendationRequestRepository extends JpaRepository<Recommend
                 () -> new EntityNotFoundException(String.format("Recommendation request %d not found", requestId))
         );
     }
+
+    boolean existsByRequesterIdAndReceiverIdAndCreatedAtAfter(
+            Long requesterId,
+            Long receiverId,
+            LocalDateTime date);
 }
