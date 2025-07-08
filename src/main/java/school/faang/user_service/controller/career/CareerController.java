@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,16 +23,16 @@ public class CareerController {
     private final UserContext userContext;
 
     @PostMapping
-    public CareerDto addCareer(@RequestBody @Valid CareerDto careerDto) {
+    public ResponseEntity addCareer(@RequestBody @Valid CareerDto careerDto) {
         long userId = userContext.getUserId();
-        return careerService.addCareer(userId, careerDto);
+        return ResponseEntity.ok(careerService.addCareer(userId, careerDto));
     }
 
     @PutMapping
     @RequestBody
-    public CareerDto updateCareer(@PathVariable long careerId, @RequestBody @Valid CareerDto careerDto) {
+    public ResponseEntity updateCareer(@PathVariable long careerId, @RequestBody @Valid CareerDto careerDto) {
         long userId = userContext.getUserId();
-        return careerService.updateCareer(userId, careerId, careerDto);
+        return ResponseEntity.ok(careerService.updateCareer(userId, careerId, careerDto));
     }
 
     @GetMapping
