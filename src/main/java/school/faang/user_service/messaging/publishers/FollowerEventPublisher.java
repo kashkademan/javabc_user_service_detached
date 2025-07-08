@@ -18,7 +18,8 @@ public class FollowerEventPublisher implements MessagePublisher<FollowerEvent>{
     private final RedisProperties properties;
     private String redisTopic;
     @Autowired
-    private CommonPublisher publisher;
+    private final CommonPublisher publisher;
+
 
     @PostConstruct
     private void init() {
