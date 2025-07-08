@@ -1,4 +1,4 @@
-package school.faang.user_service.event.follower;
+package school.faang.user_service.messaging.events;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 public class FollowerEvent {
     @NotNull
     private final Long followerId;
-    @NotNull
     private final Long followeeId;
     private final Long projectId;
     private final LocalDateTime subscriptionTime;
