@@ -20,11 +20,6 @@ public class EventParticipationService {
     private final UserMapper userMapper;
     private final UserService userService;
 
-    private boolean isUserRegistered(List<User> participants, long userId) {
-        return participants.stream()
-                .anyMatch(user -> user.getId() == userId);
-    }
-
     @Transactional
     public void registerParticipant(long eventId, long userId) {
 
@@ -64,5 +59,10 @@ public class EventParticipationService {
 
     public int getParticipantsCount(long eventId) {
         return eventParticipationRepository.countParticipants(eventId);
+    }
+
+    private boolean isUserRegistered(List<User> participants, long userId) {
+        return participants.stream()
+                .anyMatch(user -> user.getId() == userId);
     }
 }
