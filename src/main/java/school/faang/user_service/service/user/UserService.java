@@ -6,18 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.annotation.PublishViewUserProfileKafka;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.resource.S3FileDto;
 import school.faang.user_service.dto.user.UserRegisterRequestDto;
 import school.faang.user_service.entity.Country;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.avatar.AvatarGenerationException;
 import school.faang.user_service.exception.users.UserNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.CountryRepository;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.avatar.AvatarGeneratorService;
+import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.service.image.ImageResizer;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validation.file.FileValidation;
@@ -45,8 +49,8 @@ public class UserService {
     private final S3Service s3Service;
     private final UserContext userContext;
     private final ImageResizer imageResizer;
-    private final CountryRepository countryRepository;
     private final AvatarGeneratorService avatarGeneratorService;
+    private final CountryRepository countryRepository;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
@@ -151,5 +155,11 @@ public class UserService {
         user.setActive(true);
 
         return userRepository.save(user);
+    }
+
+    @Transactional
+    @PublishViewUserProfileKafka
+    public User viewUserProfile(long viewerId) {
+        return getUserById(viewerId);
     }
 }

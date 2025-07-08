@@ -54,6 +54,10 @@ dependencies {
     implementation("net.coobird:thumbnailator:0.4.20")
 
     /**
+     *Kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka")
+    /**
      * Utils & Logging
      */
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
