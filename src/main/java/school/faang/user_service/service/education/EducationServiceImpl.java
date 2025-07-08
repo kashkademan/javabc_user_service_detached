@@ -1,6 +1,7 @@
 package school.faang.user_service.service.education;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.entity.user.Education;
@@ -10,21 +11,25 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.user.UserService;
 
-import java.time.LocalDate;
 import java.time.Year;
 
 /**
- * EducationServiceImpl — описание класса.
+ * Класс имплементирющий интерфейс {@link EducationService} для управления образованием пользователей.
  * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>*
+ * Предоставляет методы для создания, обновления и получения данных о образовании пользователя.
+ * </p>
  *
- * @author Пользователь
- * @since 04.07.2025
+ * <ul>
+ *   <li>Создание образования</li>
+ *   <li>Обновление существующего образования</li>
+ *   <li>Получение информации о образовании по идентификатору</li>
+ * </ul>
+ *
+ * @author fomchenkoandrey
  */
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EducationServiceImpl implements EducationService {
@@ -35,6 +40,7 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationViewDto addEducation(long userId, EducationViewDto educationDto) {
+        log.info("Add Education");
         validateYearFrom(educationDto.getYearFrom());
         User user = userRepository.getByIdOrThrow(userId);
         Education education = educationMapper.toEducation(educationDto);
@@ -43,7 +49,9 @@ public class EducationServiceImpl implements EducationService {
         return educationMapper.toEducationDto(saved);
     }
 
+    @Override
     public EducationViewDto updateEducation(long userId, long educationId, EducationViewDto educationDto) {
+        log.info("Update Education");
         validateYearFrom(educationDto.getYearFrom());
         Education findEducation = educationRepository.getByIdOrThrow(educationDto.getId());
         if (!findEducation.getUser().getId().equals(userId)) {
@@ -56,6 +64,13 @@ public class EducationServiceImpl implements EducationService {
         return educationMapper.toEducationDto(saved);
     }
 
+    @Override
+    public EducationViewDto getById(long educationId) {
+        log.info("Getting education by id: {}", educationId);
+        Education education = educationRepository.getByIdOrThrow(educationId);
+        return educationMapper.toEducationDto(education);
+    }
+
     public void validateYearFrom(Integer yearFrom) {
         if (yearFrom == null) {
             throw new DataValidationException("Не может быть null");
@@ -64,6 +79,5 @@ public class EducationServiceImpl implements EducationService {
         if (currentYear < yearFrom) {
             throw new DataValidationException("You can't start learning in the future");
         }
-
     }
 }

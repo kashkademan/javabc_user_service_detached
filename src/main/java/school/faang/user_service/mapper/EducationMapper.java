@@ -5,18 +5,23 @@ import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.entity.user.Education;
 
 /**
- * EducationMapper — описание интерфейса.
+ * EducationMapper — для преобразования между сущностью {@link Education} и DTO.
  * <p>
- * TODO: описать, какие обязанности реализует интерфейс.
+ * Представляет методы для конвертации данных.
  * </p>*
  *
- * @author Пользователь
- * @since 04.07.2025
+ * @author fomchenkoandrey
  */
 @Mapper(componentModel = "spring")
 public interface EducationMapper {
 
+    /**
+     * Преобразует DTO создания расписания в сущность {@link Education}.
+     */
     Education toEducation(EducationViewDto educationDto);
 
+    /**
+     * Преобразует сущность {@link Education} в DTO для отображения.
+     */
     EducationViewDto toEducationDto(Education education);
 }

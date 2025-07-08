@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.user;
+package school.faang.user_service.dto.education;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
