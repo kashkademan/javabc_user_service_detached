@@ -38,6 +38,11 @@ public class SubscriptionService {
         return filterUsers(followers, filters);
     }
 
+    public List<User> getFollowees(long followerId) {
+        Stream<User> followees = subscriptionRepository.findFollowees(followerId);
+        return followees.toList();
+    }
+
     public List<Long> getFollowersIds(long followeeId) {
         return subscriptionRepository.findFollowersIds(followeeId);
     }
