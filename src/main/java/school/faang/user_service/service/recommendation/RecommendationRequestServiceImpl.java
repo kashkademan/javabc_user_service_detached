@@ -36,7 +36,6 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserContext userContext;
     private final SkillRequestRepository skillRequestRepository;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
-    private final RecommendationRequestFilterDto recommendationRequestFilterDto;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -77,9 +76,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         Stream<RecommendationRequest> recommendationRequestStream = recommendationRequestRepository.findAll().stream();
 
         for (RecommendationRequestFilter recommendationRequestFilter : recommendationRequestFilters) {
-            if (recommendationRequestFilter.isApplicable(recommendationRequestFilterDto)) {
+            if (recommendationRequestFilter.isApplicable(filters)) {
                 recommendationRequestStream = recommendationRequestFilter
-                        .apply(recommendationRequestStream, recommendationRequestFilterDto);
+                        .apply(recommendationRequestStream, filters);
             }
         }
 
