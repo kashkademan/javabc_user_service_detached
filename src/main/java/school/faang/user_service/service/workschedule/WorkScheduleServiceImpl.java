@@ -10,7 +10,6 @@ import school.faang.user_service.dto.workschedule.WorkScheduleViewDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.exception.UnauthorizedException;
 import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
@@ -74,9 +73,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     @Override
     public void deleteWorkSchedule(long workScheduleId) {
         Long userId = context.getUserId();
-        if (userId == null) {
-            throw new UnauthorizedException("User not authorized");
-        }
 
         log.info("Deleting Work Schedule id={} for userId={}", workScheduleId, userId);
 
