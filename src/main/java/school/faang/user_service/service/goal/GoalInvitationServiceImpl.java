@@ -2,6 +2,7 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
@@ -59,6 +60,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
      * @throws ForbiddenException      если нет прав на доступ к цели или пользователь уже состоит в ней
      */
     @Override
+    @Transactional
     public GoalInvitationDto create(long goalId, GoalInvitationCreateDto invitationCreateDto) {
         long inviterUserId = userContext.getUserId();
         long invitedUserId = invitationCreateDto.invitedUserId();
@@ -122,8 +124,10 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
      * @param status       новый статус
      * @throws ForbiddenException если пользователь не имеет доступа или приглашение уже обработано
      */
+    @Transactional
     private void updateStatus(long invitationId, RequestStatus status) {
         long userId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(userId);
         GoalInvitation invitation = goalInvitationRepository.getByIdOrThrow(invitationId);
         if (invitation.getInvited().getId() != userId) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS_TO_INVITATION);
@@ -131,11 +135,18 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (!invitation.getStatus().equals(RequestStatus.PENDING)) {
             throw new ForbiddenException(INVITATION_PROCESSED);
         }
+        Goal goal = goalRepository.getByIdOrThrow(invitation.getGoal().getId());
+        if (GoalUtil.userIsGoalMember(userId, goal)) {
+            throw new ForbiddenException(INVITED_USER_ALREADY_PARTICIPANT);
+        }
+        goal.getUsers().add(user);
+        goalRepository.save(goal);
         invitation.setStatus(status);
         goalInvitationRepository.save(invitation);
     }
 
     @Override
+    @Transactional
     public List<GoalInvitationDto> getByFilters(GoalInvitationFilterDto filters) {
 
         return null;
