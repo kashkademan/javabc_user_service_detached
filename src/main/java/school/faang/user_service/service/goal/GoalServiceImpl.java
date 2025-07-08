@@ -32,6 +32,7 @@ public class GoalServiceImpl implements GoalService {
     private static final String USER_HAS_TO_MANY_ACTIVE_GOALS = "user has too many ACTIVE goals";
     private static final String GOAL_COMPLETED = "goal completed";
     private static final String MENTOR_HAS_NO_MENTEES = "mentor has no mentees";
+    private static final int MAX_NUM_POSSIBLE_ACTIVE_GOALS = 2;
 
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
@@ -42,44 +43,36 @@ public class GoalServiceImpl implements GoalService {
     @Override
     @Transactional
     public GoalDto create(GoalCreateDto goalCreateDto) {
-        long userId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
         Goal goal = goalMapper.toGoal(goalCreateDto);
         if (goalCreateDto.parentId() != null) {
-            goal.setParent(
-                    goalRepository.getByIdOrThrow(
-                            goalCreateDto.parentId()
-                    )
-            );
+            Goal parent = goalRepository.getByIdOrThrow(goalCreateDto.parentId());
+            goal.setParent(parent);
         }
 
         boolean userIsMentor = false;
         if (goalCreateDto.mentorId() != null) {
-            userIsMentor = (userId == goalCreateDto.mentorId());
+            userIsMentor = (currentUserId == goalCreateDto.mentorId());
             if (!userIsMentor) {
                 throw new ForbiddenException(USER_HAS_NO_ACCESS);
             }
-            goal.setMentor(
-                    userRepository.getByIdOrThrow(
-                            goalCreateDto.mentorId()
-                    )
-            );
+            User mentor = userRepository.getByIdOrThrow(goalCreateDto.mentorId());
+            goal.setMentor(mentor);
         }
 
-        User user = userRepository.getByIdOrThrow(userId);
-        goal.setUsers(
-                getUsersForGoalOrThrow(
-                        userIsMentor, user, goalCreateDto.userIds()
-                )
-        );
+        List<User> users = getUsersForGoalOrThrow(userIsMentor, goalCreateDto.userIds());
+        goal.setUsers(users);
         goal = goalRepository.save(goal);
         return goalMapper.toGoalDto(goal);
     }
 
-    private List<User> getUsersForGoalOrThrow(boolean isMentor, User user, List<Long> userIds) {
-        List<User> users = List.of(user);
+    private List<User> getUsersForGoalOrThrow(boolean isMentor, List<Long> userIds) {
+        long currentUserId = userContext.getUserId();
+        User currentUser = userRepository.getByIdOrThrow(currentUserId);
+        List<User> users = List.of(currentUser);
 
         if (isMentor) {
-            users = user.getMentees();
+            users = currentUser.getMentees();
             if (users == null || users.isEmpty()) {
                 throw new ForbiddenException(MENTOR_HAS_NO_MENTEES);
             }
@@ -87,33 +80,37 @@ public class GoalServiceImpl implements GoalService {
 
         List<User> usersForGoal = new ArrayList<>();
         for (Long id : userIds) {
-            User userForGoal = users.stream()
+            User user = users.stream()
                     .filter(u -> u.getId().equals(id))
                     .findAny()
                     .orElseThrow(() -> new ForbiddenException(USER_HAS_NO_ACCESS_TO_CREATE));
 
-            if (userForGoal.getGoals() == null || userForGoal.getGoals().isEmpty()) {
-                usersForGoal.add(userForGoal);
+            if (user.getGoals() == null || user.getGoals().isEmpty()) {
+                usersForGoal.add(user);
                 continue;
             }
-            long activeGoalsCount = userForGoal.getGoals().stream()
-                    .filter(g -> g.getStatus().equals(GoalStatus.ACTIVE))
-                    .count();
-            if (activeGoalsCount > 1) {
-                throw new DataValidationException(USER_HAS_TO_MANY_ACTIVE_GOALS);
-            }
-            usersForGoal.add(userForGoal);
+            validateUserGoalsCount(user);
+            usersForGoal.add(user);
         }
         return usersForGoal;
+    }
+
+    private void validateUserGoalsCount(User user) {
+        long activeGoalsCount = user.getGoals().stream()
+                .filter(g -> g.getStatus().equals(GoalStatus.ACTIVE))
+                .count();
+        if (activeGoalsCount >= MAX_NUM_POSSIBLE_ACTIVE_GOALS) {
+            throw new DataValidationException(USER_HAS_TO_MANY_ACTIVE_GOALS);
+        }
     }
 
     @Override
     @Transactional
     public GoalDto update(long goalId, GoalUpdateDto goalUpdateDto) {
-        long userId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
 
         Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (!isUserGoalParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(currentUserId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
 
@@ -129,9 +126,9 @@ public class GoalServiceImpl implements GoalService {
     @Override
     @Transactional
     public GoalDto getById(long goalId) {
-        long userId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
         Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (!isUserGoalParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(currentUserId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
         }
         return goalMapper.toGoalDto(goal);
@@ -140,12 +137,11 @@ public class GoalServiceImpl implements GoalService {
     @Override
     @Transactional
     public void delete(long goalId) {
-        long userId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
         Goal goal = goalRepository.getByIdOrThrow(goalId);
         boolean hasMentor = goal.getMentor() != null;
-        if (!isUserGoalParticipant(userId, goal)) {
+        if (!isUserGoalParticipant(currentUserId, goal)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS);
-
         }
 
         long usersCount = goal.getUsers() == null ? 0 :
@@ -154,19 +150,19 @@ public class GoalServiceImpl implements GoalService {
                         .collect(Collectors.toSet())
                         .size();
 
-        if (hasMentor && goal.getMentor().getId() == userId || usersCount == 1) {
+        if (hasMentor && goal.getMentor().getId() == currentUserId || usersCount == 1) {
             goalRepository.deleteById(goalId);
             return;
         }
 
-        goalRepository.deleteUserFromGoal(userId, goalId);
+        goalRepository.deleteUserFromGoal(currentUserId, goalId);
     }
 
     @Override
     @Transactional
     public List<GoalDto> getByFilters(GoalFilterDto filterDto) {
-        long userId = userContext.getUserId();
-        List<Goal> goals = goalRepository.findGoalsByUserId(userId).toList();
+        long currentUserId = userContext.getUserId();
+        List<Goal> goals = goalRepository.findGoalsByUserId(currentUserId).toList();
         goals = filterService.toList(goals, filterDto);
         return goals.stream()
                 .map(goalMapper::toGoalDto)
