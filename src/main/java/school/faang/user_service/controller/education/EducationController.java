@@ -65,8 +65,8 @@ public class EducationController {
     @Operation(method = "PUT", parameters = {
             @Parameter(name = "educationId", required = true, description = "id образования")
     },
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Образование," +
-                    " обновленное пользователем", required = true),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Образование,"
+                    + " обновленное пользователем", required = true),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Образование успешно изменено пользователем"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка"),
