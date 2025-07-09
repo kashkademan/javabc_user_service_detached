@@ -1,6 +1,5 @@
 package school.faang.user_service.exception;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -24,23 +23,18 @@ import java.util.stream.Collectors;
  *
  * <p>В данном классе реализованы обработчики для:
  * <ul>
- *     <li>Некорректного формата JSON в запросах ({@link HttpMessageNotReadableException})</li>
- *     <li>Ошибок валидации данных (@Valid) ({@link MethodArgumentNotValidException})</li>
- *     <li>Ошибок бизнес-логики, например, при некорректной структуре временных интервалов
- *     ({@link DataValidationException})</li>
- *     <li>Случаев, когда ресурс не найден ({@link EntityNotFoundException})</li>
- *     <li>Ошибок авторизации, когда пользователь не предоставил заголовок
- *     {@code x-user-id} ({@link UnauthorizedException})</li>
- *     <li>И любых других необработанных исключений ({@link Exception})</li>
+ *     <li>Некорректного формата JSON в запросах (HttpMessageNotReadableException)</li>
+ *     <li>Ошибок валидации данных (@Valid) (MethodArgumentNotValidException)</li>
+ *     <li>Случаев, когда ресурс не найден (EntityNotFoundException)</li>
+ *     <li>И любых других необработанных исключений (Exception)</li>
  * </ul>
  * </p>
  *
- * <p>Каждый обработчик возвращает объект {@link ErrorResponse} с HTTP-статусом, сообщением и отметкой времени.</p>
+ * <p>Каждый обработчик возвращает объект ErrorResponse с HTTP-статусом, сообщением и отметкой времени.</p>
  *
  * @author agent
  * @since 05.07.2025
  */
-@Slf4j
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
@@ -73,16 +67,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessValidation(DataValidationException ex) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -95,10 +79,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
-        log.error("Unexpected error occurred", ex);
+        ex.printStackTrace();
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "Internal server error",
                 Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
