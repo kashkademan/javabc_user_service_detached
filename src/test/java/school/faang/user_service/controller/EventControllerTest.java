@@ -1,4 +1,4 @@
-package school.faang.event.controller;
+package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

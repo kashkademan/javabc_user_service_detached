@@ -1,4 +1,4 @@
-package school.faang.event.mapper;
+package school.faang.user_service.mapper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.mapper.EventMapper;
 
 import java.time.LocalDateTime;
 
