@@ -21,9 +21,6 @@ spring:
       port: 6379
       host: localhost
   
-  api:
-    base-path-goal: /api/v1
-
   web:
     mvc:
       pathmatch:

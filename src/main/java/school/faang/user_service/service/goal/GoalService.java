@@ -2,6 +2,8 @@ package school.faang.user_service.service.goal;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -141,16 +143,22 @@ public class GoalService {
     }
 
     @Transactional
-    private void updateUsersSkills(List<Skill> skills, List<User> users) {
-        for (Skill skill : skills) {
-            for (User user : users) {
-                // [1]
-                // Денис, вот этот код не работает который закомментил :(
-                // почему то тут юзер не обновляется
-                List<Skill> userSkills = user.getSkills();
-                userSkills.add(skill);
-                user.setSkills(userSkills);
-                userRepository.save(user);
+    public void updateUsersSkills(List<Skill> skills, List<User> users) {
+        if (skills == null || users == null) return;
+    
+        for (Skill skill : skillRepository.findAllById(
+            skills.stream().map(Skill::getId).collect(Collectors.toList())
+        )) {
+            Set<Long> existingUserIds = skill.getUsers().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+    
+            List<User> usersToAdd = users.stream()
+                .filter(user -> !existingUserIds.contains(user.getId()))
+                .collect(Collectors.toList());
+    
+            if (!usersToAdd.isEmpty()) {
+                skill.getUsers().addAll(usersToAdd);
             }
         }
     }
