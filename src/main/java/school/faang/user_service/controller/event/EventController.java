@@ -2,8 +2,8 @@ package school.faang.user_service.controller.event;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -12,7 +12,7 @@ import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
-@Component
+@RestController
 @RequiredArgsConstructor
 @Validated
 public class EventController {
@@ -31,5 +31,6 @@ public class EventController {
     }
 
     public void delete(long eventId) {
+        eventService.delete(eventId);
     }
 }
