@@ -1,14 +1,15 @@
-package school.faang.user_service.service.filter;
+package school.faang.user_service.service.filter.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.service.filter.Filter;
 
 import java.util.stream.Stream;
 
 /**
- * OwnerIdFilter — фильтр для проверки принадлежности события определённому владельцу.
+ * EventOwnerIdFilter — фильтр для проверки принадлежности события определённому владельцу.
  * <p>
  * Возвращает true, если id владельца события совпадает с указанным id.
  * Если id владельца равен null, фильтр всегда пропускает событие.
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
  */
 @Component
 @RequiredArgsConstructor
-public class OwnerIdFilter implements EventFilter {
+public class EventOwnerIdFilter implements Filter<Event, EventFilterDto> {
 
     @Override
     public boolean isApplicable(EventFilterDto dto) {
@@ -32,8 +33,8 @@ public class OwnerIdFilter implements EventFilter {
 
         return events.filter(event ->
                 event.getOwner() != null
-                && event.getOwner().getId() != null
-                && event.getOwner().getId().equals(ownerId)
+                        && event.getOwner().getId() != null
+                        && event.getOwner().getId().equals(ownerId)
         );
     }
 }

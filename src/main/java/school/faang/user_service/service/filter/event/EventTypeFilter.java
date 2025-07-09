@@ -1,15 +1,16 @@
-package school.faang.user_service.service.filter;
+package school.faang.user_service.service.filter.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventType;
+import school.faang.user_service.service.filter.Filter;
 
 import java.util.stream.Stream;
 
 /**
- * TypeFilter — фильтр по типу события.
+ * EventTypeFilter — фильтр по типу события.
  * <p>
  * Возвращает true, если тип события совпадает с указанным.
  * Если тип равен null, фильтр всегда пропускает событие.
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
  */
 @Component
 @RequiredArgsConstructor
-public class TypeFilter implements EventFilter {
+public class EventTypeFilter implements Filter<Event, EventFilterDto> {
 
     @Override
     public boolean isApplicable(EventFilterDto dto) {

@@ -64,6 +64,13 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     @Query(nativeQuery = true, value = "INSERT INTO goal_skill (goal_id, skill_id) VALUES (?2, ?1)")
     void addSkillToGoal(long skillId, long goalId);
 
+    @Query(nativeQuery = true, value = """
+            SELECT EXISTS (
+                SELECT 1 FROM user_goal
+                WHERE goal_id = :goalId AND user_id = :userId
+            )""")
+    boolean isUserMember(long goalId, long userId);
+
     default Goal getByIdOrThrow(long goalId) {
         return findById(goalId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Goal %d not found", goalId))

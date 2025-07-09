@@ -21,14 +21,6 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
 @Mapper(componentModel = SPRING, unmappedTargetPolicy = IGNORE)
 public interface GoalInvitationMapper {
     /**
-     * Преобразует объект {@link GoalInvitationDto} в сущность {@link GoalInvitation}.
-     *
-     * @param goalInvitationDto DTO для преобразования
-     * @return соответствующая сущность GoalInvitation
-     */
-    GoalInvitation toGoalInvitation(GoalInvitationDto goalInvitationDto);
-
-    /**
      * Преобразует сущность {@link GoalInvitation} в DTO {@link GoalInvitationDto}.
      *
      * @param goalInvitation сущность для преобразования

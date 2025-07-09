@@ -28,7 +28,7 @@ import java.util.List;
  * @since 08.07.2025
  */
 @RestController
-@RequestMapping("goals/{goalId}/invitations")
+@RequestMapping("/goals-invitations")
 @RequiredArgsConstructor
 public class GoalInvitationController {
     private final GoalInvitationService service;
@@ -40,7 +40,7 @@ public class GoalInvitationController {
      * @param dto    данные для создания приглашения
      * @return созданное приглашение в виде {@link GoalInvitationDto}
      */
-    @PostMapping
+    @PostMapping("/{goalId}")
     public ResponseEntity<GoalInvitationDto> create(@PathVariable long goalId,
                                                     @Valid @RequestBody GoalInvitationCreateDto dto) {
         GoalInvitationDto invitation = service.create(goalId, dto);

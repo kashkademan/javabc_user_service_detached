@@ -17,7 +17,7 @@ import school.faang.user_service.mapper.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.util.GoalUtil;
+import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final GoalRepository goalRepository;
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper goalInvitationMapper;
+    private final FilterService<GoalInvitation, GoalInvitationFilterDto> filterService;
 
     /**
      * Создает новое приглашение на участие в цели.
@@ -68,16 +69,16 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
             throw new DataValidationException(CANNOT_INVITE_YOURSELF);
         }
 
-        Goal goal = goalRepository.getByIdOrThrow(goalId);
-        if (!GoalUtil.userIsGoalMember(inviterUserId, goal)) {
+        if (!goalRepository.isUserMember(goalId, inviterUserId)) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS_TO_GOAL);
         }
-        if (GoalUtil.userIsGoalMember(invitedUserId, goal)) {
+        if (goalRepository.isUserMember(goalId, invitedUserId)) {
             throw new ForbiddenException(INVITED_USER_ALREADY_PARTICIPANT);
         }
         GoalInvitation invitation = new GoalInvitation();
         User inviter = userRepository.getByIdOrThrow(inviterUserId);
         invitation.setInviter(inviter);
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
         User invited = userRepository.getByIdOrThrow(invitedUserId);
         invitation.setInvited(invited);
         invitation.setGoal(goal);
@@ -127,7 +128,6 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     @Transactional
     private void updateStatus(long invitationId, RequestStatus status) {
         long userId = userContext.getUserId();
-        User user = userRepository.getByIdOrThrow(userId);
         GoalInvitation invitation = goalInvitationRepository.getByIdOrThrow(invitationId);
         if (invitation.getInvited().getId() != userId) {
             throw new ForbiddenException(USER_HAS_NO_ACCESS_TO_INVITATION);
@@ -135,20 +135,32 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (!invitation.getStatus().equals(RequestStatus.PENDING)) {
             throw new ForbiddenException(INVITATION_PROCESSED);
         }
-        Goal goal = goalRepository.getByIdOrThrow(invitation.getGoal().getId());
-        if (GoalUtil.userIsGoalMember(userId, goal)) {
+        Goal goal = invitation.getGoal();
+        if (goalRepository.isUserMember(goal.getId(), userId)) {
             throw new ForbiddenException(INVITED_USER_ALREADY_PARTICIPANT);
         }
-        goal.getUsers().add(user);
+        if (RequestStatus.ACCEPTED.equals(status)) {
+            User user = userRepository.getByIdOrThrow(userId);
+            goal.getUsers().add(user);
+        }
         goalRepository.save(goal);
         invitation.setStatus(status);
         goalInvitationRepository.save(invitation);
     }
 
+    private void validateStatusChange(RequestStatus oldStatus) {
+        if (!oldStatus.equals(RequestStatus.PENDING)) {
+            throw new ForbiddenException(INVITATION_PROCESSED);
+        }
+    }
+
     @Override
     @Transactional
-    public List<GoalInvitationDto> getByFilters(GoalInvitationFilterDto filters) {
-
-        return null;
+    public List<GoalInvitationDto> getByFilters(GoalInvitationFilterDto dto) {
+        List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
+        goalInvitations = filterService.getFilteredList(goalInvitations, dto);
+        return goalInvitations.stream()
+                .map(goalInvitationMapper::toGoalInvitationDto)
+                .toList();
     }
 }
