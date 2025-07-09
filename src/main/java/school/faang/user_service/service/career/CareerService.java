@@ -1,6 +1,8 @@
 package school.faang.user_service.service.career;
 
 import school.faang.user_service.dto.career.CareerDto;
+import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
@@ -25,7 +27,7 @@ public interface CareerService {
      * @param careerDto объект {@link CareerDto}, содержащий данные для создания записи
      * @return объект {@link CareerDto}, представляющий созданную запись
      */
-    CareerDto addCareer(long userId, CareerDto careerDto);
+    CareerDto addCareer(long userId, CreateCareerDto careerDto);
 
     /**
      * Обновляет существующую запись о карьере пользователя.
@@ -44,7 +46,7 @@ public interface CareerService {
      * @param careerDto объект {@link CareerDto}, содержащий обновлённые данные
      * @return объект {@link CareerDto}, представляющий обновлённую запись
      */
-    CareerDto updateCareer(long userId, long careerId, CareerDto careerDto);
+    CareerDto updateCareer(long userId, long careerId, UpdateCareerDto careerDto);
 
     /**
      * Возвращает запись о карьере по её идентификатору.

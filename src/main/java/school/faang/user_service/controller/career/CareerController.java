@@ -13,30 +13,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
+import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.service.career.CareerService;
 
 @RestController
-@RequestMapping
+@RequestMapping("*/career")
 @RequiredArgsConstructor
 public class CareerController {
     private final CareerService careerService;
     private final UserContext userContext;
 
     @PostMapping
-    public ResponseEntity addCareer(@RequestBody @Valid CareerDto careerDto) {
+    public ResponseEntity<CareerDto> addCareer(@RequestBody @Valid CreateCareerDto careerDto) {
         long userId = userContext.getUserId();
         return ResponseEntity.ok(careerService.addCareer(userId, careerDto));
     }
 
-    @PutMapping
-    @RequestBody
-    public ResponseEntity updateCareer(@PathVariable long careerId, @RequestBody @Valid CareerDto careerDto) {
+    @PutMapping("/{careerId}")
+    public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId, @RequestBody @Valid UpdateCareerDto careerDto) {
         long userId = userContext.getUserId();
         return ResponseEntity.ok(careerService.updateCareer(userId, careerId, careerDto));
     }
 
-    @GetMapping
-    public CareerDto getById(long careerId) {
-        return careerService.getById(careerId);
+    @GetMapping("/{careerId}")
+    public ResponseEntity<CareerDto> getById(@PathVariable long careerId) {
+        return ResponseEntity.ok(careerService.getById(careerId));
     }
 }
