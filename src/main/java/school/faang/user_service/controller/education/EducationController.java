@@ -29,27 +29,27 @@ public class EducationController {
     @Operation(method = "POST", parameters = {
             @Parameter(name = "userId", required = true, description = "id пользователя")
     },
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Образование," +
-                    " добавляемое пользователем", required = true),
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Образование,"
+                    + " добавляемое пользователем", required = true),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Образование успешно добавлено пользователем"),
                     @ApiResponse(responseCode = "500", description = "Внутренняя ошибка"),
                     @ApiResponse(responseCode = "403", description = "Отказано в доступе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  " +
-                                                    "\"message\":\"Текущему пользователю операция недоступна\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  "
+                                                    + "\"message\":\"Текущему пользователю операция недоступна\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             }),
                     @ApiResponse(responseCode = "404", description = "Не удалось найти сущность в базе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  " +
-                                                    "\"message\":\"Не удалось найти сущность в базе\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  "
+                                                    + "\"message\":\"Не удалось найти сущность в базе\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             })
             })
@@ -73,19 +73,19 @@ public class EducationController {
                     @ApiResponse(responseCode = "403", description = "Отказано в доступе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  " +
-                                                    "\"message\":\"Текущему пользователю операция недоступна\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  "
+                                                    + "\"message\":\"Текущему пользователю операция недоступна\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             }),
                     @ApiResponse(responseCode = "404", description = "Не удалось найти сущность в базе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  " +
-                                                    "\"message\":\"Не удалось найти сущность в базе\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  "
+                                                    + "\"message\":\"Не удалось найти сущность в базе\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             })
             })
@@ -106,18 +106,18 @@ public class EducationController {
                             content = {
                                     @Content(examples = {
                                             @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  " +
-                                                    "\"message\":\"Текущему пользователю операция недоступна\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                                    + "\"message\":\"Текущему пользователю операция недоступна\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             }),
                     @ApiResponse(responseCode = "404", description = "Не удалось найти сущность в базе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  " +
-                                                    "\"message\":\"Не удалось найти сущность в базе\"\n  " +
-                                                    "\"exceptionMessage\": \"Текст ошибки\"\n  " +
-                                                    "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 404\n  "
+                                                    + "\"message\":\"Не удалось найти сущность в базе\"\n  "
+                                                    + "\"exceptionMessage\": \"Текст ошибки\"\n  "
+                                                    + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
                                     })
                             })
             })

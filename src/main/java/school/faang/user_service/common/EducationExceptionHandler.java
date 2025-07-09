@@ -1,6 +1,5 @@
 package school.faang.user_service.common;
 
-import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

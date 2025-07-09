@@ -28,7 +28,7 @@ public class EducationControllerIntegrationTest {
     @Test
     public void getEducationById_successResult() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        EducationDto education = new EducationDto( 2000, 2005, "inst1",
+        EducationDto education = new EducationDto(2000, 2005, "inst1",
                 "middle", "spec1");
         Mockito.when(educationService.getEducationById(1L)).thenReturn(education);
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/education?educationId=1"))
