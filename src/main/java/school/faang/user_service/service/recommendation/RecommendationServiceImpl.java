@@ -1,8 +1,9 @@
 package school.faang.user_service.service.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -20,14 +21,25 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
-    private final int repeatRecommendationTimeLimit = 6;
+    private final int repeatRecommendationTimeLimit;
 
+    public RecommendationServiceImpl(
+            RecommendationRepository recommendationRepository,
+            RecommendationMapper recommendationMapper,
+            UserContext userContext,
+            @Value("${recommendation.repeat.limit}") int repeatRecommendationTimeLimit
+    ) {
+        this.recommendationRepository = recommendationRepository;
+        this.recommendationMapper = recommendationMapper;
+        this.userContext = userContext;
+        this.repeatRecommendationTimeLimit = repeatRecommendationTimeLimit;
+    }
 
+    @Transactional
     @Override
     public RecommendationDto create(CreateRecommendationDto newRecommendationDto) {
         if (!newRecommendationDto.receiverId().equals(userContext.getUserId())) {
@@ -47,6 +59,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
     }
 
+    @Transactional
     @Override
     public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
         Recommendation recommendationToBeUpdated = recommendationRepository.findById(recommendationId)
@@ -59,6 +72,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         return recommendationMapper.toRecommendationDto(recommendationToBeUpdated);
     }
 
+    @Transactional
     @Override
     public void delete(long recommendationId) {
         Recommendation recommendationToBeDeleted = recommendationRepository.findById(recommendationId)

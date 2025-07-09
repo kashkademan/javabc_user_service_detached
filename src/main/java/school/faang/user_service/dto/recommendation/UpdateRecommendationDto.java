@@ -1,4 +1,7 @@
 package school.faang.user_service.dto.recommendation;
 
-public record UpdateRecommendationDto(String content) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record UpdateRecommendationDto(@NotNull @NotBlank String content) {
 }
