@@ -32,14 +32,13 @@ public interface WorkScheduleService {
      * обед — внутри рабочего времени, с корректным порядком времён.
      * </p>
      *
-     * @param userId идентификатор пользователя
      * @param dto    данные нового графика
      * @return созданный график в виде {@link WorkScheduleViewDto}
      *
      * @throws school.faang.user_service.exception.DataValidationException если график некорректен
      * @throws school.faang.user_service.exception.EntityNotFoundException если пользователь не найден
      */
-    WorkScheduleViewDto addWorkSchedule(long userId, WorkScheduleCreateDto dto);
+    WorkScheduleViewDto addWorkSchedule(WorkScheduleCreateDto dto);
 
     /**
      * Обновляет рабочий график пользователя.
@@ -47,7 +46,6 @@ public interface WorkScheduleService {
      * Только владелец графика может его обновить. Все временные значения проходят валидацию.
      * </p>
      *
-     * @param userId          идентификатор текущего пользователя
      * @param workScheduleId  идентификатор обновляемого графика
      * @param dto             новые значения графика
      * @return обновлённый график в виде {@link WorkScheduleViewDto}
@@ -56,7 +54,7 @@ public interface WorkScheduleService {
      * @throws school.faang.user_service.exception.DataValidationException если данные некорректны
      * @throws school.faang.user_service.exception.EntityNotFoundException если график или пользователь не найдены
      */
-    WorkScheduleViewDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleUpdateDto dto);
+    WorkScheduleViewDto updateWorkSchedule(long workScheduleId, WorkScheduleUpdateDto dto);
 
     /**
      * Возвращает рабочий график по идентификатору.
@@ -79,7 +77,6 @@ public interface WorkScheduleService {
      * </p>
      *
      * @param workScheduleId идентификатор графика
-     * @return найденный график в виде {@link WorkScheduleViewDto}
      *
      * @throws school.faang.user_service.exception.ForbiddenException если текущий пользователь не является владельцем
      * @throws school.faang.user_service.exception.EntityNotFoundException если график не найден

@@ -1,5 +1,6 @@
 package school.faang.event;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +43,11 @@ public class WorkScheduleServiceImplTest {
     @InjectMocks
     private WorkScheduleServiceImpl workScheduleService;
 
+    @BeforeEach
+    void setup() {
+        when(userContext.getUserId()).thenReturn(1L);
+    }
+
     @Test
     void addWorkSchedule_shouldSaveAndReturnViewDto() {
         long userId = 1L;
@@ -66,18 +72,18 @@ public class WorkScheduleServiceImplTest {
         );
 
         when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
-        when(workScheduleMapper.toWorkSchedule(createDto)).thenReturn(workSchedule);
+        when(workScheduleMapper.toEntity(createDto, user)).thenReturn(workSchedule);
         when(workScheduleRepository.save(workSchedule)).thenReturn(savedSchedule);
-        when(workScheduleMapper.toWorkScheduleDto(savedSchedule)).thenReturn(expectedViewDto);
+        when(workScheduleMapper.toViewDto(savedSchedule)).thenReturn(expectedViewDto);
 
-        WorkScheduleViewDto actualDto = workScheduleService.addWorkSchedule(userId, createDto);
+        WorkScheduleViewDto actualDto = workScheduleService.addWorkSchedule(createDto);
 
         assertEquals(expectedViewDto, actualDto);
 
         verify(userRepository).getByIdOrThrow(userId);
-        verify(workScheduleMapper).toWorkSchedule(createDto);
+        verify(workScheduleMapper).toEntity(createDto, user);
         verify(workScheduleRepository).save(workSchedule);
-        verify(workScheduleMapper).toWorkScheduleDto(savedSchedule);
+        verify(workScheduleMapper).toViewDto(savedSchedule);
     }
 
     @Test
@@ -114,12 +120,12 @@ public class WorkScheduleServiceImplTest {
         when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
         when(workScheduleRepository.getByIdOrThrow(scheduleId)).thenReturn(existing);
         when(workScheduleRepository.save(existing)).thenReturn(updated);
-        when(workScheduleMapper.toWorkScheduleDto(updated)).thenReturn(expectedViewDto);
+        when(workScheduleMapper.toViewDto(updated)).thenReturn(expectedViewDto);
 
-        WorkScheduleViewDto result = workScheduleService.updateWorkSchedule(userId, scheduleId, updateDto);
+        WorkScheduleViewDto result = workScheduleService.updateWorkSchedule(scheduleId, updateDto);
 
         assertEquals(expectedViewDto, result);
-        verify(workScheduleMapper).updateWorkScheduleFromDto(updateDto, existing);
+        verify(workScheduleMapper).update(updateDto, existing);
     }
 
 
@@ -151,7 +157,7 @@ public class WorkScheduleServiceImplTest {
 
         when(workScheduleRepository.getByIdOrThrow(scheduleId)).thenReturn(schedule);
         when(userContext.getUserId()).thenReturn(userId);
-        when(workScheduleMapper.toWorkScheduleDto(schedule)).thenReturn(expectedDto);
+        when(workScheduleMapper.toViewDto(schedule)).thenReturn(expectedDto);
 
         WorkScheduleViewDto actual = workScheduleService.getById(scheduleId);
 
@@ -159,7 +165,7 @@ public class WorkScheduleServiceImplTest {
 
         verify(workScheduleRepository).getByIdOrThrow(scheduleId);
         verify(userContext).getUserId();
-        verify(workScheduleMapper).toWorkScheduleDto(schedule);
+        verify(workScheduleMapper).toViewDto(schedule);
     }
 
 

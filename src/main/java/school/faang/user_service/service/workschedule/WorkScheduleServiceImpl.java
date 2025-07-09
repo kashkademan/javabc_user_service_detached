@@ -26,35 +26,36 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     @Override
     @Transactional
-    public WorkScheduleViewDto addWorkSchedule(long userId, WorkScheduleCreateDto dto) {
+    public WorkScheduleViewDto addWorkSchedule(WorkScheduleCreateDto dto) {
+        long currentUserId = context.getUserId();
         log.info("added Work Schedule");
         dto.validate();
 
-        User user = userRepository.getByIdOrThrow(userId);
+        User user = userRepository.getByIdOrThrow(currentUserId);
 
-        WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(dto);
-        workSchedule.setUser(user);
+        WorkSchedule workSchedule = workScheduleMapper.toEntity(dto, user);
 
         WorkSchedule saved = repository.save(workSchedule);
 
-        return workScheduleMapper.toWorkScheduleDto(saved);
+        return workScheduleMapper.toViewDto(saved);
     }
 
     @Override
     @Transactional
-    public WorkScheduleViewDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleUpdateDto dto) {
+    public WorkScheduleViewDto updateWorkSchedule(long workScheduleId, WorkScheduleUpdateDto dto) {
+        long currentUserId = context.getUserId();
         log.info("updated Work Schedule");
         dto.validate();
 
-        User user = userRepository.getByIdOrThrow(userId);
+        User user = userRepository.getByIdOrThrow(currentUserId);
         WorkSchedule workSchedule = repository.getByIdOrThrow(workScheduleId);
 
         if (!workSchedule.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("User not allowed to update work schedule");
         }
-        workScheduleMapper.updateWorkScheduleFromDto(dto, workSchedule);
+        workScheduleMapper.update(dto, workSchedule);
 
-        return workScheduleMapper.toWorkScheduleDto(repository.save(workSchedule));
+        return workScheduleMapper.toViewDto(repository.save(workSchedule));
     }
 
     @Override
@@ -70,9 +71,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             throw new ForbiddenException("You are not allowed to view this schedule");
         }
 
-        return workScheduleMapper.toWorkScheduleDto(schedule);
+        return workScheduleMapper.toViewDto(schedule);
     }
-
 
     @Override
     @Transactional
