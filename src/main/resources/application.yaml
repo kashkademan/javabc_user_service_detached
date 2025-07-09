@@ -26,6 +26,18 @@ spring:
       pathmatch:
         matching-strategy: ant_path_matcher # Uses traditional path matching
 
+  kafka:
+    bootstrap-servers: localhost:9094
+    acks: all
+    retries: 5
+    delivery-timeout-ms: 20000
+    linger-ms: 5
+    request-timeout-ms: 3000
+    batch-size: 16384
+    enable-idempotence: true
+    topics:
+      profile-view: profile-view-events
+
 server:
   port: 8080
   servlet:
