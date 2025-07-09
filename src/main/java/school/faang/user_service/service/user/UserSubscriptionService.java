@@ -8,6 +8,7 @@ import java.util.List;
  * Interface representing user subscription operations such as following and unfollowing users,
  * as well as retrieving follower and followee information.
  */
+
 public interface UserSubscriptionService {
 
     /**

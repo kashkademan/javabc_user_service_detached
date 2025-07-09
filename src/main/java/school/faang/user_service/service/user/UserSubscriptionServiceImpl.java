@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -65,8 +64,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     @Transactional
     public CountResponse getFolloweesCount(long followerId) {
-        CountResponse countResponse = new CountResponse
-                (subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
+        CountResponse countResponse = new CountResponse(
+                subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
         return countResponse;
     }
 
