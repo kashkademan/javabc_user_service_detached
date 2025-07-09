@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  * </p>
  * @author mazin
  * @since 08.07.2025
- * */
+ */
 public interface RecommendationRequestFilter {
     boolean isApplicable(RecommendationRequestFilterDto dto);
 

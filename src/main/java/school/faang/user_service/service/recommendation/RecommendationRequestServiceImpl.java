@@ -120,12 +120,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest request = requestRepository.getByIdOrThrow(id);
         long currentUserId = userContext.getUserId();
 
-        String statusName = newStatus.getName();
         validateUserIsRequestReceiver(request, currentUserId, receiverError);
         validateRequestIsPending(request, statusError);
 
         request.setStatus(newStatus);
         requestRepository.save(request);
+        String statusName = newStatus.getName();
         log.debug("Request {} successfully {} by user {}", id, statusName, currentUserId);
     }
 
@@ -166,8 +166,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
         if (hasRecentRequest) {
             log.warn("Frequency limit violated for user {}", requesterId);
-            throw new ForbiddenException("A recommendation request has" +
-                    " already been sent to this user during the previous " + cooldownMonth + " months");
+            throw new ForbiddenException("A recommendation request has"
+                    + " already been sent to this user during the previous " + cooldownMonth + " months");
         }
     }
 

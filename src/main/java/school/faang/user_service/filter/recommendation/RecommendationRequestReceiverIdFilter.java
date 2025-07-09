@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @since 08.07.2025
  */
 @Component
-public class RecommendationRequestReceiverIdFilter implements RecommendationRequestFilter{
+public class RecommendationRequestReceiverIdFilter implements RecommendationRequestFilter {
     @Override
     public boolean isApplicable(RecommendationRequestFilterDto dto) {
         return dto.receiverId() != null;

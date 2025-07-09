@@ -13,7 +13,8 @@ package school.faang.user_service.dto.recommendation;
  */
 public class RecommendationRequestConstraints {
     public static final int MAX_SIZE_STRING = 512;
-    public static final String MESSAGE_SIZE_INVALID = "Message size should be at most " +
-            MAX_SIZE_STRING + " characters";
-    public static final String EITHER_REQUESTER_OR_RECEIVER_REQUIRED = "Either requesterId or receiverId must be provided";
+    public static final String MESSAGE_SIZE_INVALID = "Message size should be at most "
+            + MAX_SIZE_STRING + " characters";
+    public static final String EITHER_REQUESTER_OR_RECEIVER_REQUIRED = "Either requesterId "
+            + "or receiverId must be provided";
 }

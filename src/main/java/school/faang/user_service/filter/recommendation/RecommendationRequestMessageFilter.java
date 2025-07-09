@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * @since 08.07.2025
  */
 @Component
-public class RecommendationRequestMessageFilter implements RecommendationRequestFilter{
+public class RecommendationRequestMessageFilter implements RecommendationRequestFilter {
     @Override
     public boolean isApplicable(RecommendationRequestFilterDto dto) {
         return !dto.messageContains().isBlank();

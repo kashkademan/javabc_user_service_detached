@@ -12,12 +12,11 @@ import java.util.stream.Stream;
  * Фильтр отбирает запросы рекомендации по ID отправителя ({@code requesterId})
  * Фильтр применяется, когда значения поля DTO {@code requesterId} не null
  * </p>*
- *
  * @author mazin
  * @since 08.07.2025
  */
 @Component
-public class RecommendationRequestRequesterIdFilter implements RecommendationRequestFilter{
+public class RecommendationRequestRequesterIdFilter implements RecommendationRequestFilter {
     @Override
     public boolean isApplicable(RecommendationRequestFilterDto dto) {
         return dto.requesterId() != null;
