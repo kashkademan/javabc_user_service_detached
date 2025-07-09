@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.event.FollowerEvent;
 
 @Component
-    public class FollowerEventPublisher {
+public class FollowerEventPublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ChannelTopic topic;
