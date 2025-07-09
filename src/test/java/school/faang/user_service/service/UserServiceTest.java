@@ -14,9 +14,12 @@ import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.utils.Utils;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +43,7 @@ class UserServiceTest {
         User resultUser = userService.getUserById(userId);
 
         assertNotNull(resultUser);
-        assertEquals("Name", resultUser.getUsername());
+        assertEquals("Name1", resultUser.getUsername());
     }
 
     @Test
@@ -65,13 +68,39 @@ class UserServiceTest {
 
         assertNotNull(resultUser);
         assertEquals(1L, resultUser.id());
-        assertEquals("Name", resultUser.username());
+        assertEquals("Name1", resultUser.username());
     }
+
+    @Test
+    public void testGetExistsUserByIds() {
+        List<Long> userIds = List.of(1L, 2L);
+        List<User> users = List.of(getUser(1L), getUser(2L));
+        when(userRepository.findByIds(userIds)).thenReturn(users);
+
+        List<User> resultList = userService.getUsersByIds(userIds);
+
+        assertNotNull(resultList);
+        assertEquals(2, resultList.size());
+    }
+
+    @Test
+    public void testGetExistsUserDtoByIds() {
+        List<Long> userIds = List.of(1L, 2L);
+        List<User> users = List.of(getUser(1L), getUser(2L));
+        when(userRepository.findByIds(userIds)).thenReturn(users);
+
+        List<UserResponseDto> resultList = userService.getUsersDtoByIds(userIds);
+
+        assertNotNull(resultList);
+        assertEquals(2, resultList.size());
+    }
+
+
 
     private User getUser(Long userId) {
         return User.builder()
                 .id(userId)
-                .username("Name")
+                .username("Name%d".formatted(userId))
                 .build();
     }
 }

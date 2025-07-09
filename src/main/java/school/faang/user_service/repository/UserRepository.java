@@ -2,9 +2,11 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -25,4 +27,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Stream<User> findPremiumUsers();
 
     List<User> findByUsernameLike(String username);
+
+    Optional<User> findByPhone(String phone);
+
+    @Query(nativeQuery = true, value = """
+        select u.* from users u
+         where u.id in (:userIds)
+        """
+    )
+    List<User> findByIds(@Param("userIds") List<Long> userIds);
 }

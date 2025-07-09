@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.dto.mentorship.ErrorResponseDto;
+import school.faang.user_service.exception.ContactNotFoundException;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorResponse;
 import school.faang.user_service.exception.EventNotFoundException;
@@ -56,7 +57,8 @@ public class ExceptionHandlerControllerAdvice {
     @ExceptionHandler({
             UserNotFoundException.class,
             RecommendationRequestNotFoundException.class,
-            EventNotFoundException.class
+            EventNotFoundException.class,
+            ContactNotFoundException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlerNotFoundException(RuntimeException e) {

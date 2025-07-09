@@ -38,4 +38,13 @@ public class Contact {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private ContactType type;
+
+    @Override
+    public String toString() {
+        return "Contact{" + "id=" + id +
+            ", user=" + user.getUsername() +
+            ", contact='" + contact + '\'' +
+            ", type=" + type +
+            '}';
+    }
 }
