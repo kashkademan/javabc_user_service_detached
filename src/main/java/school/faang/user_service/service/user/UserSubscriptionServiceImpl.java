@@ -3,9 +3,10 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
@@ -21,6 +22,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.error("user {} is trying to re-subscribe to user {}", followerId, followeeId);
@@ -37,6 +39,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.error("the user {} is trying to unsubscribe from the user {}", followerId, followeeId);
@@ -53,35 +56,34 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
+    @Transactional
     public CountResponse getFollowersCount(long followeeId) {
-        CountResponse countResponse = new CountResponse();
-        countResponse.setCount(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId));
-        log.info("Get followers count");
-        return countResponse;
+        long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+        return new CountResponse(count);
     }
 
     @Override
+    @Transactional
     public CountResponse getFolloweesCount(long followerId) {
-        CountResponse countResponse = new CountResponse();
-        countResponse.setCount(subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
-        log.info("Get followees count");
+        CountResponse countResponse = new CountResponse
+                (subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
         return countResponse;
     }
 
     @Override
+    @Transactional
     public List<UserDto> getFollowers(long followeeId) {
-        List<User> followersList = subscriptionRepository.findByFolloweeId(followeeId).toList();
         log.info("Get followers");
-        return followersList.stream()
+        return subscriptionRepository.findByFolloweeId(followeeId)
                 .map(userMapper::toUserDto)
                 .toList();
     }
 
     @Override
+    @Transactional
     public List<UserDto> getFollowees(long followerId) {
-        List<User> followeesList = subscriptionRepository.findByFollowerId(followerId).toList();
         log.info("Get followees");
-        return followeesList.stream()
+        return subscriptionRepository.findByFollowerId(followerId)
                 .map(userMapper::toUserDto)
                 .toList();
     }

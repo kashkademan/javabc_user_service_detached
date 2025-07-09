@@ -4,7 +4,6 @@ import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 
 import java.util.List;
-
 /**
  * Interface representing user subscription operations such as following and unfollowing users,
  * as well as retrieving follower and followee information.
