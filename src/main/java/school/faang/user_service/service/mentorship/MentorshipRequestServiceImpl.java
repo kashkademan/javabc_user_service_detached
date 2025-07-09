@@ -50,8 +50,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
         lastMentorship.ifPresent(mentorship -> {
             if (mentorship.getCreatedAt().isAfter(LocalDateTime.now().minus(MENTORSHIP_REQUEST))) {
-                throw new DataValidationException("Запрос можно отправить не чаще одного раза в " +
-                        MENTORSHIP_REQUEST.getMonths() + " месяца(ев)");
+                throw new DataValidationException("Запрос можно отправить не чаще одного раза в "
+                        + MENTORSHIP_REQUEST.getMonths() + " месяца(ев)");
             }
         });
 
@@ -100,11 +100,12 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         Stream<MentorshipRequest> filtered = allRequests.stream();
 
         if (filterDto.getRequesterId() != null) {
-            filtered = filtered.filter(r -> r.getRequester().getId() == filterDto.getRequesterId());
+            filtered = filtered.filter(r
+                    -> filterDto.getRequesterId().equals(r.getRequester().getId()));
         }
 
         if (filterDto.getReceiverId() != null) {
-            filtered = filtered.filter(r -> r.getReceiver().getId() == filterDto.getReceiverId());
+            filtered = filtered.filter(r -> filterDto.getReceiverId().equals(r.getReceiver().getId()));
         }
 
         if (filterDto.getStatus() != null) {
