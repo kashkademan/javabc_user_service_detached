@@ -1,5 +1,6 @@
 package school.faang.user_service.service.workschedule;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final UserContext context;
 
     @Override
+    @Transactional
     public WorkScheduleViewDto addWorkSchedule(long userId, WorkScheduleCreateDto dto) {
         log.info("added Work Schedule");
         dto.validate();
@@ -39,6 +41,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     }
 
     @Override
+    @Transactional
     public WorkScheduleViewDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleUpdateDto dto) {
         log.info("updated Work Schedule");
         dto.validate();
@@ -55,6 +58,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     }
 
     @Override
+    @Transactional
     public WorkScheduleViewDto getById(long workScheduleId) {
         long currentUserId = context.getUserId();
 
@@ -71,6 +75,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
 
     @Override
+    @Transactional
     public void deleteWorkSchedule(long workScheduleId) {
         Long userId = context.getUserId();
 
