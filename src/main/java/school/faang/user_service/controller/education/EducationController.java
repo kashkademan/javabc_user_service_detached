@@ -105,7 +105,7 @@ public class EducationController {
                     @ApiResponse(responseCode = "403", description = "Отказано в доступе",
                             content = {
                                     @Content(examples = {
-                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  " +
+                                            @ExampleObject(name = "ErrorResponse", value = "{\n  \"status\": 403\n  "
                                                     + "\"message\":\"Текущему пользователю операция недоступна\"\n  "
                                                     + "\"exceptionMessage\": \"Текст ошибки\"\n  "
                                                     + "\"timestamp\": 1752087981\n}", description = "Объект ошибки")
