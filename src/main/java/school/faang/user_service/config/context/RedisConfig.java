@@ -66,4 +66,12 @@ public class RedisConfig {
     public ChannelTopic profilePicTopic() {
         return new ChannelTopic(profilePicChannel);
     }
+
+    @Value("${redis.channels.follower_event}")
+    private String followerEventChannel;
+
+    @Bean
+    public ChannelTopic followerEventTopic() {
+        return new ChannelTopic(followerEventChannel);
+    }
 }

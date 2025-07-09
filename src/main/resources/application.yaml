@@ -24,6 +24,7 @@ spring:
 redis:
   channels:
    profile_pic: profile_pic_channel
+   follower_event: follower-events
 
 server:
   port: 8080
