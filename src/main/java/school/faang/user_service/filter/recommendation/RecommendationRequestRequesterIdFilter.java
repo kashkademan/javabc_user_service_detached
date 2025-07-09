@@ -12,6 +12,7 @@ import java.util.stream.Stream;
  * Фильтр отбирает запросы рекомендации по ID отправителя ({@code requesterId})
  * Фильтр применяется, когда значения поля DTO {@code requesterId} не null
  * </p>*
+ *
  * @author mazin
  * @since 08.07.2025
  */
