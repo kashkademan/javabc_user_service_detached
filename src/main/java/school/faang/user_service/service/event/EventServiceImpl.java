@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventDto;
@@ -31,6 +32,7 @@ public class EventServiceImpl implements EventService {
     private final List<EventFilter> eventFilters;
 
     @Override
+    @Transactional
     public EventDto create(CreateEventDto eventDto) {
         Event event = eventMapper.toEvent(eventDto);
         User owner = userRepository.getByIdOrThrow(eventDto.ownerId());
@@ -41,6 +43,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventDto update(long eventId, UpdateEventDto updateEventDto) {
         Event event = eventRepository.getByIdOrThrow(eventId);
         checkOwner(event);
@@ -64,6 +67,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void delete(long eventId) {
         Event event = eventRepository.getByIdOrThrow(eventId);
         checkOwner(event);
