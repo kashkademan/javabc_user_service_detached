@@ -1,7 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
@@ -26,10 +26,9 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
-    @Value("${recommendation-request.cooldown.month")
+    @Value("${recommendation-request.cooldown.month}")
     private final int cooldownMonth;
     private final RecommendationRequestRepository requestRepository;
     private final UserRepository userRepository;
@@ -37,6 +36,24 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final RecommendationRequestMapper requestMapper;
     private final List<RecommendationRequestFilter> requestFilters;
     private final UserContext userContext;
+
+    @Autowired
+    public RecommendationRequestServiceImpl(
+            @Value("${recommendation-request.cooldown.month}") int cooldownMonth,
+            RecommendationRequestRepository requestRepository,
+            UserRepository userRepository,
+            SkillRequestRepository skillRequestRepository,
+            RecommendationRequestMapper requestMapper,
+            List<RecommendationRequestFilter> requestFilters,
+            UserContext userContext) {
+        this.cooldownMonth = cooldownMonth;
+        this.requestRepository = requestRepository;
+        this.userRepository = userRepository;
+        this.skillRequestRepository = skillRequestRepository;
+        this.requestMapper = requestMapper;
+        this.requestFilters = requestFilters;
+        this.userContext = userContext;
+    }
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto dto) {
