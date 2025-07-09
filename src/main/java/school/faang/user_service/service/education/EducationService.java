@@ -1,5 +1,7 @@
 package school.faang.user_service.service.education;
 
+import school.faang.user_service.dto.education.UpdateEducationDto;
+import school.faang.user_service.dto.user.CreateEducationDto;
 import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -32,10 +34,10 @@ public interface EducationService {
      * </ul>
      *
      * @param userId       идентификатор пользователя, добавляющего образование
-     * @param educationDto объект {@link EducationViewDto}, содержащий данные для создания записи
+     * @param createEducationDto объект {@link EducationViewDto}, содержащий данные для создания записи
      * @return объект {@link EducationViewDto}, представляющий созданную запись
      */
-    EducationViewDto addEducation(long userId, EducationViewDto educationDto);
+    EducationViewDto addEducation(long userId, CreateEducationDto createEducationDto);
 
     /**
      * Обновляет существующую запись об образовании пользователя.
@@ -51,10 +53,10 @@ public interface EducationService {
      *
      * @param userId       идентификатор пользователя, выполняющего обновление
      * @param educationId  идентификатор обновляемой записи
-     * @param educationDto объект {@link EducationViewDto}, содержащий обновлённые данные
+     * @param updateEducationDto объект {@link EducationViewDto}, содержащий обновлённые данные
      * @return объект {@link EducationViewDto}, представляющий обновлённую запись
      */
-    EducationViewDto updateEducation(long userId, long educationId, EducationViewDto educationDto);
+    EducationViewDto updateEducation(long userId, long educationId, UpdateEducationDto updateEducationDto);
 
     /**
      * Возвращает запись об образовании по её идентификатору.

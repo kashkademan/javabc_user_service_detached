@@ -4,12 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.education.UpdateEducationDto;
+import school.faang.user_service.dto.user.CreateEducationDto;
 import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.service.education.EducationService;
 
@@ -24,34 +27,34 @@ import school.faang.user_service.service.education.EducationService;
  *  * </ul>
  * </p>*
  *
- * @author Пользователь
+ * @author fomchenkoandrey
  */
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping
+@RequestMapping("/education")
 public class EducationController {
 
     private final EducationService educationService;
     private final UserContext userContext;
 
     @PostMapping
-    public ResponseEntity<EducationViewDto> addEducation(@Valid @RequestBody EducationViewDto educationDto) {
+    public ResponseEntity<EducationViewDto> addEducation(@Valid @RequestBody CreateEducationDto educationDto) {
         long userId = userContext.getUserId();
         EducationViewDto createdEducation = educationService.addEducation(userId, educationDto);
         return ResponseEntity.ok(createdEducation);
     }
 
-    @PutMapping
-    public ResponseEntity<EducationViewDto> updateEducation(long educationId,
-                                                            @Valid @RequestBody EducationViewDto educationDto) {
+    @PutMapping("/{educationId}")
+    public ResponseEntity<EducationViewDto> updateEducation(@PathVariable long educationId,
+                                                            @Valid @RequestBody UpdateEducationDto educationDto) {
         long userId = userContext.getUserId();
         EducationViewDto updateEducation = educationService.updateEducation(userId, educationId, educationDto);
         return ResponseEntity.ok(updateEducation);
     }
 
-    @GetMapping
-    public ResponseEntity<EducationViewDto> getAllEducation(long educationId) {
+    @GetMapping("/{educationId}")
+    public ResponseEntity<EducationViewDto> getAllEducation(@PathVariable long educationId) {
         return ResponseEntity.ok(educationService.getById(educationId));
     }
 }

@@ -1,8 +1,11 @@
 package school.faang.user_service.service.education;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.education.UpdateEducationDto;
+import school.faang.user_service.dto.user.CreateEducationDto;
 import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
@@ -39,32 +42,33 @@ public class EducationServiceImpl implements EducationService {
     private final EducationMapper educationMapper;
 
     @Override
-    public EducationViewDto addEducation(long userId, EducationViewDto educationDto) {
+    @Transactional
+    public EducationViewDto addEducation(long userId, CreateEducationDto educationDto) {
         log.info("Add Education");
         validateYearFrom(educationDto.getYearFrom());
         User user = userRepository.getByIdOrThrow(userId);
         Education education = educationMapper.toEducation(educationDto);
         education.setUser(user);
-        Education saved =  educationRepository.save(education);
-        return educationMapper.toEducationDto(saved);
+        educationRepository.save(education);
+        return educationMapper.toEducationDto(education);
     }
 
     @Override
-    public EducationViewDto updateEducation(long userId, long educationId, EducationViewDto educationDto) {
+    @Transactional
+    public EducationViewDto updateEducation(long userId, long educationId, UpdateEducationDto educationDto) {
         log.info("Update Education");
         validateYearFrom(educationDto.getYearFrom());
-        Education findEducation = educationRepository.getByIdOrThrow(educationDto.getId());
+        Education findEducation = educationRepository.getByIdOrThrow(educationId);
         if (!findEducation.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You can only update your education");
         }
-        Education updatedEducation = educationMapper.toEducation(educationDto);
-        updatedEducation.setUser(findEducation.getUser());
-        updatedEducation.setId(findEducation.getId());
-        Education saved = educationRepository.save(updatedEducation);
-        return educationMapper.toEducationDto(saved);
+        educationMapper.educationUpdateFromDto(educationDto, findEducation);
+        educationRepository.save(findEducation);
+        return educationMapper.toEducationDto(findEducation);
     }
 
     @Override
+    @Transactional
     public EducationViewDto getById(long educationId) {
         log.info("Getting education by id: {}", educationId);
         Education education = educationRepository.getByIdOrThrow(educationId);

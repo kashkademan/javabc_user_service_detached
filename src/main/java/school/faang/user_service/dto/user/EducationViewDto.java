@@ -1,10 +1,8 @@
 package school.faang.user_service.dto.user;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 /**
  * EducationDto — содержит даные об образовании пользователя.
@@ -21,28 +19,10 @@ import lombok.NonNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EducationViewDto {
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private long id;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private Integer yearFrom;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private Integer yearTo;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private String institution;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private String educationLevel;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
     private String specialization;
 }
