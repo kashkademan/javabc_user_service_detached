@@ -31,7 +31,8 @@ public class CareerController {
     }
 
     @PutMapping("/{careerId}")
-    public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId, @RequestBody @Valid UpdateCareerDto careerDto) {
+    public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId,
+                                                  @RequestBody @Valid UpdateCareerDto careerDto) {
         long userId = userContext.getUserId();
         return ResponseEntity.ok(careerService.updateCareer(userId, careerId, careerDto));
     }

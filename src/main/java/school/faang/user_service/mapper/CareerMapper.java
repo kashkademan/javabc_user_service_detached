@@ -12,7 +12,7 @@ public interface CareerMapper {
 
     Career toCareer(CreateCareerDto careerDto);
 
-    void updateCareerFromDto(UpdateCareerDto careerDto,@MappingTarget Career career);
+    void updateCareerFromDto(UpdateCareerDto careerDto, @MappingTarget Career career);
 
     CareerDto toCareerDto(Career career);
 }
