@@ -1,6 +1,9 @@
 package school.faang.user_service.service.mentorship;
 
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +23,6 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipJpaRepository;
-import school.faang.user_service.repository.mentorship.MentorshipRelationRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -29,18 +31,29 @@ import school.faang.user_service.repository.user.UserRepository;
 @RequiredArgsConstructor
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
+    public static final Period MENTORSHIP_REQUEST = Period.ofMonths(3);
+
     private final MentorshipJpaRepository mentorshipJpaRepository;
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final UserContext userContext;
     private final UserRepository userRepository;
-    private final MentorshipRelationRepository mentorshipRelationRepository;
 
 
     @Override
     public MentorshipRequestDto create(CreateMentorshipRequestDto mentorshipRequestDto) {
         long requesterId = userContext.getUserId();
         long receiverId = mentorshipRequestDto.getMentorId();
+
+        Optional<Mentorship> lastMentorship = mentorshipJpaRepository
+                .findTopByMenteeIdOrderByCreatedAtDesc(requesterId);
+
+        lastMentorship.ifPresent(mentorship -> {
+            if (mentorship.getCreatedAt().isAfter(LocalDateTime.now().minus(MENTORSHIP_REQUEST))) {
+                throw new DataValidationException("Запрос можно отправить не чаще одного раза в " +
+                        MENTORSHIP_REQUEST.getMonths() + " месяца(ев)");
+            }
+        });
 
         if (requesterId == receiverId) {
             throw new DataValidationException("Нельзя отправить запрос самому себе");
@@ -60,11 +73,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         );
         request.setRequester(
                 userRepository.findById(requesterId)
-                        .orElseThrow(() -> new EntityNotFoundException("Requester не найден"))
+                        .orElseThrow(() -> new EntityNotFoundException("менти не найден"))
         );
         request.setReceiver(
                 userRepository.findById(receiverId)
-                        .orElseThrow(() -> new EntityNotFoundException("Receiver не найден"))
+                        .orElseThrow(() -> new EntityNotFoundException("Ментор не найден"))
         );
 
         log.info("Пользователь {} отправил запрос на менторство к {}", requesterId, receiverId);
@@ -80,7 +93,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filterDto) {
         if (filterDto.getRequesterId() == null && filterDto.getReceiverId() == null) {
             throw new DataValidationException("Хотя бы один из параметров:"
-                    + " requesterId или receiverId должен быть задан");
+                    + " заказчикId или получательId должен быть задан");
         }
 
         List<MentorshipRequest> allRequests = mentorshipRequestRepository.findAll();
