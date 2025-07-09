@@ -7,11 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.config.PremiumRemoverProperties;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,15 +21,14 @@ public class PremiumServiceTest {
     @Mock
     private PremiumRepository premiumRepository;
 
-    @Mock
-    private PremiumRemoverProperties properties;
-
     @InjectMocks
     private PremiumService premiumService;
 
     @BeforeEach
-    public void setUp() {
-        Mockito.when(properties.getPoolSize()).thenReturn(2);
+    public void setUp() throws Exception {
+        Field poolSizeField = PremiumService.class.getDeclaredField("poolSize");
+        poolSizeField.setAccessible(true);
+        poolSizeField.set(premiumService, 2);
         premiumService.init();
     }
 

@@ -51,8 +51,8 @@ minio:
 premium:
   remover:
     cron: "0 0 0 * * MON"
-    batchSize: 20
-    pool-size: 5
+    batchSize: 100
+    poolSize: 5
 
 kafka:
   host: "localhost:9092"

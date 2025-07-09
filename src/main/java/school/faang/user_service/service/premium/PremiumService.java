@@ -2,9 +2,8 @@ package school.faang.user_service.service.premium;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.config.PremiumRemoverProperties;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
@@ -21,14 +20,16 @@ import java.util.concurrent.Future;
 public class PremiumService {
 
     private final PremiumRepository premiumRepository;
-    @Qualifier("premiumRemoverProperties")
-    private final PremiumRemoverProperties properties;
+
+    @Value("${premium.remover.poolSize}")
+    private int poolSize;
+
     private ExecutorService executor;
 
 
     @PostConstruct
     public void init() {
-        this.executor = Executors.newFixedThreadPool(properties.getPoolSize());
+        this.executor = Executors.newFixedThreadPool(poolSize);
     }
 
 
