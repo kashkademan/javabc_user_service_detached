@@ -28,16 +28,16 @@ public class GoalController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GoalDto create(@RequestBody CreateGoalDto createGoalDto) {
-        validateString(createGoalDto.title(), "title");
-        validateString(createGoalDto.description(), "description");
-        validateNotNull(createGoalDto.userIds(), "userIds");
+        validateParamValue(createGoalDto.title(), "title");
+        validateParamValue(createGoalDto.description(), "description");
+        validateParamValue(createGoalDto.userIds(), "userIds");
         return goalService.create(createGoalDto);
     }
 
     @PutMapping("/{id}")
     public GoalDto update(@PathVariable long id, @RequestBody UpdateGoalDto updateGoalDto) {
-        validateString(updateGoalDto.title(), "title");
-        validateString(updateGoalDto.description(), "description");
+        validateParamValue(updateGoalDto.title(), "title");
+        validateParamValue(updateGoalDto.description(), "description");
         return goalService.update(id, updateGoalDto);
     }
 
@@ -51,14 +51,8 @@ public class GoalController {
         return goalService.getByFilters(filters);
     }
 
-    private void validateString(String value, String paramName) {
-        if (StringUtils.isBlank(value)) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
-    }
-
-    private void validateNotNull(Object value, String paramName) {
-        if (value == null) {
+    private void validateParamValue(Object value, String paramName) {
+        if (value == null || (value instanceof String && StringUtils.isBlank((String) value))) {
             throw new DataValidationException(paramName + " should be present!");
         }
     }

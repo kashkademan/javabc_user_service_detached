@@ -11,7 +11,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.exception.GoalCompletedException;
-import java.time.LocalDateTime;
 
 @Slf4j
 @RestControllerAdvice
@@ -20,34 +19,34 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ErrorResponse handleEntityNotFound(EntityNotFoundException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse("Entity not found", e.getMessage(), LocalDateTime.now());
+        return new ErrorResponse("Entity not found", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(DataValidationException.class)
     public ErrorResponse handleDataValidationException(DataValidationException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse("Data validation exception", e.getMessage(), LocalDateTime.now());
+        return new ErrorResponse("Data validation exception", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(ForbiddenException.class)
     public ErrorResponse handleForbiddenException(ForbiddenException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse("Forbidden", e.getMessage(), LocalDateTime.now());
+        return new ErrorResponse("Forbidden", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(ActiveGoalsLimitExceededException.class)
     public ErrorResponse handleActiveGoalsLimitExceededException(ActiveGoalsLimitExceededException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse("Active goals limit exceeded", e.getMessage(), LocalDateTime.now());
+        return new ErrorResponse("Active goals limit exceeded", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(GoalCompletedException.class)
     public ErrorResponse handleGoalCompletedException(GoalCompletedException e) {
         log.error(e.getMessage(), e);
-        return new ErrorResponse("Goal already completed", e.getMessage(), LocalDateTime.now());
+        return new ErrorResponse("Goal already completed", e.getMessage());
     }
 }

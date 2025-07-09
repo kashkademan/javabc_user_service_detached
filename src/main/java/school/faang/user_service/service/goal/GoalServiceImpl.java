@@ -2,10 +2,9 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.property.GoalProperty;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -20,18 +19,14 @@ import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "goal")
 public class GoalServiceImpl implements GoalService {
-    @Value("${min-participants-count:1}")
-    private int minParticipantsCount;
-    @Value("${active-goals-limit:3}")
-    private int activeGoalsLimit;
-
+    private final GoalProperty goalProperty;
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
     private final GoalMapper mapper;
@@ -132,7 +127,9 @@ public class GoalServiceImpl implements GoalService {
 
     private void checkOverActiveGoalLimitFor(List<Long> userIds) {
         List<Long> usersWithExceededLimit =
-                goalRepository.findUserIdsOverActiveGoalLimit(userIds, GoalStatus.ACTIVE.ordinal(), activeGoalsLimit);
+                goalRepository.findUserIdsOverActiveGoalLimit(userIds,
+                                                              GoalStatus.ACTIVE.ordinal(),
+                                                              goalProperty.activeGoalsLimit());
 
         if (!usersWithExceededLimit.isEmpty()) {
             throw new ActiveGoalsLimitExceededException(
@@ -147,13 +144,13 @@ public class GoalServiceImpl implements GoalService {
     private boolean isParticipant(List<User> users, long currentId) {
         return users != null
                && users.stream()
-                       .anyMatch(user -> user.getId().equals(currentId));
+                       .anyMatch(user -> Objects.equals(user.getId(), currentId));
     }
 
     private boolean isIndependentUser(Long mentorId, long currentId, List<User> users) {
         return mentorId == null && users != null && users.size() == 1
                && users.stream()
-                       .anyMatch(user -> user.getId().equals(currentId));
+                       .anyMatch(user -> Objects.equals(user.getId(), currentId));
     }
 
     private Long getMentorId(Goal goal) {
@@ -172,6 +169,6 @@ public class GoalServiceImpl implements GoalService {
     }
 
     private boolean canDeleteGoal(Long mentorId, long currentId, List<User> users) {
-        return isMentor(mentorId, currentId) || (users != null && users.size() <= minParticipantsCount);
+        return isMentor(mentorId, currentId) || (users != null && users.size() <= goalProperty.minParticipantsCount());
     }
 }
