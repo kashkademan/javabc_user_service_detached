@@ -147,4 +147,8 @@ public class UserService {
             minioService.shutdownBucket();
         }
     }
+
+    public boolean existsById(long userId) {
+        return userRepo.existsById(userId);
+    }
 }
