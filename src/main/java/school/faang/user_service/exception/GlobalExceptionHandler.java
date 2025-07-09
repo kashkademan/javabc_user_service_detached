@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
         log.error("Unexpected error occurred", ex);
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         );
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
                 Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
         );
