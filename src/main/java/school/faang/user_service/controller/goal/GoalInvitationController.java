@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationViewDto;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
@@ -38,12 +38,12 @@ public class GoalInvitationController {
      *
      * @param goalId идентификатор цели
      * @param dto    данные для создания приглашения
-     * @return созданное приглашение в виде {@link GoalInvitationDto}
+     * @return созданное приглашение в виде {@link GoalInvitationViewDto}
      */
     @PostMapping("/{goalId}")
-    public ResponseEntity<GoalInvitationDto> create(@PathVariable long goalId,
-                                                    @Valid @RequestBody GoalInvitationCreateDto dto) {
-        GoalInvitationDto invitation = service.create(goalId, dto);
+    public ResponseEntity<GoalInvitationViewDto> create(@PathVariable long goalId,
+                                                        @Valid @RequestBody GoalInvitationCreateDto dto) {
+        GoalInvitationViewDto invitation = service.create(goalId, dto);
         return ResponseEntity.ok(invitation);
     }
 
@@ -75,11 +75,11 @@ public class GoalInvitationController {
      * Получает список приглашений с учетом фильтров.
      *
      * @param dto объект с параметрами фильтрации (например, inviterId, invitedId, status)
-     * @return список приглашений в виде List<{@link GoalInvitationDto}>
+     * @return список приглашений в виде List<{@link GoalInvitationViewDto}>
      */
     @GetMapping("/search")
-    public ResponseEntity<List<GoalInvitationDto>> getByFilters(@ModelAttribute GoalInvitationFilterDto dto) {
-        List<GoalInvitationDto> invitation = service.getByFilters(dto);
+    public ResponseEntity<List<GoalInvitationViewDto>> getList(@ModelAttribute GoalInvitationFilterDto dto) {
+        List<GoalInvitationViewDto> invitation = service.getByFilters(dto);
         return ResponseEntity.ok(invitation);
     }
 }

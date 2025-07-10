@@ -16,7 +16,7 @@ import school.faang.user_service.entity.RequestStatus;
  * @author Myrza
  * @since 07.07.2025
  */
-public record GoalInvitationDto(
+public record GoalInvitationViewDto(
         Long id,
         UserDto inviter,
         UserDto invited,

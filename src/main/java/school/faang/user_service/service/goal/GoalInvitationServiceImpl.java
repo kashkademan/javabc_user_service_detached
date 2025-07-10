@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationViewDto;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.goal.Goal;
@@ -56,13 +56,13 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
      *
      * @param goalId              идентификатор цели
      * @param invitationCreateDto данные для создания приглашения
-     * @return созданное приглашение в виде {@link GoalInvitationDto}
+     * @return созданное приглашение в виде {@link GoalInvitationViewDto}
      * @throws DataValidationException если пользователь пытается пригласить сам себя
      * @throws ForbiddenException      если нет прав на доступ к цели или пользователь уже состоит в ней
      */
     @Override
     @Transactional
-    public GoalInvitationDto create(long goalId, GoalInvitationCreateDto invitationCreateDto) {
+    public GoalInvitationViewDto create(long goalId, GoalInvitationCreateDto invitationCreateDto) {
         long inviterUserId = userContext.getUserId();
         long invitedUserId = invitationCreateDto.invitedUserId();
         if (invitedUserId == inviterUserId) {
@@ -84,7 +84,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         invitation.setGoal(goal);
         invitation.setStatus(RequestStatus.PENDING);
         invitation = goalInvitationRepository.save(invitation);
-        return goalInvitationMapper.toGoalInvitationDto(invitation);
+        return goalInvitationMapper.toViewDto(invitation);
     }
 
     /**
@@ -156,11 +156,11 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
 
     @Override
     @Transactional
-    public List<GoalInvitationDto> getByFilters(GoalInvitationFilterDto dto) {
+    public List<GoalInvitationViewDto> getByFilters(GoalInvitationFilterDto dto) {
         List<GoalInvitation> goalInvitations = goalInvitationRepository.findAll();
         goalInvitations = filterService.getFilteredList(goalInvitations, dto);
         return goalInvitations.stream()
-                .map(goalInvitationMapper::toGoalInvitationDto)
+                .map(goalInvitationMapper::toViewDto)
                 .toList();
     }
 }

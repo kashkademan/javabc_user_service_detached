@@ -1,7 +1,7 @@
 package school.faang.user_service.service.goal;
 
 import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationViewDto;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 
 import java.util.List;
@@ -21,9 +21,9 @@ public interface GoalInvitationService {
      *
      * @param goalId        идентификатор цели
      * @param invitationCreateDto данные для создания приглашения
-     * @return созданный объект {@link GoalInvitationDto}
+     * @return созданный объект {@link GoalInvitationViewDto}
      */
-    GoalInvitationDto create(long goalId, GoalInvitationCreateDto invitationCreateDto);
+    GoalInvitationViewDto create(long goalId, GoalInvitationCreateDto invitationCreateDto);
 
     /**
      * Принимает приглашение по его идентификатору.
@@ -43,7 +43,7 @@ public interface GoalInvitationService {
      * Получает список приглашений, отфильтрованных по заданным критериям.
      *
      * @param filters параметры фильтрации
-     * @return список подходящих приглашений в виде {@link GoalInvitationDto}
+     * @return список подходящих приглашений в виде {@link GoalInvitationViewDto}
      */
-    List<GoalInvitationDto> getByFilters(GoalInvitationFilterDto filters);
+    List<GoalInvitationViewDto> getByFilters(GoalInvitationFilterDto filters);
 }
