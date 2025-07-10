@@ -44,4 +44,5 @@ user:
 recommendation:
   request:
     once-every:
-      months: 6
+      quantity: 6
+      period: MONTHS

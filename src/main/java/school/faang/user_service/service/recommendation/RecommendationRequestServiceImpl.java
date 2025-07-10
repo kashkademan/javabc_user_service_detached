@@ -19,6 +19,8 @@ import school.faang.user_service.repository.recommendation.RecommendationRequest
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -28,14 +30,17 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
-    @Value("${recommendation.request.once-every.months}")
-    private int onceEveryMonths;
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final UserRepository userRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserContext userContext;
     private final SkillRequestRepository skillRequestRepository;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
+
+    @Value("${recommendation.request.once-every.quantity:6}")
+    private int quantity;
+    @Value("${recommendation.request.once-every.period:MONTHS}")
+    private ChronoUnit period;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -46,9 +51,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .findLatestPendingRequest(requesterId, receiverId);
 
         if (latestPendingRequest.isPresent() && latestPendingRequest.get().getCreatedAt()
-                .plusMonths(onceEveryMonths).isAfter(recommendationDto.createdAt())) {
+                .plus(quantity, period).isAfter(LocalDateTime.now())) {
             throw new DataValidationException("You can send recommendation request once every "
-                    + onceEveryMonths + " months!");
+                    + quantity + " " + period.toString().toLowerCase());
         }
 
         if (requesterId == receiverId) {
@@ -62,8 +67,10 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        for (long skillId : recommendationDto.skillIds()) {
-            skillRequestRepository.create(recommendationRequest.getId(), skillId);
+        if (!recommendationDto.skillIds().isEmpty()) {
+            for (long skillId : recommendationDto.skillIds()) {
+                skillRequestRepository.create(recommendationRequest.getId(), skillId);
+            }
         }
 
         log.info("Recommendation request created: {}", recommendationRequest.getId());
