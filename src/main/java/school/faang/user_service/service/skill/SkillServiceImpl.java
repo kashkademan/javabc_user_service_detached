@@ -42,12 +42,10 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public List<SkillDto> getByUserId(Long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
+        if (skills.isEmpty()) {
+            throw new EntityNotFoundException("No skills found for user with id " + userId);
+        }
         return skills.stream()
-                .peek(skill -> {
-                    if (skill == null) {
-                        throw new EntityNotFoundException("Skill with id " + userId + " not found");
-                    }
-                })
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .toList();
     }
@@ -55,12 +53,10 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
+        if (skills.isEmpty()) {
+            throw new EntityNotFoundException("No offered skills found for user with id " + userId);
+        }
         return skills.stream()
-                .peek(skill -> {
-                    if (skill == null) {
-                        throw new EntityNotFoundException("Skill with id " + userId + " not found");
-                    }
-                })
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .map(skill -> {
                     int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.id(), userId);
@@ -72,6 +68,15 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public void acquireSkillFromOffers(long skillId, long userId) {
-        skillRepository.assignSkillToUser(skillId, userId);
+        log.info("Пользователь с id {} хочет приобрести скилл с id {}", userId, skillId);
+        if (!skillRepository.existsById(skillId)) {
+            throw new EntityNotFoundException("Skill with id " + skillId + " not found");
+        }
+        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= 3) {
+            skillRepository.assignSkillToUser(skillId, userId);
+        } else {
+            throw new IllegalStateException("Требуется не менее трех предложений скилла для его приобретения");
+        }
+
     }
 }

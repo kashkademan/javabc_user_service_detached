@@ -39,5 +39,10 @@ public class SkillController {
         return skillService.getOfferedSkills(userContext.getUserId());
     }
 
+    @PostMapping("/skill/acquire")
+    public void acquireSkillFromOffers(@Validated @NotNull long skillId) {
+        skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
+    }
+
 
 }
