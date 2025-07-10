@@ -1,6 +1,6 @@
 INSERT INTO promotion_tariff (id, price, name, currency, count_view, duration_days, coefficient_priority)
 OVERRIDING SYSTEM VALUE
-VALUES (101, 99.99, 'База', 'RUB', 1000, 7, 1);
+VALUES (101, 99.99, 'База', 'RUB', 1000, 7, 10);
 
 INSERT INTO promotion_tariff (id, price, name, currency, count_view, duration_days, coefficient_priority)
 OVERRIDING SYSTEM VALUE
@@ -8,7 +8,7 @@ VALUES (102, 499.99, 'Комфорт', 'RUB', 10000, 30, 5);
 
 INSERT INTO promotion_tariff (id, price, name, currency, count_view, duration_days, coefficient_priority)
 OVERRIDING SYSTEM VALUE
-VALUES (103, 999.99, 'Легенда','RUB', 50000, 90, 10);
+VALUES (103, 999.99, 'Легенда','RUB', 50000, 90, 1);
 
 INSERT INTO promotion_tariff (id, price, name, currency, count_view, duration_days, coefficient_priority, deleted, deleted_at)
 OVERRIDING SYSTEM VALUE

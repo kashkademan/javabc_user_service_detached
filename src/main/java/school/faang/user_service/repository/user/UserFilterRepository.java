@@ -4,12 +4,17 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.country.Country;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.promotion.PromotionStatus;
+import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.model.user.UserFilter;
 
@@ -26,7 +31,12 @@ public class UserFilterRepository {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<User> user = query.from(User.class);
 
-        Join<User, Country> countryJoin = user.join("country", JoinType.LEFT);
+        Join<User, Country> countryJoin = user.join("country", JoinType.INNER);
+
+        Join<Event, Promotion> promotionJoin = user.join("promotions", JoinType.LEFT);
+        promotionJoin.on(cb.equal(promotionJoin.get("status"), PromotionStatus.ACTIVE));
+
+        Join<Promotion, PromotionTariff> promotionTariffJoin = promotionJoin.join("tariff", JoinType.LEFT);
 
         UserFilterRepository.PredicateBuilder builder = new UserFilterRepository.PredicateBuilder(user);
         builder
@@ -47,6 +57,13 @@ public class UserFilterRepository {
 
         query.select(user.get("id"));
         query.where(builder.build());
+
+        Expression<Integer> priority = cb.coalesce(
+                promotionTariffJoin.get("coefficientPriority"),
+                Integer.MAX_VALUE
+        );
+
+        query.orderBy(cb.asc(priority));
 
         return entityManager.createQuery(query).getResultList();
     }

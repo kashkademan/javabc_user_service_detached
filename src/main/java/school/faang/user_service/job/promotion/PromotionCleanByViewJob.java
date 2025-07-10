@@ -10,24 +10,24 @@ import school.faang.user_service.service.promotion.PromotionService;
 
 import java.util.List;
 
-@Component
-@Slf4j
-@RequiredArgsConstructor
-public class PromotionCleanByViewJob {
-    private final PromotionService promotionService;
-    private final PromotionRedisService promotionRedisService;
-
-    @Scheduled(cron = "${jobs.promotion.close.view.cron}")
-    public void cleanupDeletedPromotionsByView() {
-        log.info("Job promotion clean by view started");
-        List<PromotionRedisModel> promotions = promotionRedisService.getAllPromotions();
-        promotions.forEach(promotion -> {
-            if (promotion.getCountView() <= 0) {
-                promotionRedisService.deletePromotionByKey(promotion.getKey());
-                promotionService.finishPromotionByView(promotion.getId());
-                log.debug("Job promotion clean finished promotion by view with id {} on views", promotion.getId());
-            }
-        });
-        log.info("Job promotion clean by view finished");
-    }
-}
+//@Component
+//@Slf4j
+//@RequiredArgsConstructor
+//public class PromotionCleanByViewJob {
+//    private final PromotionService promotionService;
+//    private final PromotionRedisService promotionRedisService;
+//
+//    @Scheduled(cron = "${jobs.promotion.close.view.cron}")
+//    public void cleanupDeletedPromotionsByView() {
+//        log.info("Job promotion clean by view started");
+//        List<PromotionRedisModel> promotions = promotionRedisService.getAllPromotions();
+//        promotions.forEach(promotion -> {
+//            if (promotion.getCountView() <= 0) {
+//                promotionRedisService.deletePromotionByKey(promotion.getKey());
+//                promotionService.finishPromotionByView(promotion.getId());
+//                log.debug("Job promotion clean finished promotion by view with id {} on views", promotion.getId());
+//            }
+//        });
+//        log.info("Job promotion clean by view finished");
+//    }
+//}

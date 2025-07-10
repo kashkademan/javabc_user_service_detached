@@ -107,6 +107,7 @@ public class PromotionService {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_VIEW);
+        promotion.setCountView(0);
         promotionRepository.save(promotion);
         log.info("Promotion with id {} finished by view", promotionId);
     }
@@ -116,11 +117,11 @@ public class PromotionService {
         Promotion promotion = getPromotionById(promotionId);
 
         promotion.setStatus(FINISHED_TIME);
+        promotion.setCountView(0);
         promotionRepository.save(promotion);
         log.info("Promotion with id {} finished by time", promotionId);
     }
 
-    // TODO: тесты
     @Transactional(readOnly = true)
     public List<Promotion> getAllActivePromotion(PromotionType type) {
         return promotionRepository.findAllByTypeAndStatus(type, ACTIVE);
