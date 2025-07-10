@@ -1,4 +1,4 @@
-package school.faang.user_service.service.event;
+package school.faang.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +14,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.event.EventParticipationServiceImpl;
 
 import java.util.List;
 
