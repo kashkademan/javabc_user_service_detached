@@ -12,6 +12,8 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     boolean existsByTitle(String title);
 
+    boolean existsById(@SuppressWarnings("null") Long skillId);
+
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (?1)")
     int countExisting(List<Long> ids);
 

@@ -5,7 +5,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-import io.swagger.v3.oas.models.info.Contact;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.csv.StudentCsvDto;
 import school.faang.user_service.entity.Education;

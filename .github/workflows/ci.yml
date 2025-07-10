@@ -19,5 +19,5 @@ jobs:
           distribution: 'corretto'
           java-version: 17
 
-      - name: Run Gradle Test
-        run: ./gradlew build --stacktrace
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon --stacktrace --info
