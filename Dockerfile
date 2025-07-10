@@ -1,8 +1,7 @@
+# syntax=docker/dockerfile:1
 FROM openjdk:17-jdk-slim-buster
 WORKDIR /app
+COPY /build/libs/service.jar /app/user-service.jar
 
-COPY /build/libs/service.jar build/
-
-WORKDIR /app/build
 EXPOSE 8080
-ENTRYPOINT java -jar service.jar
+ENTRYPOINT ["java", "-jar", "user-service.jar", "--spring.profiles.active=prod"]
