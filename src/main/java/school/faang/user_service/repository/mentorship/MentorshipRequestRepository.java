@@ -27,5 +27,6 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
     Optional<MentorshipRequest> findTopByRequesterIdOrderByCreatedAtDesc(long requesterId);
 
     boolean existsByReceiverIdAndRequesterIdAndStatus(Long receiverId, Long requesterId, RequestStatus status);
+
     boolean existsByRequesterIdAndReceiverIdAndStatus(long requesterId, long receiverId, RequestStatus status);
 }
