@@ -60,3 +60,9 @@ kafka:
     ssl.truststore.password: password
 
 dice-bear-api: "https://api.dicebear.com/9.x/pixel-art/svg"
+
+
+event:
+  removal:
+    cron: "0 0 2 * * *"
+    batch-size: 100
