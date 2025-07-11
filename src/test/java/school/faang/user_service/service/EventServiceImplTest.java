@@ -19,16 +19,13 @@ import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
-import school.faang.user_service.service.filter.EventFilter;
+import school.faang.user_service.service.filter.event.EventFilterServiceImpl;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,15 +34,13 @@ public class EventServiceImplTest {
     @Mock
     private UserContext userContext;
     @Mock
+    private EventFilterServiceImpl eventFilterService;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private EventRepository eventRepository;
     @Mock
     private EventMapper eventMapper;
-    @Mock
-    private EventFilter filter1;
-    @Mock
-    private EventFilter filter2;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -53,71 +48,68 @@ public class EventServiceImplTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        eventService = new EventServiceImpl(eventRepository, userRepository,
-                eventMapper, userContext, List.of(filter1, filter2));
+        eventService = new EventServiceImpl(eventRepository,
+                userRepository,
+                eventMapper,
+                userContext,
+                eventFilterService);
     }
 
     @Test
-    @DisplayName("Применяются только подходящие фильтры, результат корректно отфильтрован")
-    void testGetList_withApplicableFilter() {
+    @DisplayName("Фильтрация событий через EventFilterServiceImpl работает корректно")
+    void testGetList_withFilterService() {
         EventFilterDto dto = new EventFilterDto();
 
         Event event1 = new Event();
         Event event2 = new Event();
         List<Event> allEvents = List.of(event1, event2);
+        List<Event> filteredEvents = List.of(event1);
 
         when(eventRepository.findAll()).thenReturn(allEvents);
+        when(eventFilterService.getFilteredList(allEvents, dto)).thenReturn(filteredEvents);
 
-        when(filter1.isApplicable(dto)).thenReturn(true);
-        when(filter1.filter(any(Stream.class), eq(dto))).thenAnswer(invocation -> {
-            Stream<Event> stream = invocation.getArgument(0);
-            return stream.filter(e -> e == event1);
-        });
-
-        when(filter2.isApplicable(dto)).thenReturn(true);
-        when(filter2.filter(any(Stream.class), eq(dto))).thenAnswer(invocation -> {
-            Stream<Event> stream = invocation.getArgument(0);
-            return stream;
-        });
-
-        when(eventMapper.toViewDto(event1)).thenReturn(new EventViewDto());
-        when(eventMapper.toViewDto(event2)).thenReturn(new EventViewDto());
+        EventViewDto dto1 = new EventViewDto();
+        when(eventMapper.toViewDto(event1)).thenReturn(dto1);
 
         List<EventViewDto> result = eventService.getList(dto);
 
         assertEquals(1, result.size());
+        assertEquals(dto1, result.get(0));
 
-        verify(filter1).isApplicable(dto);
-        verify(filter2).isApplicable(dto);
-        verify(filter1).filter(any(Stream.class), eq(dto));
-        verify(filter2).filter(any(Stream.class), eq(dto));
+        verify(eventRepository).findAll();
+        verify(eventFilterService).getFilteredList(allEvents, dto);
+        verify(eventMapper).toViewDto(event1);
     }
 
     @Test
-    @DisplayName("Если фильтры неприменимы — возвращается полный список без фильтрации")
-    void testGetList_noApplicableFilter() {
-        EventFilterDto dto = new EventFilterDto();
+    @DisplayName("Если фильтры ничего не отфильтровали — возвращается весь список")
+    void testGetList_noFilteringApplied_returnsAllEvents() {
+        final EventFilterDto dto = new EventFilterDto();
 
         Event event1 = new Event();
+        event1.setId(1L);
         Event event2 = new Event();
+        event2.setId(2L);
         List<Event> allEvents = List.of(event1, event2);
+        List<Event> filteredEvents = allEvents;
+
+        EventViewDto dto1 = new EventViewDto();
+        EventViewDto dto2 = new EventViewDto();
 
         when(eventRepository.findAll()).thenReturn(allEvents);
-
-        when(filter1.isApplicable(dto)).thenReturn(false);
-        when(filter2.isApplicable(dto)).thenReturn(false);
-
-        when(eventMapper.toViewDto(event1)).thenReturn(new EventViewDto());
+        when(eventFilterService.getFilteredList(allEvents, dto)).thenReturn(filteredEvents);
+        when(eventMapper.toViewDto(event1)).thenReturn(dto1);
+        when(eventMapper.toViewDto(event2)).thenReturn(dto2);
 
         List<EventViewDto> result = eventService.getList(dto);
 
         assertEquals(2, result.size());
+        assertEquals(List.of(dto1, dto2), result);
 
-        verify(filter1).isApplicable(dto);
-        verify(filter2).isApplicable(dto);
-
-        verify(filter1, never()).filter(any(), any());
-        verify(filter2, never()).filter(any(), any());
+        verify(eventRepository).findAll();
+        verify(eventFilterService).getFilteredList(allEvents, dto);
+        verify(eventMapper).toViewDto(event1);
+        verify(eventMapper).toViewDto(event2);
     }
 
     @Test

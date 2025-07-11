@@ -17,7 +17,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.FilterService;
+import school.faang.user_service.service.filter.FilterService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,7 +163,7 @@ public class GoalServiceImpl implements GoalService {
     public List<GoalDto> getByFilters(GoalFilterDto filterDto) {
         long currentUserId = userContext.getUserId();
         List<Goal> goals = goalRepository.findGoalsByUserId(currentUserId).toList();
-        goals = filterService.toList(goals, filterDto);
+        goals = filterService.getFilteredList(goals, filterDto);
         return goals.stream()
                 .map(goalMapper::toGoalDto)
                 .toList();

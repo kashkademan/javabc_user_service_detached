@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
@@ -16,15 +17,13 @@ import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
-import school.faang.user_service.service.filter.EventFilter;
+import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,29 +37,28 @@ public class EventServiceImplSpyTest {
     private EventMapper eventMapper;
     @Mock
     private UserContext userContext;
-    @Mock
-    private EventFilter filter1;
-    @Mock
-    private EventFilter filter2;
 
     private EventServiceImpl eventService;
+
+    @Mock
+    private FilterService<Event, EventFilterDto> filterService;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        eventService = spy(new EventServiceImpl(
+        eventService = new EventServiceImpl(
                 eventRepository,
                 userRepository,
                 eventMapper,
                 userContext,
-                List.of(filter1, filter2)
-        ));
+                filterService
+        );
     }
 
     @Test
-    @DisplayName("Update вызывает validateOwnerSkills и обновляет событие")
-    void testUpdate_callsValidateOwnerSkills() {
+    @DisplayName("Update обновляет событие и возвращает viewDto")
+    void testUpdate_successfulUpdate() {
         long userId = 1L;
         long eventId = 10L;
 
@@ -74,22 +72,26 @@ public class EventServiceImplSpyTest {
         Event event = new Event();
         event.setId(eventId);
         event.setOwner(owner);
+        event.setRelatedSkills(List.of(new Skill() {{
+                setId(1L);
+            }}
+        ));
 
         EventUpdateDto updateDto = new EventUpdateDto();
+        EventViewDto expectedDto = new EventViewDto();
 
         when(userContext.getUserId()).thenReturn(userId);
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(event);
-        doNothing().when(eventService).validateOwnerSkills(event);
         when(eventRepository.save(event)).thenReturn(event);
-        when(eventMapper.toViewDto(event)).thenReturn(new EventViewDto());
+        when(eventMapper.toViewDto(event)).thenReturn(expectedDto);
 
-        final EventViewDto result = eventService.update(eventId, updateDto);
+        doNothing().when(eventMapper).update(updateDto, event);
 
-        verify(eventService).validateOwnerSkills(event);
+        EventViewDto result = eventService.update(eventId, updateDto);
+
         verify(eventMapper).update(updateDto, event);
         verify(eventRepository).save(event);
-
-        assertNotNull(result);
+        assertEquals(expectedDto, result);
     }
 
     @Test
