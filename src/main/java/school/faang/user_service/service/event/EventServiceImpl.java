@@ -17,10 +17,9 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.filter.EventFilter;
+import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -30,7 +29,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final UserContext userContext;
-    private final List<EventFilter> filters;
+    private final FilterService<Event, EventFilterDto> filterService;
 
     @Override
     @Transactional
@@ -71,15 +70,9 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public List<EventViewDto> getList(EventFilterDto dto) {
-        Stream<Event> stream = eventRepository.findAll().stream();
-
-        for (EventFilter filter : filters) {
-            if (filter.isApplicable(dto)) {
-                stream = filter.filter(stream, dto);
-            }
-        }
-
-        return stream
+        List<Event> events = eventRepository.findAll();
+        events = filterService.getFilteredList(events, dto);
+        return events.stream()
                 .map(eventMapper::toViewDto)
                 .toList();
     }
