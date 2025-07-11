@@ -9,8 +9,6 @@ import school.faang.user_service.entity.user.MentorshipRequest;
 @Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface MentorshipRequestMapper {
 
-    @Mapping(source = "requester", target = "requester")
-    @Mapping(source = "receiver", target = "receiver")
     MentorshipRequestDto toMentorshipRequestDto(MentorshipRequest mentorshipRequest);
 
     @Mapping(target = "id", ignore = true)

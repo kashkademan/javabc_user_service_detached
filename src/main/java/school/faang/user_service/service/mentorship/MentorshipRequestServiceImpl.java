@@ -38,7 +38,6 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserContext userContext;
     private final UserRepository userRepository;
 
-
     @Override
     public MentorshipRequestDto create(CreateMentorshipRequestDto mentorshipRequestDto) {
         long requesterId = userContext.getUserId();
@@ -103,64 +102,35 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
             filtered = filtered.filter(r
                     -> filterDto.getRequesterId().equals(r.getRequester().getId()));
         }
-
         if (filterDto.getReceiverId() != null) {
             filtered = filtered.filter(r -> filterDto.getReceiverId().equals(r.getReceiver().getId()));
         }
-
         if (filterDto.getStatus() != null) {
             filtered = filtered.filter(r -> r.getStatus() == filterDto.getStatus());
         }
-
         return filtered
                 .map(mentorshipRequestMapper::toMentorshipRequestDto)
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public void accept(long requestId) {
-        Long currentUserId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
+        MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
 
-        MentorshipRequest request = mentorshipRequestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден"));
-
-        if (request.getStatus() != RequestStatus.PENDING) {
-            throw new DataValidationException("Принять можно только запросы со статусом PENDING");
-        }
-
-        if (!request.getReceiver().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Вы не можете принять запрос, адресованный не вам");
-        }
-
-        if (mentorshipRequestRepository.existsByReceiverIdAndRequesterIdAndStatus(
-                currentUserId, request.getRequester().getId(), RequestStatus.ACCEPTED)) {
+        if (isAlreadyMentor(currentUserId, request.getRequester().getId())) {
             throw new DataValidationException("Вы уже являетесь ментором для этого пользователя");
         }
-
-        request.setStatus(RequestStatus.ACCEPTED);
-        mentorshipRequestRepository.save(request);
 
         request.setStatus(RequestStatus.ACCEPTED);
         mentorshipRequestRepository.save(request);
         log.info("Пользователь {} принял запрос на менторство от {}", currentUserId, request.getRequester().getId());
     }
 
-
     @Override
     public void reject(long requestId, RejectionDto rejectionDto) {
-        Long currentUserId = userContext.getUserId();
-
-        MentorshipRequest request = mentorshipRequestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден"));
-
-        if (request.getStatus() != RequestStatus.PENDING) {
-            throw new DataValidationException("Отклонить можно только запросы со статусом PENDING");
-        }
-
-        if (!request.getReceiver().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Вы не можете отклонить запрос, адресованный не вам");
-        }
+        long currentUserId = userContext.getUserId();
+        MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
 
         if (rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
             throw new DataValidationException("Причина отказа должна быть указана");
@@ -168,9 +138,23 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
-
         mentorshipRequestRepository.save(request);
         log.info("Пользователь {} отклонил запрос от {}. Причина: {}",
                 currentUserId, request.getRequester().getId(), rejectionDto.getReason());
     }
+
+    private MentorshipRequest validateRequestIsPendingAndReceiver(long requestId, long currentUserId) {
+        MentorshipRequest request = mentorshipRequestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден"));
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new DataValidationException("Операции доступны только для запросов со статусом PENDING");
+        }
+
+        if (!request.getReceiver().getId().equals(currentUserId)) {
+            throw new ForbiddenException("Вы не можете обработать запрос, адресованный не вам");
+        }
+        return request;
+    }
 }
+

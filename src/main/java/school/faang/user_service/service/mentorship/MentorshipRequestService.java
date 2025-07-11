@@ -16,12 +16,14 @@ import java.util.List;
  */
 public interface MentorshipRequestService {
 
-    /// Создаёт новый запрос на менторство от текущего пользователя к указанному ментору.
-    ///
-    /// @param mentorshipRequestDto данные запроса, включая ID ментора и описание
-    /// @return DTO созданного запроса
-    /// @throws DataValidationException если пользователь пытается отправить запрос самому себе
-    ///                                 или если уже существует активный запрос
+    /**
+     * Создаёт новый запрос на менторство от текущего пользователя к указанному ментору.
+     *
+     * @param mentorshipRequestDto данные запроса, включая ID ментора и описание
+     * @return DTO созданного запроса
+     * @throws DataValidationException если пользователь пытается отправить запрос самому себе
+     *                                 или если уже существует активный запрос
+     */
     MentorshipRequestDto create(CreateMentorshipRequestDto mentorshipRequestDto);
 
     /**
