@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.goal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,9 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapperImpl;
@@ -26,10 +29,16 @@ import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -43,31 +52,33 @@ class GoalControllerTest {
     private UserContext userContext;
     @Autowired
     private ObjectMapper objMapper;
-    @Spy
-    private GoalMapperImpl goalMapper;
 
+    private static GoalDto defRespBody;
 
-    static Stream<Arguments> provideCreateParams() {
-        var deadline = LocalDateTime.now().plusDays(1);
-        var reqBody = new GoalCreateDto(
-                null,
-                "Spring boot test",
-                "Use @SpringBootTest for test",
-                deadline,
-                null,
-                List.of(1L, 2L, 3L)
-        );
-        var respBody = new GoalDto(
+    @BeforeAll
+    static void setUp() {
+        defRespBody = new GoalDto(
                 1L,
                 null,
                 "Spring boot test",
                 "Use @SpringBootTest for test",
                 GoalStatus.ACTIVE,
-                deadline,
+                LocalDateTime.now().plusDays(1),
                 null,
                 List.of(1L, 2L, 3L)
         );
-        return Stream.of(Arguments.of(reqBody, respBody));
+    }
+
+    static Stream<Arguments> provideCreateParams() {
+        var reqBody = new GoalCreateDto(
+                defRespBody.parentId(),
+                defRespBody.title(),
+                defRespBody.description(),
+                defRespBody.deadline(),
+                defRespBody.mentorId(),
+                defRespBody.userIds()
+        );
+        return Stream.of(Arguments.of(reqBody, defRespBody));
     }
 
     @ParameterizedTest
@@ -109,7 +120,7 @@ class GoalControllerTest {
     @ParameterizedTest
     @MethodSource("provideUpdateParams")
     @DisplayName("update goal - success case")
-    void update(long goalId, GoalUpdateDto reqDto, GoalDto respBody) throws Exception {
+    void update_success(long goalId, GoalUpdateDto reqDto, GoalDto respBody) throws Exception {
         when(goalService.update(eq(goalId), any(GoalUpdateDto.class)))
                 .thenReturn(respBody);
         mockMvc.perform(put("/goals/" + goalId)
@@ -119,15 +130,53 @@ class GoalControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void getById() {
+    static Stream<Arguments> provideGetByIdParams() {
+        var goalId = defRespBody.id();
+        return Stream.of(Arguments.of(goalId, defRespBody));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideGetByIdParams")
+    @DisplayName("get goal by id - success case")
+    void getById_success(long goalId, GoalDto respBody) throws Exception {
+        when(goalService.getById(eq(goalId)))
+                .thenReturn(respBody);
+        mockMvc.perform(get("/goals/" + goalId))
+                .andExpect(content().json(objMapper.writeValueAsString(respBody)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void delete() {
+    @DisplayName("success ")
+    void delete_success() throws Exception {
+        var goalId = 1L;
+        doNothing().when(goalService).delete(eq(goalId));
+        mockMvc.perform(delete("/goals/" + goalId))
+                .andExpect(jsonPath("$").doesNotExist())
+                .andExpect(status().isOk());
+        verify(goalService, times(1)).delete(goalId);
     }
 
-    @Test
-    void getList() {
+    static Stream<Arguments> provideGetListParams() {
+        var reqBody = new GoalFilterDto(
+                "Spring",
+                null,
+                null,
+                null
+        );
+        return Stream.of(Arguments.of(reqBody, List.of(defRespBody)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideGetListParams")
+    @DisplayName("get List - success case")
+    void getList_success(GoalFilterDto reqBody, List<GoalDto> respBody) throws Exception {
+        when(goalService.getByFilters(any(GoalFilterDto.class)))
+                .thenReturn(respBody);
+        mockMvc.perform(get("/goals/search")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .content(objMapper.writeValueAsString(reqBody)))
+                .andExpect(content().json(objMapper.writeValueAsString(respBody)))
+                .andExpect(status().isOk());
     }
 }
