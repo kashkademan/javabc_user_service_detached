@@ -8,7 +8,7 @@ import school.faang.user_service.service.event.EventService;
 
 import static org.mockito.Mockito.*;
 
-class EventSchedulerTest {
+class EventScheduleTest {
 
     private EventScheduler eventScheduler;
     private EventService eventService;
