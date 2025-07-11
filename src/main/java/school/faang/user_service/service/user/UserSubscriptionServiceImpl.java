@@ -55,22 +55,21 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public CountResponse getFollowersCount(long followeeId) {
         long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
         return new CountResponse(count);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public CountResponse getFolloweesCount(long followerId) {
-        CountResponse countResponse = new CountResponse(
-                subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
-        return countResponse;
+        long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+        return new CountResponse(count);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowers(long followeeId) {
         log.info("Get followers");
         return subscriptionRepository.findByFolloweeId(followeeId)
@@ -79,7 +78,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowees(long followerId) {
         log.info("Get followees");
         return subscriptionRepository.findByFollowerId(followerId)
