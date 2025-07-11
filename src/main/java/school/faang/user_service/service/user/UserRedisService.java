@@ -8,7 +8,7 @@ import school.faang.user_service.config.redis.RedisTtlProperties;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.user.UserRedisMapper;
 import school.faang.user_service.model.redis.user.UserRedisModel;
-import school.faang.user_service.redis.UserRedisRepository;
+import school.faang.user_service.repository.user.UserRedisRepository;
 import school.faang.user_service.utils.redis.RedisKeyUtil;
 
 import java.util.Optional;
