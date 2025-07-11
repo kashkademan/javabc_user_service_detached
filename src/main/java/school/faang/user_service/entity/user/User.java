@@ -45,6 +45,11 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
+    public User(Long id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
