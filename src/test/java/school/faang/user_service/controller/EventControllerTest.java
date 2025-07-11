@@ -7,14 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import school.faang.user_service.PostgresContainerConfiguration;
-import school.faang.user_service.UserServiceApplication;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.controller.event.EventController;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
@@ -33,9 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(PostgresContainerConfiguration.class)
-@SpringBootTest(classes = UserServiceApplication.class)
-@AutoConfigureMockMvc
+@WebMvcTest(EventController.class)
 public class EventControllerTest {
 
     @Autowired
@@ -43,6 +39,9 @@ public class EventControllerTest {
 
     @MockBean
     private EventService eventService;
+
+    @MockBean
+    private UserContext userContext;
 
     @Autowired
     private ObjectMapper objectMapper;
