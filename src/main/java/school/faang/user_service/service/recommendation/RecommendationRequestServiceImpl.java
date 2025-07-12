@@ -49,7 +49,6 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         checkBusinessRequirements(requesterId, dto);
 
         RecommendationRequest request = buildRecommendationRequest(dto, requester, receiver);
-        request = requestRepository.save(request);
 
         log.info("Recommendation request created successfully. ID: {}", request.getId());
         return mapper.toDto(request);
