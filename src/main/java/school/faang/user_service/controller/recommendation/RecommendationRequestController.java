@@ -2,7 +2,7 @@ package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -12,7 +12,7 @@ import school.faang.user_service.service.recommendation.RecommendationRequestSer
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
