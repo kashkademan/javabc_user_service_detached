@@ -2,6 +2,8 @@ package school.faang.user_service.controller.skill;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,25 +30,37 @@ public class SkillController {
     private final SkillControllerValidator skillControllerValidator;
 
     @PostMapping
-    public SkillDto create(@Valid @RequestBody CreateSkillDto skillDto) {
+    public ResponseEntity<SkillDto> create(@Valid @RequestBody CreateSkillDto skillDto) {
         skillControllerValidator.validationParameters(skillDto);
-        return skillService.create(skillDto);
+        SkillDto createdSkill = skillService.create(skillDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdSkill);
     }
 
     @GetMapping("/user/{userId}")
-    public List<SkillDto> getByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<SkillDto>> getByUserId(@PathVariable Long userId) {
         skillControllerValidator.validationParameters(userId);
-        return skillService.getByUserId(userId);
+        List<SkillDto> skills = skillService.getByUserId(userId);
+        return skills.isEmpty()
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+                : ResponseEntity.ok(skills);
     }
 
     @GetMapping("/offered")
-    public List<SkillCandidateDto> getOfferedSkills() {
-        return skillService.getOfferedSkills(userContext.getUserId());
+    public ResponseEntity<List<SkillCandidateDto>> getOfferedSkills() {
+        List<SkillCandidateDto> skills = skillService.getOfferedSkills(userContext.getUserId());
+        return skills.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(skills);
     }
 
     @PutMapping("/acquire")
-    public void acquireSkillFromOffers(@RequestParam  long skillId) {
+    public ResponseEntity<Void> acquireSkillFromOffers(@RequestParam long skillId) {
         skillControllerValidator.validationParameters(skillId);
         skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }
