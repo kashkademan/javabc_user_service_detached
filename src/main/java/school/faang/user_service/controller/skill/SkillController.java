@@ -14,6 +14,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.skill.SkillService;
 
 import java.util.List;
@@ -24,14 +25,17 @@ import java.util.List;
 public class SkillController {
     private final SkillService skillService;
     private final UserContext userContext;
+    private final SkillControllerValidator skillControllerValidator;
 
     @PostMapping
     public SkillDto create(@Valid @RequestBody CreateSkillDto skillDto) {
+        skillControllerValidator.validationParameters(skillDto);
         return skillService.create(skillDto);
     }
 
     @GetMapping("/user/{userId}")
     public List<SkillDto> getByUserId(@PathVariable Long userId) {
+        skillControllerValidator.validationParameters(userId);
         return skillService.getByUserId(userId);
     }
 
@@ -42,6 +46,7 @@ public class SkillController {
 
     @PutMapping("/acquire")
     public void acquireSkillFromOffers(@RequestParam  long skillId) {
+        skillControllerValidator.validationParameters(skillId);
         skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
     }
 }
