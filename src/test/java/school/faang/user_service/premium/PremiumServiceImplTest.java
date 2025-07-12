@@ -17,10 +17,12 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.PremiumAlreadyExistsException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.premium.PremiumServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,6 +41,9 @@ class PremiumServiceImplTest {
     private PremiumRepository premiumRepository;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private PaymentServiceClient paymentServiceClient;
 
     @Mock
@@ -50,6 +55,9 @@ class PremiumServiceImplTest {
         long userId = 42L;
         PremiumPeriod period = PremiumPeriod.ONE_MONTH;
 
+        User user = User.builder().id(userId).build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(premiumRepository.existsByUserId(userId)).thenReturn(false);
 
         PaymentResponse response = new PaymentResponse(
@@ -60,10 +68,11 @@ class PremiumServiceImplTest {
                 Currency.USD,
                 "Payment completed successfully"
         );
+
         when(paymentServiceClient.sendPayment(any())).thenReturn(response);
 
         Premium premium = Premium.builder()
-                .user(User.builder().id(userId).build())
+                .user(user)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusDays(period.getDays()))
                 .build();
