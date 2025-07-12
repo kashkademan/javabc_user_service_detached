@@ -1,8 +1,11 @@
 package school.faang.user_service.controller.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
@@ -13,30 +16,26 @@ import school.faang.user_service.service.user.UserSubscriptionService;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
-    @Autowired
-    public UserSubscriptionController(UserSubscriptionService userSubscriptionService, UserContext userContext) {
-        this.userSubscriptionService = userSubscriptionService;
-        this.userContext = userContext;
-    }
-
-    @PostMapping("/follow")
+    @PostMapping("/Subscription")
     public void followUser(@RequestParam long followeeId) {
         long followerId = userContext.getUserId();
         userSubscriptionService.followUser(followerId, followeeId);
     }
 
-    @PostMapping("/unfollow")
-    public void unfollowUser(@RequestParam long followeeId) {
+    @PostMapping("/disclaimer")
+    public void unfollowUser(@Valid @RequestParam long followeeId) {
         long followerId = userContext.getUserId();
         userSubscriptionService.unfollowUser(followerId, followeeId);
     }
 
     @GetMapping("/followers/count")
-    public CountResponse getFollowersCount(@RequestParam long followeeId) {
+    public CountResponse getFollowersCount(@Valid @RequestParam long followeeId) {
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
@@ -47,12 +46,11 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/followers")
-    public List<UserDto> getFollowers(@RequestParam long followeeId) {
-        return getFollowers(followeeId);
+    public List<UserDto> getFollowers(@Valid @RequestParam long followeeId) { return getFollowers(followeeId);
     }
 
     @GetMapping("/followees")
-    public List<UserDto> getFollowees(@RequestParam long followerId) {
+    public List<UserDto> getFollowees(@Valid @RequestParam long followerId) {
         return getFollowees(followerId);
     }
 

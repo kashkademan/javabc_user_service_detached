@@ -1,39 +1,33 @@
 package school.faang.user_service.service.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
 
-    @Autowired
-    public UserSubscriptionServiceImpl(SubscriptionRepository subscriptionRepository, UserMapper userMapper) {
-        this.subscriptionRepository = subscriptionRepository;
-        this.userMapper = userMapper;
-    }
-
     @Override
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            log.warn("Пользователь попытался подписаться на самого себя.");
-            return;
+            throw new ForbiddenException("Пользователь попытался подписаться на самого себя.");
         }
 
-        boolean alreadyFollower = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-        if (alreadyFollower) {
-            log.warn("Пользователь уже подписан на этого пользователя");
-            return;
+        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new ForbiddenException("Пользователь уже подписан на этого пользователя");
         }
 
         subscriptionRepository.followUser(followerId, followeeId);
@@ -43,12 +37,11 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            log.warn("Пользователь не может отписаться от самого себя");
-            return;
+            throw new ForbiddenException("Пользователь не может отписаться от самого себя");
         }
-        boolean signed = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-        if (!signed) {
-            log.info("Пользователь не был подписан, чтобы отписаться");
+
+        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new ForbiddenException("Пользователь не подписывался, чтобы отписаться.");
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
         log.info("Вы отписались от пользователя");
@@ -63,7 +56,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public CountResponse getFolloweesCount(long followerId) {
         long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
-        log.info("Колучество подписчиков у пользователя {}", count);
+        log.info("Количество подписчиков у пользователя {}", count);
         return new CountResponse(count);
     }
 
