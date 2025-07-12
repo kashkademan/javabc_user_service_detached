@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.service.user.UserSubscriptionService;
 import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
 
 import java.util.List;
@@ -25,9 +24,9 @@ public class UserSubscriptionController {
 
     @PostMapping("/{followeeId}")
     public ResponseEntity<Void> followUser(@PathVariable Long followeeId) {
-            Long followerId = userContext.getUserId();
-            subscriptionService.followUser(followerId, followeeId);
-            return ResponseEntity.ok().build();
+        Long followerId = userContext.getUserId();
+        subscriptionService.followUser(followerId, followeeId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{followeeId}")
