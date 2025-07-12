@@ -8,7 +8,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 @Mapper(componentModel = "spring")
 public interface RecommendationRequestMapper {
 
-    RecommendationRequest toRecommendationRequest(CreateRecommendationRequestDto dto);
+    RecommendationRequest toEntity(CreateRecommendationRequestDto dto);
 
-    RecommendationRequestDto toRecommendationRequestDto(RecommendationRequest recommendationRequest);
+    RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
 }

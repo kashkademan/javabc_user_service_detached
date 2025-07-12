@@ -8,7 +8,7 @@ package school.faang.user_service.dto.recommendation;
  * в аннотации валидации
  * </p>*
  *
- * @author mazin
+ * @author Linempy
  * @since 08.07.2025
  */
 public class RecommendationRequestConstraints {

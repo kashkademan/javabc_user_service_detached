@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * не пусто значение поля {@code messageContains} у переданного DTO.
  * </p>*
  *
- * @author mazin
+ * @author Linempy
  * @since 08.07.2025
  */
 @Component

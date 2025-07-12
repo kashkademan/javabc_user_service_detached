@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  * Определяет контракт для реализации различных фильтров запросов рекомендации.
  * </p>
  *
- * @author mazin
+ * @author Linempy
  * @since 08.07.2025
  */
 public interface RecommendationRequestFilter {

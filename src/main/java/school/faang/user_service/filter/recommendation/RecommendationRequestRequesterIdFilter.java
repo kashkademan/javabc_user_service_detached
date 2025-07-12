@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * Фильтр применяется, когда значения поля DTO {@code requesterId} не null
  * </p>*
  *
- * @author mazin
+ * @author Linempy
  * @since 08.07.2025
  */
 @Component

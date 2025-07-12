@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * Применяется, когда значение поля DTO {@code status} не null
  * </p>*
  *
- * @author mazin
+ * @author Linempy
  * @since 08.07.2025
  */
 @Component
