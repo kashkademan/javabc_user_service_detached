@@ -10,6 +10,7 @@ import school.faang.user_service.exception.ForbiddenException;
  * Сервис для управления карьерной информацией пользователей.
  * <p>
  * Предоставляет методы для добавления, обновления и получения записей о карьере.
+ *
  * @author fomchenkoandrey
  */
 public interface CareerService {
