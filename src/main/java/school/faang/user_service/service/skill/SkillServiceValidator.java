@@ -1,6 +1,5 @@
 package school.faang.user_service.service.skill;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -15,8 +14,8 @@ public class SkillServiceValidator {
     SkillOfferRepository skillOfferRepository;
 
 
-    public void validateNotNull ( Object object, String string){
-        if (object==null){
+    public void validateNotNull(Object object, String string) {
+        if (object == null) {
             throw new DataValidationException(string);
         }
     }
@@ -27,8 +26,8 @@ public class SkillServiceValidator {
         }
     }
 
-    public void validationCountOfferOfSkill(long skillId, long userId,int countRecommendation) {
-        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < countRecommendation ) {
+    public void validationCountOfferOfSkill(long skillId, long userId, int countRecommendation) {
+        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < countRecommendation) {
             throw new ForbiddenException("Недостаточное колличество рекоммендаций навыка, добавление невозможно");
         }
     }

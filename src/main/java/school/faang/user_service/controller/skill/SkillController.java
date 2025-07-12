@@ -16,7 +16,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.skill.SkillService;
 
 import java.util.List;

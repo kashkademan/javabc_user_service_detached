@@ -63,7 +63,7 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void acquireSkillFromOffers(long skillId, long userId) {
-        skillServiceValidator.validationCountOfferOfSkill(skillId, userId,countOfSkillRecommendation);
+        skillServiceValidator.validationCountOfferOfSkill(skillId, userId, countOfSkillRecommendation);
         skillServiceValidator.validationSkillOfUser(skillId, userId);
         skillRepository.assignSkillToUser(skillId, userId);
     }

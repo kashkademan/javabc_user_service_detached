@@ -4,7 +4,7 @@ import school.faang.user_service.exception.DataValidationException;
 
 public class SkillControllerValidator {
 
-    public void validationParameters (Object object){
+    public void validationParameters(Object object) {
         if (object == null) {
             throw new DataValidationException("'%s' не может быть null".formatted(object));
         }
