@@ -1,7 +1,7 @@
 package school.faang.user_service.service.career;
 
-import school.faang.user_service.dto.career.CareerDto;
-import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.CareerViewDto;
+import school.faang.user_service.dto.career.CareerCreateDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -10,6 +10,7 @@ import school.faang.user_service.exception.ForbiddenException;
  * Сервис для управления карьерной информацией пользователей.
  * <p>
  * Предоставляет методы для добавления, обновления и получения записей о карьере.
+ * @author fomchenkoandrey
  */
 public interface CareerService {
 
@@ -24,10 +25,10 @@ public interface CareerService {
      * </ul>
      *
      * @param userId    идентификатор пользователя, добавляющего карьеру
-     * @param careerDto объект {@link CareerDto}, содержащий данные для создания записи
-     * @return объект {@link CareerDto}, представляющий созданную запись
+     * @param careerDto объект {@link CareerViewDto}, содержащий данные для создания записи
+     * @return объект {@link CareerViewDto}, представляющий созданную запись
      */
-    CareerDto addCareer(long userId, CreateCareerDto careerDto);
+    CareerViewDto career(long userId, CareerCreateDto careerDto);
 
     /**
      * Обновляет существующую запись о карьере пользователя.
@@ -43,10 +44,10 @@ public interface CareerService {
      *
      * @param userId    идентификатор пользователя, выполняющего обновление
      * @param careerId  идентификатор обновляемой записи
-     * @param careerDto объект {@link CareerDto}, содержащий обновлённые данные
-     * @return объект {@link CareerDto}, представляющий обновлённую запись
+     * @param careerDto объект {@link CareerViewDto}, содержащий обновлённые данные
+     * @return объект {@link CareerViewDto}, представляющий обновлённую запись
      */
-    CareerDto updateCareer(long userId, long careerId, UpdateCareerDto careerDto);
+    CareerViewDto updateCareer(long userId, long careerId, UpdateCareerDto careerDto);
 
     /**
      * Возвращает запись о карьере по её идентификатору.
@@ -57,7 +58,7 @@ public interface CareerService {
      * </ul>
      *
      * @param careerId идентификатор карьерной записи
-     * @return объект {@link CareerDto}, представляющий найденную запись
+     * @return объект {@link CareerViewDto}, представляющий найденную запись
      */
-    CareerDto getById(long careerId);
+    CareerViewDto getById(long careerId);
 }
