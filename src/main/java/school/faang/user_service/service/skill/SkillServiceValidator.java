@@ -1,5 +1,6 @@
 package school.faang.user_service.service.skill;
 
+import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -9,6 +10,7 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.Optional;
 
+@Service
 public class SkillServiceValidator {
     SkillRepository skillRepository;
     SkillOfferRepository skillOfferRepository;

@@ -1,7 +1,9 @@
 package school.faang.user_service.controller.skill;
 
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.exception.DataValidationException;
 
+@Controller
 public class SkillControllerValidator {
 
     public void validationParameters(Object object) {
