@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Service
 public class SkillServiceValidator {
-    SkillRepository skillRepository;
-    SkillOfferRepository skillOfferRepository;
+    SkillRepository repository;
+    SkillOfferRepository offerRepository;
 
 
     public void validateNotNull(Object object, String string) {
@@ -22,19 +22,19 @@ public class SkillServiceValidator {
     }
 
     public void validationByNameSkillInTheDataBase(String title) {
-        if (skillRepository.existsByTitle(title)) {
+        if (repository.existsByTitle(title)) {
             throw new EntityNotFoundException("Навык '%s' уже существует в базе".formatted(title));
         }
     }
 
-    public void validationCountOfferOfSkill(long skillId, long userId, int countRecommendation) {
-        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < countRecommendation) {
+    public void validationCountOfferOfSkill(Long skillId, Long userId, Integer countRecommendation) {
+        if (offerRepository.countAllOffersOfSkill(skillId, userId) < countRecommendation) {
             throw new ForbiddenException("Недостаточное колличество рекоммендаций навыка, добавление невозможно");
         }
     }
 
-    public void validationSkillOfUser(long skillId, long userId) {
-        Optional<Skill> optional = skillRepository.findUserSkill(skillId, userId);
+    public void validationSkillOfUser(Long skillId, Long userId) {
+        Optional<Skill> optional = repository.findUserSkill(skillId, userId);
         if (optional.isPresent()) {
             throw new ForbiddenException("Навык '%s' уже есть у пользователя".formatted(optional));
         }

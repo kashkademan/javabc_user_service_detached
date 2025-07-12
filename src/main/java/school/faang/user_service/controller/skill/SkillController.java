@@ -24,14 +24,14 @@ import java.util.List;
 @RequestMapping("/skills")
 @RequiredArgsConstructor
 public class SkillController {
-    private final SkillService skillService;
-    private final UserContext userContext;
-    private final SkillControllerValidator skillControllerValidator;
+    private final SkillService service;
+    private final UserContext context;
+    private final SkillControllerValidator controllerValidator;
 
     @PostMapping
     public ResponseEntity<SkillDto> create(@Valid @RequestBody CreateSkillDto skillDto) {
-        skillControllerValidator.validationParameters(skillDto);
-        SkillDto createdSkill = skillService.create(skillDto);
+        controllerValidator.validationParameters(skillDto);
+        SkillDto createdSkill = service.create(skillDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdSkill);
@@ -39,8 +39,8 @@ public class SkillController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SkillDto>> getByUserId(@PathVariable Long userId) {
-        skillControllerValidator.validationParameters(userId);
-        List<SkillDto> skills = skillService.getByUserId(userId);
+        controllerValidator.validationParameters(userId);
+        List<SkillDto> skills = service.getByUserId(userId);
         return skills.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
                 : ResponseEntity.ok(skills);
@@ -48,16 +48,16 @@ public class SkillController {
 
     @GetMapping("/offered")
     public ResponseEntity<List<SkillCandidateDto>> getOfferedSkills() {
-        List<SkillCandidateDto> skills = skillService.getOfferedSkills(userContext.getUserId());
+        List<SkillCandidateDto> skills = service.getOfferedSkills(context.getUserId());
         return skills.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(skills);
     }
 
     @PutMapping("/acquire")
-    public ResponseEntity<Void> acquireSkillFromOffers(@RequestParam long skillId) {
-        skillControllerValidator.validationParameters(skillId);
-        skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
+    public ResponseEntity<Void> acquireSkillFromOffers(@RequestParam Long skillId) {
+        controllerValidator.validationParameters(skillId);
+        service.acquireSkillFromOffers(skillId, context.getUserId());
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();

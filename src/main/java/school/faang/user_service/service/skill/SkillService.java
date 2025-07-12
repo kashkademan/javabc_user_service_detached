@@ -12,7 +12,7 @@ public interface SkillService {
 
     List<SkillDto> getByUserId(Long userId);
 
-    List<SkillCandidateDto> getOfferedSkills(long userId);
+    List<SkillCandidateDto> getOfferedSkills(Long userId);
 
-    void acquireSkillFromOffers(long skillId, long userId);
+    void acquireSkillFromOffers(Long skillId, Long userId);
 }

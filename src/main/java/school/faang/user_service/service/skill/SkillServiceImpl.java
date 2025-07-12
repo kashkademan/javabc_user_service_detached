@@ -23,48 +23,48 @@ public class SkillServiceImpl implements SkillService {
     @Value("${skill.count-recommendation.min-length}")
     private static int countOfSkillRecommendation;
 
-    private final SkillRepository skillRepository;
-    private final SkillMapper skillMapper;
-    private final SkillOfferRepository skillOfferRepository;
-    private final SkillServiceValidator skillServiceValidator;
+    private final SkillRepository repository;
+    private final SkillMapper mapper;
+    private final SkillOfferRepository offerRepository;
+    private final SkillServiceValidator serviceValidator;
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
-        skillServiceValidator.validationByNameSkillInTheDataBase(skillDto.title());
-        Skill skill = skillMapper.toSkill(skillDto);
-        skill = skillRepository.save(skill);
+        serviceValidator.validationByNameSkillInTheDataBase(skillDto.title());
+        Skill skill = mapper.toEntity(skillDto);
+        skill = repository.save(skill);
         log.info("Skill {} created", skill.getTitle());
-        return skillMapper.toSkillDto(skill);
+        return mapper.toViewDto(skill);
     }
 
     @Override
     public List<SkillDto> getByUserId(Long userId) {
-        List<Skill> skillList = skillRepository.findAllByUserId(userId);
-        skillServiceValidator.validateNotNull(skillList,
+        List<Skill> skillList = repository.findAllByUserId(userId);
+        serviceValidator.validateNotNull(skillList,
                 "there are no skills with such a user id: " + userId + " in the database");
         return skillList.stream()
-                .map(skillMapper::toSkillDto)
+                .map(mapper::toViewDto)
                 .toList();
     }
 
     @Override
-    public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        List<Skill> skillList = skillRepository.findSkillsOfferedToUser(userId);
-        skillServiceValidator.validateNotNull(skillList,
+    public List<SkillCandidateDto> getOfferedSkills(Long userId) {
+        List<Skill> skillList = repository.findSkillsOfferedToUser(userId);
+        serviceValidator.validateNotNull(skillList,
                 "there are no skills offered to user with such a user id: " + userId + " in the database");
         List<SkillCandidateDto> skillCandidateDtoList = new ArrayList<>();
         for (Skill skill : skillList) {
-            int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
-            SkillCandidateDto skillCandidateDto = new SkillCandidateDto(skillMapper.toSkillDto(skill), offersAmount);
+            int offersAmount = offerRepository.countAllOffersOfSkill(skill.getId(), userId);
+            SkillCandidateDto skillCandidateDto = new SkillCandidateDto(mapper.toViewDto(skill), offersAmount);
             skillCandidateDtoList.add(skillCandidateDto);
         }
         return skillCandidateDtoList;
     }
 
     @Override
-    public void acquireSkillFromOffers(long skillId, long userId) {
-        skillServiceValidator.validationCountOfferOfSkill(skillId, userId, countOfSkillRecommendation);
-        skillServiceValidator.validationSkillOfUser(skillId, userId);
-        skillRepository.assignSkillToUser(skillId, userId);
+    public void acquireSkillFromOffers(Long skillId, Long userId) {
+        serviceValidator.validationCountOfferOfSkill(skillId, userId, countOfSkillRecommendation);
+        serviceValidator.validationSkillOfUser(skillId, userId);
+        repository.assignSkillToUser(skillId, userId);
     }
 }
