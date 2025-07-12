@@ -15,6 +15,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.context.UserHeaderFilter;
 import school.faang.user_service.controller.user.UserSubscriptionController;
 import school.faang.user_service.service.user.UserSubscriptionService;
+import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +28,7 @@ public class UserSubscriptionControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserSubscriptionService subscriptionService;
+    private UserSubscriptionServiceImpl subscriptionService;
 
     @MockBean
     private UserContext userContext;
@@ -42,13 +43,49 @@ public class UserSubscriptionControllerTest {
     @DisplayName("Проверка успешной подписки через контроллер")
     void shouldFollowSuccessfully() throws Exception {
         long followerId = 1L;
-        long followeeId = 2L;
 
         when(userContext.getUserId()).thenReturn(followerId);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/followers/2"))
                 .andExpect(status().isOk());
+    }
 
-        //verify(subscriptionService).followUser(followerId, followeeId);
+    @Test
+    @DisplayName("Проверка успешной отписки через контроллер")
+    void shouldUnfollowSuccessfully() throws Exception {
+        long followerId = 1L;
+
+        when(userContext.getUserId()).thenReturn(followerId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/followers/2"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Получение количества подписчиков через контроллер")
+    void testGetFollowersCount() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/followers/2/followers-count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Получение количества подписок пользователя через контроллер")
+    void testGetFolloweesCount() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/followers/2/followees-count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Получение всех подписчиков пользователя через контроллер")
+    void testGetFollowers() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/followers/2/followers"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Получение всех подписок пользователя через контроллер")
+    void testGetFollowees() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/followers/2/followees"))
+                .andExpect(status().isOk());
     }
 }

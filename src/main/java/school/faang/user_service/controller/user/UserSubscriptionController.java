@@ -12,6 +12,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.UserSubscriptionService;
+import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
 
 import java.util.List;
 
@@ -19,14 +20,14 @@ import java.util.List;
 @RestController
 @RequestMapping("followers")
 public class UserSubscriptionController {
-    private final UserSubscriptionService subscriptionService;
+    private final UserSubscriptionServiceImpl subscriptionService;
     private final UserContext userContext;
 
     @PostMapping("/{followeeId}")
     public ResponseEntity<Void> followUser(@PathVariable Long followeeId) {
-        Long followerId = userContext.getUserId();
-        subscriptionService.followUser(followerId, followeeId);
-        return ResponseEntity.ok().build();
+            Long followerId = userContext.getUserId();
+            subscriptionService.followUser(followerId, followeeId);
+            return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{followeeId}")
@@ -36,7 +37,7 @@ public class UserSubscriptionController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{followeeId}/count")
+    @GetMapping("/{followeeId}/followers-count")
     public ResponseEntity<CountResponse> getFollowersCount(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowersCount(followeeId));
     }
@@ -46,7 +47,7 @@ public class UserSubscriptionController {
         return ResponseEntity.ok(subscriptionService.getFolloweesCount(followerId));
     }
 
-    @GetMapping("/{followeeId}")
+    @GetMapping("/{followeeId}/followers")
     public ResponseEntity<List<UserDto>> getFollowers(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowers(followeeId));
     }

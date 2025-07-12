@@ -52,7 +52,41 @@ public class UserSubscriptionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Получение всех пользователей")
+    @DisplayName("Проверка логики отписки")
+    void unfollowUser() {
+        long followerId = 1L;
+        long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(true);
+
+        subscriptionService.unfollowUser(followerId, followeeId);
+        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+    }
+
+    @Test
+    @DisplayName("Получение количества подписчиков")
+    void testGetFollowersCount() {
+        when(subscriptionRepository.findFollowersAmountByFolloweeId(1L))
+                .thenReturn(5);
+
+        CountResponse actual = subscriptionService.getFollowersCount(1L);
+
+        assertEquals(5, actual.count());
+    }
+
+    @Test
+    @DisplayName("Получение количества подписок")
+    void testGetFolloweesCount() {
+        when(subscriptionRepository.findFolloweesAmountByFollowerId(1L))
+                .thenReturn(5);
+
+        CountResponse actual = subscriptionService.getFolloweesCount(1L);
+        assertEquals(5, actual.count());
+    }
+
+    @Test
+    @DisplayName("Получение всех подписчиков")
     void testGetFollowers() {
         long followeeId = 1L;
 
@@ -70,13 +104,20 @@ public class UserSubscriptionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Получение количества пользователей")
-    void testGetFollowersCount() {
-        when(subscriptionRepository.findFollowersAmountByFolloweeId(1L))
-                .thenReturn(5);
+    @DisplayName("Получение всех подписок пользователя")
+    void testGetFollowees() {
+        long followerId = 1L;
 
-        CountResponse actual = subscriptionService.getFollowersCount(1L);
+        User user = new User();
 
-        assertEquals(5, actual.count());
+        UserDto userDto = userMapper.toUserDto(user);
+
+        when(subscriptionRepository.findByFollowerId(followerId))
+                .thenReturn(Stream.of(user));
+
+        List<UserDto> userDtoList = List.of(userDto);
+
+        assertEquals(userDtoList, subscriptionService.getFollowees(followerId));
+        verify(subscriptionRepository).findByFollowerId(followerId);
     }
 }
