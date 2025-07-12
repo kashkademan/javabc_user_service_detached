@@ -18,7 +18,7 @@ import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.service.career.CareerService;
 
 @RestController
-@RequestMapping
+@RequestMapping("*/careers")
 @RequiredArgsConstructor
 public class CareerController {
     private final CareerService careerService;
