@@ -43,17 +43,16 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public RecommendationDto create(CreateRecommendationDto newRecommendationDto) {
         if (!newRecommendationDto.receiverId().equals(userContext.getUserId())) {
-            if (latestRecommendationCheck(newRecommendationDto)) {
-                long authorId = userContext.getUserId();
-                long receiverId = newRecommendationDto.receiverId();
-                String content = newRecommendationDto.content();
-                long newRecommendationId = recommendationRepository.create(authorId,
-                        receiverId, content);
-                return recommendationMapper.toRecommendationDto(recommendationRepository
-                        .findById(newRecommendationId).orElseThrow(EntityNotFoundException::new));
-            } else {
-                throw new ForbiddenException("Latest recommendation limit");
-            }
+            latestRecommendationCheck(newRecommendationDto);
+            long authorId = userContext.getUserId();
+            long receiverId = newRecommendationDto.receiverId();
+            String content = newRecommendationDto.content();
+            long newRecommendationId = recommendationRepository.create(authorId,
+                    receiverId, content);
+            return recommendationMapper.toRecommendationDto(recommendationRepository
+                    .findById(newRecommendationId)
+                    .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found")));
+
         } else {
             throw new ForbiddenException("Self recommending is forbidden, but nice try...");
         }
@@ -63,7 +62,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
         Recommendation recommendationToBeUpdated = recommendationRepository.findById(recommendationId)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("Recommendation to be updated was not found"));
         if (recommendationToBeUpdated.getAuthor().getId() == userContext.getUserId()) {
             recommendationRepository.save(recommendationToBeUpdated);
         } else {
@@ -95,7 +94,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .toList();
     }
 
-    public boolean latestRecommendationCheck(CreateRecommendationDto newRecommendationDto) {
+    private void latestRecommendationCheck(CreateRecommendationDto newRecommendationDto) {
         long author = userContext.getUserId();
         long receiver = newRecommendationDto.receiverId();
         Recommendation latestRecommendation = recommendationRepository.findAll().stream()
@@ -104,7 +103,10 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .sorted(Comparator.comparing(Recommendation::getCreatedAt).reversed())
                 .findFirst().orElseThrow();
 
-        return ChronoUnit.MONTHS.between(latestRecommendation.getCreatedAt(),
-                LocalDateTime.now()) > repeatRecommendationTimeLimit;
+        if (ChronoUnit.MONTHS.between(latestRecommendation.getCreatedAt(),
+                LocalDateTime.now()) < repeatRecommendationTimeLimit) {
+            throw new ForbiddenException("Latest recommendation was created less than "
+                    + repeatRecommendationTimeLimit + " month ago");
+        }
     }
 }
