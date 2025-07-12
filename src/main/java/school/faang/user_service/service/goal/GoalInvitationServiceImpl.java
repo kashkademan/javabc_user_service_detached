@@ -55,15 +55,15 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
             throw new DataValidationException("Cannot invite yourself");
         }
 
-        if (goal.getUsers().contains(invited) ||
-                (goal.getMentor() != null && goal.getMentor().equals(invited))) {
+        if (goal.getUsers().contains(invited)
+                || (goal.getMentor() != null && goal.getMentor().equals(invited))) {
             throw new DataValidationException("User is already participating in this goal");
         }
 
         List<GoalInvitation> existingInvitations = goalInvitationRepository.findAll().stream()
-                .filter(inv -> inv.getGoal().getId().equals(goalId) &&
-                        inv.getInvited().getId().equals(invited.getId()) &&
-                        (inv.getStatus() == RequestStatus.PENDING || inv.getStatus() == RequestStatus.ACCEPTED))
+                .filter(inv -> inv.getGoal().getId().equals(goalId)
+                        && inv.getInvited().getId().equals(invited.getId())
+                        && (inv.getStatus() == RequestStatus.PENDING || inv.getStatus() == RequestStatus.ACCEPTED))
                 .toList();
 
         if (!existingInvitations.isEmpty()) {
@@ -103,8 +103,8 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         User invited = invitation.getInvited();
         Goal goal = invitation.getGoal();
 
-        if (goal.getUsers().contains(invited) ||
-                (goal.getMentor() != null && goal.getMentor().equals(invited))) {
+        if (goal.getUsers().contains(invited)
+                || (goal.getMentor() != null && goal.getMentor().equals(invited))) {
             throw new DataValidationException("You are already participating in this goal");
         }
 
@@ -156,12 +156,12 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
         List<GoalInvitation> filteredInvitations = invitations.stream()
-                .filter(invitation -> filters.inviterId() == null ||
-                        invitation.getInviter().getId().equals(filters.inviterId()))
-                .filter(invitation -> filters.invitedId() == null ||
-                        invitation.getInvited().getId().equals(filters.invitedId()))
-                .filter(invitation -> filters.status() == null ||
-                        invitation.getStatus().equals(filters.status()))
+                .filter(invitation -> filters.inviterId() == null
+                        || invitation.getInviter().getId().equals(filters.inviterId()))
+                .filter(invitation -> filters.invitedId() == null
+                        || invitation.getInvited().getId().equals(filters.invitedId()))
+                .filter(invitation -> filters.status() == null
+                        || invitation.getStatus().equals(filters.status()))
                 .toList();
 
         List<GoalInvitationDto> result = filteredInvitations.stream()
