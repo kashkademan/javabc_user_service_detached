@@ -126,10 +126,14 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         request.setRequester(requester);
         request.setReceiver(receiver);
         request.setStatus(RequestStatus.PENDING);
+
+        RecommendationRequest savedRequest = requestRepository.save(request);
+
         List<SkillRequest> skillRequests = dto.skillIds().stream()
-                .map(skillId -> skillRequestRepository.create(request.getId(), skillId))
+                .map(skillId -> skillRequestRepository.create(savedRequest.getId(), skillId))
                 .toList();
         request.setSkills(skillRequests);
+
         return request;
     }
 

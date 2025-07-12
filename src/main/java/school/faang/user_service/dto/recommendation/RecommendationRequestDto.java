@@ -7,6 +7,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.RequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static school.faang.user_service.dto.recommendation.RecommendationRequestConstraints.MAX_SIZE_STRING;
 import static school.faang.user_service.dto.recommendation.RecommendationRequestConstraints.MESSAGE_SIZE_INVALID;
@@ -22,6 +23,7 @@ public record RecommendationRequestDto(
         UserDto receiver,
         @NonNull
         RequestStatus status,
+        List<Long> skillIds,
         LocalDateTime createdAt
 ) {
 }
