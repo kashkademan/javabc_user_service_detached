@@ -2,7 +2,6 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +45,8 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/followers")
-    public List<UserDto> getFollowers(@Valid @RequestParam long followeeId) { return getFollowers(followeeId);
+    public List<UserDto> getFollowers(@Valid @RequestParam long followeeId) {
+        return getFollowers(followeeId);
     }
 
     @GetMapping("/followees")
