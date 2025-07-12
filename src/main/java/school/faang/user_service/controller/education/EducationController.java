@@ -32,16 +32,16 @@ import school.faang.user_service.service.education.EducationService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/education")
+@RequestMapping("/educations")
 public class EducationController {
 
-    private final EducationService educationService;
+    private final EducationService service;
     private final UserContext userContext;
 
     @PostMapping
     public ResponseEntity<EducationViewDto> addEducation(@Valid @RequestBody CreateEducationDto educationDto) {
         long userId = userContext.getUserId();
-        EducationViewDto createdEducation = educationService.addEducation(userId, educationDto);
+        EducationViewDto createdEducation = service.addEducation(userId, educationDto);
         return ResponseEntity.ok(createdEducation);
     }
 
@@ -49,12 +49,12 @@ public class EducationController {
     public ResponseEntity<EducationViewDto> updateEducation(@PathVariable long educationId,
                                                             @Valid @RequestBody UpdateEducationDto educationDto) {
         long userId = userContext.getUserId();
-        EducationViewDto updateEducation = educationService.updateEducation(userId, educationId, educationDto);
+        EducationViewDto updateEducation = service.updateEducation(userId, educationId, educationDto);
         return ResponseEntity.ok(updateEducation);
     }
 
     @GetMapping("/{educationId}")
-    public ResponseEntity<EducationViewDto> getAllEducation(@PathVariable long educationId) {
-        return ResponseEntity.ok(educationService.getById(educationId));
+    public ResponseEntity<EducationViewDto> getById(@PathVariable long educationId) {
+        return ResponseEntity.ok(service.getById(educationId));
     }
 }

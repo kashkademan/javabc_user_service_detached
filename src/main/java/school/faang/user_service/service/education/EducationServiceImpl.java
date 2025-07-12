@@ -47,24 +47,24 @@ public class EducationServiceImpl implements EducationService {
         log.info("Add Education");
         validateYearFrom(educationDto.getYearFrom());
         User user = userRepository.getByIdOrThrow(userId);
-        Education education = educationMapper.toEducation(educationDto);
+        Education education = educationMapper.toEntity(educationDto, user);
         education.setUser(user);
         educationRepository.save(education);
-        return educationMapper.toEducationDto(education);
+        return educationMapper.toViewDto(education);
     }
 
     @Override
     @Transactional
     public EducationViewDto updateEducation(long userId, long educationId, UpdateEducationDto educationDto) {
         log.info("Update Education");
-        validateYearFrom(educationDto.getYearFrom());
+        validateYearFrom(educationDto.yearFrom());
         Education findEducation = educationRepository.getByIdOrThrow(educationId);
         if (!findEducation.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You can only update your education");
         }
-        educationMapper.educationUpdateFromDto(educationDto, findEducation);
+        educationMapper.update(educationDto, findEducation);
         educationRepository.save(findEducation);
-        return educationMapper.toEducationDto(findEducation);
+        return educationMapper.toViewDto(findEducation);
     }
 
     @Override
@@ -72,13 +72,10 @@ public class EducationServiceImpl implements EducationService {
     public EducationViewDto getById(long educationId) {
         log.info("Getting education by id: {}", educationId);
         Education education = educationRepository.getByIdOrThrow(educationId);
-        return educationMapper.toEducationDto(education);
+        return educationMapper.toViewDto(education);
     }
 
     public void validateYearFrom(Integer yearFrom) {
-        if (yearFrom == null) {
-            throw new DataValidationException("Не может быть null");
-        }
         int currentYear = Year.now().getValue();
         if (currentYear < yearFrom) {
             throw new DataValidationException("You can't start learning in the future");

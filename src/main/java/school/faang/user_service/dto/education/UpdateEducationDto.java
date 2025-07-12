@@ -1,10 +1,7 @@
 package school.faang.user_service.dto.education;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * CreateEducationDto — DTO для добавления нового образования пользователя.
@@ -17,28 +14,25 @@ import lombok.NonNull;
  * @since 04.07.2025
  */
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UpdateEducationDto {
+public record UpdateEducationDto(
+        @NotNull
+        @NotBlank(message = "It cannot be empty")
+        Integer yearFrom,
 
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
-    private Integer yearFrom;
+        @NotNull
+        @NotBlank(message = "It cannot be empty")
+        Integer yearTo,
 
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
-    private Integer yearTo;
+        @NotNull
+        @NotBlank(message = "It cannot be empty")
+        String institution,
 
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
-    private String institution;
+        @NotNull
+        @NotBlank(message = "It cannot be empty")
+        String educationLevel,
 
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
-    private String educationLevel;
-
-    @NonNull
-    @NotBlank(message = "It cannot be empty")
-    private String specialization;
+        @NotNull
+        @NotBlank(message = "It cannot be empty")
+        String specialization
+) {
 }
