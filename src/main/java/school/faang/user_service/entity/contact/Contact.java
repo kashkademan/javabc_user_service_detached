@@ -19,7 +19,7 @@ import school.faang.user_service.entity.user.User;
 @Setter
 @ToString(exclude = {"user"})
 @Entity
-@Table
+@Table(name = "contact")
 public class Contact {
 
     @Id

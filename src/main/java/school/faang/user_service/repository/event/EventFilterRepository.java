@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.entity.promotion.PromotionStatus;
+import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.model.event.EventFilter;
 
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public class EventFilterRepository {
         Join<Event, Promotion> promotionJoin = event.join("promotions", JoinType.LEFT);
         promotionJoin.on(cb.equal(promotionJoin.get("status"), PromotionStatus.ACTIVE));
 
+        Join<Promotion, PromotionTariff> promotionTariffJoin = promotionJoin.join("tariff", JoinType.LEFT);
+
         PredicateBuilder builder = new PredicateBuilder(event);
         builder
                 .addIfNotNull(filter.getTitle(), root ->
@@ -48,7 +51,7 @@ public class EventFilterRepository {
         query.where(builder.build());
 
         Expression<Integer> priority = cb.coalesce(
-                promotionJoin.get("tariff").get("coefficientPriority"),
+                promotionTariffJoin.get("coefficientPriority"),
                 Integer.MAX_VALUE
         );
 

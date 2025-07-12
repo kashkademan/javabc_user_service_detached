@@ -30,9 +30,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
 @ToString(exclude = {"attendees", "ratings",
         "owner", "relatedSkills", "promotions"})
+@Entity
 @Table(name = "event")
 public class Event {
 

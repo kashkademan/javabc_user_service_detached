@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @Entity
 @Table(name = "promotion_tariff")
-@ToString
 public class PromotionTariff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
