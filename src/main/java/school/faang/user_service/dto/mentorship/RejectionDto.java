@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RejectionDto {
-    @NotBlank(message = "Причина отклонения не должна быть пустой")
+    @NotBlank(message = "Причина отклонения не должна быть пустой:")
     private String reason;
 }
 

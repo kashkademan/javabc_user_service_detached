@@ -56,4 +56,5 @@ public interface MentorshipRequestService {
      * @throws ForbiddenException      если текущий пользователь не является получателем запроса
      */
     void reject(long requestId, RejectionDto rejectionDto);
+
 }

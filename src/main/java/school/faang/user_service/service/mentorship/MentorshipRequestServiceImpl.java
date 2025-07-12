@@ -41,7 +41,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public MentorshipRequestDto create(CreateMentorshipRequestDto mentorshipRequestDto) {
         long requesterId = userContext.getUserId();
-        long receiverId = mentorshipRequestDto.getMentorId();
+        long receiverId = mentorshipRequestDto.mentorId();
 
         Optional<MentorshipRequest> lastMentorship = mentorshipRequestRepository
                 .findTopByRequesterIdOrderByCreatedAtDesc(requesterId);
@@ -67,7 +67,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         MentorshipRequest request = mentorshipRequestRepository.create(
                 requesterId,
                 receiverId,
-                mentorshipRequestDto.getDescription()
+                mentorshipRequestDto.description()
         );
         request.setRequester(
                 userRepository.findById(requesterId)
