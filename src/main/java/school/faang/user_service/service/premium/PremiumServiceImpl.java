@@ -13,10 +13,12 @@ import school.faang.user_service.dto.premium.UserWithPremiumDto;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.exception.PremiumAlreadyExistsException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,6 +32,7 @@ public class PremiumServiceImpl implements PremiumService {
     private final PremiumRepository premiumRepository;
     private final PaymentServiceClient paymentServiceClient;
     private final PremiumMapper premiumMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
@@ -37,6 +40,9 @@ public class PremiumServiceImpl implements PremiumService {
         if (premiumRepository.existsByUserId(userId)) {
             throw new PremiumAlreadyExistsException("User already has premium access");
         }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         PaymentRequest request = new PaymentRequest(
                 UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
@@ -50,9 +56,6 @@ public class PremiumServiceImpl implements PremiumService {
             throw new PaymentFailedException("Payment was not successful");
         }
 
-        User user = new User();
-        user.setId(userId);
-
         Premium premium = Premium.builder()
                 .user(user)
                 .startDate(LocalDateTime.now())
@@ -65,7 +68,6 @@ public class PremiumServiceImpl implements PremiumService {
     }
 
     @Override
-    @Transactional
     public List<UserWithPremiumDto> getUsersWithActivePremium() {
         LocalDateTime now = LocalDateTime.now();
         List<Premium> activePremiums = premiumRepository.findAllByEndDateAfter(now);
