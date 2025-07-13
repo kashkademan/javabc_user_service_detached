@@ -26,6 +26,7 @@ public class RecommendationReceivedEventPublisher implements MessagePublisher<Re
     private void init() {
         this.topic = properties.getChannels().get(TOPIC_NAME);
     }
+
     @Override
     public void publishMessage(Recommendation message) {
         RecommendationReceivedEvent event = mapper.toEvent(message);
