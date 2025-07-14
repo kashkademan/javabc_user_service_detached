@@ -114,8 +114,9 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (activeGoalsCount >= maxActiveGoals) {
             log.error("User {} has reached maximum active goals limit. Current: {}, Max {}",
                     invited.getId(), activeGoalsCount, maxActiveGoals);
-            throw new DataValidationException("You cannot have more than " + maxActiveGoals + " active goals. Current count: "
-                    + activeGoalsCount + " User ID: " + invited.getId());
+            throw new DataValidationException("You cannot have more than " + maxActiveGoals
+                    + " active goals. Current count: " + activeGoalsCount
+                    + " User ID: " + invited.getId());
         }
 
         invitation.setStatus(RequestStatus.ACCEPTED);
