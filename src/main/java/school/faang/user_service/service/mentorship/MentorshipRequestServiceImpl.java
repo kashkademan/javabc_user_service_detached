@@ -71,11 +71,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         );
         request.setRequester(
                 userRepository.findById(requesterId)
-                        .orElseThrow(() -> new EntityNotFoundException("менти не найден"))
+                        .orElseThrow(() -> new EntityNotFoundException("менти с таким Id не найден"))
         );
         request.setReceiver(
                 userRepository.findById(receiverId)
-                        .orElseThrow(() -> new EntityNotFoundException("Ментор не найден"))
+                        .orElseThrow(() -> new EntityNotFoundException("Ментор с таким Id не найден"))
         );
 
         log.info("Пользователь {} отправил запрос на менторство к {}", requesterId, receiverId);
@@ -118,8 +118,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         long currentUserId = userContext.getUserId();
         MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
 
+        long requesterId = request.getRequester().getId();
+
         if (isAlreadyMentor(currentUserId, request.getRequester().getId())) {
-            throw new DataValidationException("Вы уже являетесь ментором для этого пользователя");
+            throw new DataValidationException("ментор с Id" + currentUserId
+                    + "уже является ментором для пользователя с Id" + requesterId);
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
