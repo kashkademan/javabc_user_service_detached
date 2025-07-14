@@ -32,17 +32,13 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final GoalInvitationMapper goalInvitationMapper;
     private final UserContext userContext;
 
-    @Value("${app.goals.max-active-goals:3}")
+    @Value("${app.goals.max-active-goals}")
     private int maxActiveGoals;
 
     @Override
     @Transactional
     public GoalInvitationDto create(long goalId, CreateGoalInvitationDto invitationDto) {
         log.info("Creating invitation for goal {} to user {}", goalId, invitationDto.getInvitedUserId());
-
-        if (invitationDto.getInvitedUserId() == null) {
-            throw new DataValidationException("invitedUserId must not be null");
-        }
 
         User inviter = userRepository.findById(userContext.getUserId())
                 .orElseThrow(() -> new DataValidationException("Inviter not found"));
@@ -52,12 +48,14 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
                 .orElseThrow(() -> new DataValidationException("Goal not found"));
 
         if (inviter.getId().equals(invited.getId())) {
-            throw new DataValidationException("Cannot invite yourself");
+            log.error("User {} attempted to invite themselves to goal {}", inviter.getId(), goalId);
+            throw new DataValidationException("Cannot invite yourself. User ID: " + inviter.getId());
         }
 
-        if (goal.getUsers().contains(invited)
-                || (goal.getMentor() != null && goal.getMentor().equals(invited))) {
-            throw new DataValidationException("User is already participating in this goal");
+        if (isUserAlreadyParticipating(goal, invited)) {
+            log.error("User {} is already participating in goal {}", invited.getId(), goalId);
+            throw new DataValidationException("User is already participating in this goal. User ID: "
+                    + invited.getId() + ", Goal ID: " + goalId);
         }
 
         List<GoalInvitation> existingInvitations = goalInvitationRepository.findAll().stream()
@@ -67,14 +65,19 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
                 .toList();
 
         if (!existingInvitations.isEmpty()) {
-            throw new DataValidationException("Active invitation already exists");
+            log.error("Active invitation already exists for user {} to goal {}. Existing invitation IDs: {}",
+                    invited.getId(), goalId,
+                    existingInvitations.stream().map(GoalInvitation::getId).toList());
+            throw new DataValidationException("Active invitation already exists. User ID: "
+                    + invited.getId() + ", Goal ID: " + goalId);
         }
 
-        GoalInvitation invitation = new GoalInvitation();
-        invitation.setInviter(inviter);
-        invitation.setInvited(invited);
-        invitation.setGoal(goal);
-        invitation.setStatus(RequestStatus.PENDING);
+        GoalInvitation invitation = GoalInvitation.builder()
+                .inviter(inviter)
+                .invited(invited)
+                .goal(goal)
+                .status(RequestStatus.PENDING)
+                .build();
 
         GoalInvitation saved = goalInvitationRepository.save(invitation);
         log.info("Invitation created successfully with id {}", saved.getId());
@@ -103,14 +106,16 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         User invited = invitation.getInvited();
         Goal goal = invitation.getGoal();
 
-        if (goal.getUsers().contains(invited)
-                || (goal.getMentor() != null && goal.getMentor().equals(invited))) {
+        if (isUserAlreadyParticipating(goal, invited)) {
             throw new DataValidationException("You are already participating in this goal");
         }
 
         int activeGoalsCount = goalRepository.countActiveGoalsPerUser(invited.getId());
         if (activeGoalsCount >= maxActiveGoals) {
-            throw new DataValidationException("You cannot have more than " + maxActiveGoals + " active goals");
+            log.error("User {} has reached maximum active goals limit. Current: {}, Max {}",
+                    invited.getId(), activeGoalsCount, maxActiveGoals);
+            throw new DataValidationException("You cannot have more than " + maxActiveGoals + " active goals. Current count: "
+                    + activeGoalsCount + " User ID: " + invited.getId());
         }
 
         invitation.setStatus(RequestStatus.ACCEPTED);
@@ -170,5 +175,18 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
 
         log.info("Found {} invitations matching filters", result.size());
         return result;
+    }
+
+    /**
+     * Проверяет, участвует ли пользователь уже в указанной цели
+     * (либо как участник, либо как ментор).
+     *
+     * @param goal цель для проверки
+     * @param user пользователь для проверки
+     * @return true, если пользователь уже участвует в цели
+     */
+    private boolean isUserAlreadyParticipating(Goal goal, User user) {
+        return goal.getUsers().contains(user)
+                || (goal.getMentor() != null && goal.getMentor().equals(user));
     }
 }
