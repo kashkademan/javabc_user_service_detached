@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
+import school.faang.user_service.service.user.UserSubscriptionService;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("followers")
 public class UserSubscriptionController {
-    private final UserSubscriptionServiceImpl subscriptionService;
+    private final UserSubscriptionService subscriptionService;
     private final UserContext userContext;
 
     @PostMapping("/{followeeId}")
