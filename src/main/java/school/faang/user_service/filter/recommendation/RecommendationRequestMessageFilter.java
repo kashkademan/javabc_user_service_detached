@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class RecommendationRequestMessageFilter implements RecommendationRequestFilter {
     @Override
     public boolean isApplicable(RecommendationRequestFilterDto dto) {
-        return !dto.messageContains().isBlank();
+        return dto.messageContains() != null && !dto.messageContains().isBlank();
     }
 
     @Override

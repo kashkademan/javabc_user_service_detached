@@ -6,7 +6,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import java.util.stream.Stream;
 
 /**
- * Интерфейс для фильтрации запросов рекомендации
+ * Интерфейс для фильтрации запросов рекомендации {@link RecommendationRequest}
  * <p>
  * Определяет контракт для реализации различных фильтров запросов рекомендации.
  * </p>

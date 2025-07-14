@@ -9,7 +9,7 @@ import java.util.List;
 import static school.faang.user_service.dto.recommendation.RecommendationRequestConstraints.MAX_SIZE_STRING;
 import static school.faang.user_service.dto.recommendation.RecommendationRequestConstraints.MESSAGE_SIZE_INVALID;
 
-public record CreateRecommendationRequestDto(
+public record RecommendationRequestCreateDto(
         @NotBlank
         @Size(max = MAX_SIZE_STRING, message = MESSAGE_SIZE_INVALID)
         String message,

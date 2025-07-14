@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -41,14 +41,14 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     @Transactional
-    public RecommendationRequestDto create(CreateRecommendationRequestDto dto) {
+    public RecommendationRequestViewDto create(RecommendationRequestCreateDto createDto) {
         long requesterId = userContext.getUserId();
-        User receiver = userRepository.getByIdOrThrow(dto.receiverId());
+        User receiver = userRepository.getByIdOrThrow(createDto.receiverId());
         User requester = userRepository.getByIdOrThrow(requesterId);
 
-        checkBusinessRequirements(requesterId, dto);
+        validate(requesterId, createDto);
 
-        RecommendationRequest request = buildRecommendationRequest(dto, requester, receiver);
+        RecommendationRequest request = buildAndSaveRecommendationRequest(createDto, requester, receiver);
 
         log.info("Recommendation request created successfully. ID: {}", request.getId());
         return mapper.toDto(request);
@@ -56,7 +56,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     @Transactional
-    public List<RecommendationRequestDto> getByFilters(RecommendationRequestFilterDto filtersDto) {
+    public List<RecommendationRequestViewDto> getByFilters(RecommendationRequestFilterDto filtersDto) {
         Stream<RecommendationRequest> filteredRequests = requestRepository.findAll().stream();
 
         for (RecommendationRequestFilter filter : filters) {
@@ -72,7 +72,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     @Override
-    public RecommendationRequestDto getById(long id) {
+    public RecommendationRequestViewDto getById(long id) {
         RecommendationRequest foundRequest = requestRepository.getByIdOrThrow(id);
         return mapper.toDto(foundRequest);
     }
@@ -117,8 +117,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         log.debug("Request {} successfully {} by user {}", id, statusName, currentUserId);
     }
 
-    private RecommendationRequest buildRecommendationRequest(
-            CreateRecommendationRequestDto dto,
+    private RecommendationRequest buildAndSaveRecommendationRequest(
+            RecommendationRequestCreateDto dto,
             User requester,
             User receiver) {
         RecommendationRequest request = mapper.toEntity(dto);
@@ -126,17 +126,18 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         request.setReceiver(receiver);
         request.setStatus(RequestStatus.PENDING);
 
-        RecommendationRequest savedRequest = requestRepository.save(request);
+        request = requestRepository.save(request);
 
+        RecommendationRequest finalRequest = request;
         List<SkillRequest> skillRequests = dto.skillIds().stream()
-                .map(skillId -> skillRequestRepository.create(savedRequest.getId(), skillId))
+                .map(skillId -> skillRequestRepository.create(finalRequest.getId(), skillId))
                 .toList();
         request.setSkills(skillRequests);
 
         return request;
     }
 
-    private void checkBusinessRequirements(long requesterId, CreateRecommendationRequestDto dto) {
+    private void validate(long requesterId, RecommendationRequestCreateDto dto) {
         validateNoSelfRecommendation(requesterId, dto.receiverId());
         validateCooldownPeriod(requesterId, dto.receiverId());
     }
@@ -165,8 +166,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
 
     private void validateUserIsReceiver(RecommendationRequest request,
-                                               long currentUserId,
-                                               String errorMessage) {
+                                        long currentUserId,
+                                        String errorMessage) {
         if (currentUserId != request.getReceiver().getId()) {
             log.error("The user (id: {}) is not request (id: {}) receiver (id:{})",
                     currentUserId, request.getId(), request.getReceiver().getId());
