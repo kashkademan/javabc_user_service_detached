@@ -23,7 +23,7 @@ spring:
 
 redis:
   channels:
-   profile_pic: profile_pic_channel
+    profile_pic: profile_pic_channel
 
 server:
   port: 8080
@@ -66,3 +66,7 @@ event:
   removal:
     cron: "0 0 2 * * *"
     batch-size: 100
+
+thread-pool-config:
+  size: 10
+

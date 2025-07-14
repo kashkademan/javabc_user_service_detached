@@ -19,17 +19,10 @@ import java.util.concurrent.*;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final ExecutorService executor;
 
     @Value("${event.removal.batch-size}")
     private int batchSize;
-
-    private final ExecutorService executor;
-
-    public EventService(EventRepository eventRepository, int batchSize, ExecutorService executor) {
-        this.eventRepository = eventRepository;
-        this.batchSize = batchSize;
-        this.executor = executor;
-    }
 
     public int clearEvents() {
         List<Event> allEvents = eventRepository.findAll();
