@@ -31,7 +31,6 @@ public class UserSubscriptionControllerTest {
     @MockBean
     private UserHeaderFilter userHeaderFilter;
 
-    @InjectMocks
     private UserSubscriptionController controller;
 
     @Test
