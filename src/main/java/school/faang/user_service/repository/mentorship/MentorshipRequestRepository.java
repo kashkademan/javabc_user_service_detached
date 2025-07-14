@@ -2,7 +2,7 @@ package school.faang.user_service.repository.mentorship;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import school.faang.user_service.entity.user.MentorshipRequest;
+import school.faang.user_service.entity.mentorshp.MentorshipRequest;
 
 import java.util.Optional;
 

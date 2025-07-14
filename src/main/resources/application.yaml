@@ -36,6 +36,9 @@ payment-service:
   host: localhost
   port: 9080
 
+user-service:
+  months-to-subtract: 3
+
 user:
   password:
     min:
