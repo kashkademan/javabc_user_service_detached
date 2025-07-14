@@ -42,6 +42,9 @@ public class GoalServiceImpl implements GoalService {
         if (!isMentor(mentorId, currentId) && !isIndependentUser(mentorId, currentId, users)) {
             throw new ForbiddenException("User " + currentId + " doesn't have authorities to create goal");
         }
+
+        checkOverActiveGoalLimitFor(createGoalDto.userIds());
+
         if (mentorId != null) {
             User mentor = userRepository.getByIdOrThrow(mentorId);
             goal.setMentor(mentor);
@@ -53,7 +56,6 @@ public class GoalServiceImpl implements GoalService {
             goal.setParent(parentGoal);
         }
 
-        checkOverActiveGoalLimitFor(createGoalDto.userIds());
         goal.setUsers(users);
         goal.setStatus(GoalStatus.ACTIVE);
 
@@ -83,6 +85,11 @@ public class GoalServiceImpl implements GoalService {
         mapper.update(updateGoalDto, goal);
 
         if (isMentor(mentorId, currentId) && needMentorUpdate(mentorId, updateGoalDto.mentorId())) {
+            if (newMentorIsParticipant(goal.getUsers(), updateGoalDto.mentorId())) {
+                throw new ForbiddenException(
+                        "User " + updateGoalDto.mentorId() + " is a participant in goal " + goal.getId()
+                        + " and cannot be appointment as a new mentor by user " + currentId);
+            }
             User mentor = userRepository.getByIdOrThrow(updateGoalDto.mentorId());
             goal.setMentor(mentor);
         }
@@ -162,6 +169,12 @@ public class GoalServiceImpl implements GoalService {
     private boolean needMentorUpdate(Long currentMentorId, Long newMentorId) {
         return currentMentorId != null && newMentorId != null && !currentMentorId.equals(newMentorId);
     }
+
+    private boolean newMentorIsParticipant(List<User> users, Long newMentorId) {
+        return users.stream()
+                .anyMatch(user -> user.getId().equals(newMentorId));
+    }
+
 
     private boolean canUpdateGoal(Long mentorId, long currentId, List<User> users, GoalStatus status) {
         return (isMentor(mentorId, currentId) || isIndependentUser(mentorId, currentId, users))

@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
@@ -11,7 +12,9 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface GoalMapper {
     Goal toGoal(CreateGoalDto createGoalDto);
 
