@@ -25,7 +25,7 @@ public class SkillServiceImpl implements SkillService {
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
     @Value("${skill.minimal.offers}")
-    int minimalSkillOffers;
+    private int minimalSkillOffers;
 
     @Override
     @Transactional
