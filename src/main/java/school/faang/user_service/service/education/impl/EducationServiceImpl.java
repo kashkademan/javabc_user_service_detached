@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.EducationDto;
+import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;

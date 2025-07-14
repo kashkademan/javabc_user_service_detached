@@ -11,7 +11,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.EducationDto;
+import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
@@ -70,7 +70,7 @@ public class EducationServiceIntegrationTest {
 
     private Education createEducation() {
         Education education = new Education(1L, 2000, 2010, "university",
-                "middle", "spec1", new User(1L, "user1"));
+                "middle", "spec1", new User());
         return education;
     }
 

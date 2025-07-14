@@ -1,6 +1,6 @@
 package school.faang.user_service.service.education;
 
-import school.faang.user_service.dto.user.EducationDto;
+import school.faang.user_service.dto.education.EducationDto;
 
 public interface EducationService {
 
