@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/skill")
 public class SkillController {
 
     private final SkillServiceImpl skillService;
@@ -32,7 +32,7 @@ public class SkillController {
             @ApiResponse(responseCode = "201", description = "Skill created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
     })
-    @PostMapping("/skill")
+    @PostMapping("/")
     public ResponseEntity<SkillDto> create(@RequestBody @Validated CreateSkillDto skillDto) {
         return new ResponseEntity<>(skillService.create(skillDto), HttpStatus.CREATED);
     }
@@ -42,7 +42,7 @@ public class SkillController {
             @ApiResponse(responseCode = "200", description = "Skills retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "User not found or no skills available for the user"),
     })
-    @GetMapping("/skill/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<List<SkillDto>> getByUserId(@PathVariable("userId") @Validated @NotNull @NotBlank Long userId) {
         return new ResponseEntity<>(skillService.getByUserId(userId), HttpStatus.OK);
     }
@@ -52,7 +52,7 @@ public class SkillController {
             @ApiResponse(responseCode = "200", description = "Offered skills retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "No offered skills found for the user"),
     })
-    @GetMapping("/skill/offers")
+    @GetMapping("/offers")
     public ResponseEntity<List<SkillCandidateDto>> getOfferedSkills() {
         return new ResponseEntity<>(skillService.getOfferedSkills(userContext.getUserId()), HttpStatus.OK);
     }
@@ -62,7 +62,7 @@ public class SkillController {
             @ApiResponse(responseCode = "200", description = "Skill acquired successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid skill ID or skill not available for acquisition"),
     })
-    @PostMapping("/skill/acquire/{skillId}")
+    @PostMapping("/acquire/{skillId}")
     public ResponseEntity<Void> acquireSkillFromOffers(@PathVariable @Validated @NotNull long skillId) {
         skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
         return ResponseEntity.ok().build();
