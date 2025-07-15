@@ -115,14 +115,16 @@ class GoalInvitationServiceImplTest {
         goal.setId(1L);
         goal.setUsers(users);
 
+        var now = LocalDateTime.now();
+
         var invitation = new GoalInvitation();
         invitation.setId(1L);
         invitation.setGoal(goal);
         invitation.setInviter(inviter);
         invitation.setInvited(invited);
         invitation.setStatus(RequestStatus.PENDING);
-        invitation.setCreatedAt(LocalDateTime.now());
-        invitation.setUpdatedAt(LocalDateTime.now());
+        invitation.setCreatedAt(now);
+        invitation.setUpdatedAt(now);
 
         var updatedUser = new ArrayList<User>();
         updatedUser.add(inviter);
@@ -135,8 +137,8 @@ class GoalInvitationServiceImplTest {
         updatedInvitation.setGoal(updatedGoal);
         updatedInvitation.setInviter(inviter);
         updatedInvitation.setInvited(invited);
-        updatedInvitation.setCreatedAt(LocalDateTime.now());
-        updatedInvitation.setUpdatedAt(LocalDateTime.now());
+        updatedInvitation.setCreatedAt(now);
+        updatedInvitation.setUpdatedAt(now);
         return Stream.of(Arguments.of(invitation, updatedInvitation));
     }
 
