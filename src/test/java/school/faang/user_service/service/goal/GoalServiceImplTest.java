@@ -44,7 +44,8 @@ class GoalServiceImplTest {
     private GoalMentorIdFilter mentorIdFilter = new GoalMentorIdFilter();
     private GoalStatusFilter statusFilter = new GoalStatusFilter();
     private GoalTitleFilter titleFilter = new GoalTitleFilter();
-    private List<Filter<Goal, GoalFilterDto>> filters = List.of(descriptionFilter, mentorIdFilter, statusFilter, titleFilter);
+    private List<Filter<Goal, GoalFilterDto>> filters
+            = List.of(descriptionFilter, mentorIdFilter, statusFilter, titleFilter);
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -126,6 +127,10 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("update goal - success case")
     void update_success() {
+        var goalId = defGoalDto.id();
+        var oldGoal = new Goal();
+        oldGoal.setId(goalId);
+        oldGoal.setUsers(defGoal.getUsers());
         var updateDto = new GoalUpdateDto(
                 defGoalDto.title(),
                 defGoalDto.description(),
@@ -133,11 +138,6 @@ class GoalServiceImplTest {
                 defGoalDto.mentorId(),
                 defGoalDto.status()
         );
-
-        var goalId = defGoalDto.id();
-        var oldGoal = new Goal();
-        oldGoal.setId(goalId);
-        oldGoal.setUsers(defGoal.getUsers());
 
         when(userContext.getUserId()).thenReturn(currentUserId);
         when(goalRepository.getByIdOrThrow(goalId))

@@ -151,7 +151,7 @@ class GoalControllerTest {
         mockMvc.perform(delete("/goals/" + goalId))
                 .andExpect(jsonPath("$").doesNotExist())
                 .andExpect(status().isOk());
-            verify(goalService, times(1)).delete(goalId);
+        verify(goalService, times(1)).delete(goalId);
     }
 
     static Stream<Arguments> provideGetListParams() {
