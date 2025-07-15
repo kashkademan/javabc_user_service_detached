@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal.filter;
+package school.faang.user_service.service.filter.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -7,20 +7,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.mapper.GoalMapperImpl;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.time.LocalDateTime;
@@ -154,7 +151,7 @@ class GoalControllerTest {
         mockMvc.perform(delete("/goals/" + goalId))
                 .andExpect(jsonPath("$").doesNotExist())
                 .andExpect(status().isOk());
-        verify(goalService, times(1)).delete(goalId);
+            verify(goalService, times(1)).delete(goalId);
     }
 
     static Stream<Arguments> provideGetListParams() {
