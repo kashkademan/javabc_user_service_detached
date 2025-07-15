@@ -1,0 +1,36 @@
+package school.faang.user_service.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import school.faang.user_service.dto.education.UpdateEducationDto;
+import school.faang.user_service.dto.user.CreateEducationDto;
+import school.faang.user_service.dto.user.EducationViewDto;
+import school.faang.user_service.entity.user.Education;
+import school.faang.user_service.entity.user.User;
+
+/**
+ * EducationMapper — для преобразования между сущностью {@link Education} и DTO.
+ * <p>
+ * Представляет методы для конвертации данных.
+ * </p>*
+ *
+ * @author fomchenkoandrey
+ */
+@Mapper(componentModel = "spring")
+public interface EducationMapper {
+
+    /**
+     * Преобразует DTO создания образования в сущность {@link Education}.
+     */
+    Education toEntity(CreateEducationDto createEducationDto, User user);
+
+    /**
+     * Обновляет DTO образования в сущность {@link Education}.
+     */
+    void update(UpdateEducationDto updateEducationDto, @MappingTarget Education education);
+
+    /**
+     * Преобразует сущность {@link Education} в DTO для отображения.
+     */
+    EducationViewDto toViewDto(Education education);
+}
