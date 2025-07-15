@@ -42,20 +42,17 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Transactional
     @Override
     public RecommendationDto create(CreateRecommendationDto newRecommendationDto) {
-        if (!newRecommendationDto.receiverId().equals(userContext.getUserId())) {
-            latestRecommendationCheck(newRecommendationDto);
-            long authorId = userContext.getUserId();
-            long receiverId = newRecommendationDto.receiverId();
-            String content = newRecommendationDto.content();
-            long newRecommendationId = recommendationRepository.create(authorId,
-                    receiverId, content);
-            return recommendationMapper.toRecommendationDto(recommendationRepository
-                    .findById(newRecommendationId)
-                    .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found")));
-
-        } else {
-            throw new ForbiddenException("Self recommending is forbidden, but nice try...");
-        }
+        userMatchingOperator(newRecommendationDto.receiverId(),
+                "Self recommending is forbidden, but nice try...");
+        latestRecommendationCheck(newRecommendationDto);
+        long authorId = userContext.getUserId();
+        long receiverId = newRecommendationDto.receiverId();
+        String content = newRecommendationDto.content();
+        long newRecommendationId = recommendationRepository.create(authorId,
+                receiverId, content);
+        return recommendationMapper.toRecommendationDto(recommendationRepository
+                .findById(newRecommendationId)
+                .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found")));
     }
 
     @Transactional
@@ -63,11 +60,9 @@ public class RecommendationServiceImpl implements RecommendationService {
     public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
         Recommendation recommendationToBeUpdated = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation to be updated was not found"));
-        if (recommendationToBeUpdated.getAuthor().getId() == userContext.getUserId()) {
-            recommendationRepository.save(recommendationToBeUpdated);
-        } else {
-            throw new ForbiddenException("Can't update recommendations authored by other users");
-        }
+        userNotMatchingOperator(recommendationToBeUpdated.getAuthor().getId(),
+                "Can't update recommendations authored by other users");
+        recommendationRepository.save(recommendationToBeUpdated);
         return recommendationMapper.toRecommendationDto(recommendationToBeUpdated);
     }
 
@@ -75,13 +70,11 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public void delete(long recommendationId) {
         Recommendation recommendationToBeDeleted = recommendationRepository.findById(recommendationId)
-                .orElseThrow(EntityNotFoundException::new);
-        if (recommendationToBeDeleted.getAuthor().getId() == userContext.getUserId()) {
-            recommendationRepository.deleteByIdAndAuthor_id(recommendationId,
-                    recommendationToBeDeleted.getAuthor().getId());
-        } else {
-            throw new ForbiddenException("Can't delete recommendations authored by other users");
-        }
+                .orElseThrow(() -> new EntityNotFoundException("Recommendation to be deleted was not found"));
+        userNotMatchingOperator(recommendationToBeDeleted.getAuthor().getId(),
+                "Can't delete recommendations authored by other users");
+        recommendationRepository.deleteByIdAndAuthor_id(recommendationId,
+                recommendationToBeDeleted.getAuthor().getId());
     }
 
     @Override
@@ -107,6 +100,18 @@ public class RecommendationServiceImpl implements RecommendationService {
                 LocalDateTime.now()) < repeatRecommendationTimeLimit) {
             throw new ForbiddenException("Latest recommendation was created less than "
                     + repeatRecommendationTimeLimit + " month ago");
+        }
+    }
+
+    private void userMatchingOperator(long userId, String exceptionMessage) {
+        if (userId == userContext.getUserId()) {
+            throw new ForbiddenException(exceptionMessage);
+        }
+    }
+
+    private void userNotMatchingOperator(long userId, String exceptionMessage) {
+        if (userId != userContext.getUserId()) {
+            throw new ForbiddenException(exceptionMessage);
         }
     }
 }
