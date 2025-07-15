@@ -1,26 +1,20 @@
 package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Skill;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.user.SkillRepository;
-import school.faang.user_service.repository.user.UserSkillGuaranteeRepository;
 
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SkillServiceImpl implements SkillService{
+public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
 
