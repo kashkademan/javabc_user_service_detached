@@ -142,8 +142,8 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (RequestStatus.ACCEPTED.equals(status)) {
             User user = userRepository.getByIdOrThrow(userId);
             goal.getUsers().add(user);
+            goalRepository.save(goal);
         }
-        goalRepository.save(goal);
         invitation.setStatus(status);
         goalInvitationRepository.save(invitation);
     }
