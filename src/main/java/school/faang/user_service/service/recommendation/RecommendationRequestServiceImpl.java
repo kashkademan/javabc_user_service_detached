@@ -13,7 +13,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.filter.RecommendationRequestFilter;
+import school.faang.user_service.filter.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserContext userContext;
     private final SkillRequestRepository skillRequestRepository;
-    private final List<RecommendationRequestFilter> recommendationRequestFilters;
+    private final Set<RecommendationRequestFilter> recommendationRequestFilters;
 
     @Value("${recommendation.request.once-every.quantity:6}")
     private int quantity;

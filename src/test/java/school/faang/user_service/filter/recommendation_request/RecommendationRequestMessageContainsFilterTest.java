@@ -29,8 +29,8 @@ class RecommendationRequestMessageContainsFilterTest {
     }
 
     @Test
-    @DisplayName("Message Contains Filter is not applicable")
-    void testIsApplicableFalse() {
+    @DisplayName("Message Contains Filter is null")
+    void testIsApplicableIsNull() {
         boolean applicable = messageContainsFilter.isApplicable(new RecommendationRequestFilterDto(
                 null,
                 null,
@@ -41,21 +41,45 @@ class RecommendationRequestMessageContainsFilterTest {
     }
 
     @Test
-    @DisplayName("Message Contains Filter applies correctly")
-    void testApply() {
+    @DisplayName("Message Contains Filter is empty")
+    void testIsApplicableIsEmpty() {
+        boolean applicable = messageContainsFilter.isApplicable(new RecommendationRequestFilterDto(
+                null,
+                null,
+                "",
+                null));
+
+        assertFalse(applicable);
+    }
+
+    @Test
+    @DisplayName("Message Contains Filter is blank")
+    void testIsApplicableIsBlank() {
+        boolean applicable = messageContainsFilter.isApplicable(new RecommendationRequestFilterDto(
+                null,
+                null,
+                "\n  \t",
+                null));
+
+        assertFalse(applicable);
+    }
+
+    @Test
+    @DisplayName("Message Contains Filter applies correctly & has Recommendation Requests")
+    void testApplyWithPresence() {
         Stream<RecommendationRequest> recommendationRequestStream = Stream.of(
                 RecommendationRequest.builder().message("test message").build(),
                 RecommendationRequest.builder().message("other message").build(),
                 RecommendationRequest.builder().message("").build(),
                 RecommendationRequest.builder().message("null").build(),
                 RecommendationRequest.builder().message("  ").build(),
-                RecommendationRequest.builder().message("test").build());
+                RecommendationRequest.builder().message("TEST").build());
 
         Stream<RecommendationRequest> recommendationRequests = messageContainsFilter.apply(recommendationRequestStream,
                 new RecommendationRequestFilterDto(
                         null,
                         null,
-                        "test",
+                        "TeSt",
                         null
                 ));
 
@@ -63,6 +87,30 @@ class RecommendationRequestMessageContainsFilterTest {
 
         assertEquals(2, recommendationRequestList.size());
         assertTrue(recommendationRequestList.stream().allMatch(recommendationRequest ->
-                recommendationRequest.getMessage().contains("test")));
+                recommendationRequest.getMessage().toLowerCase().contains("TeSt".toLowerCase())));
+    }
+
+    @Test
+    @DisplayName("Message Contains Filter applies correctly & has no Recommendation Requests")
+    void testApplyWithoutPresence() {
+        Stream<RecommendationRequest> recommendationRequestStream = Stream.of(
+                RecommendationRequest.builder().message("test message").build(),
+                RecommendationRequest.builder().message("other message").build(),
+                RecommendationRequest.builder().message("").build(),
+                RecommendationRequest.builder().message("null").build(),
+                RecommendationRequest.builder().message("  ").build(),
+                RecommendationRequest.builder().message("TEST").build());
+
+        Stream<RecommendationRequest> recommendationRequests = messageContainsFilter.apply(recommendationRequestStream,
+                new RecommendationRequestFilterDto(
+                        null,
+                        null,
+                        "java",
+                        null
+                ));
+
+        List<RecommendationRequest> recommendationRequestList = recommendationRequests.toList();
+
+        assertTrue(recommendationRequestList.isEmpty());
     }
 }
