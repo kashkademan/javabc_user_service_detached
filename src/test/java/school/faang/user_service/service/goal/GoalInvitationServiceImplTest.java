@@ -88,7 +88,6 @@ class GoalInvitationServiceImplTest {
         goalInvitation.setInviter(inviter);
         goalInvitation.setInvited(invited);
         goalInvitation.setStatus(RequestStatus.PENDING);
-        var goalInvitationDto = goalInvitationMapper.toViewDto(goalInvitation);
 
         when(userContext.getUserId()).thenReturn(inviter.getId());
         when(goalRepository.isUserMember(goal.getId(), inviter.getId()))
@@ -105,7 +104,8 @@ class GoalInvitationServiceImplTest {
 
         var createDto = new GoalInvitationCreateDto(invited.getId());
         var actual = service.create(goal.getId(), createDto);
-        assertEquals(goalInvitationDto, actual);
+        var expected = goalInvitationMapper.toViewDto(goalInvitation);
+        assertEquals(expected, actual);
     }
 
     static Stream<Arguments> getGoalInvitation() {
