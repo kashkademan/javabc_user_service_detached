@@ -48,12 +48,12 @@ public class RecommendationRequestServiceTest {
     @Test
     public void testCreated() {
         CreateRecommendationRequestDto dto = new CreateRecommendationRequestDto("Hello", 2L);
-        RecommendationRequest entity = recommendationRequestMapper.toRecommendationRequest(dto);
 
         Mockito.when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
         Mockito.when(userRepository.getByIdOrThrow(2L)).thenReturn(new User());
         Mockito.when(userContext.getUserId()).thenReturn(1L);
 
+        RecommendationRequest entity = recommendationRequestMapper.toRecommendationRequest(dto);
         entity.setRequester(userRepository.getByIdOrThrow(userContext.getUserId()));
         entity.setReceiver(userRepository.getByIdOrThrow(dto.receiverId()));
         entity.setStatus(RequestStatus.PENDING);

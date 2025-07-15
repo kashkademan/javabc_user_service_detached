@@ -15,14 +15,14 @@ public class RecommendationRequestFilterRequesterIdTest {
     @Test
     public void testIsApplicableTrue() {
         RecommendationRequestFilterDto dto =
-                new RecommendationRequestFilterDto(1L,2L,null,null);
+                new RecommendationRequestFilterDto(1L, 2L, null, null);
         assertNotNull(dto.receiverId());
     }
 
     @Test
     public void testIsApplicableFalse() {
         RecommendationRequestFilterDto dto =
-                new RecommendationRequestFilterDto(null,null,null,null);
+                new RecommendationRequestFilterDto(null, null, null, null);
         assertNull(dto.receiverId());
     }
 }
