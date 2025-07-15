@@ -10,7 +10,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.controller.premium.PremiumController;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
-import school.faang.user_service.entity.premium.PremiumPeriodEnum;
 import school.faang.user_service.service.premium.PremiumServiceImpl;
 
 import java.time.LocalDate;
@@ -47,20 +46,12 @@ class PremiumControllerTest {
                 .build();
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(premiumService.buyPremium(eq(userId), eq(PremiumPeriodEnum.ONE_MONTH))).thenReturn(dto);
+        when(premiumService.buyPremium(eq(userId), eq(30))).thenReturn(dto);
 
         mockMvc.perform(post("/premium/buy")
                         .param("days", "30"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value((int) userId));
-    }
-
-    @Test
-    @DisplayName("Покупка премиума с некорректным количеством дней возвращает 400")
-    void buyPremium_shouldReturnBadRequest_whenInvalidDays() throws Exception {
-        mockMvc.perform(post("/premium/buy")
-                        .param("days", "7"))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
