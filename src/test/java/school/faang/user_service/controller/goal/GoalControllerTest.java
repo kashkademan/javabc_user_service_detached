@@ -12,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
@@ -155,24 +157,20 @@ class GoalControllerTest {
     }
 
     static Stream<Arguments> provideGetListParams() {
-        var reqBody = new GoalFilterDto(
-                "Spring",
-                null,
-                null,
-                null
-        );
-        return Stream.of(Arguments.of(reqBody, List.of(defRespBody)));
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("titleContains", "Spring");
+        return Stream.of(Arguments.of(map, List.of(defRespBody)));
     }
 
     @ParameterizedTest
     @MethodSource("provideGetListParams")
     @DisplayName("get List - success case")
-    void getList_success(GoalFilterDto reqBody, List<GoalDto> respBody) throws Exception {
+    void getList_success(MultiValueMap<String, String> params, List<GoalDto> respBody) throws Exception {
         when(goalService.getByFilters(any(GoalFilterDto.class)))
                 .thenReturn(respBody);
         mockMvc.perform(get("/goals/search")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .content(objMapper.writeValueAsString(reqBody)))
+                        .params(params))
                 .andExpect(content().json(objMapper.writeValueAsString(respBody)))
                 .andExpect(status().isOk());
     }
