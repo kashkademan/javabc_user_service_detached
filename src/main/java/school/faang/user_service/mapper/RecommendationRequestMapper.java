@@ -9,7 +9,8 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE,
         uses = {UserMapper.class})
 public interface RecommendationRequestMapper {
-
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "status", constant = "PENDING")
     RecommendationRequest toRecommendationRequest(CreateRecommendationRequestDto dto);
 
     @Mapping(source = "requester", target = "requester")

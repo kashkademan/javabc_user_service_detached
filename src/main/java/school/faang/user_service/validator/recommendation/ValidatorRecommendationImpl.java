@@ -1,7 +1,6 @@
-package school.faang.user_service.validate.recommendation;
+package school.faang.user_service.validator.recommendation;
 
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.RequestStatus;
@@ -15,9 +14,9 @@ public class ValidatorRecommendationImpl implements ValidatorRecommendation {
     private int timeOutMonth;
 
     @Override
-    public void validateStatus(RequestStatus status, String paramName) {
+    public void validateStatus(RequestStatus status) {
         if (!status.equals(RequestStatus.PENDING)) {
-            throw new DataValidationException(paramName + " no pending!");
+            throw new DataValidationException("Status no pending!");
         }
     }
 
@@ -30,8 +29,9 @@ public class ValidatorRecommendationImpl implements ValidatorRecommendation {
 
     @Override
     public void validateTimeOutSixMount(LocalDateTime created, String paramName) {
-        LocalDateTime sixMonthsLater = created.plusMonths(timeOutMonth);
-        if (!LocalDateTime.now().isAfter(sixMonthsLater)) {
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime limitDate = currentDate.minusMonths(timeOutMonth);
+        if (created.isAfter(limitDate)) {
             throw new DataValidationException(paramName
                     + " less than 6 months have passed since the last recommendation!");
         }
@@ -40,18 +40,6 @@ public class ValidatorRecommendationImpl implements ValidatorRecommendation {
     public void validateRecommendationIsRequest(Long requesterId, Long receiverId, String paramName) {
         if (requesterId.equals(receiverId)) {
             throw new DataValidationException(paramName + " cannot ask for a recommendation from himself!");
-        }
-    }
-
-    public void validateNotNull(Object value, String paramName) {
-        if (value == null) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
-    }
-
-    public void validateString(String value, String paramName) {
-        if (StringUtils.isNotBlank(value)) {
-            throw new DataValidationException(paramName + " should be present!");
         }
     }
 }
