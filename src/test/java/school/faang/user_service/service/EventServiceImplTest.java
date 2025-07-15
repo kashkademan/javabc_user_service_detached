@@ -1,4 +1,4 @@
-package school.faang.event;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,15 +8,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
+import school.faang.user_service.service.filter.event.EventFilterServiceImpl;
 
 import java.util.List;
 
@@ -31,6 +34,8 @@ public class EventServiceImplTest {
     @Mock
     private UserContext userContext;
     @Mock
+    private EventFilterServiceImpl eventFilterService;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private EventRepository eventRepository;
@@ -43,6 +48,68 @@ public class EventServiceImplTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
+        eventService = new EventServiceImpl(eventRepository,
+                userRepository,
+                eventMapper,
+                userContext,
+                eventFilterService);
+    }
+
+    @Test
+    @DisplayName("Фильтрация событий через EventFilterServiceImpl работает корректно")
+    void testGetList_withFilterService() {
+        EventFilterDto dto = new EventFilterDto();
+
+        Event event1 = new Event();
+        Event event2 = new Event();
+        List<Event> allEvents = List.of(event1, event2);
+        List<Event> filteredEvents = List.of(event1);
+
+        when(eventRepository.findAll()).thenReturn(allEvents);
+        when(eventFilterService.getFilteredList(allEvents, dto)).thenReturn(filteredEvents);
+
+        EventViewDto dto1 = new EventViewDto();
+        when(eventMapper.toViewDto(event1)).thenReturn(dto1);
+
+        List<EventViewDto> result = eventService.getList(dto);
+
+        assertEquals(1, result.size());
+        assertEquals(dto1, result.get(0));
+
+        verify(eventRepository).findAll();
+        verify(eventFilterService).getFilteredList(allEvents, dto);
+        verify(eventMapper).toViewDto(event1);
+    }
+
+    @Test
+    @DisplayName("Если фильтры ничего не отфильтровали — возвращается весь список")
+    void testGetList_noFilteringApplied_returnsAllEvents() {
+        final EventFilterDto dto = new EventFilterDto();
+
+        Event event1 = new Event();
+        event1.setId(1L);
+        Event event2 = new Event();
+        event2.setId(2L);
+        List<Event> allEvents = List.of(event1, event2);
+        List<Event> filteredEvents = allEvents;
+
+        EventViewDto dto1 = new EventViewDto();
+        EventViewDto dto2 = new EventViewDto();
+
+        when(eventRepository.findAll()).thenReturn(allEvents);
+        when(eventFilterService.getFilteredList(allEvents, dto)).thenReturn(filteredEvents);
+        when(eventMapper.toViewDto(event1)).thenReturn(dto1);
+        when(eventMapper.toViewDto(event2)).thenReturn(dto2);
+
+        List<EventViewDto> result = eventService.getList(dto);
+
+        assertEquals(2, result.size());
+        assertEquals(List.of(dto1, dto2), result);
+
+        verify(eventRepository).findAll();
+        verify(eventFilterService).getFilteredList(allEvents, dto);
+        verify(eventMapper).toViewDto(event1);
+        verify(eventMapper).toViewDto(event2);
     }
 
     @Test
@@ -137,6 +204,30 @@ public class EventServiceImplTest {
     }
 
     @Test
+    @DisplayName("Update throws ForbiddenException если пользователь не владелец события")
+    void shouldThrowForbiddenExceptionWhenUpdateByNotOwner() {
+        final long userId = 42L;
+        final long eventId = 99L;
+
+        User owner = new User();
+        owner.setId(100L);
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setOwner(owner);
+
+        when(userContext.getUserId()).thenReturn(userId);
+        when(eventRepository.getByIdOrThrow(eventId)).thenReturn(event);
+
+        EventUpdateDto updateDto = new EventUpdateDto();
+
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
+                () -> eventService.update(eventId, updateDto));
+
+        assertEquals("User 42 is not owner of event 99", ex.getMessage());
+    }
+
+    @Test
     @DisplayName("Удаление работает, если пользователь — владелец")
     void shouldDeleteEventIfOwner() {
         final long userId = 42L;
@@ -155,4 +246,28 @@ public class EventServiceImplTest {
 
         verify(eventRepository).delete(event);
     }
+
+    @Test
+    @DisplayName("Delete throws ForbiddenException если пользователь не владелец события")
+    void shouldThrowForbiddenExceptionWhenDeleteByNotOwner() {
+        final long userId = 42L;
+        final long eventId = 99L;
+
+        User owner = new User();
+        owner.setId(100L);
+
+        Event event = new Event();
+        event.setId(eventId);
+        event.setOwner(owner);
+
+        when(userContext.getUserId()).thenReturn(userId);
+        when(eventRepository.getByIdOrThrow(eventId)).thenReturn(event);
+
+        ForbiddenException ex = assertThrows(ForbiddenException.class, () ->
+                eventService.delete(eventId));
+
+        assertEquals("User 42 is not owner of event 99", ex.getMessage());
+    }
+
+
 }
