@@ -41,10 +41,6 @@ user:
     min:
       length: 6
 
-date:
-  time:
-    out: 6
-
 recommendation:
   delay:
     min:
@@ -52,3 +48,7 @@ recommendation:
 
 skill:
   min-offers-required: 3
+
+  date:
+    time:
+      out: 6
