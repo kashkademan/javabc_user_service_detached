@@ -36,7 +36,7 @@ public class UserSubscriptionController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{followeeId}/followers-count")
+    @GetMapping("/{followeeId}/count")
     public ResponseEntity<CountResponse> getFollowersCount(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowersCount(followeeId));
     }
