@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.users.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.MentorshipMapper;
+import school.faang.user_service.mapper.mentorship.MentorshipMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.MentorshipService;
 
