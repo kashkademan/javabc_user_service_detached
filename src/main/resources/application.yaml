@@ -12,19 +12,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
-mvc:
-  servlet:
-    path: /api/v1
-
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-
   data:
     redis:
       port: 6379
       host: localhost
       channel:
         recommendation-channel: recommendation_channel
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
   cloud:
     openfeign:
@@ -35,12 +31,28 @@ mvc:
             connect-timeout: 5000
             read-timeout: 5000
 
+mvc:
+  servlet:
+    path: /api/v1
+
 server:
   port: 8080
 
 logging:
   level:
     root: info
+
+services:
+  s3:
+    endpoint: http://127.0.0.1:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+
+profile-pic:
+  maxSize: 5242880
+  largePhotoSize: 1080
+  smallPhotoSize: 170
 
 project-service:
   host: localhost
