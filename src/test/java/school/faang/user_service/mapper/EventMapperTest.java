@@ -13,8 +13,7 @@ import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DisplayName("Юнит-тесты для EventMapper")
 public class EventMapperTest {
@@ -33,16 +32,20 @@ public class EventMapperTest {
         dto.setLocation("Amsterdam");
         dto.setStatus(EventStatus.PLANNED);
 
-        Event event = mapper.toEntity(dto);
+        Event expected = new Event();
+        expected.setTitle("Java Meetup");
+        expected.setDescription("Learn advanced Java");
+        expected.setStartDate(LocalDateTime.of(2025, 7, 15, 18, 0));
+        expected.setEndDate(LocalDateTime.of(2025, 7, 15, 20, 0));
+        expected.setType(EventType.MEETING);
+        expected.setLocation("Amsterdam");
+        expected.setStatus(EventStatus.PLANNED);
 
-        assertNotNull(event);
-        assertEquals("Java Meetup", event.getTitle());
-        assertEquals("Learn advanced Java", event.getDescription());
-        assertEquals(LocalDateTime.of(2025, 7, 15, 18, 0), event.getStartDate());
-        assertEquals(LocalDateTime.of(2025, 7, 15, 20, 0), event.getEndDate());
-        assertEquals(EventType.MEETING, event.getType());
-        assertEquals("Amsterdam", event.getLocation());
-        assertEquals(EventStatus.PLANNED, event.getStatus());
+        Event actual = mapper.toEntity(dto);
+
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
     }
 
     @Test
@@ -63,18 +66,23 @@ public class EventMapperTest {
         event.setCreatedAt(LocalDateTime.of(2025, 7, 1, 9, 0));
         event.setOwner(owner);
 
-        EventViewDto dto = mapper.toViewDto(event);
+        EventViewDto actualDto = mapper.toViewDto(event);
 
-        assertNotNull(dto);
-        assertEquals(event.getId(), dto.getId());
-        assertEquals("Tech Talk", dto.getTitle());
-        assertEquals("Kotlin vs Java", dto.getDescription());
-        assertEquals(LocalDateTime.of(2025, 8, 1, 10, 0), dto.getStartDate());
-        assertEquals(LocalDateTime.of(2025, 8, 1, 12, 0), dto.getEndDate());
-        assertEquals(EventType.WEBINAR, dto.getType());
-        assertEquals(EventStatus.PLANNED, dto.getStatus());
-        assertEquals(77L, dto.getOwnerId());
-        assertEquals(LocalDateTime.of(2025, 7, 1, 9, 0), dto.getCreatedAt());
+        EventViewDto expectedDto = new EventViewDto(
+                1L,
+                "Tech Talk",
+                "Kotlin vs Java",
+                LocalDateTime.of(2025, 8, 1, 10, 0),
+                LocalDateTime.of(2025, 8, 1, 12, 0),
+                EventType.WEBINAR,
+                77L,
+                EventStatus.PLANNED,
+                LocalDateTime.of(2025, 7, 1, 9, 0)
+        );
+
+        assertThat(actualDto)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedDto);
     }
 
     @Test
@@ -100,12 +108,18 @@ public class EventMapperTest {
 
         mapper.update(dto, event);
 
-        assertEquals("Updated Event", event.getTitle());
-        assertEquals("New description", event.getDescription());
-        assertEquals(LocalDateTime.of(2025, 9, 1, 14, 0), event.getStartDate());
-        assertEquals(LocalDateTime.of(2025, 9, 1, 16, 0), event.getEndDate());
-        assertEquals(EventType.MEETING, event.getType());
-        assertEquals(EventStatus.PLANNED, event.getStatus());
-        assertEquals("London", event.getLocation());
+        Event expected = new Event();
+        expected.setTitle("Updated Event");
+        expected.setDescription("New description");
+        expected.setStartDate(LocalDateTime.of(2025, 9, 1, 14, 0));
+        expected.setEndDate(LocalDateTime.of(2025, 9, 1, 16, 0));
+        expected.setType(EventType.MEETING);
+        expected.setStatus(EventStatus.PLANNED);
+        expected.setLocation("London");
+
+        assertThat(event)
+                .usingRecursiveComparison()
+                .ignoringFields("id", "owner", "createdAt") // если есть
+                .isEqualTo(expected);
     }
 }

@@ -66,18 +66,28 @@ public class EventControllerTest {
     @Test
     @DisplayName("Создание события — успешный сценарий")
     void createEvent_success() throws Exception {
+        LocalDateTime startDate = LocalDateTime.of(2025, 7, 20, 10, 0);
+        LocalDateTime endDate = LocalDateTime.of(2025, 7, 21, 12, 0);
+
         EventCreateDto createDto = new EventCreateDto(
                 "Sample Event",
                 "Description",
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2),
+                startDate,
+                endDate,
                 EventType.WEBINAR,
                 "Location A",
                 EventStatus.PLANNED
         );
 
-        Mockito.when(eventService.create(ArgumentMatchers.any(EventCreateDto.class)))
-                .thenReturn(viewDto);
+        Mockito.when(eventService.create(ArgumentMatchers.argThat(dto ->
+                "Sample Event".equals(dto.getTitle())
+                && "Description".equals(dto.getDescription())
+                && startDate.equals(dto.getStartDate())
+                && endDate.equals(dto.getEndDate())
+                && EventType.WEBINAR.equals(dto.getType())
+                && "Location A".equals(dto.getLocation())
+                && EventStatus.PLANNED.equals(dto.getStatus())
+        ))).thenReturn(viewDto);
 
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,6 +96,7 @@ public class EventControllerTest {
                 .andExpect(jsonPath("$.id").value(viewDto.getId()))
                 .andExpect(jsonPath("$.title").value("Sample Event"));
     }
+
 
     @Test
     @DisplayName("Обновление события — успешный сценарий")
