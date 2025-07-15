@@ -11,9 +11,8 @@ import school.faang.user_service.dto.premium.PaymentStatus;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
 import school.faang.user_service.entity.premium.Premium;
-import school.faang.user_service.entity.premium.PremiumPeriod;
+import school.faang.user_service.entity.premium.PremiumPeriodEnum;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.exception.PremiumAlreadyExistsException;
 import school.faang.user_service.mapper.PremiumMapper;
@@ -34,23 +33,21 @@ public class PremiumServiceImpl implements PremiumService {
     private final PremiumMapper premiumMapper;
     private final UserRepository userRepository;
 
+    public PremiumDto buyPremium(Long userId, int days) {
+        PremiumPeriodEnum period = PremiumPeriodEnum.getPremiumPeriod(days);
+        return buyPremium(userId, period);
+    }
+
     @Transactional
     @Override
-    public PremiumDto buyPremium(Long userId, PremiumPeriod period) {
+    public PremiumDto buyPremium(Long userId, PremiumPeriodEnum period) {
         if (premiumRepository.existsByUserId(userId)) {
             throw new PremiumAlreadyExistsException("User already has premium access");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User user = userRepository.getByIdOrThrow(userId);
 
-        PaymentRequest request = new PaymentRequest(
-                UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
-                BigDecimal.valueOf(period.getPrice()),
-                Currency.USD
-        );
-
-        PaymentResponse response = paymentServiceClient.sendPayment(request);
+        PaymentResponse response = processPayment(period);
 
         if (response.status() != PaymentStatus.SUCCESS) {
             throw new PaymentFailedException("Payment was not successful");
@@ -67,12 +64,19 @@ public class PremiumServiceImpl implements PremiumService {
         return premiumMapper.toDto(premium);
     }
 
+    private PaymentResponse processPayment(PremiumPeriodEnum period) {
+        PaymentRequest request = new PaymentRequest(
+                UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE,
+                BigDecimal.valueOf(period.getPrice()),
+                Currency.USD
+        );
+
+        return paymentServiceClient.sendPayment(request);
+    }
+
     @Override
     public List<UserWithPremiumDto> getUsersWithActivePremium() {
-        LocalDateTime now = LocalDateTime.now();
-        List<Premium> activePremiums = premiumRepository.findAllByEndDateAfter(now);
-
-        return activePremiums.stream()
+        return premiumRepository.findActivePremiums().stream()
                 .map(premiumMapper::toUserWithRemainingDays)
                 .toList();
     }

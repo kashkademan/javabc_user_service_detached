@@ -2,7 +2,7 @@ package school.faang.user_service.service.premium;
 
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
-import school.faang.user_service.entity.premium.PremiumPeriod;
+import school.faang.user_service.entity.premium.PremiumPeriodEnum;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface PremiumService {
      * @param period период премиум-подписки (содержит длительность и цену)
      * @return DTO с информацией о созданной премиум-подписке
      */
-    PremiumDto buyPremium(Long userId, PremiumPeriod period);
+    PremiumDto buyPremium(Long userId, PremiumPeriodEnum period);
 
     /**
      * Получает список пользователей с активной премиум-подпиской.

@@ -10,7 +10,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.controller.premium.PremiumController;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
-import school.faang.user_service.entity.premium.PremiumPeriod;
+import school.faang.user_service.entity.premium.PremiumPeriodEnum;
 import school.faang.user_service.service.premium.PremiumServiceImpl;
 
 import java.time.LocalDate;
@@ -47,7 +47,7 @@ class PremiumControllerTest {
                 .build();
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(premiumService.buyPremium(eq(userId), eq(PremiumPeriod.ONE_MONTH))).thenReturn(dto);
+        when(premiumService.buyPremium(eq(userId), eq(PremiumPeriodEnum.ONE_MONTH))).thenReturn(dto);
 
         mockMvc.perform(post("/premium/buy")
                         .param("days", "30"))

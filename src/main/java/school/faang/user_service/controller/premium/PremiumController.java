@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
-import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.service.premium.PremiumServiceImpl;
 
 import java.util.List;
@@ -44,8 +43,7 @@ public class PremiumController {
 
     @PostMapping("/buy")
     public ResponseEntity<PremiumDto> buyPremium(@RequestParam int days) {
-        PremiumPeriod period = PremiumPeriod.getPremiumPeriod(days);
-        PremiumDto premiumDto = service.buyPremium(context.getUserId(), period);
+        PremiumDto premiumDto = service.buyPremium(context.getUserId(), days);
         return ResponseEntity.ok(premiumDto);
     }
 

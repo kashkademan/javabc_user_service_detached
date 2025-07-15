@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.Arrays;
 
 /**
- * PremiumPeriod — перечисление, представляющее варианты премиум-подписок с их длительностью и стоимостью.
+ * PremiumPeriodEnum — перечисление, представляющее варианты премиум-подписок с их длительностью и стоимостью.
  * <p>
  * Каждое значение enum описывает конкретный период подписки:
  * <ul>
@@ -28,7 +28,7 @@ import java.util.Arrays;
  */
 @AllArgsConstructor
 @Getter
-public enum PremiumPeriod {
+public enum PremiumPeriodEnum {
     ONE_MONTH(30, 10),
     THREE_MONTHS(90, 25),
     ONE_YEAR(365, 80);
@@ -36,7 +36,7 @@ public enum PremiumPeriod {
     private final int days;
     private final int price;
 
-    public static PremiumPeriod getPremiumPeriod(int days) {
+    public static PremiumPeriodEnum getPremiumPeriod(int days) {
         return Arrays.stream(values())
                 .filter(period -> period.days == days)
                 .findFirst()
