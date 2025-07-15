@@ -33,4 +33,12 @@ public class SkillServiceImpl implements SkillService{
         Skill savedSkill = skillRepository.save(skill);
         return skillMapper.toSkillDto(savedSkill);
     }
+
+    @Override
+    public List<SkillDto> getByUserId(Long userId) {
+        return skillRepository.findAllByUserId(userId)
+                .stream()
+                .map(skillMapper::toSkillDto)
+                .toList();
+    }
 }
