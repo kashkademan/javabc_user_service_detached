@@ -27,14 +27,15 @@ server:
 logging:
   level:
     root: info
+    school.faang.user_service.client.PaymentServiceClient: DEBUG
+    feign: DEBUG
 
 project-service:
   host: localhost
   port: 8082
 
 payment-service:
-  host: localhost
-  port: 9080
+  host: http://localhost:9090/api
 
 user:
   password:
