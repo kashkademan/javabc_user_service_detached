@@ -1,9 +1,0 @@
-package school.faang.user_service.service;
-
-import java.util.stream.Stream;
-
-public interface Filter<E, D> {
-    boolean isApplicable(D filterDto);
-
-    Stream<E> filter(Stream<E> entities, D dto);
-}
