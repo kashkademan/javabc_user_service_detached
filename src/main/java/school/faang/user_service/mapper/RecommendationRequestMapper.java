@@ -18,7 +18,7 @@ public interface RecommendationRequestMapper {
     RecommendationRequest toEntity(RecommendationRequestCreateDto dto);
 
     @Mapping(source = "skills", target = "skillIds", qualifiedByName = "mapSkillIds")
-    RecommendationRequestViewDto toDto(RecommendationRequest request);
+    RecommendationRequestViewDto toViewDto(RecommendationRequest request);
 
     @Named("mapSkillIds")
     default List<Long> mapSkillIds(List<SkillRequest> skillRequests) {

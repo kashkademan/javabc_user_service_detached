@@ -3,6 +3,7 @@ package school.faang.user_service.controller.recommendation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +33,7 @@ import java.util.List;
  *     <li>GET /recommendations - получение списка отфильтрованных запросов</li>
  *     <li>GET /recommendations/{requestId} - получение конкретного запроса</li>
  * </ul>
- *
+ * <p>
  * Использует {@link RecommendationRequestService} для бизнес-логики
  *
  * @author Linempy
@@ -63,13 +64,15 @@ public class RecommendationRequestController {
     }
 
     @PostMapping("/{requestId}/accept")
-    public void accept(@PathVariable long requestId) {
+    public ResponseEntity<Void> accept(@PathVariable long requestId) {
         service.accept(requestId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{requestId}/reject")
-    public void reject(@PathVariable long requestId, @Valid RejectionDto rejectionDto) {
+    public ResponseEntity<Void> reject(@PathVariable long requestId, @Valid RejectionDto rejectionDto) {
         service.reject(requestId, rejectionDto);
+        return ResponseEntity.ok().build();
     }
 }
 

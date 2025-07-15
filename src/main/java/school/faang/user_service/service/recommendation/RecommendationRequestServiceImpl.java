@@ -51,7 +51,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest request = buildAndSaveRecommendationRequest(createDto, requester, receiver);
 
         log.info("Recommendation request created successfully. ID: {}", request.getId());
-        return mapper.toDto(request);
+        return mapper.toViewDto(request);
     }
 
     @Override
@@ -67,14 +67,14 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
         log.debug("Recommendation request filtering was successful");
         return filteredRequests
-                .map(mapper::toDto)
+                .map(mapper::toViewDto)
                 .toList();
     }
 
     @Override
     public RecommendationRequestViewDto getById(long id) {
         RecommendationRequest foundRequest = requestRepository.getByIdOrThrow(id);
-        return mapper.toDto(foundRequest);
+        return mapper.toViewDto(foundRequest);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     private void validateRequestIsPending(RecommendationRequest request,
                                           String errorMessage) {
-        if (request.getStatus() != (RequestStatus.PENDING)) {
+        if (request.getStatus() == (RequestStatus.PENDING)) {
             log.warn("Invalid request (id:{}) state: Current status is {}",
                     request.getId(), request.getStatus());
             throw new ForbiddenException(errorMessage);
