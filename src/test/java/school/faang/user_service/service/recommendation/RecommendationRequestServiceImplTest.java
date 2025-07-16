@@ -97,7 +97,6 @@ public class RecommendationRequestServiceImplTest {
         assertThrows(ForbiddenException.class, () -> service.create(dto));
     }
 
-
     @Test
     @DisplayName("Проверка частоты отправки запроса одному и тому же человеку")
     public void testCreateWithCooldownPeriod() {
@@ -125,7 +124,6 @@ public class RecommendationRequestServiceImplTest {
     public void testCreateSuccessful() {
         long receiverId = 1L;
         long requesterId = 2L;
-        long requestId = 1L;
         String message = "Какое-то сообщение";
         List<Long> skillIds = List.of(10L, 20L);
 
@@ -140,10 +138,11 @@ public class RecommendationRequestServiceImplTest {
                 receiverId,
                 skillIds
         );
-
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.getByIdOrThrow(dto.receiverId())).thenReturn(receiver);
         when(userRepository.getByIdOrThrow(requesterId)).thenReturn(requester);
+
+        long requestId = 1L;
         when(requestRepository.save(captor.capture()))
                 .thenAnswer(
                         arg -> {
@@ -165,8 +164,6 @@ public class RecommendationRequestServiceImplTest {
                 }
         );
 
-        RecommendationRequestViewDto resultDto = service.create(dto);
-
         RecommendationRequest savedRequest = captor.getValue();
         assertEquals(message, savedRequest.getMessage());
         assertEquals(receiverId, savedRequest.getReceiver().getId());
@@ -174,6 +171,8 @@ public class RecommendationRequestServiceImplTest {
                 .map(skillReq -> skillReq.getSkill().getId())
                 .toList());
         assertEquals(RequestStatus.PENDING, savedRequest.getStatus());
+
+        RecommendationRequestViewDto resultDto = service.create(dto);
 
         verify(requestRepository, times(1)).save(captor.capture());
         skillIds.forEach(id -> verify(skillRequestRepository, times(1)).create(requestId, id));
@@ -183,7 +182,6 @@ public class RecommendationRequestServiceImplTest {
         assertEquals(RequestStatus.PENDING, resultDto.status());
         assertEquals(dto.skillIds(), resultDto.skillIds());
     }
-
 
     @Test
     @DisplayName("Проверка на получение DTO запроса рекомендации по id")
@@ -222,7 +220,6 @@ public class RecommendationRequestServiceImplTest {
         verify(mapper, times(1)).toViewDto(request);
         assertEquals(expectedDto, actualDto);
     }
-
 
     @Test
     @DisplayName("Проверка получения DTO запросов на рекомендаций по ID и фильтрам")
