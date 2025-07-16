@@ -143,14 +143,13 @@ public class RecommendationRequestServiceImplTest {
         when(userRepository.getByIdOrThrow(requesterId)).thenReturn(requester);
 
         long requestId = 1L;
-        when(requestRepository.save(captor.capture()))
-                .thenAnswer(
-                        arg -> {
-                            RecommendationRequest request = arg.getArgument(0);
-                            request.setId(requestId);
-                            return request;
-                        }
-                );
+        when(requestRepository.save(captor.capture())).thenAnswer(
+            arg -> {
+                RecommendationRequest request = arg.getArgument(0);
+                request.setId(requestId);
+                return request;
+            }
+        );
 
         AtomicLong skillRequestId = new AtomicLong(1L);
         skillIds.forEach(
