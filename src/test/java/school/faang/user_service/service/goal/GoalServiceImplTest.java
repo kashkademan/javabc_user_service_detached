@@ -28,9 +28,11 @@ import school.faang.user_service.exception.GoalCompletedException;
 import school.faang.user_service.mapper.GoalMapperImpl;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -281,21 +283,25 @@ class GoalServiceImplTest {
     @DisplayName("Ошибка обновления - недостаточно прав")
     void negative_whenHasNoAuthority_shouldNotUpdateAndThrowException(Long mentorId, Long userId, Long currentId) {
         UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(mentorId, DEADLINE, GoalStatus.ACTIVE);
+        String expectedExceptionMessage = "User " + currentId + " doesn't have authorities to update goal " + GOAL_ID;
         when(userContext.getUserId())
                 .thenReturn(currentId);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
                 .thenReturn(prepareExistsGoal(mentorId, List.of(userId), GoalStatus.ACTIVE));
 
         verify(goalRepository, never()).save(any(Goal.class));
-        assertThrows(ForbiddenException.class,
-                     () -> goalService.update(GOAL_ID, updateGoalDto),
-                     "User " + currentId + " doesn't have authorities to update goal " + GOAL_ID);
+        String actualExceptionMessage = assertThrows(ForbiddenException.class,
+                                                     () -> goalService.update(GOAL_ID, updateGoalDto)).getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
     }
 
     @Test
     @DisplayName("Ошибка обновления ментра - новый ментор участник цели")
     void negative_whenNewMentorIsParticipant_shouldThrowException() {
         UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(OTHER_USER_ID, DEADLINE, GoalStatus.ACTIVE);
+        String expectedExceptionMessage = "User " + updateGoalDto.mentorId() + " is a participant in goal " + GOAL_ID
+                                          + " and cannot be appointment as a new mentor by user " + MENTOR_ID;
         Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(OTHER_USER_ID), GoalStatus.ACTIVE);
         when(userContext.getUserId())
                 .thenReturn(MENTOR_ID);
@@ -304,10 +310,10 @@ class GoalServiceImplTest {
 
         verify(goalRepository, never()).save(any(Goal.class));
         verify(userRepository, never()).getByIdOrThrow(updateGoalDto.mentorId());
-        assertThrows(ForbiddenException.class,
-                     () -> goalService.update(GOAL_ID, updateGoalDto),
-                     "User " + updateGoalDto.mentorId() + " is a participant in goal " + GOAL_ID
-                     + " and cannot be appointment as a new mentor by user " + MENTOR_ID);
+        String actualExceptionMessage = assertThrows(ForbiddenException.class,
+                                                     () -> goalService.update(GOAL_ID, updateGoalDto)).getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
     }
 
     @Test
