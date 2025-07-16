@@ -70,7 +70,7 @@ public class EducationServiceIntegrationTest {
 
     private Education createEducation() {
         Education education = new Education(1L, 2000, 2010, "university",
-                "middle", "spec1", new User());
+                "middle", "spec1", createUser());
         return education;
     }
 
@@ -78,5 +78,10 @@ public class EducationServiceIntegrationTest {
         EducationDto educationDto = new EducationDto(2000, 2007, "university",
                 "middle", "spec2");
         return educationDto;
+    }
+
+    private User createUser() {
+        User user = new User(1L, "name1");
+        return user;
     }
 }

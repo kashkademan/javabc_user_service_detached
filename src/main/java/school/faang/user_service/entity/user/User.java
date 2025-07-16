@@ -66,6 +66,12 @@ public class User {
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
 
+    //Нужен только для тестового класса
+    public User(Long id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
