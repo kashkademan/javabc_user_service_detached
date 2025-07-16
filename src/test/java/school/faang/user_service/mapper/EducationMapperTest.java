@@ -31,7 +31,6 @@ public class EducationMapperTest {
     public void testToEntity() {
         User user = new User();
         long userId = 1L;
-        long educationId = 1L;
         user.setId(userId);
         CreateEducationDto dto = new CreateEducationDto();
         dto.setYearFrom(2014);
@@ -41,7 +40,7 @@ public class EducationMapperTest {
         dto.setSpecialization("engineer");
 
         Education education = new Education();
-        education.setId(educationId);
+        education.setId(1L);
         education.setYearFrom(2014);
         education.setYearTo(2018);
         education.setInstitution("MTI");
@@ -60,13 +59,7 @@ public class EducationMapperTest {
     @DisplayName("update - обновляет education на основе UpdateEducationDto")
     public void testUpdate() {
         User user = new User();
-        UpdateEducationDto dto = new UpdateEducationDto(
-               2014,
-               2018,
-               "MTI",
-               "Master’s Degree",
-                "engineer"
-        );
+
         Education education = new Education();
         education.setId(1L);
         education.setYearFrom(2014);
@@ -75,6 +68,14 @@ public class EducationMapperTest {
         education.setEducationLevel("Master’s Degree");
         education.setSpecialization("engineer");
         education.setUser(user);
+
+        UpdateEducationDto dto = new UpdateEducationDto(
+                2014,
+                2018,
+                "MTI",
+                "Master’s Degree",
+                "engineer"
+        );
 
         mapper.update(dto, education);
 
