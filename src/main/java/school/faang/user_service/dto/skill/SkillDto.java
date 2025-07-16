@@ -1,11 +1,11 @@
 package school.faang.user_service.dto.skill;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import school.faang.user_service.dto.user.UserDto;
 
-@Value
-public class SkillDto {
-    Long id;
-    @NotBlank
-    String title;
-}
+import java.util.List;
+
+public record SkillDto(
+    Long id,
+    String title,
+    List<UserDto> guarantors
+){}

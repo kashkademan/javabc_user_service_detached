@@ -41,4 +41,11 @@ public class SkillController {
         long currentUserId = userContext.getUserId();
         return skillService.getOfferedSkills(currentUserId);
     }
+
+    @PostMapping("/acquire/{skillId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void acquireSkillFromOffers(@PathVariable long skillId) {
+        long currentUserId = userContext.getUserId();
+        skillService.acquireSkillFromOffers(skillId, currentUserId);
+    }
 }
