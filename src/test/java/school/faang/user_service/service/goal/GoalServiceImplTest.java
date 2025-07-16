@@ -79,11 +79,9 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("Успешное создание цели ментром")
     void positive_whenMentor_shouldCreateGoal() {
-        CreateGoalDto createGoalDto =
-                new CreateGoalDto(
-                        PARENT_GOAL_ID, TITLE, DESCRIPTION, DEADLINE, MENTOR_ID, List.of(USER_ID, OTHER_USER_ID));
-        GoalDto expected = prepareCreatedExpectedDto(createGoalDto, GOAL_ID);
-        preparePositiveCreateBehavior(createGoalDto, GOAL_ID, MENTOR_ID);
+        CreateGoalDto createGoalDto = prepareCreateGoalDto(MENTOR_ID, List.of(USER_ID, OTHER_USER_ID));
+        GoalDto expected = prepareCreatedExpectedDto(createGoalDto);
+        preparePositiveCreateBehavior(createGoalDto, MENTOR_ID);
 
         GoalDto actual = goalService.create(createGoalDto);
 
@@ -96,10 +94,9 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("Успешное создание цели самим пользователем")
     void positive_whenRegularUser_shouldCreateGoal() {
-        CreateGoalDto createGoalDto =
-                new CreateGoalDto(PARENT_GOAL_ID, TITLE, DESCRIPTION, DEADLINE, null, List.of(USER_ID));
-        GoalDto expected = prepareCreatedExpectedDto(createGoalDto, GOAL_ID);
-        preparePositiveCreateBehavior(createGoalDto, GOAL_ID, USER_ID);
+        CreateGoalDto createGoalDto = prepareCreateGoalDto(null, List.of(USER_ID));
+        GoalDto expected = prepareCreatedExpectedDto(createGoalDto);
+        preparePositiveCreateBehavior(createGoalDto, USER_ID);
 
         GoalDto actual = goalService.create(createGoalDto);
 
@@ -112,11 +109,9 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("Успешное обновление цели ментром")
     void positive_whenMentor_shouldUpdateGoal() {
-        UpdateGoalDto updateGoalDto =
-                new UpdateGoalDto(TITLE, DESCRIPTION, DEADLINE, OTHER_USER_ID, GoalStatus.COMPLETED);
-        GoalDto expected = prepareUpdatedExpectedDto(
-                updateGoalDto, GOAL_ID, PARENT_GOAL_ID, List.of(USER_ID), GoalStatus.COMPLETED);
-        preparePositiveUpdateBehavior(updateGoalDto, MENTOR_ID, GOAL_ID, MENTOR_ID, List.of(USER_ID));
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(OTHER_USER_ID, DEADLINE, GoalStatus.COMPLETED);
+        GoalDto expected = prepareUpdatedExpectedDto(updateGoalDto, List.of(USER_ID), GoalStatus.COMPLETED);
+        preparePositiveUpdateBehavior(updateGoalDto, MENTOR_ID, MENTOR_ID, List.of(USER_ID));
 
         GoalDto actual = goalService.update(GOAL_ID, updateGoalDto);
 
@@ -127,14 +122,12 @@ class GoalServiceImplTest {
     }
 
     @Test
-    @DisplayName("Успешное создание цели самим пользователем")
+    @DisplayName("Успешное обновление цели самим пользователем")
     void positive_whenRegularUser_shouldUpdateGoal() {
-        UpdateGoalDto updateGoalDto = new UpdateGoalDto(TITLE, DESCRIPTION, DEADLINE,
-                                                        null, GoalStatus.COMPLETED);
-        GoalDto expected = prepareUpdatedExpectedDto(
-                updateGoalDto, GOAL_ID, PARENT_GOAL_ID, List.of(USER_ID), GoalStatus.COMPLETED);
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(null, DEADLINE, GoalStatus.COMPLETED);
+        GoalDto expected = prepareUpdatedExpectedDto(updateGoalDto, List.of(USER_ID), GoalStatus.COMPLETED);
 
-        preparePositiveUpdateBehavior(updateGoalDto, USER_ID, GOAL_ID, null, List.of(USER_ID));
+        preparePositiveUpdateBehavior(updateGoalDto, USER_ID, null, List.of(USER_ID));
 
         GoalDto actual = goalService.update(GOAL_ID, updateGoalDto);
 
@@ -145,13 +138,11 @@ class GoalServiceImplTest {
     }
 
     @Test
-    @DisplayName("Успешное создание цели участником")
+    @DisplayName("Успешное обновление цели участником")
     void positive_whenParticipant_shouldUpdateGoal() {
-        UpdateGoalDto updateGoalDto = new UpdateGoalDto(TITLE, DESCRIPTION, NEW_DEADLINE,
-                                                        MENTOR_ID, GoalStatus.ACTIVE);
-        GoalDto expected = prepareUpdatedExpectedDto(
-                updateGoalDto, GOAL_ID, PARENT_GOAL_ID, List.of(USER_ID), GoalStatus.ACTIVE);
-        preparePositiveUpdateBehavior(updateGoalDto, USER_ID, GOAL_ID, MENTOR_ID, List.of(USER_ID));
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(MENTOR_ID, NEW_DEADLINE, GoalStatus.ACTIVE);
+        GoalDto expected = prepareUpdatedExpectedDto(updateGoalDto, List.of(USER_ID), GoalStatus.ACTIVE);
+        preparePositiveUpdateBehavior(updateGoalDto, USER_ID, MENTOR_ID, List.of(USER_ID));
 
         GoalDto actual = goalService.update(GOAL_ID, updateGoalDto);
 
@@ -164,7 +155,7 @@ class GoalServiceImplTest {
     @EnumSource(GoalStatus.class)
     @DisplayName("Успешное удаление цели ментром")
     void positive_whenMentor_shouldDeleteGoal(GoalStatus status) {
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE, MENTOR_ID, List.of(USER_ID), status);
+        Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(USER_ID), status);
         when(userContext.getUserId()).thenReturn(MENTOR_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID)).thenReturn(existsGoal);
 
@@ -178,7 +169,7 @@ class GoalServiceImplTest {
     @EnumSource(GoalStatus.class)
     @DisplayName("Успешное удаление цели пользователем у себя")
     void positive_whenRegularUser_shouldDeleteGoal(GoalStatus status) {
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE, null, List.of(USER_ID), status);
+        Goal existsGoal = prepareExistsGoal(null, List.of(USER_ID), status);
         when(userContext.getUserId()).thenReturn(USER_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID)).thenReturn(existsGoal);
 
@@ -192,8 +183,7 @@ class GoalServiceImplTest {
     @EnumSource(GoalStatus.class)
     @DisplayName("Успешное удаление себя из цели одним из участников")
     void positive_whenNotLastParticipant_shouldDeleteYourselfFromGoal(GoalStatus status) {
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE,
-                                            MENTOR_ID, List.of(USER_ID, OTHER_USER_ID), status);
+        Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(USER_ID, OTHER_USER_ID), status);
         when(userContext.getUserId()).thenReturn(USER_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID)).thenReturn(existsGoal);
 
@@ -207,7 +197,7 @@ class GoalServiceImplTest {
     @EnumSource(GoalStatus.class)
     @DisplayName("Успешное удаление цели последним участником")
     void positive_whenLastParticipant_shouldDeleteGoal(GoalStatus status) {
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE, MENTOR_ID, List.of(USER_ID), status);
+        Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(USER_ID), status);
         when(userContext.getUserId()).thenReturn(USER_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID)).thenReturn(existsGoal);
 
@@ -229,8 +219,7 @@ class GoalServiceImplTest {
                                                goalFilterDto.descriptionContains(),
                                                goalFilterDto.mentorId(),
                                                goalFilterDto.status()))
-                .thenReturn(List.of(prepareExistsGoal(
-                        GOAL_ID, PARENT_GOAL_ID, DEADLINE, MENTOR_ID, List.of(USER_ID), GoalStatus.ACTIVE)));
+                .thenReturn(List.of(prepareExistsGoal(MENTOR_ID, List.of(USER_ID), GoalStatus.ACTIVE)));
 
         List<GoalDto> actual = goalService.getByFilters(goalFilterDto);
         assertNotNull(actual);
@@ -241,8 +230,7 @@ class GoalServiceImplTest {
     @MethodSource("provideUsersHaveNoCreateAuthority")
     @DisplayName("Ошибка создания цели - недостаточно прав")
     void negative_whenHasNoAuthority_shouldNotCreateAndThrowException(Long mentorId, Long userId, Long currentId) {
-        CreateGoalDto createGoalDto =
-                new CreateGoalDto(PARENT_GOAL_ID, TITLE, DESCRIPTION, DEADLINE, mentorId, List.of(userId));
+        CreateGoalDto createGoalDto = prepareCreateGoalDto(mentorId, List.of(userId));
 
         when(userContext.getUserId())
                 .thenReturn(currentId);
@@ -258,8 +246,7 @@ class GoalServiceImplTest {
     @MethodSource("provideUsersExceededActiveGoalLimit")
     @DisplayName("Ошибка создания цели - превышен лимит активных целей")
     void negative_whenExceededActiveGoalLimit_shouldThrowException(Long mentorId, Long userId, Long currentId) {
-        CreateGoalDto createGoalDto =
-                new CreateGoalDto(PARENT_GOAL_ID, TITLE, DESCRIPTION, DEADLINE, mentorId, List.of(userId));
+        CreateGoalDto createGoalDto = prepareCreateGoalDto(mentorId, List.of(userId));
 
         when(userContext.getUserId())
                 .thenReturn(currentId);
@@ -278,13 +265,11 @@ class GoalServiceImplTest {
     @MethodSource("provideUsers")
     @DisplayName("Ошибка обновления - цель уже завершена")
     void negative_whenGoalCompleted_shouldThrowException(Long currentId) {
-        UpdateGoalDto updateGoalDto = new UpdateGoalDto(TITLE, DESCRIPTION, DEADLINE,
-                                                        MENTOR_ID, GoalStatus.COMPLETED);
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(MENTOR_ID, DEADLINE, GoalStatus.COMPLETED);
         when(userContext.getUserId())
                 .thenReturn(currentId);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
-                .thenReturn(prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE,
-                                              MENTOR_ID, List.of(USER_ID), GoalStatus.COMPLETED));
+                .thenReturn(prepareExistsGoal(MENTOR_ID, List.of(USER_ID), GoalStatus.COMPLETED));
 
         verify(goalRepository, never()).save(any(Goal.class));
         assertThrows(GoalCompletedException.class,
@@ -295,13 +280,11 @@ class GoalServiceImplTest {
     @MethodSource("provideUsersHaveNoUpdateAuthority")
     @DisplayName("Ошибка обновления - недостаточно прав")
     void negative_whenHasNoAuthority_shouldNotUpdateAndThrowException(Long mentorId, Long userId, Long currentId) {
-        UpdateGoalDto updateGoalDto = new UpdateGoalDto(TITLE, DESCRIPTION, DEADLINE,
-                                                        mentorId, GoalStatus.ACTIVE);
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(mentorId, DEADLINE, GoalStatus.ACTIVE);
         when(userContext.getUserId())
                 .thenReturn(currentId);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
-                .thenReturn(prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE,
-                                              mentorId, List.of(userId), GoalStatus.ACTIVE));
+                .thenReturn(prepareExistsGoal(mentorId, List.of(userId), GoalStatus.ACTIVE));
 
         verify(goalRepository, never()).save(any(Goal.class));
         assertThrows(ForbiddenException.class,
@@ -312,10 +295,8 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("Ошибка обновления ментра - новый ментор участник цели")
     void negative_whenNewMentorIsParticipant_shouldThrowException() {
-        UpdateGoalDto updateGoalDto = new UpdateGoalDto(TITLE, DESCRIPTION, DEADLINE,
-                                                        OTHER_USER_ID, GoalStatus.ACTIVE);
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE,
-                          MENTOR_ID, List.of(OTHER_USER_ID), GoalStatus.ACTIVE);
+        UpdateGoalDto updateGoalDto = prepareUpdateGoalDto(OTHER_USER_ID, DEADLINE, GoalStatus.ACTIVE);
+        Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(OTHER_USER_ID), GoalStatus.ACTIVE);
         when(userContext.getUserId())
                 .thenReturn(MENTOR_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
@@ -332,8 +313,7 @@ class GoalServiceImplTest {
     @Test
     @DisplayName("Ошибка при удалении цели - недостаточно прав")
     void negative_whenHasNoAuthority_shouldThrowException() {
-        Goal existsGoal = prepareExistsGoal(GOAL_ID, PARENT_GOAL_ID, DEADLINE,
-                                            MENTOR_ID, List.of(USER_ID), GoalStatus.COMPLETED);
+        Goal existsGoal = prepareExistsGoal(MENTOR_ID, List.of(USER_ID), GoalStatus.COMPLETED);
         when(userContext.getUserId())
                 .thenReturn(OTHER_USER_ID);
         when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
@@ -347,8 +327,12 @@ class GoalServiceImplTest {
 
     // --------------------------
 
-    private GoalDto prepareCreatedExpectedDto(CreateGoalDto createGoalDto, long goalId) {
-        return new GoalDto(goalId,
+    private CreateGoalDto prepareCreateGoalDto(Long mentorId, List<Long> userIds) {
+        return new CreateGoalDto(PARENT_GOAL_ID, TITLE, DESCRIPTION, DEADLINE, mentorId, userIds);
+    }
+
+    private GoalDto prepareCreatedExpectedDto(CreateGoalDto createGoalDto) {
+        return new GoalDto(GOAL_ID,
                            createGoalDto.parentId(),
                            createGoalDto.title(),
                            createGoalDto.description(),
@@ -358,7 +342,7 @@ class GoalServiceImplTest {
                            GoalStatus.ACTIVE);
     }
 
-    private void preparePositiveCreateBehavior(CreateGoalDto createGoalDto, long goalId, Long currentId) {
+    private void preparePositiveCreateBehavior(CreateGoalDto createGoalDto, Long currentId) {
         when(userContext.getUserId())
                 .thenReturn(currentId);
         when(userRepository.findAllById(createGoalDto.userIds()))
@@ -372,15 +356,19 @@ class GoalServiceImplTest {
         when(goalRepository.save(goalCaptor.capture()))
                 .thenAnswer(invocation -> {
                     Goal goal = goalCaptor.getValue();
-                    goal.setId(goalId);
+                    goal.setId(GOAL_ID);
                     return goal;
                 });
     }
 
+    private UpdateGoalDto prepareUpdateGoalDto(Long mentorId, LocalDateTime deadline, GoalStatus goalStatus) {
+        return new UpdateGoalDto(TITLE, DESCRIPTION, deadline, mentorId, goalStatus);
+    }
+
     private GoalDto prepareUpdatedExpectedDto(
-            UpdateGoalDto updateGoalDto, long goalId, long parentGoalId, List<Long> userIds, GoalStatus status) {
-        return new GoalDto(goalId,
-                           parentGoalId,
+            UpdateGoalDto updateGoalDto, List<Long> userIds, GoalStatus status) {
+        return new GoalDto(GOAL_ID,
+                           PARENT_GOAL_ID,
                            updateGoalDto.title(),
                            updateGoalDto.description(),
                            null, updateGoalDto.deadline(), null,
@@ -390,11 +378,11 @@ class GoalServiceImplTest {
     }
 
     private void preparePositiveUpdateBehavior(
-            UpdateGoalDto updateGoalDto, Long currentId, long goalId, Long mentorId, List<Long> userIds) {
-        Goal existsGoal = prepareExistsGoal(goalId, PARENT_GOAL_ID, DEADLINE, mentorId, userIds, GoalStatus.ACTIVE);
+            UpdateGoalDto updateGoalDto, Long currentId, Long mentorId, List<Long> userIds) {
+        Goal existsGoal = prepareExistsGoal(mentorId, userIds, GoalStatus.ACTIVE);
         when(userContext.getUserId())
                 .thenReturn(currentId);
-        when(goalRepository.getGoalWithUsersByIdOrThrow(goalId))
+        when(goalRepository.getGoalWithUsersByIdOrThrow(GOAL_ID))
                 .thenReturn(existsGoal);
         if (updateGoalDto.mentorId() != null) {
             lenient().when(userRepository.getByIdOrThrow(updateGoalDto.mentorId()))
@@ -426,15 +414,13 @@ class GoalServiceImplTest {
                 .toList();
     }
 
-    private Goal prepareExistsGoal(long goalId, long parentGoalId, LocalDateTime deadline,
-                                   Long mentorId, List<Long> userIds, GoalStatus status) {
-
+    private Goal prepareExistsGoal(Long mentorId, List<Long> userIds, GoalStatus status) {
         return Goal.builder()
-                .id(goalId)
-                .parent(prepareGoal(parentGoalId))
+                .id(GOAL_ID)
+                .parent(prepareGoal(PARENT_GOAL_ID))
                 .title(TITLE)
                 .description(DESCRIPTION)
-                .deadline(deadline)
+                .deadline(DEADLINE)
                 .users(prepareUsersBy(userIds))
                 .mentor(prepareUserBy(mentorId))
                 .status(status)
