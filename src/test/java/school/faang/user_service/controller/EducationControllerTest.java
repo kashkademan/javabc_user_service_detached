@@ -1,4 +1,4 @@
-package school.faang.education;
+package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * EducationControllerTest — описание класса.
  * <p>
- * TODO: добавить описание назначения и поведения класса.
+ * Тестирует класс EducationController
  * </p>*
  *
- * @author Пользователь
+ * @author fomchenkoandrey
  * @since 13.07.2025
  */
 
