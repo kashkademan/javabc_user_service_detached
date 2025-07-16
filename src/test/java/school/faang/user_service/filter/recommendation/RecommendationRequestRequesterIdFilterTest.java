@@ -76,8 +76,8 @@ public class RecommendationRequestRequesterIdFilterTest {
 
     private RecommendationRequestFilterDto getFilterDto(Long id) {
         return new RecommendationRequestFilterDto(
-                1L,
                 id,
+                1L,
                 "message",
                 RequestStatus.PENDING);
     }
