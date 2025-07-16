@@ -19,7 +19,6 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
-//import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -66,9 +65,6 @@ public class RecommendationRequestServiceImplTest {
 
     @Mock
     private SkillRequestRepository skillRequestRepository;
-
-//    @Mock
-//    private List<RecommendationRequestFilter> filters;
 
     @Spy
     private RecommendationRequestMapperImpl mapper;
@@ -162,18 +158,7 @@ public class RecommendationRequestServiceImplTest {
                     when(skillRequestRepository.create(requestId, id)).thenReturn(mockSkill);
                 }
         );
-
-        RecommendationRequest savedRequest = captor.getValue();
-
-        assertEquals(message, savedRequest.getMessage());
-        assertEquals(receiverId, savedRequest.getReceiver().getId());
-        assertEquals(skillIds, savedRequest.getSkills().stream()
-                .map(skillReq -> skillReq.getSkill().getId())
-                .toList());
-        assertEquals(RequestStatus.PENDING, savedRequest.getStatus());
-
         RecommendationRequestViewDto resultDto = service.create(dto);
-
         verify(requestRepository, times(1)).save(captor.capture());
         skillIds.forEach(id -> verify(skillRequestRepository, times(1)).create(requestId, id));
         assertEquals(message, resultDto.message());
@@ -181,6 +166,14 @@ public class RecommendationRequestServiceImplTest {
         assertEquals(receiver.getId(), resultDto.receiver().id());
         assertEquals(RequestStatus.PENDING, resultDto.status());
         assertEquals(dto.skillIds(), resultDto.skillIds());
+
+        RecommendationRequest savedRequest = captor.getValue();
+        assertEquals(message, savedRequest.getMessage());
+        assertEquals(receiverId, savedRequest.getReceiver().getId());
+        assertEquals(skillIds, savedRequest.getSkills().stream()
+                .map(skillReq -> skillReq.getSkill().getId())
+                .toList());
+        assertEquals(RequestStatus.PENDING, savedRequest.getStatus());
     }
 
     @Test
