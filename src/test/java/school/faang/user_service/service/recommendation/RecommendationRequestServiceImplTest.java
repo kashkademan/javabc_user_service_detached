@@ -220,10 +220,5 @@ public class RecommendationRequestServiceImplTest {
         assertEquals(expectedDto, actualDto);
     }
 
-    @Test
-    @DisplayName("Проверка получения DTO запросов на рекомендаций по ID и фильтрам")
-    public void testGetByFiltersSuccessful() {
-
-    }
 
 }
