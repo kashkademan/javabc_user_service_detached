@@ -19,7 +19,7 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
+//import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
@@ -67,8 +67,8 @@ public class RecommendationRequestServiceImplTest {
     @Mock
     private SkillRequestRepository skillRequestRepository;
 
-    @Mock
-    private List<RecommendationRequestFilter> filters;
+//    @Mock
+//    private List<RecommendationRequestFilter> filters;
 
     @Spy
     private RecommendationRequestMapperImpl mapper;
@@ -164,6 +164,7 @@ public class RecommendationRequestServiceImplTest {
         );
 
         RecommendationRequest savedRequest = captor.getValue();
+
         assertEquals(message, savedRequest.getMessage());
         assertEquals(receiverId, savedRequest.getReceiver().getId());
         assertEquals(skillIds, savedRequest.getSkills().stream()
@@ -220,5 +221,10 @@ public class RecommendationRequestServiceImplTest {
         assertEquals(expectedDto, actualDto);
     }
 
+    @Test
+    @DisplayName("Проверка получения DTO запросов на рекомендаций по ID и фильтрам")
+    public void testGetByFiltersSuccessful() {
+
+    }
 
 }
