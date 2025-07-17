@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.service.skill.SkillServiceImpl;
@@ -37,6 +38,9 @@ public class SkillControllerTest {
     @Mock
     private SkillServiceImpl skillServiceMock;
 
+    @Mock
+    private UserContext userContextMock;
+
     @InjectMocks
     private SkillController skillController;
 
@@ -48,7 +52,6 @@ public class SkillControllerTest {
                 .setMessageConverters(new MappingJackson2HttpMessageConverter())
                 .build();
     }
-
 
     @DisplayName("Post /api/v1/skill - Успешное создания скилла")
     @ParameterizedTest(name = "[{index}] {0}")
@@ -67,7 +70,6 @@ public class SkillControllerTest {
 
         verify(skillServiceMock, times(1)).create(any(CreateSkillDto.class));
     }
-
 
     @Test
     @DisplayName("Post /api/v1/skill - Ошибка при создании скилла")
@@ -94,6 +96,22 @@ public class SkillControllerTest {
                 .andExpect(jsonPath("$[0].id").value(1));
 
         verify(skillServiceMock, times(1)).getByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("Post /api/v1/skill/offers - Получение предложенных скиллов")
+    public void acquireSkillFromOffers_ValidSkillId_ReturnsOk() throws Exception {
+        long skillId = 1L;
+        long userId = 1L;
+
+        when(userContextMock.getUserId()).thenReturn(userId);
+        doNothing().when(skillServiceMock).acquireSkillFromOffers(skillId, userId);
+
+        mockMvc.perform(post("/api/v1/skill/acquire/{skillId}", skillId)
+                        .header("User-Id", userId))
+                .andExpect(status().isOk());
+
+        verify(skillServiceMock, times(1)).acquireSkillFromOffers(skillId, userId);
     }
 
 }

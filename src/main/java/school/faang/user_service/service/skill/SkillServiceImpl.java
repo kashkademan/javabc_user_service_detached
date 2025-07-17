@@ -32,11 +32,13 @@ public class SkillServiceImpl implements SkillService {
     public SkillDto create(CreateSkillDto skillDto) {
         log.info("Получили новый объект по RestAPI: {} ", skillDto);
         Skill skill = skillMapper.toSkill(skillDto);
+
         log.info("Проверяем, нет ли уже такого заголовка в базе");
         if (skillRepository.existsByTitle(skill.getTitle())) {
             throw new DataValidationException("Данный заголовок уже существует: " + skill.getTitle());
         }
 
+        log.info("Начинаем писать в базу: {} ", skill);
         skill = skillRepository.save(skill);
         log.info("В базу сохранен новый объект: {} ", skill);
 
@@ -72,7 +74,7 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public void acquireSkillFromOffers(long skillId, long userId) {
         log.info("Пользователь с id {} хочет приобрести скилл с id {}", userId, skillId);
-        if (!skillRepository.existsById(skillId)) {
+        if (skillRepository.existsById(skillId)) {
             throw new EntityNotFoundException("Skill with id " + skillId + " not found");
         }
         if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= minimalSkillOffers) {
