@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -58,7 +57,7 @@ public class EducationControllerTest {
     @BeforeEach
     public void setUp() {
         viewDto = new EducationViewDto(
-                 educationId,
+                educationId,
                 2010,
                 2014,
                 "MIT",
@@ -80,9 +79,10 @@ public class EducationControllerTest {
         when(userContext.getUserId()).thenReturn(userId);
         when(educationService.addEducation(userId, create)).thenReturn(viewDto);
         mockMvc.perform(post("/educations")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(create)))
-                .andExpect(status().isOk());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(create)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(viewDto)));
     }
 
     @Test
@@ -106,10 +106,10 @@ public class EducationControllerTest {
         when(userContext.getUserId()).thenReturn(userId);
         when(educationService.updateEducation(userId, educationId, update)).thenReturn(viewDto);
         mockMvc.perform(put("/educations/{educationId}", educationId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(update)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(educationId));
+                .andExpect(content().json(objectMapper.writeValueAsString(viewDto)));
         verify(educationService).updateEducation(userId, educationId, update);
     }
 
@@ -128,6 +128,6 @@ public class EducationControllerTest {
         mockMvc.perform(get("/educations/{educationId}", educationId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(educationId));
+                .andExpect(content().json(objectMapper.writeValueAsString(viewDto)));
     }
 }

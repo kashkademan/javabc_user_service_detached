@@ -90,7 +90,6 @@ public class EducationMapperTest {
 
         assertThat(education)
                 .usingRecursiveComparison()
-                .ignoringFields("id", "user")
                 .isEqualTo(expected);
     }
 
@@ -120,7 +119,6 @@ public class EducationMapperTest {
 
         assertThat(actualDto)
                 .usingRecursiveComparison()
-                .ignoringFields("id")
                 .isEqualTo(expectedDto);
     }
 }
