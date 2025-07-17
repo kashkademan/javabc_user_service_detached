@@ -3,17 +3,18 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -22,19 +23,29 @@ import java.util.stream.Stream;
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UserMapper mapper;
+    private final UserContext userContext;
+    private final List<UserFilter> filters;
 
     @Override
-    public void followUser(long followerId, long followeeId) {
-        processSubscription(followerId, followeeId, SubscriptionType.FOLLOW, () ->
-                subscriptionRepository.followUser(followerId, followeeId)
+    public void followUser(long followeeId) {
+        long followerId = userContext.getUserId();
+        processSubscription(
+                followerId,
+                followeeId,
+                SubscriptionType.FOLLOW,
+                () -> subscriptionRepository.followUser(followerId, followeeId)
         );
     }
 
     @Override
-    public void unfollowUser(long followerId, long followeeId) {
-        processSubscription(followerId, followeeId, SubscriptionType.UNFOLLOW, () ->
-                subscriptionRepository.unfollowUser(followerId, followeeId)
+    public void unfollowUser(long followeeId) {
+        long followerId = userContext.getUserId();
+        processSubscription(
+                followerId,
+                followeeId,
+                SubscriptionType.UNFOLLOW,
+                () -> subscriptionRepository.unfollowUser(followerId, followeeId)
         );
     }
 
@@ -51,13 +62,15 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
-    public List<UserDto> getFollowers(long followeeId, UserFiltersDto filters) {
-        return getUserDto(() -> subscriptionRepository.findByFolloweeId(followeeId), filters);
+    public List<UserDto> getFollowers(long followeeId, UserFiltersDto userFiltersDto) {
+        List<User> followers = subscriptionRepository.findByFolloweeId(followeeId).toList();
+        return getFilterUserDto(followers, userFiltersDto);
     }
 
     @Override
-    public List<UserDto> getFollowees(long followerId, UserFiltersDto filters) {
-        return getUserDto(() -> subscriptionRepository.findByFollowerId(followerId), filters);
+    public List<UserDto> getFollowees(long followerId, UserFiltersDto userFiltersDto) {
+        List<User> followees = subscriptionRepository.findByFollowerId(followerId).toList();
+        return getFilterUserDto(followees, userFiltersDto);
     }
 
     private void processSubscription(Long followerId,
@@ -67,10 +80,10 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         String actionText = (type == SubscriptionType.FOLLOW) ? "подписки" : "отписки";
         log.info("Попытка {}: followerId={}, followeeId={}", actionText, followerId, followeeId);
 
-        boolean follower = userRepository.existsById(followerId);
-        boolean followee = userRepository.existsById(followeeId);
+        boolean isExistFollower = userRepository.existsById(followerId);
+        boolean isExistFollowee = userRepository.existsById(followeeId);
 
-        if (follower && followee) {
+        if (followerId.equals(followeeId)) {
             String selfActionText = (type == SubscriptionType.FOLLOW) ? "подписаться на" : "отписаться от";
             log.error("Пользователь попытался {} самого себя: id={}", selfActionText, followerId);
             throw new DataValidationException("Нельзя " + selfActionText + "на самого себя");
@@ -92,22 +105,17 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         log.info("Попытка {} - успех: followerId={}, followeeId={}", actionText, followerId, followeeId);
     }
 
-    private boolean applyFilters(User user, UserFiltersDto filters) {
-        boolean matchesName = filters.getNamePattern() == null || user.getUsername().contains(filters.getNamePattern());
+    private List<UserDto> getFilterUserDto(List<User> users, UserFiltersDto userFiltersDto) {
+        Stream<User> filteredUsers = users.stream();
 
-        boolean matchesPhone = filters.getPhonePattern() == null || user.getPhone().contains(filters.getPhonePattern());
-
-        boolean matchesExperience = user.getExperience() >= filters.getExperienceMin()
-                && user.getExperience() <= filters.getExperienceMax();
-        return matchesName && matchesPhone && matchesExperience;
-    }
-
-    private List<UserDto> getUserDto(Supplier<Stream<User>> userStreamSupplier, UserFiltersDto filters) {
-        try (Stream<User> stream = userStreamSupplier.get()) {
-            return stream
-                    .filter(user -> applyFilters(user, filters))
-                    .map(userMapper::toUserDto)
-                    .toList();
+        for (UserFilter userFilter : this.filters) {
+            if (userFilter.isApplicable(userFiltersDto)) {
+                filteredUsers = userFilter.apply(filteredUsers, userFiltersDto);
+            }
         }
+
+        return filteredUsers
+                .map(mapper::toUserDto)
+                .toList();
     }
 }

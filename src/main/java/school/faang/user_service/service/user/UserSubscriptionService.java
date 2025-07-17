@@ -7,9 +7,9 @@ import school.faang.user_service.dto.user.UserFiltersDto;
 import java.util.List;
 
 public interface UserSubscriptionService {
-    void followUser(long followerId, long followeeId);
+    void followUser(long followeeId);
 
-    void unfollowUser(long followerId, long followeeId);
+    void unfollowUser(long followeeId);
 
     CountResponse getFollowersCount(long followeeId);
 
