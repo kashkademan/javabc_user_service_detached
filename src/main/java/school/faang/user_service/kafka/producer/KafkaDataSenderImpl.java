@@ -19,9 +19,9 @@ public class KafkaDataSenderImpl implements DataSender {
     private final KafkaTemplate<String, Object> kafkaTemplateJson;
 
     @Override
-    public void send(String topic, Event event) {
+    public void send(KafkaTopics.Topic topic, Event event) {
         log.info("KafkaDataSenderImpl: preparing for sending event: {}", event.toString());
-        kafkaTemplateJson.send(topic, event)
+        kafkaTemplateJson.send(topic.getName(), event)
                 .whenComplete((record, ex) -> {
                     if (ex == null) {
                         log.info("KafkaDataSenderImpl: successfully sent '{}' with id {}, topic {}, partition = {}, " +
@@ -39,8 +39,8 @@ public class KafkaDataSenderImpl implements DataSender {
     }
 
     @Override
-    public void send(String topic, AnalyticsEvent analyticsEvent) {
-        kafkaTemplateJson.send(topic, analyticsEvent)
+    public void send(KafkaTopics.Topic topic, AnalyticsEvent analyticsEvent) {
+        kafkaTemplateJson.send(topic.getName(), analyticsEvent)
                 .whenComplete((record, ex) -> {
                     if (ex == null) {
                         log.info("Sent analytics event with id {}, topic {}, partition = {}, offset ={}",
@@ -55,8 +55,8 @@ public class KafkaDataSenderImpl implements DataSender {
     }
 
     @Override
-    public void send(String topic, List<Long> ids) {
-        kafkaTemplateJson.send(topic, ids)
+    public void send(KafkaTopics.Topic topic, List<Long> ids) {
+        kafkaTemplateJson.send(topic.getName(), ids)
                 .whenComplete((record, ex) -> {
                     if (ex == null) {
                         log.info("Sent ids with topic {}, partition = {}, offset ={}, size ={}",
@@ -71,8 +71,8 @@ public class KafkaDataSenderImpl implements DataSender {
     }
 
     @Override
-    public void send(String topic, RecommendationEvent recommendationEvent) {
-        kafkaTemplateJson.send(topic, recommendationEvent)
+    public void send(KafkaTopics.Topic topic, RecommendationEvent recommendationEvent) {
+        kafkaTemplateJson.send(topic.getName(), recommendationEvent)
                 .whenComplete((record, ex) -> {
                     if (ex == null) {
                         log.info("Sent recommendation event with topic {}, partition = {}, offset ={}",
@@ -86,8 +86,8 @@ public class KafkaDataSenderImpl implements DataSender {
                 });
     }
 
-    public void send(String topic, FollowerEvent followerEvent) {
-        kafkaTemplateJson.send(topic, followerEvent)
+    public void send(KafkaTopics.Topic topic, FollowerEvent followerEvent) {
+        kafkaTemplateJson.send(topic.getName(), followerEvent)
                 .whenComplete((record, ex) -> {
                     if (ex == null) {
                         log.info("Published FollowerEvent for follower={}, targetType={}, targetId={} → topic={}, partition={}, offset={}",

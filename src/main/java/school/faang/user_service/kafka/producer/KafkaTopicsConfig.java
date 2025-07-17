@@ -152,7 +152,8 @@ public class KafkaTopicsConfig {
     public NewTopic profileViewTopic(
             @Value("${spring.kafka.topics.profile-view-event-topic.name}") String name,
             @Value("${spring.kafka.topics.profile-view-event-topic.partitions}") int partitions,
-            @Value("${spring.kafka.topics.profile-view-event-topic.replication-factor}") short replicas) {
+            @Value("${spring.kafka.topics.profile-view-event-topic.replication-factor}") short replicas
+    ) {
         return TopicBuilder.name(name)
                 .partitions(partitions)
                 .replicas(replicas)
@@ -163,32 +164,7 @@ public class KafkaTopicsConfig {
     public NewTopic profileViewTopicDlt(
             @Value("${spring.kafka.topics.profile-view-event-topic.dlt.name}") String name,
             @Value("${spring.kafka.topics.profile-view-event-topic.dlt.partitions}") int partitions,
-            @Value("${spring.kafka.topics.profile-view-event-topic.dlt.replication-factor}") short replicas) {
-        return TopicBuilder.name(name)
-                .partitions(partitions)
-                .replicas(replicas)
-                .build();
-    }
-
-    /* ---- recommendation-request ---- */
-
-    @Bean
-    public NewTopic recommendationEventsTopic(
-            @Value("${spring.kafka.topics.recommendation.name}") String name,
-            @Value("${spring.kafka.topics.recommendation.partitions}") int partitions,
-            @Value("${spring.kafka.topics.recommendation.replication-factor}") short replicas
-    ) {
-        return TopicBuilder.name(name)
-                .partitions(partitions)
-                .replicas(replicas)
-                .build();
-    }
-
-    @Bean
-    public NewTopic recommendationEventsTopicDlt(
-            @Value("${spring.kafka.topics.recommendation.dlt.name}") String name,
-            @Value("${spring.kafka.topics.recommendation.dlt.partitions}") int partitions,
-            @Value("${spring.kafka.topics.recommendation.dlt.replication-factor}") short replicas
+            @Value("${spring.kafka.topics.profile-view-event-topic.dlt.replication-factor}") short replicas
     ) {
         return TopicBuilder.name(name)
                 .partitions(partitions)
@@ -198,9 +174,62 @@ public class KafkaTopicsConfig {
 
     @Bean
     public NewTopic requestRecommendationTopic(
-            @Value("${spring.kafka.topics.recommendation-request.name}") String name,
-            @Value("${spring.kafka.topics.recommendation-request.partitions}") int partitions,
-            @Value("${spring.kafka.topics.recommendation-request.replication-factor}") short replicas) {
+            @Value("${spring.kafka.topics.recommendation-request-topic.name}") String name,
+            @Value("${spring.kafka.topics.recommendation-request-topic.partitions}") short partitions,
+            @Value("${spring.kafka.topics.recommendation-request-topic.replication-factor}") short replicas) {
+        return TopicBuilder
+                .name(name)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic requestPremiumBoughtTopic(
+            @Value("${spring.kafka.topics.premium-bought-topic.name}") String name,
+            @Value("${spring.kafka.topics.premium-bought-topic.partitions}") int partitions,
+            @Value("${spring.kafka.topics.premium-bought-topic.replication-factor}") short replicas
+    ) {
+        return TopicBuilder
+                .name(name)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic requestPremiumBoughtTopicDlt(
+            @Value("${spring.kafka.topics.premium-bought-topic.dlt.name}") String name,
+            @Value("${spring.kafka.topics.premium-bought-topic.dlt.partitions}") int partitions,
+            @Value("${spring.kafka.topics.premium-bought-topic.dlt.replication-factor}") short replicas
+    ) {
+        return TopicBuilder
+                .name(name)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
+
+    /* ---- recommendation-request ---- */
+
+    @Bean
+    public NewTopic recommendationEventsTopic(
+            @Value("${spring.kafka.topics.recommendation-events-topic.name}") String name,
+            @Value("${spring.kafka.topics.recommendation-events-topic.partitions}") int partitions,
+            @Value("${spring.kafka.topics.recommendation-events-topic.replication-factor}") short replicas
+    ) {
+        return TopicBuilder.name(name)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic recommendationEventsTopicDlt(
+            @Value("${spring.kafka.topics.recommendation-events-topic.dlt.name}") String name,
+            @Value("${spring.kafka.topics.recommendation-events-topic.dlt.partitions}") int partitions,
+            @Value("${spring.kafka.topics.recommendation-events-topic.dlt.replication-factor}") short replicas
+    ) {
         return TopicBuilder.name(name)
                 .partitions(partitions)
                 .replicas(replicas)

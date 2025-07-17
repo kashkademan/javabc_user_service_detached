@@ -57,16 +57,16 @@ public class UserService {
                         String.format("User with id %d not found!", id)
                 ));
 
-        ProfileViewEvent profileViewEvent = new ProfileViewEvent();
-        profileViewEvent.setReceiverId(user.getId());
-        profileViewEvent.setAuthorId(userContext.getUserId());
-        profileViewEvent.setEventTypeEnum(AnalyticsEventType.PROFILE_VIEW);
-        kafkaDataSender.send(kafkaTopics.getProfileViewedTopic(), profileViewEvent);
-        return user;
-    }
+            ProfileViewEvent profileViewEvent = new ProfileViewEvent();
+            profileViewEvent.setReceiverId(user.getId());
+            profileViewEvent.setAuthorId(userContext.getUserId());
+            profileViewEvent.setEventTypeEnum(AnalyticsEventType.PROFILE_VIEW);
+            kafkaDataSender.send(kafkaTopics.getProfileViewEventTopic(), profileViewEvent);
+            return user;
+        }
 
-    public UserDto create(String username, String countryTitle, String email, String password) {
-        validate(username, countryTitle, email, password);
+        public UserDto create(String username, String countryTitle, String email, String password) {
+            validate(username, countryTitle, email, password);
         Country country = countryRepository.findByTitle(countryTitle)
                 .orElseThrow(() -> new DataValidationException("Unknown country: " + countryTitle));
         User userEntity = userMapper.toEntity(username, country, email, passwordEncoder.encode(password));
@@ -148,7 +148,7 @@ public class UserService {
     private void sendAllUsersAnalytics(List<User> allUsers, @NotNull(message = "User id cannot be null") Long userId) {
         for (User user : allUsers) {
             AnalyticsEvent analyticsEvent = analyticsEventMapper.fromUser(user, userId);
-            dataSender.send(kafkaTopics.getAnalyticsCreatedTopic(), analyticsEvent);
+            dataSender.send(kafkaTopics.getAnalyticsCreated(), analyticsEvent);
             log.info("Send analytics profile event to kafka topic");
         }
     }

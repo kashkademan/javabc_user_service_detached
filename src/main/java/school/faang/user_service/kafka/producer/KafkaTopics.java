@@ -1,36 +1,37 @@
 package school.faang.user_service.kafka.producer;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Builder;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@Getter
-@Setter
+@ConfigurationProperties(prefix = "spring.kafka.topics")
+@Data
 public class KafkaTopics {
 
-    @Value("${spring.kafka.topics.analytics-created.name}")
-    private String analyticsCreatedTopic;
+    private Topic analyticsCreated;
+    private Topic analyticsProfileEventTopic;
+    private Topic redisRetryErrorTopic;
+    private Topic profileViewEventTopic;
+    private Topic recommendationRequestTopic;
+    private Topic premiumBoughtTopic;
+    private Topic recommendationEventsTopic;
+    private Topic followerEvents;
 
-    @Value("${spring.kafka.topics.analytics-profile-event-topic.name}")
-    private String analyticsProfileEventTopic;
 
-    @Value("${spring.kafka.topics.redis-retry-error-topic.name}")
-    private String redisRetryErrorTopic;
+    @Data
+    public static class Topic {
+        private final String name;
+        private final int partitions;
+        private final int replicationFactor;
+        private final Dlt dlt;
+    }
 
-    @Value("${spring.kafka.topics.follower-events.name}")
-    private String followerEventsTopic;
-
-    @Value("${spring.kafka.topics.follower-events.dlt.name}")
-    private String followerEventsDltTopic;
-
-    @Value("${spring.kafka.topics.profile-view-event-topic.name}")
-    private String profileViewedTopic;
-
-    @Value("${spring.kafka.topics.recommendation.name}")
-    private String recommendationEventsTopic;
-
-    @Value("${spring.kafka.topics.recommendation-request.name}")
-    private String recommendationRequestTopic;
+    @Data
+    public static class Dlt{
+        private final String name;
+        private final int partitions;
+        private final int replicationFactor;
+    }
 }
