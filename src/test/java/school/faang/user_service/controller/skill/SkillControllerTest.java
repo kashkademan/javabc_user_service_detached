@@ -61,7 +61,7 @@ public class SkillControllerTest {
     @DisplayName("Post /api/v1/skill - Успешное создания скилла")
     @ParameterizedTest(name = "[{index}] {0}")
     @ValueSource(strings = {"Java", "Python", "JavaScript", "C++", "Go"})
-    public void createSkill_ValidRequest_ReturnsCreatedSkill(String inputData) throws Exception {
+    public void createSkill_ReturnsCreatedSkill(String inputData) throws Exception {
         SkillDto responseDto = new SkillDto(1L, inputData);
 
         when(skillServiceMock.create(any(CreateSkillDto.class))).thenReturn(responseDto);
@@ -78,7 +78,7 @@ public class SkillControllerTest {
 
     @Test
     @DisplayName("Post /api/v1/skill - Ошибка при создании скилла")
-    public void createSkill_InvalidRequest_ReturnsBadRequest() throws Exception {
+    public void createSkill_ReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/api/v1/skill")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\"}")) // пустой заголовок
@@ -89,7 +89,7 @@ public class SkillControllerTest {
 
     @Test
     @DisplayName("Get /api/v1/skill - Получение скиллов пользователя")
-    public void getSkillsByUserId_ValidUserId_ReturnsSkills() throws Exception {
+    public void getSkillsByUserId_ReturnsSkills() throws Exception {
         long userId = 1L;
         SkillDto skillDto = new SkillDto(1L, "Java");
 
@@ -105,7 +105,7 @@ public class SkillControllerTest {
 
     @Test
     @DisplayName("Post /api/v1/skill/offers - Получение предложенных скиллов")
-    public void acquireSkillFromOffers_ValidSkillId_ReturnsOk() throws Exception {
+    public void acquireSkillFromOffers_ReturnsOk() throws Exception {
         long skillId = 1L;
         long userId = 1L;
 
