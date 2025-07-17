@@ -35,7 +35,6 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final List<RecommendationFilter> filters;
 
     @Override
-
     public RecommendationDto create(CreateRecommendationDto createRecommendationDto) {
         LocalDateTime sixMonthAgo = LocalDateTime.now().minusMonths(6);
 
