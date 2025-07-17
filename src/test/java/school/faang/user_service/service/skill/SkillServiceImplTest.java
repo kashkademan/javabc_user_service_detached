@@ -157,7 +157,7 @@ public class SkillServiceImplTest {
         long skillId = 1L;
         long userId = 1L;
 
-        when(skillRepository.existsById(skillId)).thenReturn(true);
+        when(skillRepository.existsById(skillId)).thenReturn(false);
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(3);
         doNothing().when(skillRepository).assignSkillToUser(skillId, userId);
 
