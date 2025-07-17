@@ -59,7 +59,7 @@ public class SkillServiceImplTest {
     @ParameterizedTest(name = "[{index}] {0}")
     @DisplayName("SkillServiceImpl create - Успешное создание скилла")
     @ValueSource(strings = {"Java", "Python", "JavaScript", "C++", "Go"})
-    public void createSkill_ValidRequest_ReturnsCreatedSkill(String inputData) {
+    public void createSkill_ReturnsCreatedSkill(String inputData) {
         CreateSkillDto createSkillDto = CreateSkillDto.builder()
                 .title(inputData)
                 .build();
@@ -87,7 +87,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("SkillServiceImpl create - Ошибка при создании скилла с существующим названием")
-    public void createSkill_ExistingTitle_ThrowsDataValidationException() {
+    public void createSkill_ThrowsDataValidationException() {
         CreateSkillDto createSkillDto = CreateSkillDto.builder()
                 .title("Java")
                 .build();
@@ -108,7 +108,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("SkillServiceImpl getByUserId - Получение скиллов пользователя")
-    public void getByUserId_ValidUserId_ReturnsSkills() {
+    public void getByUserId_ReturnsSkills() {
         long userId = 1L;
         Skill skill = Skill.builder()
                 .id(1L)
@@ -131,7 +131,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("SkillServiceImpl getOfferedSkills - Получение предложенных скиллов")
-    public void getOfferedSkills_ValidUserId_ReturnsOfferedSkills() {
+    public void getOfferedSkills_ReturnsOfferedSkills() {
         long userId = 1L;
         Skill skill = Skill.builder()
                 .id(1L)
@@ -153,7 +153,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("SkillServiceImpl acquireSkillFromOffers - Успешное приобретение скилла")
-    public void acquireSkillFromOffers_ValidSkillId_ReturnsOk() {
+    public void acquireSkillFromOffers_ReturnsOk() {
         long skillId = 1L;
         long userId = 1L;
 
@@ -168,7 +168,7 @@ public class SkillServiceImplTest {
 
     @Test
     @DisplayName("SkillServiceImpl acquireSkillFromOffers - Ошибка при приобретении скилла без достаточных предложений")
-    public void acquireSkillFromOffers_InsufficientOffers_ThrowsIllegalStateException() {
+    public void acquireSkillFromOffers_ThrowsIllegalStateException() {
         long skillId = 1L;
         long userId = 1L;
 
