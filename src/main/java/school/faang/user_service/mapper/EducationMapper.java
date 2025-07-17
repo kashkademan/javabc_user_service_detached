@@ -14,7 +14,7 @@ import school.faang.user_service.entity.user.User;
 /**
  * EducationMapper — для преобразования между сущностью {@link Education} и DTO.
  * <p>
- * Представляет методы для конвертации данных .
+ * Представляет методы для конвертации данных.
  * </p>*
  *
  * @author fomchenkoandrey
