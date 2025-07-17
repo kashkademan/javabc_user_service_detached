@@ -29,6 +29,6 @@ public abstract class GoalMapper {
 
     @Named("mapIdToUser")
     protected User getUserOrEmpty(Long userId) {
-        return userId == null ? new User() : userService.getUserEntityById(userId).orElse(new User());
+        return userId == null ? new User() : userService.getUserEntityById(userId);
     }
 }

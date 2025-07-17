@@ -12,7 +12,6 @@ import school.faang.user_service.validator.ValidationResult;
 import school.faang.user_service.validator.Validator;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,12 +21,12 @@ public class GoalUserValidator implements Validator<Goal, GoalValidationParams> 
     @Override
     public ValidationResult validate(Goal goal, GoalValidationParams validationParams) {
         if (validationParams.userId() > 0) {
-            Optional<User> user = userService.getUserEntityById(validationParams.userId());
+            User user = userService.getUserEntityById(validationParams.userId());
             ErrorField errorField = new ErrorField(
                     validationParams.path("userId"), "body", validationParams.userId().toString(), null);
-            if (user.isEmpty()) {
+            if (user.getId() == null) {
                 return new ValidationResult(false, List.of(new Violation(ErrorCode.USER_NOT_EXISTS, errorField)));
-            } else if (!user.get().isActive()) {
+            } else if (!user.isActive()) {
                 return new ValidationResult(false, List.of(new Violation(ErrorCode.USER_NOT_ACTIVE, errorField)));
             }
         }
