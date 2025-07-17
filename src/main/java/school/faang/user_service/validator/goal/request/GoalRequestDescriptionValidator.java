@@ -6,7 +6,6 @@ import school.faang.user_service.dto.goal.GoalRequest;
 import school.faang.user_service.entity.ErrorField;
 import school.faang.user_service.entity.Violation;
 import school.faang.user_service.enums.ErrorCode;
-import school.faang.user_service.enums.GoalAction;
 import school.faang.user_service.validator.ValidationResult;
 import school.faang.user_service.validator.Validator;
 
@@ -28,6 +27,6 @@ public class GoalRequestDescriptionValidator implements Validator<GoalRequest, G
 
     @Override
     public boolean applicable(GoalRequest rq, GoalRequestValidationParams params) {
-        return rq instanceof GoalDto && GoalAction.in(params.action(), GoalAction.CREATE_GOAL, GoalAction.SUB_GOAL);
+        return rq instanceof GoalDto;
     }
 }

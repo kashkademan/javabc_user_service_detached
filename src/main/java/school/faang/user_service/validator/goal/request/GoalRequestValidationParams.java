@@ -1,12 +1,11 @@
 package school.faang.user_service.validator.goal.request;
 
-import school.faang.user_service.enums.GoalAction;
-import school.faang.user_service.util.Util;
+import school.faang.user_service.util.Helper;
 
 import java.io.Serializable;
 
-public record GoalRequestValidationParams(String path, GoalAction action) implements Serializable {
+public record GoalRequestValidationParams(String path) implements Serializable {
     public String path(String path) {
-        return Util.createPath(this.path, path);
+        return Helper.createPath(this.path, path);
     }
 }

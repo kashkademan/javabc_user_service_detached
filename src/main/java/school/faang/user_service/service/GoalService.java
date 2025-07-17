@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalIdDto;
@@ -14,5 +13,5 @@ public interface GoalService {
 
     GoalIdDto deleteGoal(Long goalId);
 
-    GoalIdDto updateGoal(Long goalId, GoalDto goalUpdateRq, JsonNode rawRequest);
+    GoalIdDto updateGoal(Long goalId, GoalDto goalUpdateRq);
 }

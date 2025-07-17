@@ -13,7 +13,7 @@ import static school.faang.user_service.enums.ErrorCode.DB_TRANSACTION_ERROR;
 
 @Component
 @RequiredArgsConstructor
-public class Util {
+public class Helper {
     private final TransactionTemplate transactionTemplate;
 
     @FunctionalInterface
