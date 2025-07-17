@@ -6,12 +6,11 @@ import java.time.LocalTime;
 
 
 public record WorkScheduleDto(
-        @NotNull
         long id,
         @NotNull
         LocalTime startTime,
         @NotNull
-        LocalTime endTIme,
+        LocalTime endTime,
         @NotNull
         LocalTime startLunch,
         @NotNull

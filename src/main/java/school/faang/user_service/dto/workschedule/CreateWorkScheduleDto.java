@@ -9,7 +9,7 @@ import java.time.LocalTime;
 @Getter
 public class CreateWorkScheduleDto {
     private LocalTime startTime;
-    private LocalTime endTIme;
+    private LocalTime endTime;
     private LocalTime startLunch;
     private LocalTime endLunch;
     private String timezone;

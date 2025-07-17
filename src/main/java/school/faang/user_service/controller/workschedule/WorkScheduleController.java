@@ -10,7 +10,7 @@ public class WorkScheduleController {
     private UserContext userContext;
 
     public WorkScheduleDto addWorkSchedule(WorkScheduleDto dto) {
-        if (!(dto.startTime().isBefore(dto.startLunch()) && dto.endLunch().isBefore(dto.endTIme()))) {
+        if (!(dto.startTime().isBefore(dto.startLunch()) && dto.endLunch().isBefore(dto.endTime()))) {
             throw new DataValidationException("Не коректные данные!");
         }
 
@@ -20,7 +20,7 @@ public class WorkScheduleController {
     public WorkScheduleDto updateWorkSchedule(long workScheduleId, WorkScheduleDto dto) {
         if (!(dto.startTime().isBefore(dto.startLunch())
                 && dto.startLunch().isBefore(dto.endLunch())
-                && dto.endLunch().isBefore(dto.endTIme()))) {
+                && dto.endLunch().isBefore(dto.endTime()))) {
             //startTime < (меньше/раньше чем) startLunch < endLunch < endTime
             throw new DataValidationException("Не коректные данные!");
         }

@@ -7,5 +7,6 @@ import school.faang.user_service.entity.user.WorkSchedule;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface WorkScheduleMapper {
     WorkSchedule toEntity(WorkScheduleDto workScheduleDto);
-    WorkScheduleDto toDto(WorkSchedule workSchedule);// переименовал так удобнее
+
+    WorkScheduleDto toDto(WorkSchedule workSchedule);
 }

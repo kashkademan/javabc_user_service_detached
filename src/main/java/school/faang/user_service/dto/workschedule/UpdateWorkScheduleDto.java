@@ -1,11 +1,20 @@
 package school.faang.user_service.dto.workschedule;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalTime;
 
-public class UpdateWorkScheduleDto {
-    LocalTime startTime;
-    LocalTime endTIme;
-    LocalTime startLunch;
-    LocalTime endLunch;
-    String timezone;
+public record UpdateWorkScheduleDto(
+        @NotNull
+        LocalTime startTime,
+        @NotNull
+        LocalTime endTime,
+        @NotNull
+        LocalTime startLunch,
+        @NotNull
+        LocalTime endLunch,
+        @NotNull
+        String timezone
+) {
+
 }

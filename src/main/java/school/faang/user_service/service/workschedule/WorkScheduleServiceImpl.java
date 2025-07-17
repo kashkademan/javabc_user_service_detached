@@ -18,7 +18,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     @Override
     public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto dto) {
-        if (!(dto.startTime().isBefore(dto.startLunch()) && dto.endLunch().isBefore(dto.endTIme()))) {
+        if (!(dto.startTime().isBefore(dto.startLunch()) && dto.endLunch().isBefore(dto.endTime()))) {
             throw new DataValidationException("Не коректные данные!");
         }
 
@@ -33,7 +33,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleDto dto) {
         if (!(dto.startTime().isBefore(dto.startLunch())
                 && dto.startLunch().isBefore(dto.endLunch())
-                && dto.endLunch().isBefore(dto.endTIme()))) {
+                && dto.endLunch().isBefore(dto.endTime()))) {
             //startTime < (меньше/раньше чем) startLunch < endLunch < endTime
             throw new DataValidationException("Не коректные данные!");
         }
