@@ -47,13 +47,13 @@ public class UserSubscriptionController {
         return ResponseEntity.ok(service.getFolloweesCount(followerId));
     }
 
-    @GetMapping("/followers/userList")
+    @GetMapping("/followers")
     public ResponseEntity<List<UserDto>> getFollowers(@RequestParam Long followeeId,
                                                       @ModelAttribute UserFiltersDto filters) {
         return ResponseEntity.ok(service.getFollowers(followeeId, filters));
     }
 
-    @GetMapping("/followees/userList")
+    @GetMapping("/followees")
     public ResponseEntity<List<UserDto>> getFollowees(@RequestParam Long followerId,
                                                       @ModelAttribute UserFiltersDto filters) {
         return ResponseEntity.ok(service.getFollowees(followerId, filters));

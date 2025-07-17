@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final List<UserFilter> filters;
 
     @Override
+    @Transactional
     public void followUser(long followeeId) {
         long followerId = userContext.getUserId();
         processSubscription(
@@ -52,13 +54,15 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public CountResponse getFollowersCount(long followeeId) {
         log.info("Получение количества подписчиков пользователя: followeeId={}", followeeId);
-        return new CountResponse(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId));
+        long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+        return new CountResponse(count);
     }
 
     @Override
     public CountResponse getFolloweesCount(long followerId) {
         log.info("Получение количества подписок пользователя: followerId={}", followerId);
-        return new CountResponse(subscriptionRepository.findFolloweesAmountByFollowerId(followerId));
+        long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+        return new CountResponse(count);
     }
 
     @Override

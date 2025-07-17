@@ -6,7 +6,7 @@ import school.faang.user_service.entity.user.User;
 import java.util.stream.Stream;
 
 /**
- * UserPhonePatternFilter — описание класса.
+ * UserExperienceFilter — описание класса.
  * <p>
  * TODO: добавить описание назначения и поведения класса.
  * </p>*
