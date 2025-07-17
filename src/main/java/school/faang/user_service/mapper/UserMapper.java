@@ -14,5 +14,7 @@ public interface UserMapper {
 
     void update(UserUpdateDto userDto, @MappingTarget User entity);
 
+    User clone(User source);
+
     UserDto toUserDto(User user);
 }

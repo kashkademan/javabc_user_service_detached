@@ -105,6 +105,11 @@ class UserControllerTest {
     }
 
     static Stream<Arguments> provideFilters() {
+        var params1 = new LinkedMultiValueMap<String, String>();
+        params1.add("onlyPremium", "false");
+        params1.add("usernameContains", "John");
+        var params2 = new LinkedMultiValueMap<String, String>();
+        params2.add("onlyPremium", "true");
         var userWithoutPremium = new UserDto(
                 3L,
                 "MichaelJohnson",
@@ -112,8 +117,6 @@ class UserControllerTest {
                 "1112223333",
                 "About Michael Johnson"
         );
-        var result1 = List.of(user, userWithoutPremium);
-
         var userWithPremium = new UserDto(
                 2L,
                 "JaneSmith",
@@ -121,14 +124,10 @@ class UserControllerTest {
                 "0987654321",
                 "About Jane Smith"
         );
-        var result2 = List.of(user, userWithPremium);
-        var params1 = new LinkedMultiValueMap<String, String>();
-        params1.add("onlyPremium", "false");
-        params1.add("usernameContains", "John");
-        var params2 = new LinkedMultiValueMap<String, String>();
-        params2.add("onlyPremium", "true");
         var filter1 = new UserFilterDto("John", null, null, null, false);
         var filter2 = new UserFilterDto(null, null, null, null, true);
+        var result1 = List.of(user, userWithoutPremium);
+        var result2 = List.of(user, userWithPremium);
         return Stream.of(
                 Arguments.of(filter1, params1, result1),
                 Arguments.of(filter2, params2, result2)
