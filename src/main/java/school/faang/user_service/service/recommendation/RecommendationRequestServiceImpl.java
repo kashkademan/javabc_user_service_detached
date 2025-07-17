@@ -11,6 +11,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation_request.RecommendationRequestFilter;
@@ -48,6 +49,10 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         long requesterId = userContext.getUserId();
         long receiverId = recommendationDto.receiverId();
 
+        if (requesterId == receiverId) {
+            throw new DataValidationException("You cannot send recommendation to yourself");
+        }
+
         Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository
                 .findLatestPendingRequest(requesterId, receiverId);
 
@@ -57,10 +62,6 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                     + quantity + " " + period.toString().toLowerCase());
         }
 
-        if (requesterId == receiverId) {
-            throw new DataValidationException("You cannot send recommendation to yourself");
-        }
-
         RecommendationRequest recommendationRequest = recommendationRequestMapper
                 .toRecommendationRequest(recommendationDto);
         recommendationRequest.setRequester(userRepository.getByIdOrThrow(requesterId));
@@ -68,9 +69,11 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        if (!recommendationDto.skillIds().isEmpty()) {
+        if (recommendationDto.skillIds() != null) {
             for (long skillId : recommendationDto.skillIds()) {
-                skillRequestRepository.create(recommendationRequest.getId(), skillId);
+                SkillRequest skillRequest = skillRequestRepository
+                        .create(recommendationRequest.getId(), skillId);
+                recommendationRequest.addSkillRequest(skillRequest);
             }
         }
 
@@ -81,7 +84,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     public List<RecommendationRequestDto> getByFilters(RecommendationRequestFilterDto filters) {
-        Stream<RecommendationRequest> recommendationRequestStream = recommendationRequestRepository.findAll().stream();
+        Stream<RecommendationRequest> recommendationRequestStream =
+                recommendationRequestRepository.findAll().stream();
 
         for (RecommendationRequestFilter recommendationRequestFilter : recommendationRequestFilters) {
             if (recommendationRequestFilter.isApplicable(filters)) {
@@ -97,7 +101,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     public RecommendationRequestDto getById(long id) {
-        RecommendationRequest recommendationRequest = recommendationRequestRepository.getByIdOrThrow(id);
+        RecommendationRequest recommendationRequest =
+                recommendationRequestRepository.getByIdOrThrow(id);
         log.info("Recommendation request found: {}", recommendationRequest.getId());
         return recommendationRequestMapper.toRecommendationRequestDto(recommendationRequest);
     }
