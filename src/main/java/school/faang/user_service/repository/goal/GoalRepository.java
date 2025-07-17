@@ -3,11 +3,14 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface GoalRepository extends JpaRepository<Goal, Long> {
@@ -32,6 +35,26 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """)
     int countActiveGoalsPerUser(long userId);
 
+    @Query(nativeQuery = true, value = """
+            SELECT ug.user_id FROM user_goal ug
+            JOIN goal g ON ug.goal_id = g.id
+            WHERE ug.user_id IN :userIds AND g.status = :status
+            GROUP BY ug.user_id
+            HAVING COUNT(g) >= :limit
+            """)
+    List<Long> findUserIdsOverActiveGoalLimit(List<Long> userIds, int status, int limit);
+
+    @Query("""
+            SELECT DISTINCT g FROM Goal g
+            JOIN FETCH g.users
+            WHERE (:status IS NULL OR g.status = :status)
+            AND (:title IS NULL OR g.title like CONCAT('%', :title, '%'))
+            AND (:description IS NULL OR g.description LIKE CONCAT('%', :description, '%'))
+            AND (:mentorId IS NULL OR g.mentor.id = :mentorId)
+            """)
+    List<Goal> findGoalsByFilters(String title, String description, Long mentorId, GoalStatus status);
+
+    @Transactional
     @Modifying
     @Query(nativeQuery = true, value = """
             DELETE FROM user_goal WHERE user_id = :userId AND goal_id = :goalId
@@ -64,8 +87,21 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     @Query(nativeQuery = true, value = "INSERT INTO goal_skill (goal_id, skill_id) VALUES (?2, ?1)")
     void addSkillToGoal(long skillId, long goalId);
 
+    @Query("""
+            SELECT DISTINCT g FROM Goal g
+            JOIN FETCH g.users
+            WHERE g.id = :goalId
+            """)
+    Optional<Goal> getGoalWithUsersById(long goalId);
+
     default Goal getByIdOrThrow(long goalId) {
         return findById(goalId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Goal %d not found", goalId))
+        );
+    }
+
+    default Goal getGoalWithUsersByIdOrThrow(long goalId) {
+        return getGoalWithUsersById(goalId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Goal %d not found", goalId))
         );
     }
