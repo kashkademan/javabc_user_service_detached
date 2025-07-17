@@ -17,7 +17,7 @@ import school.faang.user_service.service.GoalService;
 import school.faang.user_service.util.Helper;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
 
     private final GoalRepository goalRepository;
@@ -31,7 +31,6 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public GoalIdDto createGoal(GoalCreateDto goalCreateRq) throws BusinessException {
         validationService.getRequestValidation().createGoal(goalCreateRq);
 
