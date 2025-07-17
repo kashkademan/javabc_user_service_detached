@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.controller.recommendation.RecommendationController;
 import school.faang.user_service.controller.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -18,11 +17,9 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -48,8 +45,8 @@ public class RecommendationServiceImpl implements RecommendationService {
             throw new DataValidationException("Вы не можете написать рекомендацию себе");
         }
 
-        if (lastRecommendation.isPresent() &&
-                lastRecommendation.get().getCreatedAt().isAfter(sixMonthAgo)) {
+        if (lastRecommendation.isPresent()
+                && lastRecommendation.get().getCreatedAt().isAfter(sixMonthAgo)) {
             throw new ForbiddenException("Вы не можете писать рекомендации чаще, чем раз в полгода");
         }
 
@@ -93,8 +90,8 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public List<RecommendationDto> getByFilters(RecommendationFilterDto filtersDto) {
         var recommendations = recommendationRepository.findAll().stream();
-        for(RecommendationFilter filter : filters) {
-            if(filter.isApplicable(filtersDto)) {
+        for (RecommendationFilter filter : filters) {
+            if (filter.isApplicable(filtersDto)) {
                 recommendations = filter.filter(recommendations, filtersDto);
             }
         }

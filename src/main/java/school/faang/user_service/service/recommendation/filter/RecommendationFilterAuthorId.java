@@ -14,7 +14,9 @@ public class RecommendationFilterAuthorId implements RecommendationFilter {
     }
 
     @Override
-    public Stream<Recommendation> filter(Stream<Recommendation> recommendations, RecommendationFilterDto recommendationFilterDto) {
-        return recommendations.filter(recommendation -> recommendation.getAuthor().getId().equals(recommendationFilterDto.getAuthorId()));
+    public Stream<Recommendation> filter(Stream<Recommendation> recommendations,
+                                         RecommendationFilterDto recommendationFilterDto) {
+        return recommendations.filter(recommendation ->
+                recommendation.getAuthor().getId().equals(recommendationFilterDto.getAuthorId()));
     }
 }

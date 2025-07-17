@@ -6,7 +6,6 @@ import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
-import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 
