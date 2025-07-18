@@ -13,12 +13,14 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.UserService;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoalInvitationService {
+    private static final int MAX_ACTIVE_GOALS = 3;
     private final GoalInvitationRepository goalInvitationRepository;
     private final GoalInvitationMapper goalInvitationMapper;
     private final UserRepository userRepository;
@@ -57,5 +59,47 @@ public class GoalInvitationService {
 
         goalInvitationRepository.save(invitation);
         log.info("Invitation successfully created: goalId={}, inviterId={}, invitedUserId={}", goalId, inviterId, invitedUserId);
+    }
+
+    public void acceptGoalInvitation(long goalInvitationId) {
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(goalInvitationId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("There is no invitation with id: " + goalInvitationId));
+        User user = goalInvitation.getInvited();
+        List<Goal> userGoals = user.getGoals();
+        Goal goal = goalInvitation.getGoal();
+        List<User> goalUsers = goal.getUsers();
+
+        if (userGoals.size() >= MAX_ACTIVE_GOALS) {
+            log.error("User with id: {}  already have more than {} active goals", user.getId(), MAX_ACTIVE_GOALS);
+            throw new IllegalArgumentException("User already has maximum goals. Maximum goals: " + MAX_ACTIVE_GOALS);
+        }
+        if (goalUsers.contains(user)) {
+            log.error("User with id: {} alredy working on goal with id: {}", user.getId(), goal.getId());
+            throw new IllegalArgumentException("User with id = " + user.getId() +
+                    " is already working on goal with id: " + goal.getId());
+        }
+        goalInvitation.setStatus(RequestStatus.ACCEPTED);
+        user.getGoals().add(goal);
+        goal.getUsers().add(user);
+
+        userService.updateUser(user);
+
+
+    }
+
+    public void rejectGoalInvitation(long goalInvitationId) {
+        GoalInvitation goalInvitation = goalInvitationRepository.findById(goalInvitationId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("There's no invitation with id: " + goalInvitationId));
+
+        if (goalInvitation.getGoal() == null) {
+            throw new IllegalArgumentException("Goal for this invitation does not exist. Invitation id: " + goalInvitationId);
+        }
+
+        goalInvitation.setStatus(RequestStatus.REJECTED);
+        goalInvitationRepository.save(goalInvitation);
+
+        log.info("Invitation {} was rejected for goal {}", goalInvitationId, goalInvitation.getGoal().getId());
     }
 }
