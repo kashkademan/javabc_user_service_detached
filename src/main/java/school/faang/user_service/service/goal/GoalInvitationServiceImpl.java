@@ -95,13 +95,8 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         GoalInvitation invitation = goalInvitationRepository.findById(invitationId)
                 .orElseThrow(() -> new DataValidationException("Invitation not found"));
 
-        if (!invitation.getInvited().getId().equals(currentUserId)) {
-            throw new ForbiddenException("You can only accept invitations addressed to you");
-        }
-
-        if (invitation.getStatus() != RequestStatus.PENDING) {
-            throw new DataValidationException("Invitation is not pending");
-        }
+        validateInvitationRecipient(invitation, currentUserId);
+        validateInvitationStatus(invitation);
 
         User invited = invitation.getInvited();
         Goal goal = invitation.getGoal();
@@ -138,13 +133,8 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         GoalInvitation invitation = goalInvitationRepository.findById(invitationId)
                 .orElseThrow(() -> new DataValidationException("Invitation not found"));
 
-        if (!invitation.getInvited().getId().equals(currentUserId)) {
-            throw new ForbiddenException("You can only reject invitations addressed to you");
-        }
-
-        if (invitation.getStatus() != RequestStatus.PENDING) {
-            throw new DataValidationException("Invitation is not pending");
-        }
+        validateInvitationRecipient(invitation, currentUserId);
+        validateInvitationStatus(invitation);
 
         invitation.setStatus(RequestStatus.REJECTED);
 
@@ -189,5 +179,38 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private boolean isUserAlreadyParticipating(Goal goal, User user) {
         return goal.getUsers().contains(user)
                 || (goal.getMentor() != null && goal.getMentor().equals(user));
+    }
+
+    /**
+     * Проверяет, что приглашение адресовано текущему пользователю.
+     *
+     * @param invitation приглашение для проверки
+     * @param currentUserId ID текущего пользователя
+     * @throws ForbiddenException если приглашение адресовано другому пользователю
+     */
+    private void validateInvitationRecipient(GoalInvitation invitation, Long currentUserId) {
+        if (!invitation.getInvited().getId().equals(currentUserId)) {
+            log.error("User {} attempted to process invitation {} that is addressed to user {}",
+                    currentUserId, invitation.getId(), invitation.getInvited().getId());
+            throw new ForbiddenException("You can only process invitations addressed to you. " +
+                    "Invitation ID: " + invitation.getId() +
+                    ", Your ID: " + currentUserId);
+        }
+    }
+
+    /**
+     * Проверяет, что приглашение находится в статусе PENDING.
+     *
+     * @param invitation приглашение для проверки
+     * @throws DataValidationException если приглашение не в статусе PENDING
+     */
+    private void validateInvitationStatus(GoalInvitation invitation) {
+        if (invitation.getStatus() != RequestStatus.PENDING) {
+            log.error("Attempted to process invitation {} with status {}, but only PENDING status is allowed",
+                    invitation.getId(), invitation.getStatus());
+            throw new DataValidationException("Invitation is not pending. Current status: " +
+                    invitation.getStatus() +
+                    ", Invitation ID: " + invitation.getId());
+        }
     }
 }
