@@ -22,6 +22,7 @@ import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -67,6 +68,11 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         recommendationRequest.setRequester(userRepository.getByIdOrThrow(requesterId));
         recommendationRequest.setReceiver(userRepository.getByIdOrThrow(receiverId));
         recommendationRequest.setStatus(RequestStatus.PENDING);
+
+        if (recommendationDto.skillIds() != null) {
+            recommendationRequest.setSkills(new ArrayList<>());
+        }
+
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
 
         if (recommendationDto.skillIds() != null) {
@@ -136,7 +142,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         }
 
         if (recommendationRequestRepository.getByIdOrThrow(id).getStatus() != RequestStatus.PENDING) {
-            throw new ForbiddenException("You cannot accept this recommendation request"
+            throw new ForbiddenException("You cannot reject this recommendation request"
                     + " because it is not in PENDING status");
         }
 
