@@ -184,7 +184,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     /**
      * Проверяет, что приглашение адресовано текущему пользователю.
      *
-     * @param invitation приглашение для проверки
+     * @param invitation    приглашение для проверки
      * @param currentUserId ID текущего пользователя
      * @throws ForbiddenException если приглашение адресовано другому пользователю
      */
@@ -192,9 +192,9 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (!invitation.getInvited().getId().equals(currentUserId)) {
             log.error("User {} attempted to process invitation {} that is addressed to user {}",
                     currentUserId, invitation.getId(), invitation.getInvited().getId());
-            throw new ForbiddenException("You can only process invitations addressed to you. " +
-                    "Invitation ID: " + invitation.getId() +
-                    ", Your ID: " + currentUserId);
+            throw new ForbiddenException("You can only process invitations addressed to you. "
+                    + "Invitation ID: " + invitation.getId()
+                    + ", Your ID: " + currentUserId);
         }
     }
 
@@ -208,9 +208,9 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (invitation.getStatus() != RequestStatus.PENDING) {
             log.error("Attempted to process invitation {} with status {}, but only PENDING status is allowed",
                     invitation.getId(), invitation.getStatus());
-            throw new DataValidationException("Invitation is not pending. Current status: " +
-                    invitation.getStatus() +
-                    ", Invitation ID: " + invitation.getId());
+            throw new DataValidationException("Invitation is not pending. Current status: "
+                    + invitation.getStatus()
+                    + ", Invitation ID: " + invitation.getId());
         }
     }
 }
