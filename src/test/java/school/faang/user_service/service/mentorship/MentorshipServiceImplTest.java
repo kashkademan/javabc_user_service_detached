@@ -10,8 +10,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.users.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.MentorshipMapper;
-import school.faang.user_service.mapper.MentorshipMapperImpl;
+//import school.faang.user_service.mapper.MentorshipMapperImpl;
+import school.faang.user_service.mapper.mentorship.MentorshipMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.service.impl.MentorshipServiceImpl;
 
@@ -35,7 +35,7 @@ public class MentorshipServiceImplTest {
     private MentorshipRepository mentorshipRepository;
 
     @Spy
-    private MentorshipMapper mentorshipMapper = new MentorshipMapperImpl();
+    private MentorshipMapper mentorshipMapper;
 
     @Test
     public void test_getMentees_returnMentees_whenUserHasMentees() {
@@ -50,6 +50,12 @@ public class MentorshipServiceImplTest {
         mentee.setUsername(menteeName);
 
         mentor.setMentees(List.of(mentee));
+
+        UserDto menteeDto = new UserDto();
+        menteeDto.setId(2L);
+        menteeDto.setUsername("Oleg");
+
+        Mockito.when(mentorshipMapper.toUserDto(List.of(mentee))).thenReturn(List.of(menteeDto));
 
         Mockito.when(mentorshipRepository.findById(Mockito.eq(1L))).thenReturn(Optional.of(mentor));
 
@@ -156,7 +162,7 @@ public class MentorshipServiceImplTest {
         assertEquals(mentorName, mentors.get(0).getUsername());
 
         Mockito.verify(mentorshipRepository, Mockito.times(1)).findById(1L);
-        Mockito.verify(mentorshipMapper, Mockito.times(2)).toUserDto(List.of(mentor));
+        Mockito.verify(mentorshipMapper, Mockito.times(1)).toUserDto(List.of(mentor));
     }
 
     @Test
