@@ -1,14 +1,14 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.skill.CreateSkillDto;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillCreateDto;
+import school.faang.user_service.dto.skill.SkillViewDto;
 import school.faang.user_service.entity.user.Skill;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface SkillMapper {
 
-    Skill toEntity(CreateSkillDto skillDto);
+    Skill toEntity(SkillCreateDto skillDto);
 
-    SkillDto toViewDto(Skill skill);
+    SkillViewDto toViewDto(Skill skill);
 }

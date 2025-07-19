@@ -1,19 +1,21 @@
 package school.faang.user_service.service.skill;
 
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.user.SkillRepository;
+
 import java.util.Optional;
 
-@Service
+@Component
+@RequiredArgsConstructor
 public class SkillServiceValidator {
-    SkillRepository repository;
-    SkillOfferRepository offerRepository;
-
+    private final SkillRepository repository;
+    private final SkillOfferRepository offerRepository;
 
     public void validateNotNull(Object object, String string) {
         if (object == null) {
