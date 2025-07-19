@@ -3,6 +3,7 @@ package school.faang.user_service.controller.recommendation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -47,9 +48,10 @@ public class RecommendationRequestController {
     private final RecommendationRequestService service;
 
     @PostMapping
-    public RecommendationRequestViewDto create(
+    public ResponseEntity<RecommendationRequestViewDto> create(
             @Valid @RequestBody RecommendationRequestCreateDto recommendationDto) {
-        return service.create(recommendationDto);
+        RecommendationRequestViewDto created = service.create(recommendationDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
@@ -70,7 +72,7 @@ public class RecommendationRequestController {
     }
 
     @PostMapping("/{requestId}/reject")
-    public ResponseEntity<Void> reject(@PathVariable long requestId, @Valid RejectionDto rejectionDto) {
+    public ResponseEntity<Void> reject(@PathVariable long requestId, @RequestBody @Valid RejectionDto rejectionDto) {
         service.reject(requestId, rejectionDto);
         return ResponseEntity.ok().build();
     }

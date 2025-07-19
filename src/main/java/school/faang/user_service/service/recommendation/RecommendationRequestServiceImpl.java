@@ -91,15 +91,16 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     @Override
     @Transactional
     public void reject(long id, RejectionDto rejection) {
-        processStatusChange(
+        RecommendationRequest request = processStatusChange(
                 id,
                 RequestStatus.REJECTED,
                 "This user can't rejected request",
                 "Only pending requests can be rejected"
         );
+        request.setRejectionReason(rejection.reason());
     }
 
-    private void processStatusChange(
+    private RecommendationRequest processStatusChange(
             long id,
             RequestStatus newStatus,
             String receiverError,
@@ -113,8 +114,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
         request.setStatus(newStatus);
         requestRepository.save(request);
-        String statusName = newStatus.getName();
-        log.debug("Request {} successfully {} by user {}", id, statusName, currentUserId);
+        log.debug("Request {} successfully {} by user {}", id, newStatus.getName(), currentUserId);
+
+        return request;
     }
 
     private RecommendationRequest buildAndSaveRecommendationRequest(
@@ -177,7 +179,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     private void validateRequestIsPending(RecommendationRequest request,
                                           String errorMessage) {
-        if (request.getStatus() == (RequestStatus.PENDING)) {
+        if (request.getStatus() != (RequestStatus.PENDING)) {
             log.warn("Invalid request (id:{}) state: Current status is {}",
                     request.getId(), request.getStatus());
             throw new ForbiddenException(errorMessage);
