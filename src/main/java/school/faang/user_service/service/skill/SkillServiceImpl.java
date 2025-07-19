@@ -91,7 +91,7 @@ public class SkillServiceImpl implements SkillService {
         }
 
         skillRepository.assignSkillToUser(skillId, userId);
-        log.info("Навык с идентификатором {} " +
-                "присвоенный пользователю с идентификатором {}", skillId, userId);
+        log.info("Навык с идентификатором {} "
+                + "присвоенный пользователю с идентификатором {}", skillId, userId);
     }
 }
