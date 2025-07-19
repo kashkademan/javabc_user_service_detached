@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.properties.ProfilePicProperties;
 import school.faang.user_service.config.properties.S3Properties;
+import school.faang.user_service.dto.response.UploadAvatarResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.AvatarNotFoundException;
@@ -42,7 +43,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
     @Override
     @Transactional
-    public void uploadAvatar(Long userId, MultipartFile file) {
+    public UploadAvatarResponseDto uploadAvatar(Long userId, MultipartFile file) {
         userAvatarValidator.validateFile(file);
         User user = getUser(userId);
         deleteExistingAvatars(user);
@@ -55,6 +56,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
             user.setUserProfilePic(new UserProfilePic(largeAvatarKey, smallAvatarKey));
             userRepository.save(user);
+
+            return new UploadAvatarResponseDto(largeAvatarKey, smallAvatarKey);
+
         } catch (IOException e) {
             log.error("Error processing avatar for user {}", userId, e);
             throw new AvatarProcessingException("Error processing image", e);

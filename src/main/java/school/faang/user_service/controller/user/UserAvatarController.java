@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.dto.response.UploadAvatarResponseDto;
 import school.faang.user_service.service.user.UserAvatarService;
 
 @RestController
@@ -25,19 +25,17 @@ public class UserAvatarController {
 
     private final UserAvatarService userAvatarService;
     private static final String USER_ID_PATH = "/{userId}";
+    private static final String USER_SMALL_PIC_PATH = "/small";
 
     @PostMapping(USER_ID_PATH)
     @Operation(
             summary = "Upload user avatar",
             description = "Uploads an avatar image (max 5MB) for the user with the specified ID"
     )
-    public ResponseEntity<String> uploadAvatar(
+    public ResponseEntity<UploadAvatarResponseDto> uploadAvatar(
             @PathVariable Long userId, @RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty!");
-        }
-        userAvatarService.uploadAvatar(userId, file);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Avatar uploaded successfully");
+        UploadAvatarResponseDto uploadAvatarResponseDto = userAvatarService.uploadAvatar(userId, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uploadAvatarResponseDto);
     }
 
     @GetMapping(USER_ID_PATH)
@@ -54,7 +52,7 @@ public class UserAvatarController {
                 .body(userAvatarService.downloadLargeAvatar(userId));
     }
 
-    @GetMapping(USER_ID_PATH + "/small")
+    @GetMapping(USER_ID_PATH + USER_SMALL_PIC_PATH)
     @Operation(
             summary = "Download user's small avatar",
             description = "Returns the small version (170px) of the user's avatar image as JPEG. " +
@@ -75,8 +73,8 @@ public class UserAvatarController {
                     " from S3 and clears avatar info from the database. " +
                     "Responds with 404 if the user is not found."
     )
-    public ResponseEntity<String> deleteAvatar(@PathVariable Long userId) {
+    public ResponseEntity<Void> deleteAvatar(@PathVariable Long userId) {
         userAvatarService.deleteAvatar(userId);
-        return ResponseEntity.ok("Avatar deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 }
