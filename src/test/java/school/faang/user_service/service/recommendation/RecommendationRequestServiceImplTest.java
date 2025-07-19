@@ -282,7 +282,7 @@ public class RecommendationRequestServiceImplTest {
         String searchPhrase = "test";
         Long targetReceiverId = 1L;
         RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto(
-                null, 1L, searchPhrase, null
+                null, targetReceiverId, searchPhrase, null
         );
 
         createTestRequestsAndMockFindAll();
@@ -320,7 +320,7 @@ public class RecommendationRequestServiceImplTest {
         Long targetReceiverId = 1L;
         RequestStatus status = RequestStatus.REJECTED;
         RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto(
-                null, 1L, searchPhrase, status
+                null, targetReceiverId, searchPhrase, status
         );
         createTestRequestsAndMockFindAll();
 
@@ -361,7 +361,9 @@ public class RecommendationRequestServiceImplTest {
         long receiverId = 2L;
         String reason = "Потому что гладиолус";
         RejectionDto rejection = new RejectionDto(reason);
-        RecommendationRequest request = RecommendationRequest.builder().receiver(User.builder().id(receiverId).build()).build();
+        RecommendationRequest request = RecommendationRequest.builder()
+                .receiver(User.builder().id(receiverId).build())
+                .build();
 
         when(userContext.getUserId()).thenReturn(userContextId);
         when(requestRepository.getByIdOrThrow(receiverId)).thenReturn(request);
@@ -415,7 +417,9 @@ public class RecommendationRequestServiceImplTest {
     public void testAcceptWhenUserIsNotReceiver() {
         long userContextId = 1L;
         long receiverId = 2L;
-        RecommendationRequest request = RecommendationRequest.builder().receiver(User.builder().id(receiverId).build()).build();
+        RecommendationRequest request = RecommendationRequest.builder()
+                .receiver(User.builder().id(receiverId).build())
+                .build();
 
         when(userContext.getUserId()).thenReturn(userContextId);
         when(requestRepository.getByIdOrThrow(receiverId)).thenReturn(request);
