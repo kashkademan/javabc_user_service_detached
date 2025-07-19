@@ -46,7 +46,7 @@ public class UserSubscriptionController {
         return ResponseEntity.ok(subscriptionService.getFolloweesCount(followerId));
     }
 
-    @GetMapping("/{followeeId}")
+    @GetMapping("/{followeeId}/followers")
     public ResponseEntity<List<UserDto>> getFollowers(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowers(followeeId));
     }

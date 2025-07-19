@@ -10,6 +10,7 @@ import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 
+
 /**
  * EducationMapper — для преобразования между сущностью {@link Education} и DTO.
  * <p>
@@ -18,8 +19,7 @@ import school.faang.user_service.entity.user.User;
  *
  * @author fomchenkoandrey
  */
-@Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EducationMapper {
 
     /**

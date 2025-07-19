@@ -1,10 +1,10 @@
-package school.faang.user_service.service.goal.filter;
+package school.faang.user_service.service.filter.goal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.service.Filter;
+import school.faang.user_service.service.filter.Filter;
 
 import java.util.stream.Stream;
 

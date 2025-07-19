@@ -27,6 +27,11 @@ import java.util.stream.Collectors;
  *     <li>Некорректного формата JSON в запросах (HttpMessageNotReadableException)</li>
  *     <li>Ошибок валидации данных (@Valid) (MethodArgumentNotValidException)</li>
  *     <li>Случаев, когда ресурс не найден (EntityNotFoundException)</li>
+ *     <li>Доступ запрещён (ForbiddenException)</li>
+ *     <li>Ошибок валидации данных на уровне бизнес-логики (DataValidationException)</li>
+ *     <li>Неавторизованного доступа (UnauthorizedException)</li>
+ *     <li>Попыток повторного приобретения премиум-подписки (PremiumAlreadyExistsException)</li>
+ *     <li>Неуспешных попыток оплаты (PaymentFailedException)</li>
  *     <li>И любых других необработанных исключений (Exception)</li>
  * </ul>
  * </p>
@@ -39,6 +44,36 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.PAYMENT_REQUIRED.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(error);
+    }
+
+    @ExceptionHandler(PremiumAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlePremiumAlreadyExists(PremiumAlreadyExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
