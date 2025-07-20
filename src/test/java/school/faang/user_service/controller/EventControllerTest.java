@@ -66,8 +66,8 @@ public class EventControllerTest {
     @Test
     @DisplayName("Создание события — успешный сценарий")
     void createEvent_success() throws Exception {
-        LocalDateTime startDate = LocalDateTime.of(2025, 7, 20, 10, 0);
-        LocalDateTime endDate = LocalDateTime.of(2025, 7, 21, 12, 0);
+        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
+        LocalDateTime endDate = startDate.plusHours(3);
 
         EventCreateDto createDto = new EventCreateDto(
                 "Sample Event",
@@ -92,9 +92,9 @@ public class EventControllerTest {
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(viewDto.getId()))
-                .andExpect(jsonPath("$.title").value("Sample Event"));
+                .andExpect(jsonPath("$.title").value("Sample Event"))
+                .andExpect(status().isOk());
     }
 
 
