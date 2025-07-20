@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты SkillServiceImpl")
-@TestPropertySource(locations = "classpath:application.yml")
 public class SkillServiceImplTest {
 
     private MockMvc mockMvc;
