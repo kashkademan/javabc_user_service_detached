@@ -154,6 +154,7 @@ class RecommendationRequestServiceImplTest {
     void testCreateEarlierThanAllowedPeriod() {
         RecommendationRequest recommendationRequest =
                 getRecommendationRequest();
+        recommendationRequest.setCreatedAt(LocalDateTime.now().minusDays(1));
         long requesterId = recommendationRequest.getRequester().getId();
         long receiverId = recommendationRequest.getReceiver().getId();
 
