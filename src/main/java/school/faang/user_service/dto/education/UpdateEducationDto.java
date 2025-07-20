@@ -16,11 +16,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record UpdateEducationDto(
         @NotNull
-        @NotBlank(message = "It cannot be empty")
         Integer yearFrom,
 
         @NotNull
-        @NotBlank(message = "It cannot be empty")
         Integer yearTo,
 
         @NotNull
