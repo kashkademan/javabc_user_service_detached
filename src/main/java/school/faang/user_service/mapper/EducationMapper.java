@@ -2,11 +2,13 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.education.UpdateEducationDto;
 import school.faang.user_service.dto.user.CreateEducationDto;
 import school.faang.user_service.dto.user.EducationViewDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
+
 
 /**
  * EducationMapper — для преобразования между сущностью {@link Education} и DTO.
@@ -16,7 +18,7 @@ import school.faang.user_service.entity.user.User;
  *
  * @author fomchenkoandrey
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EducationMapper {
 
     /**

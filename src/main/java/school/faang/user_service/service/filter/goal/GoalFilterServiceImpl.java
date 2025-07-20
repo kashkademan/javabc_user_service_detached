@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal.filter;
+package school.faang.user_service.service.filter.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,5 +18,4 @@ public class GoalFilterServiceImpl implements FilterService<Goal, GoalFilterDto>
     public List<Goal> getFilteredList(List<Goal> entities, GoalFilterDto dto) {
         return applyFilters(filters, entities, dto);
     }
-
 }
