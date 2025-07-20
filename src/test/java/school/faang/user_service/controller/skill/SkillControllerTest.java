@@ -66,7 +66,7 @@ public class SkillControllerTest {
 
         when(skillServiceMock.create(any(CreateSkillDto.class))).thenReturn(responseDto);
 
-        mockMvc.perform(post("/api/v1/skill/")
+        mockMvc.perform(post("/api/v1/skill")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"" + inputData + "\"}"))
                 .andExpect(status().isCreated())
