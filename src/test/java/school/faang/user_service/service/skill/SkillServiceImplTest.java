@@ -56,6 +56,7 @@ public class SkillServiceImplTest {
 
     @BeforeEach
     public void setUp() {
+        skillService.setMinimalSkillOffers(3);
         mockMvc = MockMvcBuilders.standaloneSetup(skillService)
                 .build();
         // Здесь можно инициализировать необходимые объекты или моки перед каждым тестом
