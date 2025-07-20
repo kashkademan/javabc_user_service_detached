@@ -37,7 +37,7 @@ public class SkillController {
             @ApiResponse(responseCode = "201", description = "Skill created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
     })
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<SkillDto> create(@RequestBody @Validated CreateSkillDto skillDto) {
         return new ResponseEntity<>(skillService.create(skillDto), HttpStatus.CREATED);
     }
