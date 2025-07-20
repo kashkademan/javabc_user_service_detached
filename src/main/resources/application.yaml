@@ -41,8 +41,7 @@ user:
     min:
       length: 6
 
-recommendation:
-  request:
-    once-every:
-      quantity: 6
-      period: MONTHS
+recommendation-request:
+  once-every:
+    quantity: 6
+    period: MONTHS

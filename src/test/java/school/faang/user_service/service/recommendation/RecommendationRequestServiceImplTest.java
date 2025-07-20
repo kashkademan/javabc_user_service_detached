@@ -1,6 +1,5 @@
 package school.faang.user_service.service.recommendation;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -88,9 +87,15 @@ class RecommendationRequestServiceImplTest {
 
     private RecommendationRequestServiceImpl recommendationRequestService;
 
+    private final long quantity = 6L;
+    private final TemporalUnit period = ChronoUnit.MONTHS;
+
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(recommendationRequestMapper, "userMapper", userMapper);
+        ReflectionTestUtils.setField(
+                recommendationRequestMapper,
+                "userMapper",
+                userMapper);
 
         recommendationRequestService = new RecommendationRequestServiceImpl(
                 recommendationRequestRepository,
@@ -105,15 +110,11 @@ class RecommendationRequestServiceImplTest {
         );
     }
 
-    @AfterEach
-    void tearDown() {
-        recommendationRequestService = null;
-    }
-
     @Test
     @DisplayName("Create recommendation request with requesterId equals receiverId")
     void testCreateRequesterIdEqualsReceiverId() {
         when(userContext.getUserId()).thenReturn(1L);
+
         long requesterId = userContext.getUserId();
         long receiverId = 1L;
 
@@ -136,11 +137,14 @@ class RecommendationRequestServiceImplTest {
         long requesterId = userContext.getUserId();
         long receiverId = 1L;
 
-        when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
+        when(recommendationRequestRepository.findLatestPendingRequest(
+                anyLong(),
+                anyLong()))
                 .thenReturn(Optional.empty());
 
-        Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository
-                .findLatestPendingRequest(requesterId, receiverId);
+        Optional<RecommendationRequest> latestPendingRequest =
+                recommendationRequestRepository
+                        .findLatestPendingRequest(requesterId, receiverId);
 
         assertFalse(latestPendingRequest.isPresent());
     }
@@ -148,27 +152,25 @@ class RecommendationRequestServiceImplTest {
     @Test
     @DisplayName("Create recommendation request earlier than allowed period")
     void testCreateEarlierThanAllowedPeriod() {
-        when(userContext.getUserId()).thenReturn(3L);
-        long requesterId = userContext.getUserId();
-        long receiverId = 2L;
-        long quantity = 6L;
-        TemporalUnit period = ChronoUnit.MONTHS;
-
         RecommendationRequest recommendationRequest =
-                RecommendationRequest.builder()
-                        .requester(User.builder().id(requesterId).build())
-                        .receiver(User.builder().id(receiverId).build())
-                        .createdAt(LocalDateTime.now().minusDays(1))
-                        .build();
+                getRecommendationRequest();
+        long requesterId = recommendationRequest.getRequester().getId();
+        long receiverId = recommendationRequest.getReceiver().getId();
 
-        when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
+        when(recommendationRequestRepository.findLatestPendingRequest(
+                anyLong(),
+                anyLong()))
                 .thenReturn(Optional.of(recommendationRequest));
 
-        Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository
-                .findLatestPendingRequest(requesterId, receiverId);
+        Optional<RecommendationRequest> latestPendingRequest =
+                recommendationRequestRepository
+                        .findLatestPendingRequest(requesterId, receiverId);
 
         CreateRecommendationRequestDto createRecommendationRequestDto =
-                new CreateRecommendationRequestDto(requesterId, "some message", null);
+                new CreateRecommendationRequestDto(
+                        receiverId,
+                        recommendationRequest.getMessage(),
+                        null);
 
         assertTrue(latestPendingRequest.isPresent());
         assertTrue(latestPendingRequest.get().getCreatedAt()
@@ -180,24 +182,20 @@ class RecommendationRequestServiceImplTest {
     @Test
     @DisplayName("Create recommendation request later than allowed period")
     void testCreateLaterThanAllowedPeriod() {
-        when(userContext.getUserId()).thenReturn(4L);
-        long requesterId = userContext.getUserId();
-        long receiverId = 3L;
-        long quantity = 6L;
-        TemporalUnit period = ChronoUnit.MONTHS;
+        RecommendationRequest recommendationRequest = getRecommendationRequest();
+        recommendationRequest.setCreatedAt(LocalDateTime.now()
+                .minusMonths(quantity).minusDays(1));
+        long requesterId = recommendationRequest.getRequester().getId();
+        long receiverId = recommendationRequest.getReceiver().getId();
 
-        RecommendationRequest recommendationRequest =
-                RecommendationRequest.builder()
-                        .requester(User.builder().id(requesterId).build())
-                        .receiver(User.builder().id(receiverId).build())
-                        .createdAt(LocalDateTime.now().minusMonths(quantity).minusDays(1))
-                        .build();
-
-        when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
+        when(recommendationRequestRepository.findLatestPendingRequest(
+                anyLong(),
+                anyLong()))
                 .thenReturn(Optional.of(recommendationRequest));
 
-        Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository
-                .findLatestPendingRequest(requesterId, receiverId);
+        Optional<RecommendationRequest> latestPendingRequest =
+                recommendationRequestRepository
+                        .findLatestPendingRequest(requesterId, receiverId);
 
         assertTrue(latestPendingRequest.isPresent());
         assertFalse(latestPendingRequest.get().getCreatedAt()
@@ -222,6 +220,7 @@ class RecommendationRequestServiceImplTest {
     @DisplayName("Create recommendation request with skillIds is not null")
     void testCreateWithSkillIdsIsNotNull() {
         when(userContext.getUserId()).thenReturn(6L);
+
         long requesterId = userContext.getUserId();
         long receiverId = 5L;
 
@@ -308,13 +307,13 @@ class RecommendationRequestServiceImplTest {
                         .requester(User.builder().id(1L).build())
                         .receiver(User.builder().id(2L).build())
                         .message("some message")
-                        .status(PENDING)
+                        .status(ACCEPTED)
                         .build(),
                 RecommendationRequest.builder()
                         .requester(User.builder().id(2L).build())
                         .receiver(User.builder().id(3L).build())
                         .message("other message")
-                        .status(ACCEPTED)
+                        .status(PENDING)
                         .build(),
                 RecommendationRequest.builder()
                         .requester(User.builder().id(3L).build())
@@ -342,21 +341,21 @@ class RecommendationRequestServiceImplTest {
                 .thenAnswer((Answer<Stream<RecommendationRequest>>) invocation -> {
                     Stream<RecommendationRequest> recommendationRequestStream = invocation.getArgument(0);
                     return recommendationRequestStream.filter(recommendationRequest ->
-                            recommendationRequest.getRequester().getId().equals(3L));
+                            recommendationRequest.getRequester().getId().equals(2L));
                 });
 
         when(recommendationRequestReceiverIdFilter.apply(any(), any()))
                 .thenAnswer((Answer<Stream<RecommendationRequest>>) invocation -> {
                     Stream<RecommendationRequest> recommendationRequestStream = invocation.getArgument(0);
                     return recommendationRequestStream.filter(recommendationRequest ->
-                            recommendationRequest.getReceiver().getId().equals(1L));
+                            recommendationRequest.getReceiver().getId().equals(3L));
                 });
 
         when(recommendationRequestStatusFilter.apply(any(), any()))
                 .thenAnswer((Answer<Stream<RecommendationRequest>>) invocation -> {
                     Stream<RecommendationRequest> recommendationRequestStream = invocation.getArgument(0);
                     return recommendationRequestStream.filter(recommendationRequest ->
-                            recommendationRequest.getStatus().equals(REJECTED));
+                            recommendationRequest.getStatus().equals(PENDING));
                 });
 
         List<RecommendationRequestDto> result = recommendationRequestService
@@ -374,18 +373,8 @@ class RecommendationRequestServiceImplTest {
     @Test
     @DisplayName("Get recommendation request by valid ID")
     void testGetById() {
-        long requestId = 1L;
-        long requesterId = 2L;
-        long receiverId = 3L;
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(requestId)
-                .requester(User.builder().id(requesterId).build())
-                .receiver(User.builder().id(receiverId).build())
-                .message("Test message")
-                .status(PENDING)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
 
         when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
@@ -425,164 +414,139 @@ class RecommendationRequestServiceImplTest {
     @Test
     @DisplayName("Accept recommendation request with wrong receiver")
     void testAcceptWithWrongReceiver() {
-        when(userContext.getUserId()).thenReturn(1L);
+        when(userContext.getUserId()).thenReturn(5L);
+
         long currentReceiverId = userContext.getUserId();
-        long requestReceiverId = 2L;
-        long recommendationRequestId = 3L;
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
 
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .receiver(User.builder().id(requestReceiverId).build())
-                .build();
-
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         long receiverId = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId)
-                    .getReceiver().getId();
+                .getByIdOrThrow(requestId)
+                .getReceiver().getId();
 
         assertNotEquals(currentReceiverId, receiverId);
         assertThrows(ForbiddenException.class, () ->
-                recommendationRequestService.accept(recommendationRequestId));
+                recommendationRequestService.accept(requestId));
     }
 
     @Test
     @DisplayName("Accept recommendation request with wrong status")
     void testAcceptWithWrongStatus() {
-        when(userContext.getUserId()).thenReturn(1L);
-        long receiverId = userContext.getUserId();
-        long recommendationRequestId = 4L;
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
+        request.setStatus(REJECTED);
 
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .receiver(User.builder().id(receiverId).build())
-                .status(REJECTED)
-                .build();
-
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         RequestStatus status = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId).getStatus();
+                .getByIdOrThrow(requestId).getStatus();
 
         assertNotEquals(PENDING, status);
         assertThrows(ForbiddenException.class, () ->
-                recommendationRequestService.accept(recommendationRequestId));
+                recommendationRequestService.accept(requestId));
     }
 
     @Test
     @DisplayName("Accept recommendation request with valid data")
     void testAcceptWithValidData() {
-        when(userContext.getUserId()).thenReturn(1L);
-        long requesterId = userContext.getUserId();
-        long receiverId = 2L;
-        long recommendationRequestId = 3L;
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
 
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .requester(User.builder().id(requesterId).build())
-                .receiver(User.builder().id(receiverId).build())
-                .status(PENDING)
-                .build();
-
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId);
+                .getByIdOrThrow(requestId);
         recommendationRequest.setStatus(RequestStatus.ACCEPTED);
         recommendationRequestRepository.save(recommendationRequest);
 
-        verify(recommendationRequestRepository).save(recommendationRequest);
+        verify(recommendationRequestRepository, times(1))
+                .save(recommendationRequest);
 
-        assertEquals(recommendationRequestId, recommendationRequest.getId());
+        assertEquals(requestId, recommendationRequest.getId());
         assertEquals(ACCEPTED, recommendationRequest.getStatus());
     }
 
     @Test
     @DisplayName("Reject recommendation request with wrong receiver")
     void testRejectWithWrongReceiver() {
-        when(userContext.getUserId()).thenReturn(14L);
+        when(userContext.getUserId()).thenReturn(5L);
+
         long currentReceiverId = userContext.getUserId();
-        long requestReceiverId = 2L;
-        long recommendationRequestId = 5L;
-
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .receiver(User.builder().id(requestReceiverId).build())
-                .build();
-
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
         RejectionDto rejection = new RejectionDto("Rejection reason");
 
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         long receiverId = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId)
+                .getByIdOrThrow(requestId)
                 .getReceiver().getId();
 
         assertNotEquals(currentReceiverId, receiverId);
         assertThrows(ForbiddenException.class, () ->
-                recommendationRequestService.reject(recommendationRequestId, rejection));
+                recommendationRequestService.reject(requestId, rejection));
     }
 
     @Test
     @DisplayName("Reject recommendation request with wrong status")
     void testRejectWithWrongStatus() {
-        when(userContext.getUserId()).thenReturn(12L);
-        long receiverId = userContext.getUserId();
-        long recommendationRequestId = 45L;
-
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .receiver(User.builder().id(receiverId).build())
-                .status(REJECTED)
-                .build();
-
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
+        request.setStatus(ACCEPTED);
         RejectionDto rejection = new RejectionDto("Rejection reason");
 
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         RequestStatus status = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId).getStatus();
+                .getByIdOrThrow(requestId).getStatus();
 
         assertNotEquals(PENDING, status);
         assertThrows(ForbiddenException.class, () ->
-                recommendationRequestService.reject(recommendationRequestId, rejection));
+                recommendationRequestService.reject(requestId, rejection));
     }
 
     @Test
     @DisplayName("Reject recommendation request with valid data")
     void testRejectWithValidData() {
-        when(userContext.getUserId()).thenReturn(23L);
-        long requesterId = userContext.getUserId();
-        long receiverId = 15L;
-        long recommendationRequestId = 9L;
-
-        RecommendationRequest request = RecommendationRequest.builder()
-                .id(recommendationRequestId)
-                .requester(User.builder().id(requesterId).build())
-                .receiver(User.builder().id(receiverId).build())
-                .status(PENDING)
-                .build();
-
+        RecommendationRequest request = getRecommendationRequest();
+        long requestId = request.getId();
         RejectionDto rejection = new RejectionDto("Rejection reason");
 
-        when(recommendationRequestRepository.getByIdOrThrow(recommendationRequestId))
+        when(recommendationRequestRepository.getByIdOrThrow(requestId))
                 .thenReturn(request);
 
         RecommendationRequest recommendationRequest = recommendationRequestRepository
-                .getByIdOrThrow(recommendationRequestId);
+                .getByIdOrThrow(requestId);
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.reason());
         recommendationRequestRepository.save(recommendationRequest);
 
         verify(recommendationRequestRepository).save(recommendationRequest);
 
-        assertEquals(recommendationRequestId, recommendationRequest.getId());
+        assertEquals(requestId, recommendationRequest.getId());
         assertEquals(REJECTED, recommendationRequest.getStatus());
         assertEquals(rejection.reason(), recommendationRequest.getRejectionReason());
+    }
+
+    private RecommendationRequest getRecommendationRequest() {
+        return new RecommendationRequest(
+                1L,
+                User.builder().id(2L).build(),
+                User.builder().id(3L).build(),
+                "Test Message",
+                PENDING,
+                null,
+                null,
+                new ArrayList<>(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 }

@@ -40,9 +40,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final Set<RecommendationRequestFilter> recommendationRequestFilters;
 
-    @Value("${recommendation.request.once-every.quantity:6}")
+    @Value("${recommendation-request.once-every.quantity:6}")
     private int quantity;
-    @Value("${recommendation.request.once-every.period:MONTHS}")
+    @Value("${recommendation-request.once-every.period:MONTHS}")
     private ChronoUnit period;
 
     @Override
