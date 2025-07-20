@@ -41,6 +41,10 @@ user:
     min:
       length: 6
 
+goal:
+  active-goals-limit: 3
+  min-participants-count: 1
+
 recommendation-request:
   once-every:
     quantity: 6

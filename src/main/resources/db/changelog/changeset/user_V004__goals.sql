@@ -9,7 +9,7 @@ CREATE TABLE goal (
     updated_at timestamptz DEFAULT current_timestamp,
     mentor_id bigint,
 
-    CONSTRAINT fk_goal_id FOREIGN KEY (parent_goal_id) REFERENCES goal (id),
+    CONSTRAINT fk_goal_id FOREIGN KEY (parent_goal_id) REFERENCES goal (id) ON DELETE CASCADE,
     CONSTRAINT fk_mentor_id FOREIGN KEY (mentor_id) REFERENCES users (id)
 );
 
@@ -35,7 +35,7 @@ CREATE TABLE user_goal (
    updated_at timestamptz DEFAULT current_timestamp,
 
    CONSTRAINT fk_user_goal_id FOREIGN KEY (user_id) REFERENCES users (id),
-   CONSTRAINT fk_goal_user_id FOREIGN KEY (goal_id) REFERENCES goal (id)
+   CONSTRAINT fk_goal_user_id FOREIGN KEY (goal_id) REFERENCES goal (id) ON DELETE CASCADE
 );
 
 CREATE TABLE goal_skill (
