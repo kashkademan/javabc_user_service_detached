@@ -9,6 +9,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.skill.CreateSkillDto;
@@ -33,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты SkillServiceImpl")
+@TestPropertySource(locations = "classpath:application.yml")
 public class SkillServiceImplTest {
 
     private MockMvc mockMvc;
@@ -171,6 +176,7 @@ public class SkillServiceImplTest {
     public void acquireSkillFromOffers_ThrowsIllegalStateException() {
         long skillId = 1L;
         long userId = 1L;
+
 
         when(skillRepository.existsById(skillId)).thenReturn(false);
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(2);

@@ -17,13 +17,14 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
+
     @Value("${skill.minimal.offers}")
     private int minimalSkillOffers;
 
@@ -78,6 +79,7 @@ public class SkillServiceImpl implements SkillService {
             throw new EntityNotFoundException("Skill with id " + skillId + " not found");
         }
         if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= minimalSkillOffers) {
+            log.info("Добавляем скилл с id {} пользователю с id {}", skillId, userId);
             skillRepository.assignSkillToUser(skillId, userId);
         } else {
             throw new IllegalStateException("Требуется не менее трех предложений скилла для его приобретения");
