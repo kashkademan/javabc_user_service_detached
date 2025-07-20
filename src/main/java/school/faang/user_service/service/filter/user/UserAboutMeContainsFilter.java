@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class UserAboutMeContainsFilter implements Filter<User, UserFilterDto> {
     @Override
     public boolean isApplicable(UserFilterDto dto) {
-        return false;
+        return dto.aboutMeContains() != null;
     }
 
     @Override
