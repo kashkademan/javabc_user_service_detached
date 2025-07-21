@@ -246,7 +246,7 @@ public class RecommendationServiceTest {
         assertEquals(1, resultResponse.size());
         assertEquals("third Recommendation Java",
                 resultResponse.get(0).content());
-        assertEquals(3L ,resultResponse.get(0).receiverId());
+        assertEquals(3L, resultResponse.get(0).receiverId());
     }
 
     private CreateRecommendationDto buildCreateDto(long receiverId, String content) {
