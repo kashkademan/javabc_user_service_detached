@@ -60,7 +60,7 @@ class RecommendationServiceImplTest {
         savedRecommendation.setId(1L);
         savedRecommendation.setAuthor(userAuthor);
         savedRecommendation.setReceiver(userReceiver);
-        savedRecommendation.setContent("Все отлично");
+        savedRecommendation.setContent("Все отлично!");
 
         when(recommendationRepository.save(any(Recommendation.class))).thenReturn(savedRecommendation);
 
