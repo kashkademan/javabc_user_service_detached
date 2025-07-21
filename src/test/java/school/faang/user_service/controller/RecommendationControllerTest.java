@@ -48,10 +48,10 @@ public class RecommendationControllerTest {
 
         RecommendationDto actualResponse = recommendationController.create(newRecommendationDto);
 
+        assertEquals(expectedResponse, actualResponse);
         verify(recommendationService, times(1)).create(createDtoCaptor.capture());
         assertEquals(newRecommendationDto.receiverId(), createDtoCaptor.getValue().receiverId());
         assertEquals(newRecommendationDto.content(), createDtoCaptor.getValue().content());
-        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -65,9 +65,9 @@ public class RecommendationControllerTest {
 
         verify(recommendationService, times(1))
                 .update(recommendationIdCaptor.capture(), updateDtoCaptor.capture());
+        assertEquals(expectedResponse, actualResponse);
         assertEquals(recommendationId, recommendationIdCaptor.getValue());
         assertEquals(recommendationDto.content(), updateDtoCaptor.getValue().content());
-        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class RecommendationControllerTest {
 
         verify(recommendationService, times(1))
                 .getByFilters(recommendationFilterCaptor.capture());
-        assertEquals(filters, recommendationFilterCaptor.getValue());
         assertEquals(expectedResponse, actualResponse);
+        assertEquals(filters, recommendationFilterCaptor.getValue());
     }
 }

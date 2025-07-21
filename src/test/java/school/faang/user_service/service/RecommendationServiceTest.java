@@ -3,15 +3,24 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.recommendation.*;
+import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.filter.*;
+import school.faang.user_service.filter.RecommendationAuthorFilterInstance;
+import school.faang.user_service.filter.RecommendationContentFilterInstance;
+import school.faang.user_service.filter.RecommendationFilter;
+import school.faang.user_service.filter.RecommendationReceiverFilterInstance;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.RecommendationServiceImpl;
@@ -20,17 +29,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
 
     private RecommendationServiceImpl recommendationService;
 
-    @Mock private RecommendationRepository recommendationRepository;
-    @Mock private UserContext userContext;
-    @Spy private RecommendationMapperImpl recommendationMapper;
+    @Mock
+    private RecommendationRepository recommendationRepository;
+    @Mock
+    private UserContext userContext;
+    @Spy
+    private RecommendationMapperImpl recommendationMapper;
 
     @Value("${recommendation.repeat.limit}")
     private int repeatRecommendationTimeLimit;
@@ -39,9 +57,12 @@ public class RecommendationServiceTest {
     private final RecommendationFilter contentFilter = new RecommendationContentFilterInstance();
     private final RecommendationFilter receiverFilter = new RecommendationReceiverFilterInstance();
 
-    @Captor private ArgumentCaptor<Recommendation> recommendationCaptor;
-    @Captor private ArgumentCaptor<Long> authorIdCaptor;
-    @Captor private ArgumentCaptor<Long> recommendationIdCaptor;
+    @Captor
+    private ArgumentCaptor<Recommendation> recommendationCaptor;
+    @Captor
+    private ArgumentCaptor<Long> authorIdCaptor;
+    @Captor
+    private ArgumentCaptor<Long> recommendationIdCaptor;
 
     @BeforeEach
     public void setUp() {
