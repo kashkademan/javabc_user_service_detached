@@ -225,11 +225,14 @@ public class RecommendationServiceTest {
 
     @Test
     public void testRecommendationAuthorFiltering() {
-        Recommendation firstRecommendation = buildRecommendation(1L, buildUser(1L), buildUser(2L), "first Recommendation Java");
+        Recommendation firstRecommendation =
+                buildRecommendation(1L, buildUser(1L), buildUser(2L), "first Recommendation Java");
 
-        Recommendation secondRecommendation = buildRecommendation(2L, buildUser(1L), buildUser(3L), "second Recommendation Python");
+        Recommendation secondRecommendation =
+                buildRecommendation(2L, buildUser(1L), buildUser(3L), "second Recommendation Python");
 
-        Recommendation thirdRecommendation = buildRecommendation(3L, buildUser(4L), buildUser(3L), "third Recommendation Java");
+        Recommendation thirdRecommendation =
+                buildRecommendation(3L, buildUser(4L), buildUser(3L), "third Recommendation Java");
 
         when(recommendationRepository.findAll()).thenReturn(List.of(
                 firstRecommendation,
