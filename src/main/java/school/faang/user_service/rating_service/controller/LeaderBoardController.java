@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/leaders")
-public class LeaderboardController {
+public class LeaderBoardController {
 
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
 
-    @GetMapping
+    @GetMapping("/top")
     public List<LeaderDto> getTopLeaders(@RequestParam(defaultValue = "10") int limit) {
         Set<ZSetOperations.TypedTuple<String>> topUsers =
                 redisTemplate.opsForZSet().reverseRangeWithScores("leaderboard", 0, limit - 1);
@@ -51,7 +51,7 @@ public class LeaderboardController {
 
         List<Long> userIds = userIdToScore.keySet().stream().toList();
 
-        List<UserIdUsernameProjection> users = userRepository.findUsernamesByIds(userIds);
+        List<UserIdUsernameProjection> users = userRepository.findByIdIn(userIds);
 
         return users.stream()
                 .map(u -> new LeaderDto(
@@ -60,6 +60,6 @@ public class LeaderboardController {
                         userIdToScore.getOrDefault(u.getId(), 0L)
                 ))
                 .sorted((a, b) -> Long.compare(b.getScore(), a.getScore()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -12,17 +12,17 @@ import school.faang.user_service.rating_service.config.RatingEventPublisher;
 import java.time.Instant;
 
 /**
- * Аспект, перехватывающий методы, аннотированные {@link RatingAction}, для автоматической отправки событий рейтинга.
+ * Аспект, автоматически отправляющий события рейтинга при выполнении методов,
+ * аннотированных {@link RatingAction}.
  * <p>
- * При вызове метода с аннотацией {@code @RatingAction} после успешного выполнения:
+ * После успешного выполнения метода:
  * <ul>
- *     <li>получает текущий userId из контекста {@link UserContext};</li>
- *     <li>формирует событие {@link UserActionEvent} с типом действия из аннотации и текущим timestamp;</li>
- *     <li>отправляет событие через {@link RatingEventPublisher} (обычно в Kafka);</li>
- *     <li>логирует процесс и ошибки при отправке.</li>
+ *     <li>извлекает userId из {@link UserContext};</li>
+ *     <li>формирует {@link UserActionEvent} на основе {@link RatingAction};</li>
+ *     <li>отправляет событие через {@link RatingEventPublisher};</li>
+ *     <li>логирует процесс и возможные ошибки.</li>
  * </ul>
- * <p>
- * Позволяет отделить логику начисления рейтинга от бизнес-логики, не засоряя методы вручную вызываемым кодом.
+ * Используется для отделения бизнес-логики от начисления рейтинга.
  */
 @Aspect
 @Component
@@ -30,29 +30,32 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class RatingAspect {
 
-    /**
-     * Контекст пользователя, из которого извлекается идентификатор текущего пользователя.
-     */
     private final UserContext userContext;
-
-    /**
-     * Публикатор событий рейтинга (например, отправка в Kafka).
-     */
     private final RatingEventPublisher ratingEventPublisher;
 
     /**
-     * Перехватывает выполнение методов с аннотацией {@link RatingAction}, выполняет метод,
-     * затем отправляет событие рейтинга с информацией о пользователе и типе действия.
+     * Аспект, перехватывающий выполнение метода с аннотацией {@link RatingAction},
+     * выполняющий исходный метод и отправляющий событие рейтинга.
      *
-     * @param pjp           точка входа в метод (JoinPoint)
-     * @param ratingAction  аннотация, содержащая тип действия рейтинга
-     * @return результат выполнения метода
-     * @throws Throwable пробрасывает исключения метода дальше
+     * @param joinPoint    информация о перехваченном методе
+     * @param ratingAction аннотация с типом действия
+     * @return результат выполнения исходного метода
+     * @throws Throwable пробрасывает исключения, возникшие при выполнении метода
      */
     @Around("@annotation(ratingAction)")
-    public Object interceptAndSendEvent(ProceedingJoinPoint pjp, RatingAction ratingAction) throws Throwable {
-        Object result = pjp.proceed();
+    public Object interceptAndSendEvent(ProceedingJoinPoint joinPoint, RatingAction ratingAction) throws Throwable {
+        Object result = joinPoint.proceed();
+        sendRatingEvent(ratingAction);
+        return result;
+    }
 
+    /**
+     * Формирует и отправляет событие рейтинга на основе аннотации {@link RatingAction}.
+     * Оборачивает отправку в блок try-catch, чтобы не прерывать основное выполнение.
+     *
+     * @param ratingAction аннотация, содержащая тип действия
+     */
+    private void sendRatingEvent(RatingAction ratingAction) {
         try {
             Long userId = userContext.getUserId();
             ActionType actionType = ratingAction.value();
@@ -64,11 +67,8 @@ public class RatingAspect {
 
             log.info("Sending an event to Kafka: {}", event);
             ratingEventPublisher.send(event);
-
         } catch (Exception ex) {
             log.error("Error when sending a rating event", ex);
         }
-
-        return result;
     }
 }

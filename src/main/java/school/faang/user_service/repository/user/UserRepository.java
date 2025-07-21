@@ -1,6 +1,5 @@
 package school.faang.user_service.repository.user;
 
-import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.user.User;
@@ -31,8 +30,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmailIgnoreCase(String email);
 
-    @Query("SELECT u.id AS id, u.username AS username FROM User u WHERE u.id IN :ids")
-    List<UserIdUsernameProjection> findUsernamesByIds(@Param("ids") List<Long> ids);
+    List<UserIdUsernameProjection> findByIdIn(List<Long> ids);
 
     default User getByIdOrThrow(long userId) {
         return findById(userId)
