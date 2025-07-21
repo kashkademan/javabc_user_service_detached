@@ -35,8 +35,6 @@ import static org.mockito.Mockito.when;
 @DisplayName("Тесты SkillServiceImpl")
 public class SkillServiceImplTest {
 
-    private MockMvc mockMvc;
-
     @Mock
     private SkillRepository skillRepository;
 
@@ -52,8 +50,6 @@ public class SkillServiceImplTest {
     @BeforeEach
     public void setUp() {
         skillService.setMinimalSkillOffers(3);
-        mockMvc = MockMvcBuilders.standaloneSetup(skillService)
-                .build();
         // Здесь можно инициализировать необходимые объекты или моки перед каждым тестом
     }
 
@@ -78,11 +74,13 @@ public class SkillServiceImplTest {
         when(skillRepository.existsByTitle(inputData)).thenReturn(false);
         when(skillRepository.save(skill)).thenReturn(skill);
 
+        verify(skillMapper).toSkill(createSkillDto);
+
         SkillDto skillDtoResult = skillService.create(createSkillDto);
         assertThat(skillDtoResult.title()).isEqualTo(inputData);
         assertThat(skillDtoResult.id()).isEqualTo(1L);
 
-        verify(skillMapper).toSkill(createSkillDto);
+
 
     }
 
@@ -100,11 +98,11 @@ public class SkillServiceImplTest {
         when(skillMapper.toSkill(createSkillDto)).thenReturn(skill);
         when(skillRepository.existsByTitle("Java")).thenReturn(true);
 
+        verify(skillRepository).existsByTitle("Java");
+
         assertThatThrownBy(() -> skillService.create(createSkillDto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("Данный заголовок уже существует: Java");
-
-        verify(skillRepository).existsByTitle("Java");
     }
 
     @Test
@@ -123,11 +121,12 @@ public class SkillServiceImplTest {
         when(skillRepository.findAllByUserId(userId)).thenReturn(List.of(skill));
         when(skillMapper.toSkillDto(skill)).thenReturn(skillDto);
 
+        verify(skillRepository).findAllByUserId(userId);
+
         List<SkillDto> skills = skillService.getByUserId(userId);
         assertThat(skills.get(0).title()).isEqualTo("Java");
         assertThat(skills.get(0).id()).isEqualTo(1L);
 
-        verify(skillRepository).findAllByUserId(userId);
     }
 
     @Test
@@ -162,9 +161,9 @@ public class SkillServiceImplTest {
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(3);
         doNothing().when(skillRepository).assignSkillToUser(skillId, userId);
 
-        skillService.acquireSkillFromOffers(skillId, userId);
-
         verify(skillRepository).assignSkillToUser(skillId, userId);
+
+        skillService.acquireSkillFromOffers(skillId, userId);
     }
 
     @Test
@@ -177,10 +176,11 @@ public class SkillServiceImplTest {
         when(skillRepository.existsById(skillId)).thenReturn(false);
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(2);
 
+        verify(skillRepository, never()).assignSkillToUser(skillId, userId);
+
         assertThatThrownBy(() -> skillService.acquireSkillFromOffers(skillId, userId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Требуется не менее трех предложений скилла для его приобретения");
 
-        verify(skillRepository, never()).assignSkillToUser(skillId, userId);
     }
 }

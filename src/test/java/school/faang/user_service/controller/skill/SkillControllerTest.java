@@ -66,25 +66,26 @@ public class SkillControllerTest {
 
         when(skillServiceMock.create(any(CreateSkillDto.class))).thenReturn(responseDto);
 
+        verify(skillServiceMock, times(1)).create(any(CreateSkillDto.class));
+
         mockMvc.perform(post("/api/v1/skill")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"" + inputData + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value(inputData))
                 .andExpect(jsonPath("$.id").exists());
-
-        verify(skillServiceMock, times(1)).create(any(CreateSkillDto.class));
     }
 
     @Test
     @DisplayName("Post /api/v1/skill - Ошибка при создании скилла")
     public void createSkill_ReturnsBadRequest() throws Exception {
+
+        verify(skillServiceMock, never()).create(any(CreateSkillDto.class));
+
         mockMvc.perform(post("/api/v1/skill")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\"}")) // пустой заголовок
                 .andExpect(status().isBadRequest());
-
-        verify(skillServiceMock, never()).create(any(CreateSkillDto.class));
     }
 
     @Test
@@ -95,12 +96,14 @@ public class SkillControllerTest {
 
         when(skillServiceMock.getByUserId(userId)).thenReturn(List.of(skillDto));
 
+        verify(skillServiceMock, times(1)).getByUserId(userId);
+
         mockMvc.perform(get("/api/v1/skill/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Java"))
                 .andExpect(jsonPath("$[0].id").value(1));
 
-        verify(skillServiceMock, times(1)).getByUserId(userId);
+
     }
 
     @Test
@@ -112,11 +115,11 @@ public class SkillControllerTest {
         when(userContextMock.getUserId()).thenReturn(userId);
         doNothing().when(skillServiceMock).acquireSkillFromOffers(skillId, userId);
 
+        verify(skillServiceMock, times(1)).acquireSkillFromOffers(skillId, userId);
+
         mockMvc.perform(post("/api/v1/skill/acquire/{skillId}", skillId)
                         .header("User-Id", userId))
                 .andExpect(status().isOk());
-
-        verify(skillServiceMock, times(1)).acquireSkillFromOffers(skillId, userId);
     }
 
 }
