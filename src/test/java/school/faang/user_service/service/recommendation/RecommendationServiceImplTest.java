@@ -1,6 +1,5 @@
 package school.faang.user_service.service.recommendation;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -65,7 +64,8 @@ class RecommendationServiceImplTest {
 
         when(recommendationRepository.save(any(Recommendation.class))).thenReturn(savedRecommendation);
 
-        when(recommendationRepository.findById(savedRecommendation.getId())).thenReturn(Optional.of(savedRecommendation));
+        when(recommendationRepository.findById(savedRecommendation.getId()))
+                .thenReturn(Optional.of(savedRecommendation));
 
 
         recommendationServiceImpl.create(RecommendationServiceTestData.createDto());
