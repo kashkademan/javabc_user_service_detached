@@ -7,8 +7,8 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 
 @Mapper(componentModel = "spring")
 public interface RecommendationMapper {
-    @Mapping(target = "authorId", ignore = true)
-    @Mapping(target = "receiverId", ignore = true)
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "receiverId", source = "receiver.id")
     RecommendationDto toRecommendationDto(Recommendation recommendation);
 
 }

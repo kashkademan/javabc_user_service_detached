@@ -23,8 +23,8 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping("/recommendation")
-    public RecommendationDto create(@Validated CreateRecommendationDto recommendationDto) {
-        return recommendationService.create(recommendationDto);
+    public RecommendationDto create(@Validated CreateRecommendationDto newRecommendationDto) {
+        return recommendationService.create(newRecommendationDto);
     }
 
     @PutMapping("/recommendation")
