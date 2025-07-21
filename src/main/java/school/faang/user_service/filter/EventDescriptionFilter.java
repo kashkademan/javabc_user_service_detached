@@ -6,16 +6,18 @@ import school.faang.user_service.entity.event.Event;
 
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+
 @Component
 public class EventDescriptionFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto eventFilterDto) {
-        return eventFilterDto.descriptionContains() != null;
+        return eventFilterDto.descriptionContains() != null && !eventFilterDto.descriptionContains().isBlank();
     }
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto eventFilterDto) {
-        return events
-                .filter(event -> event.getDescription().contains(eventFilterDto.descriptionContains()));
+        return events.
+                filter(e -> containsIgnoreCase(e.getDescription(), eventFilterDto.descriptionContains()));
     }
 }
