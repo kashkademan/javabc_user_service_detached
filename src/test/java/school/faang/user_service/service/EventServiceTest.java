@@ -22,11 +22,11 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.EventFilter;
-import school.faang.user_service.filter.testEventFilters.TestEventDescriptionFilter;
-import school.faang.user_service.filter.testEventFilters.TestEventOwnerFilter;
-import school.faang.user_service.filter.testEventFilters.TestEventParticipantFilter;
-import school.faang.user_service.filter.testEventFilters.TestEventTitleFilter;
-import school.faang.user_service.filter.testEventFilters.TestEventTypeFilter;
+import school.faang.user_service.filter.TestEventDescriptionFilter;
+import school.faang.user_service.filter.TestEventOwnerFilter;
+import school.faang.user_service.filter.TestEventParticipantFilter;
+import school.faang.user_service.filter.TestEventTitleFilter;
+import school.faang.user_service.filter.TestEventTypeFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -84,13 +84,29 @@ public class EventServiceTest {
     void setUp() {
         owner = User.builder().id(10L).username("Alex").build();
 
-        eventDto = CreateEventDto.builder().title("Event").description("Test Event").ownerId(owner.getId()).startDate(LocalDateTime.now().plusDays(1)).endDate(LocalDateTime.now().plusDays(2)).type(EventType.PRESENTATION).build();
+        eventDto = CreateEventDto.builder()
+                .title("Event")
+                .description("Test Event")
+                .ownerId(owner.getId())
+                .startDate(LocalDateTime.now().plusDays(1))
+                .endDate(LocalDateTime.now().plusDays(2))
+                .type(EventType.PRESENTATION)
+                .build();
 
-        event = Event.builder().id(100L).title(eventDto.title()).description(eventDto.description()).owner(owner).build();
+        event = Event.builder().id(100L).title(eventDto
+                .title()).description(eventDto.description()).owner(owner).build();
 
-        updateEventDto = UpdateEventDto.builder().title("New title").description("New description").startDate(LocalDateTime.now().plusDays(5)).endDate(LocalDateTime.now().plusDays(6)).type(EventType.PRESENTATION).build();
+        updateEventDto = UpdateEventDto.builder()
+                .title("New title").description("New description").startDate(LocalDateTime.now()
+                        .plusDays(5)).endDate(LocalDateTime.now().plusDays(6)).type(EventType.PRESENTATION).build();
 
-        eventServiceImpl = new EventServiceImpl(eventRepository, userRepository, eventMapper, userContext, List.of(eventFilterDescription, eventFilterTitle, eventFilterOwner, eventFilterParticipant, eventFilterType));
+        eventServiceImpl = new EventServiceImpl(
+                eventRepository, userRepository, eventMapper, userContext,
+                List.of(eventFilterDescription,
+                        eventFilterTitle,
+                        eventFilterOwner,
+                        eventFilterParticipant,
+                        eventFilterType));
     }
 
     @Test
@@ -114,7 +130,8 @@ public class EventServiceTest {
 
     @Test
     void testCreateEvent_OwnerNotFoundById() {
-        when(userRepository.getByIdOrThrow(eventDto.ownerId())).thenThrow(new EntityNotFoundException("Owner not found"));
+        when(userRepository.getByIdOrThrow(eventDto.ownerId())).thenThrow(new EntityNotFoundException(
+                "Owner not found"));
 
         assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.create(eventDto));
     }
@@ -155,12 +172,23 @@ public class EventServiceTest {
     @DisplayName("getByFilters: returns one EventDto when description, owner, participant, and type match")
     @Test
     void testGetByFilters_WhenMatchExistsReturnsOne() {
-        Event event1 = Event.builder().title("news").description("new description").owner(User.builder().id(1L).build()).attendees(List.of(User.builder().id(4L).build())).type(EventType.MEETING).build();
-        Event event2 = Event.builder().title("news").description("new desc").owner(User.builder().id(7L).build()).attendees(List.of(User.builder().id(5L).build())).type(EventType.WEBINAR).build();
+        Event event1 = Event.builder()
+                .title("news")
+                .description("new description")
+                .owner(User.builder().id(1L)
+                        .build())
+                .attendees(List.of(User.builder().id(4L).build())).type(EventType.MEETING).build();
+        Event event2 = Event.builder()
+                .title("news")
+                .description("new desc")
+                .owner(User.builder().id(7L).build())
+                .attendees(List.of(User.builder().id(5L).build()))
+                .type(EventType.WEBINAR).build();
 
         when(eventRepository.findAll()).thenReturn(List.of(event1, event2));
 
-        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(null, null, null, null, null));
+        List<EventDto> result = eventServiceImpl.getByFilters(
+                new EventFilterDto(null, null, null, null, null));
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).description().contains("description"));
@@ -171,12 +199,22 @@ public class EventServiceTest {
 
     @Test
     void testGetByFilters_WhenNoMatchReturnsEmpty() {
-        Event event1 = Event.builder().title("Title").description("Desc").owner(User.builder().id(10L).build()).attendees(List.of(User.builder().id(4L).build())).type(EventType.PRESENTATION).build();
-        Event event2 = Event.builder().title("news").description("new desc").owner(User.builder().id(7L).build()).attendees(List.of(User.builder().id(5L).build())).type(EventType.WEBINAR).build();
+        Event event1 = Event.builder()
+                .title("Title")
+                .description("Desc")
+                .owner(User.builder().id(10L).build())
+                .attendees(List.of(User.builder().id(4L).build())).type(EventType.PRESENTATION).build();
+        Event event2 = Event.builder()
+                .title("news")
+                .description("new desc")
+                .owner(User.builder().id(7L).build())
+                .attendees(List.of(User.builder().id(5L).build()))
+                .type(EventType.WEBINAR).build();
 
         when(eventRepository.findAll()).thenReturn(List.of(event1, event2));
 
-        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(null, null, null, null, null));
+        List<EventDto> result = eventServiceImpl.getByFilters(
+                new EventFilterDto(null, null, null, null, null));
 
         assertTrue(result.isEmpty());
     }

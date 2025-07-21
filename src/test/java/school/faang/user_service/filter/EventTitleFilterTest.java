@@ -50,7 +50,10 @@ public class EventTitleFilterTest {
 
     @Test
     public void testApply_returnsOneEventWhenTitleMatches() {
-        Stream<Event> events = Stream.of(Event.builder().title("news").build(), Event.builder().title("management").build());
+        Stream<Event> events = Stream.of(Event.builder()
+                .title("news").build(),
+                Event.builder().title("management")
+                        .build());
 
         Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto("news", null, null, null, null));
 
@@ -62,9 +65,14 @@ public class EventTitleFilterTest {
 
     @Test
     public void testApply_returnsEmptyWhenNoTitleMatches() {
-        Stream<Event> events = Stream.of(Event.builder().description("news").build(), Event.builder().description("management").build());
+        Stream<Event> events = Stream.of(Event.builder()
+                .description("news").build(),
+                Event.builder().description("management")
+                        .build());
 
-        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto(null, "cats", null, null, null));
+        Stream<Event> event = eventTitleFilter
+                .apply(events, new EventFilterDto(
+                        null, "cats", null, null, null));
 
         List<Event> eventList = event.toList();
 
@@ -73,9 +81,12 @@ public class EventTitleFilterTest {
 
     @Test
     public void testApply_MatchesTitleIgnoringCase() {
-        Stream<Event> events = Stream.of(Event.builder().title("News").build(), Event.builder().title("manAgeMent").build());
+        Stream<Event> events = Stream.of(
+                Event.builder().title("News").build(), Event.builder().title("manAgeMent").build());
 
-        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto("Management", null, null, null, null));
+        Stream<Event> event = eventTitleFilter.apply(
+                events, new EventFilterDto(
+                        "Management", null, null, null, null));
 
         List<Event> eventList = event.toList();
 

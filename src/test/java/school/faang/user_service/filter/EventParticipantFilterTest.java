@@ -32,14 +32,18 @@ public class EventParticipantFilterTest {
 
     @Test
     public void testIsApplicableTrue() {
-        boolean result = eventParticipantFilter.isApplicable(new EventFilterDto(null, null, null, 11L, null));
+        boolean result = eventParticipantFilter
+                .isApplicable(new EventFilterDto(
+                        null, null, null, 11L, null));
 
         assertTrue(result);
     }
 
     @Test
     public void testIsApplicableFalse() {
-        boolean result = eventParticipantFilter.isApplicable(new EventFilterDto(null, null, null, null, null));
+        boolean result = eventParticipantFilter
+                .isApplicable(new EventFilterDto(
+                        null, null, null, null, null));
 
         assertFalse(result);
     }
@@ -48,7 +52,9 @@ public class EventParticipantFilterTest {
     public void testApply_returnsOneEventWhenParticipantFound() {
         Stream<Event> events = Stream.of(Event.builder().attendees(List.of(participant1, participant2)).build());
 
-        Stream<Event> event = eventParticipantFilter.apply(events, new EventFilterDto(null, null, null, 1L, null));
+        Stream<Event> event = eventParticipantFilter
+                .apply(events, new EventFilterDto(
+                        null, null, null, 1L, null));
 
         List<Event> eventList = event.toList();
 
@@ -60,7 +66,9 @@ public class EventParticipantFilterTest {
     public void testApply_ReturnsEmptyParticipantIdNotFound() {
         Stream<Event> events = Stream.of(Event.builder().attendees(List.of(participant1, participant2)).build());
 
-        Stream<Event> event = eventParticipantFilter.apply(events, new EventFilterDto(null, null, null, 3L, null));
+        Stream<Event> event = eventParticipantFilter.apply(
+                events, new EventFilterDto(
+                        null, null, null, 3L, null));
 
         List<Event> eventList = event.toList();
 

@@ -1,12 +1,13 @@
-package school.faang.user_service.filter.testEventFilters;
+package school.faang.user_service.filter;
 
+import org.apache.commons.lang3.StringUtils;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.filter.EventFilter;
 
 import java.util.stream.Stream;
 
-public class TestEventOwnerFilter implements EventFilter {
+public class TestEventTitleFilter implements EventFilter {
+
     @Override
     public boolean isApplicable(EventFilterDto eventFilterDto) {
         return true;
@@ -14,7 +15,8 @@ public class TestEventOwnerFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto eventFilterDto) {
-        return events.filter(event ->
-                event.getOwner() != null && event.getOwner().getId().equals(1L));
+        return events
+                .filter(e ->
+                        StringUtils.containsIgnoreCase(e.getTitle(), "news"));
     }
 }

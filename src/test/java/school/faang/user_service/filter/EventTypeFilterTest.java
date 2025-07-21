@@ -22,23 +22,32 @@ public class EventTypeFilterTest {
 
     @Test
     public void testIsApplicableTrue() {
-        boolean result = eventTypeFilter.isApplicable(new EventFilterDto(null, null, null, null, EventType.PRESENTATION));
+        boolean result = eventTypeFilter
+                .isApplicable(new EventFilterDto(
+                        null, null, null, null, EventType.PRESENTATION));
 
         assertTrue(result);
     }
 
     @Test
     public void testIsApplicableFalse() {
-        boolean result = eventTypeFilter.isApplicable(new EventFilterDto(null, null, null, null, null));
+        boolean result = eventTypeFilter
+                .isApplicable(new EventFilterDto(
+                        null, null, null, null, null));
 
         assertFalse(result);
     }
 
     @Test
     public void testApply_ReturnsEventsWithGivenType() {
-        Stream<Event> events = Stream.of(Event.builder().type(EventType.PRESENTATION).build(), Event.builder().type(EventType.GIVEAWAY).build(), Event.builder().type(EventType.POLL).build());
+        Stream<Event> events = Stream.of(Event.builder()
+                .type(EventType.PRESENTATION).build(),
+                Event.builder().type(EventType.GIVEAWAY).build(),
+                Event.builder().type(EventType.POLL)
+                        .build());
 
-        Stream<Event> event = eventTypeFilter.apply(events, new EventFilterDto(null, null, null, null, EventType.GIVEAWAY));
+        Stream<Event> event = eventTypeFilter.apply(events, new EventFilterDto(
+                null, null, null, null, EventType.GIVEAWAY));
 
         List<Event> eventList = event.toList();
 
@@ -48,9 +57,15 @@ public class EventTypeFilterTest {
 
     @Test
     public void testApply_ReturnsEmptyEventTypeNotFound() {
-        Stream<Event> events = Stream.of(Event.builder().type(EventType.PRESENTATION).build(), Event.builder().type(EventType.GIVEAWAY).build(), Event.builder().type(EventType.POLL).build());
+        Stream<Event> events = Stream.of(Event.builder()
+                .type(EventType.PRESENTATION).build(),
+                Event.builder().type(EventType.GIVEAWAY).build(),
+                Event.builder().type(EventType.POLL)
+                        .build());
 
-        Stream<Event> event = eventTypeFilter.apply(events, new EventFilterDto(null, null, null, null, EventType.MEETING));
+        Stream<Event> event = eventTypeFilter.apply(
+                events, new EventFilterDto(
+                        null, null, null, null, EventType.MEETING));
 
         List<Event> eventList = event.toList();
 
