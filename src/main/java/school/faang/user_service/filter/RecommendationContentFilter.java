@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 public class RecommendationContentFilter implements RecommendationFilter {
     @Override
     public boolean isApplicable(RecommendationFilterDto filter) {
-        return filter.contentContains() != null &&
-                !filter.contentContains().isBlank();
+        return filter.contentContains() != null
+                && !filter.contentContains().isBlank();
     }
 
     @Override
