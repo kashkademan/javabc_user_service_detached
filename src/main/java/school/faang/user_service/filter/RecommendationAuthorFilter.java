@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
-public class RecommendationAuthorFilter implements RecommendationFilter{
+public class RecommendationAuthorFilter implements RecommendationFilter {
     @Override
     public boolean isApplicable(RecommendationFilterDto filter) {
         return filter.authorId() != null;
