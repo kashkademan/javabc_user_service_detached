@@ -39,7 +39,7 @@ public class EventParticipationController {
     private final UserContext userContext;
 
     @PostMapping
-    @RatingAction(ActionType.PATRICIPATION_IN_THE_EVENT)
+    @RatingAction(ActionType.PARTICIPATION_IN_THE_EVENT)
     public ResponseEntity<Void> registerParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
         service.registerParticipant(eventId, userId);
