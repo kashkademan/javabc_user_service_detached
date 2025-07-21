@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -48,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
-    @InjectMocks
+
     private EventServiceImpl eventServiceImpl;
 
     @Mock
@@ -109,6 +108,7 @@ public class EventServiceTest {
                         eventFilterType));
     }
 
+    @DisplayName("create(): saves event when owner exists")
     @Test
     void testCreateEvent_Successful() {
 
@@ -128,6 +128,7 @@ public class EventServiceTest {
 
     }
 
+    @DisplayName("create(): throws EntityNotFoundException when owner not found")
     @Test
     void testCreateEvent_OwnerNotFoundById() {
         when(userRepository.getByIdOrThrow(eventDto.ownerId())).thenThrow(new EntityNotFoundException(
@@ -136,6 +137,7 @@ public class EventServiceTest {
         assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.create(eventDto));
     }
 
+    @DisplayName("update(): throws EntityNotFoundException when event not found")
     @Test
     void testUpdate_EventNotFoundById() {
         when(eventRepository.getByIdOrThrow(1L)).thenThrow(new EntityNotFoundException("Event not found"));
@@ -143,6 +145,7 @@ public class EventServiceTest {
         assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.update(1L, updateEventDto));
     }
 
+    @DisplayName("update(): throws ForbiddenException when current user is not owner")
     @Test
     void testUpdate_ThrowsForbiddenIfUserNotOwner() {
         when(eventRepository.getByIdOrThrow(100L)).thenReturn(event);
@@ -150,6 +153,7 @@ public class EventServiceTest {
         assertThrows(ForbiddenException.class, () -> eventServiceImpl.update(100L, updateEventDto));
     }
 
+    @DisplayName("update(): updates event successfully")
     @Test
     void testUpdateEvent_Successful() {
 
@@ -169,7 +173,7 @@ public class EventServiceTest {
         assertEquals(updateEventDto.type(), capturedEvent.getType());
     }
 
-    @DisplayName("getByFilters: returns one EventDto when description, owner, participant, and type match")
+    @DisplayName("getByFilters(): returns one EventDto when description, owner, participant, and type match")
     @Test
     void testGetByFilters_WhenMatchExistsReturnsOne() {
         Event event1 = Event.builder()
@@ -197,6 +201,7 @@ public class EventServiceTest {
         assertEquals(EventType.MEETING, result.get(0).type());
     }
 
+    @DisplayName("getByFilters(): returns empty list when no event matches filter")
     @Test
     void testGetByFilters_WhenNoMatchReturnsEmpty() {
         Event event1 = Event.builder()
@@ -219,6 +224,7 @@ public class EventServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @DisplayName("delete(): removes event when current user is owner")
     @Test
     void testDelete_Successful() {
         long eventId = 100L;
@@ -231,6 +237,7 @@ public class EventServiceTest {
         verify(eventRepository, times(1)).deleteById(eventId);
     }
 
+    @DisplayName("delete(): throws EntityNotFoundException when event not found")
     @Test
     void testDelete_EventNotFound() {
         long eventId = 999L;
@@ -241,6 +248,7 @@ public class EventServiceTest {
         verify(eventRepository, never()).deleteById(anyLong());
     }
 
+    @DisplayName("delete(): throws ForbiddenException when current user is not owner")
     @Test
     void testDelete_ThrowsForbiddenIfUserNotOwner() {
         when(eventRepository.getByIdOrThrow(event.getId())).thenReturn(event);
