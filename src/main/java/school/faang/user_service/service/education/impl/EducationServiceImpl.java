@@ -8,7 +8,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.exception.AccessDeniedException;
+import school.faang.user_service.exception.NotSupportedDataException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -27,10 +28,10 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public EducationDto addEducation(long userId, EducationDto educationDto) {
         if (userContext.getUserId() != userId) {
-            throw new ForbiddenException("Операция запрещена пользователю с id " + userId);
+            throw new AccessDeniedException("Операция запрещена пользователю с id " + userId);
         }
         if (educationDto.getYearFrom() > LocalDate.now().getYear()) {
-            throw new RuntimeException("Год начала обучения не может быть больше текущего");
+            throw new NotSupportedDataException("Год начала обучения не может быть больше текущего");
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с id " + userId + " не найден"));
@@ -46,13 +47,13 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public void updateEducation(long educationId, EducationDto educationDto) {
         if (educationDto.getYearFrom() > LocalDate.now().getYear()) {
-            throw new RuntimeException("Год начала обучения не может быть больше текущего");
+            throw new NotSupportedDataException("Год начала обучения не может быть больше текущего");
         }
 
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new EntityNotFoundException("Образование с id " + educationId + " не найдено"));
         if (userContext.getUserId() != education.getUser().getId()) {
-            throw new ForbiddenException("Запрещено изменять чужое образование");
+            throw new AccessDeniedException("Запрещено изменять чужое образование");
         }
         education.setYearFrom(educationDto.getYearFrom());
         education.setYearTo(educationDto.getYearTo());
