@@ -20,20 +20,18 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты SkillServiceImpl")
 public class SkillServiceImplTest {
-
-
 
     @Mock
     private SkillRepository skillRepository;
@@ -74,8 +72,8 @@ public class SkillServiceImplTest {
         when(skillRepository.save(skill)).thenReturn(skill);
 
         SkillDto skillDtoResult = skillService.create(createSkillDto);
-        assertThat(skillDtoResult.title()).isEqualTo(inputData);
-        assertThat(skillDtoResult.id()).isEqualTo(1L);
+        assertEquals(skillDtoResult.title(), inputData);
+        assertEquals(skillDtoResult.id(), 1L);
 
         verify(skillMapper).toSkill(createSkillDto);
 
@@ -119,8 +117,8 @@ public class SkillServiceImplTest {
         when(skillMapper.toSkillDto(skill)).thenReturn(skillDto);
 
         List<SkillDto> skills = skillService.getByUserId(userId);
-        assertThat(skills.get(0).title()).isEqualTo("Java");
-        assertThat(skills.get(0).id()).isEqualTo(1L);
+        assertEquals(skills.get(0).id(), 1L);
+        assertEquals(skills.get(0).title(), "Java");
 
         verify(skillRepository).findAllByUserId(userId);
     }
@@ -143,8 +141,9 @@ public class SkillServiceImplTest {
         when(skillOfferRepository.countAllOffersOfSkill(1L, userId)).thenReturn(3);
 
         List<SkillCandidateDto> offeredSkills = skillService.getOfferedSkills(userId);
-        assertThat(offeredSkills.get(0).skill().title()).isEqualTo("Java");
-        assertThat(offeredSkills.get(0).offersAmount()).isEqualTo(3);
+        assertEquals(offeredSkills.get(0).skill().title(), "Java");
+        assertEquals(offeredSkills.get(0).offersAmount(), 3);
+
     }
 
     @Test

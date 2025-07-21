@@ -94,8 +94,6 @@ public class SkillControllerTest {
 
         when(skillServiceMock.getByUserId(userId)).thenReturn(List.of(skillDto));
 
-
-
         mockMvc.perform(get("/api/v1/skill/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Java"))
@@ -112,11 +110,11 @@ public class SkillControllerTest {
         when(userContextMock.getUserId()).thenReturn(userId);
         doNothing().when(skillServiceMock).acquireSkillFromOffers(skillId, userId);
 
-        verify(skillServiceMock, times(1)).acquireSkillFromOffers(skillId, userId);
-
         mockMvc.perform(post("/api/v1/skill/acquire/{skillId}", skillId)
                         .header("User-Id", userId))
                 .andExpect(status().isOk());
+
+        verify(skillServiceMock, times(1)).acquireSkillFromOffers(skillId, userId);
     }
 
 }
