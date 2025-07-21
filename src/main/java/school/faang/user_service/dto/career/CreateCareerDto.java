@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+
 @RequiredArgsConstructor
 @Getter
 public class CreateCareerDto {
@@ -11,5 +12,4 @@ public class CreateCareerDto {
     private final LocalDate to;
     private final String company;
     private final String position;
-
 }

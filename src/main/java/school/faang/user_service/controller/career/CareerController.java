@@ -1,7 +1,5 @@
 package school.faang.user_service.controller.career;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,9 +35,7 @@ public class CareerController {
     public CareerDto updateCareer(
             @PathVariable long careeId,
             @RequestBody CareerDto careerDto) {
-        if (careerDto.getFrom() == null ||
-            careerDto.getCompany() == null ||
-            careerDto.getPosition() == null) {
+        if (careerDto.getFrom() == null || careerDto.getCompany() == null || careerDto.getPosition() == null) {
             throw new DataValidationException("Заполните from, company и position");
         }
 
@@ -47,6 +43,7 @@ public class CareerController {
 
         return careerService.updateCareer(userId, careeId, careerDto);
     }
+
     @GetMapping
     public CareerDto getById(@PathVariable long careerId) {
         return careerService.getById(careerId);

@@ -2,9 +2,6 @@ package school.faang.user_service.dto.career;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.DataValidationException;
-
 import java.time.LocalDate;
 
 @RequiredArgsConstructor
