@@ -1,24 +1,28 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;
 
-@Component
+@RestController
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    public RecommendationDto create(CreateRecommendationDto recommendationDto) {
+    public RecommendationDto create(@Valid CreateRecommendationDto recommendationDto) {
         return recommendationService.create(recommendationDto);
     }
 
-    public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
+    public RecommendationDto update(
+            long recommendationId,
+            @Valid UpdateRecommendationDto recommendationDto) {
         return recommendationService.update(recommendationId, recommendationDto);
     }
 

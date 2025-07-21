@@ -1,9 +1,10 @@
 package school.faang.user_service.service.recommendation;
 
-import school.faang.user_service.controller.recommendation.RecommendationFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+
 
 import java.util.List;
 

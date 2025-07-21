@@ -46,6 +46,4 @@ public class UserController {
             throw new DataValidationException(paramName + " should be present!");
         }
     }
-
-
 }
