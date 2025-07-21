@@ -225,18 +225,25 @@ public class RecommendationServiceTest {
 
     @Test
     public void testRecommendationAuthorFiltering() {
-        Recommendation rec1 = buildRecommendation(1L, buildUser(1L), buildUser(2L), "Java");
-        Recommendation rec2 = buildRecommendation(2L, buildUser(1L), buildUser(3L), "Python");
-        Recommendation rec3 = buildRecommendation(3L, buildUser(4L), buildUser(2L), "Java");
+        Recommendation firstRecommendation = buildRecommendation(1L, buildUser(1L), buildUser(2L), "first Recommendation Java");
 
-        when(recommendationRepository.findAll()).thenReturn(List.of(rec1, rec2, rec3));
+        Recommendation secondRecommendation = buildRecommendation(2L, buildUser(1L), buildUser(3L), "second Recommendation Python");
 
-        List<RecommendationDto> result = recommendationService.getByFilters(
+        Recommendation thirdRecommendation = buildRecommendation(3L, buildUser(4L), buildUser(3L), "third Recommendation Java");
+
+        when(recommendationRepository.findAll()).thenReturn(List.of(
+                firstRecommendation,
+                secondRecommendation,
+                thirdRecommendation));
+
+        List<RecommendationDto> resultResponse = recommendationService.getByFilters(
                 new RecommendationFilterDto(null, null, null));
 
-        assertEquals(1, result.size());
-        assertEquals("Java", result.get(0).content());
-        assertEquals(2L, result.get(0).receiverId());
+        resultResponse.forEach(System.out::println);
+        assertEquals(1, resultResponse.size());
+        assertEquals("third Recommendation Java",
+                resultResponse.get(0).content());
+        assertEquals(3L ,resultResponse.get(0).receiverId());
     }
 
     private CreateRecommendationDto buildCreateDto(long receiverId, String content) {
