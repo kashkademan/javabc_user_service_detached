@@ -32,29 +32,23 @@ public class EventOwnerFilterTest {
 
     @Test
     public void testIsApplicableTrue() {
-        boolean result = eventOwnerFilter.isApplicable(new EventFilterDto(
-                null, null, 1L, null, null));
+        boolean result = eventOwnerFilter.isApplicable(new EventFilterDto(null, null, 1L, null, null));
 
         assertTrue(result);
     }
 
     @Test
     public void testIsApplicableFalse() {
-        boolean result = eventOwnerFilter.isApplicable(new EventFilterDto(
-                null, null, null, null, null));
+        boolean result = eventOwnerFilter.isApplicable(new EventFilterDto(null, null, null, null, null));
 
         assertFalse(result);
     }
 
     @Test
-    public void testApple_ReturnsOneEvent_WhenOwnerFound() {
-        Stream<Event> events = Stream.of(
-                Event.builder().owner(owner1).build(),
-                Event.builder().owner(owner2).build()
-        );
+    public void testApple_ReturnsOneEventWhenOwnerFound() {
+        Stream<Event> events = Stream.of(Event.builder().owner(owner1).build(), Event.builder().owner(owner2).build());
 
-        Stream<Event> event = eventOwnerFilter.apply(events, new EventFilterDto(
-                null, null, 1L, null, null));
+        Stream<Event> event = eventOwnerFilter.apply(events, new EventFilterDto(null, null, 1L, null, null));
 
         List<Event> eventList = event.toList();
 
@@ -63,14 +57,10 @@ public class EventOwnerFilterTest {
     }
 
     @Test
-    public void testApply_ReturnsEmpty_WhenOwnerIdNotFound() {
-        Stream<Event> events = Stream.of(
-                Event.builder().owner(owner1).build(),
-                Event.builder().owner(owner2).build()
-        );
+    public void testApply_ReturnsEmptyWhenOwnerIdNotFound() {
+        Stream<Event> events = Stream.of(Event.builder().owner(owner1).build(), Event.builder().owner(owner2).build());
 
-        Stream<Event> event = eventOwnerFilter.apply(events, new EventFilterDto(
-                null, null, 3L, null, null));
+        Stream<Event> event = eventOwnerFilter.apply(events, new EventFilterDto(null, null, 3L, null, null));
 
         List<Event> eventList = event.toList();
 

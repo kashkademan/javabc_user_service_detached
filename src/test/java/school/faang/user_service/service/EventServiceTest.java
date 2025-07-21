@@ -82,47 +82,15 @@ public class EventServiceTest {
 
     @BeforeEach
     void setUp() {
-        owner = User.builder()
-                .id(10L)
-                .username("Alex")
-                .build();
+        owner = User.builder().id(10L).username("Alex").build();
 
-        eventDto = CreateEventDto.builder()
-                .title("Event")
-                .description("Test Event")
-                .ownerId(owner.getId())
-                .startDate(LocalDateTime.now().plusDays(1))
-                .endDate(LocalDateTime.now().plusDays(2))
-                .type(EventType.PRESENTATION)
-                .build();
+        eventDto = CreateEventDto.builder().title("Event").description("Test Event").ownerId(owner.getId()).startDate(LocalDateTime.now().plusDays(1)).endDate(LocalDateTime.now().plusDays(2)).type(EventType.PRESENTATION).build();
 
-        event = Event.builder()
-                .id(100L)
-                .title(eventDto.title())
-                .description(eventDto.description())
-                .owner(owner)
-                .build();
+        event = Event.builder().id(100L).title(eventDto.title()).description(eventDto.description()).owner(owner).build();
 
-        updateEventDto = UpdateEventDto.builder()
-                .title("New title")
-                .description("New description")
-                .startDate(LocalDateTime.now().plusDays(5))
-                .endDate(LocalDateTime.now().plusDays(6))
-                .type(EventType.PRESENTATION)
-                .build();
+        updateEventDto = UpdateEventDto.builder().title("New title").description("New description").startDate(LocalDateTime.now().plusDays(5)).endDate(LocalDateTime.now().plusDays(6)).type(EventType.PRESENTATION).build();
 
-        eventServiceImpl = new EventServiceImpl(
-                eventRepository,
-                userRepository,
-                eventMapper,
-                userContext,
-                List.of(eventFilterDescription,
-                        eventFilterTitle,
-                        eventFilterOwner,
-                        eventFilterParticipant,
-                        eventFilterType
-                )
-        );
+        eventServiceImpl = new EventServiceImpl(eventRepository, userRepository, eventMapper, userContext, List.of(eventFilterDescription, eventFilterTitle, eventFilterOwner, eventFilterParticipant, eventFilterType));
     }
 
     @Test
@@ -146,30 +114,23 @@ public class EventServiceTest {
 
     @Test
     void testCreateEvent_OwnerNotFoundById() {
-        when(userRepository.getByIdOrThrow(eventDto.ownerId()))
-                .thenThrow(new EntityNotFoundException("Owner not found"));
+        when(userRepository.getByIdOrThrow(eventDto.ownerId())).thenThrow(new EntityNotFoundException("Owner not found"));
 
-        assertThrows(EntityNotFoundException.class, () ->
-            eventServiceImpl.create(eventDto)
-        );
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.create(eventDto));
     }
 
     @Test
     void testUpdate_EventNotFoundById() {
         when(eventRepository.getByIdOrThrow(1L)).thenThrow(new EntityNotFoundException("Event not found"));
 
-        assertThrows(EntityNotFoundException.class, () ->
-                eventServiceImpl.update(1L, updateEventDto)
-        );
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.update(1L, updateEventDto));
     }
 
     @Test
-    void testUpdate_throwsForbidden_ifUserNotOwner() {
+    void testUpdate_ThrowsForbiddenIfUserNotOwner() {
         when(eventRepository.getByIdOrThrow(100L)).thenReturn(event);
         when(userContext.getUserId()).thenReturn(1L);
-        assertThrows(ForbiddenException.class,
-                () -> eventServiceImpl.update(100L, updateEventDto)
-        );
+        assertThrows(ForbiddenException.class, () -> eventServiceImpl.update(100L, updateEventDto));
     }
 
     @Test
@@ -193,26 +154,13 @@ public class EventServiceTest {
 
     @DisplayName("getByFilters: returns one EventDto when description, owner, participant, and type match")
     @Test
-    void testGetByFilters_WhenMatchExists_ReturnsOne() {
-        Event event1 = Event.builder().
-                title("news")
-                .description("new description")
-                .owner(User.builder().id(1L).build())
-                .attendees(List.of(User.builder().id(4L).build()))
-                .type(EventType.MEETING)
-                .build();
-        Event event2 = Event.builder().
-                title("news")
-                .description("new desc")
-                .owner(User.builder().id(7L).build())
-                .attendees(List.of(User.builder().id(5L).build()))
-                .type(EventType.WEBINAR)
-                .build();
+    void testGetByFilters_WhenMatchExistsReturnsOne() {
+        Event event1 = Event.builder().title("news").description("new description").owner(User.builder().id(1L).build()).attendees(List.of(User.builder().id(4L).build())).type(EventType.MEETING).build();
+        Event event2 = Event.builder().title("news").description("new desc").owner(User.builder().id(7L).build()).attendees(List.of(User.builder().id(5L).build())).type(EventType.WEBINAR).build();
 
         when(eventRepository.findAll()).thenReturn(List.of(event1, event2));
 
-        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(
-                null, null, null, null, null));
+        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(null, null, null, null, null));
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).description().contains("description"));
@@ -222,26 +170,13 @@ public class EventServiceTest {
     }
 
     @Test
-    void testGetByFilters_WhenNoMatch_ReturnsEmpty() {
-        Event event1 = Event.builder().
-                title("Title")
-                .description("Desc")
-                .owner(User.builder().id(10L).build())
-                .attendees(List.of(User.builder().id(4L).build()))
-                .type(EventType.PRESENTATION)
-                .build();
-        Event event2 = Event.builder().
-                title("news")
-                .description("new desc")
-                .owner(User.builder().id(7L).build())
-                .attendees(List.of(User.builder().id(5L).build()))
-                .type(EventType.WEBINAR)
-                .build();
+    void testGetByFilters_WhenNoMatchReturnsEmpty() {
+        Event event1 = Event.builder().title("Title").description("Desc").owner(User.builder().id(10L).build()).attendees(List.of(User.builder().id(4L).build())).type(EventType.PRESENTATION).build();
+        Event event2 = Event.builder().title("news").description("new desc").owner(User.builder().id(7L).build()).attendees(List.of(User.builder().id(5L).build())).type(EventType.WEBINAR).build();
 
         when(eventRepository.findAll()).thenReturn(List.of(event1, event2));
 
-        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(
-                null, null, null, null, null));
+        List<EventDto> result = eventServiceImpl.getByFilters(new EventFilterDto(null, null, null, null, null));
 
         assertTrue(result.isEmpty());
     }
@@ -261,22 +196,19 @@ public class EventServiceTest {
     @Test
     void testDelete_EventNotFound() {
         long eventId = 999L;
-        when(eventRepository.getByIdOrThrow(eventId))
-                .thenThrow(new EntityNotFoundException("Event not found"));
+        when(eventRepository.getByIdOrThrow(eventId)).thenThrow(new EntityNotFoundException("Event not found"));
 
-        assertThrows(EntityNotFoundException.class,
-                () -> eventServiceImpl.delete(eventId));
+        assertThrows(EntityNotFoundException.class, () -> eventServiceImpl.delete(eventId));
 
         verify(eventRepository, never()).deleteById(anyLong());
     }
 
     @Test
-    void testDelete_ThrowsForbidden_ifUserNotOwner() {
+    void testDelete_ThrowsForbiddenIfUserNotOwner() {
         when(eventRepository.getByIdOrThrow(event.getId())).thenReturn(event);
         when(userContext.getUserId()).thenReturn(42L);
 
-        assertThrows(ForbiddenException.class,
-                () -> eventServiceImpl.delete(event.getId()));
+        assertThrows(ForbiddenException.class, () -> eventServiceImpl.delete(event.getId()));
 
         verify(eventRepository, never()).deleteById(anyLong());
     }

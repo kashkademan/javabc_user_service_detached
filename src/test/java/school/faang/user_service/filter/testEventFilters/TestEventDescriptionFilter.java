@@ -16,8 +16,7 @@ public class TestEventDescriptionFilter implements EventFilter {
 
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto eventFilterDto) {
-        return events
-                .filter(e ->
-                        StringUtils.containsIgnoreCase(e.getDescription(), "description"));
+        return events.filter(e ->
+                StringUtils.containsIgnoreCase(e.getDescription(), "description"));
     }
 }

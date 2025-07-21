@@ -22,45 +22,37 @@ public class EventTitleFilterTest {
 
     @Test
     public void testIsApplicableTrue() {
-        boolean result = eventTitleFilter.isApplicable(new EventFilterDto(
-                "title", null, null, null, null));
+        boolean result = eventTitleFilter.isApplicable(new EventFilterDto("title", null, null, null, null));
 
         assertTrue(result);
     }
 
     @Test
     public void testIsApplicableFalse() {
-        boolean result = eventTitleFilter.isApplicable(new EventFilterDto(
-                null, null, null, null, null));
+        boolean result = eventTitleFilter.isApplicable(new EventFilterDto(null, null, null, null, null));
 
         assertFalse(result);
     }
 
     @Test
     public void testIsApplicableFalse_WhenEmpty() {
-        boolean result = eventTitleFilter.isApplicable(new EventFilterDto(
-                "", null, null, null, null));
+        boolean result = eventTitleFilter.isApplicable(new EventFilterDto("", null, null, null, null));
 
         assertFalse(result);
     }
 
     @Test
     public void testIsApplicableFalse_IsBlank() {
-        boolean result = eventTitleFilter.isApplicable(new EventFilterDto(
-                "   ", null, null, null, null));
+        boolean result = eventTitleFilter.isApplicable(new EventFilterDto("   ", null, null, null, null));
 
         assertFalse(result);
     }
 
     @Test
-    public void testApply_returnsOneEvent_whenTitleMatches(){
-        Stream<Event> events = Stream.of(
-                Event.builder().title("news").build(),
-                Event.builder().title("management").build()
-        );
+    public void testApply_returnsOneEventWhenTitleMatches() {
+        Stream<Event> events = Stream.of(Event.builder().title("news").build(), Event.builder().title("management").build());
 
-        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto(
-                "news", null, null, null, null));
+        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto("news", null, null, null, null));
 
         List<Event> eventList = event.toList();
 
@@ -69,14 +61,10 @@ public class EventTitleFilterTest {
     }
 
     @Test
-    public void testApply_returnsEmpty_whenNoTitleMatches(){
-        Stream<Event> events = Stream.of(
-                Event.builder().description("news").build(),
-                Event.builder().description("management").build()
-        );
+    public void testApply_returnsEmptyWhenNoTitleMatches() {
+        Stream<Event> events = Stream.of(Event.builder().description("news").build(), Event.builder().description("management").build());
 
-        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto(
-                null, "cats", null, null, null));
+        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto(null, "cats", null, null, null));
 
         List<Event> eventList = event.toList();
 
@@ -84,14 +72,10 @@ public class EventTitleFilterTest {
     }
 
     @Test
-    public void testApply_matchesTitleIgnoringCase(){
-        Stream<Event> events = Stream.of(
-                Event.builder().title("News").build(),
-                Event.builder().title("manAgeMent").build()
-        );
+    public void testApply_MatchesTitleIgnoringCase() {
+        Stream<Event> events = Stream.of(Event.builder().title("News").build(), Event.builder().title("manAgeMent").build());
 
-        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto(
-                "Management",null, null, null, null));
+        Stream<Event> event = eventTitleFilter.apply(events, new EventFilterDto("Management", null, null, null, null));
 
         List<Event> eventList = event.toList();
 

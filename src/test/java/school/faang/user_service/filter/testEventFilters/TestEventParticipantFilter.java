@@ -16,7 +16,7 @@ public class TestEventParticipantFilter implements EventFilter {
     @Override
     public Stream<Event> apply(Stream<Event> events, EventFilterDto eventFilterDto) {
         return events
-                .filter(event ->event.getAttendees()
+                .filter(event -> event.getAttendees()
                         .stream()
                         .anyMatch(u -> Objects.equals(u.getId(), 4L)));
     }
