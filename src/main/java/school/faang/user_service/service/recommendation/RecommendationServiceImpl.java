@@ -1,6 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.filter.RecommendationFilter;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
@@ -18,31 +20,22 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Stream;
 
+@RequiredArgsConstructor
 @Service
 public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
-    private final int repeatRecommendationTimeLimit;
-
-    public RecommendationServiceImpl(
-            RecommendationRepository recommendationRepository,
-            RecommendationMapper recommendationMapper,
-            UserContext userContext,
-            @Value("${recommendation.repeat.limit}") int repeatRecommendationTimeLimit
-    ) {
-        this.recommendationRepository = recommendationRepository;
-        this.recommendationMapper = recommendationMapper;
-        this.userContext = userContext;
-        this.repeatRecommendationTimeLimit = repeatRecommendationTimeLimit;
-    }
+    @Value("${recommendation.repeat.limit}")
+    private int repeatRecommendationTimeLimit;
+    private final List<RecommendationFilter> recommendationFilters;
 
     @Transactional
     @Override
     public RecommendationDto create(CreateRecommendationDto newRecommendationDto) {
-        userMatchingOperator(newRecommendationDto.receiverId(),
+        authorMatchingReceiver(newRecommendationDto.receiverId(),
                 "Self recommending is forbidden, but nice try...");
         latestRecommendationCheck(newRecommendationDto);
         long authorId = userContext.getUserId();
@@ -60,7 +53,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
         Recommendation recommendationToBeUpdated = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation to be updated was not found"));
-        userNotMatchingOperator(recommendationToBeUpdated.getAuthor().getId(),
+        authorNotMatchingReceiver(recommendationToBeUpdated.getAuthor().getId(),
                 "Can't update recommendations authored by other users");
         recommendationRepository.save(recommendationToBeUpdated);
         return recommendationMapper.toRecommendationDto(recommendationToBeUpdated);
@@ -71,18 +64,25 @@ public class RecommendationServiceImpl implements RecommendationService {
     public void delete(long recommendationId) {
         Recommendation recommendationToBeDeleted = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation to be deleted was not found"));
-        userNotMatchingOperator(recommendationToBeDeleted.getAuthor().getId(),
+        authorNotMatchingReceiver(recommendationToBeDeleted.getAuthor().getId(),
                 "Can't delete recommendations authored by other users");
         recommendationRepository.deleteByIdAndAuthor_id(recommendationId,
                 recommendationToBeDeleted.getAuthor().getId());
     }
 
     @Override
-    public List<RecommendationDto> getByFilters(RecommendationFilterDto filters) {
-        return recommendationRepository.findAll().stream()
-                .filter(s -> s.getContent().contains(filters.contentContains()))
-                .filter(s -> Objects.equals(s.getAuthor().getId(), filters.authorId()))
-                .filter(s -> s.getReceiver().getId().equals(filters.receiverId()))
+    public List<RecommendationDto> getByFilters(RecommendationFilterDto passedFilters) {
+        Stream<Recommendation> recommendationStream =
+                recommendationRepository.findAll().stream();
+
+        for (RecommendationFilter filter : recommendationFilters) {
+            if (filter.isApplicable(passedFilters)) {
+                recommendationStream = filter.apply(recommendationStream,
+                        passedFilters);
+            }
+        }
+
+        return recommendationStream
                 .map(recommendationMapper::toRecommendationDto)
                 .toList();
     }
@@ -103,13 +103,13 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
     }
 
-    private void userMatchingOperator(long userId, String exceptionMessage) {
+    private void authorMatchingReceiver(long userId, String exceptionMessage) {
         if (userId == userContext.getUserId()) {
             throw new ForbiddenException(exceptionMessage);
         }
     }
 
-    private void userNotMatchingOperator(long userId, String exceptionMessage) {
+    private void authorNotMatchingReceiver(long userId, String exceptionMessage) {
         if (userId != userContext.getUserId()) {
             throw new ForbiddenException(exceptionMessage);
         }
