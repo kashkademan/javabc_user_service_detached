@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -21,5 +22,10 @@ public class GoalServiceImpl implements GoalService {
         Goal goal = goalMapper.toGoal(createGoalDto);
         goal.setMentor(userRepository.getByIdOrThrow(createGoalDto.mentorId()));
         goal.setUsers(userRepository.findAll());
+    }
+
+    @Override
+    public GoalDto update(long goalId, UpdateGoalDto updateGoalDto) {
+        return null;
     }
 }
