@@ -21,6 +21,7 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,11 @@ public class UserService {
     public User getUserById(Long id) {
         return userRepo.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("User with id = " + id + " does not exist"));
+    }
+
+
+    public List<Long> getFolowees(long userId) {
+        return getUserById(userId).getFollowees().stream().map(User::getId).toList();
     }
 
     @Transactional
