@@ -72,17 +72,18 @@ public class SkillControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value(inputData))
                 .andExpect(jsonPath("$.id").exists());
+
         verify(skillServiceMock, times(1)).create(any(CreateSkillDto.class));
     }
 
     @Test
     @DisplayName("Post /api/v1/skill - Ошибка при создании скилла")
     public void createSkill_ReturnsBadRequest() throws Exception {
-
         mockMvc.perform(post("/api/v1/skill")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\"}")) // пустой заголовок
                 .andExpect(status().isBadRequest());
+
         verify(skillServiceMock, never()).create(any(CreateSkillDto.class));
     }
 
@@ -98,6 +99,7 @@ public class SkillControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Java"))
                 .andExpect(jsonPath("$[0].id").value(1));
+
         verify(skillServiceMock, times(1)).getByUserId(userId);
     }
 

@@ -9,6 +9,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -20,18 +22,20 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тесты SkillServiceImpl")
 public class SkillServiceImplTest {
+
+    private MockMvc mockMvc;
 
     @Mock
     private SkillRepository skillRepository;
@@ -47,7 +51,9 @@ public class SkillServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        skillService.setMinimalSkillOffers(3);
+        mockMvc = MockMvcBuilders.standaloneSetup(skillService)
+                .build();
+        // Здесь можно инициализировать необходимые объекты или моки перед каждым тестом
     }
 
     @ParameterizedTest(name = "[{index}] {0}")
@@ -72,11 +78,10 @@ public class SkillServiceImplTest {
         when(skillRepository.save(skill)).thenReturn(skill);
 
         SkillDto skillDtoResult = skillService.create(createSkillDto);
+        assertThat(skillDtoResult.title()).isEqualTo(inputData);
+        assertThat(skillDtoResult.id()).isEqualTo(1L);
 
         verify(skillMapper).toSkill(createSkillDto);
-
-        assertEquals(skillDtoResult.title(), inputData);
-        assertEquals(skillDtoResult.id(), 1L);
 
     }
 
@@ -118,12 +123,10 @@ public class SkillServiceImplTest {
         when(skillMapper.toSkillDto(skill)).thenReturn(skillDto);
 
         List<SkillDto> skills = skillService.getByUserId(userId);
+        assertThat(skills.get(0).title()).isEqualTo("Java");
+        assertThat(skills.get(0).id()).isEqualTo(1L);
 
         verify(skillRepository).findAllByUserId(userId);
-
-        assertEquals(skills.get(0).id(), 1L);
-        assertEquals(skills.get(0).title(), "Java");
-
     }
 
     @Test
@@ -144,9 +147,8 @@ public class SkillServiceImplTest {
         when(skillOfferRepository.countAllOffersOfSkill(1L, userId)).thenReturn(3);
 
         List<SkillCandidateDto> offeredSkills = skillService.getOfferedSkills(userId);
-        assertEquals(offeredSkills.get(0).skill().title(), "Java");
-        assertEquals(offeredSkills.get(0).offersAmount(), 3);
-
+        assertThat(offeredSkills.get(0).skill().title()).isEqualTo("Java");
+        assertThat(offeredSkills.get(0).offersAmount()).isEqualTo(3);
     }
 
     @Test
@@ -169,7 +171,6 @@ public class SkillServiceImplTest {
     public void acquireSkillFromOffers_ThrowsIllegalStateException() {
         long skillId = 1L;
         long userId = 1L;
-
 
         when(skillRepository.existsById(skillId)).thenReturn(false);
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(2);

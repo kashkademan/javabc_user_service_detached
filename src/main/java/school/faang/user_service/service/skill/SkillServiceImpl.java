@@ -1,7 +1,6 @@
 package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,15 +17,13 @@ import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
 
-@Slf4j
-@Setter
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
-
     @Value("${skill.minimal.offers}")
     private int minimalSkillOffers;
 
@@ -81,7 +78,6 @@ public class SkillServiceImpl implements SkillService {
             throw new EntityNotFoundException("Skill with id " + skillId + " not found");
         }
         if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= minimalSkillOffers) {
-            log.info("Добавляем скилл с id {} пользователю с id {}", skillId, userId);
             skillRepository.assignSkillToUser(skillId, userId);
         } else {
             throw new IllegalStateException("Требуется не менее трех предложений скилла для его приобретения");
