@@ -46,7 +46,7 @@ class GoalInvitationControllerTest {
         ResponseEntity<Void> response = controller.acceptGoalInvitation(10L);
 
         verify(goalInvitationService).acceptGoalInvitation(10L);
-        assertEquals(204, response.getStatusCodeValue()); // No Content
+        assertEquals(204, response.getStatusCodeValue());
     }
 
     @Test
