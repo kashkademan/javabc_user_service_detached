@@ -66,4 +66,13 @@ public class RedisConfig {
     public ChannelTopic profilePicTopic() {
         return new ChannelTopic(profilePicChannel);
     }
+
+    @Value("${redis.channels.skill_acquired}")
+    private String skillAcquiredChannel;
+
+    @Bean
+    public ChannelTopic skillAcquiredTopic() {
+        return new ChannelTopic(skillAcquiredChannel);
+    }
+
 }
