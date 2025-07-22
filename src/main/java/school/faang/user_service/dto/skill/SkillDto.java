@@ -2,10 +2,8 @@ package school.faang.user_service.dto.skill;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 
 
-@Builder
 public record SkillDto(
         @NotNull(message = "Should be present!")
         @NotBlank(message = "Should be present!")

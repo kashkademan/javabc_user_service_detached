@@ -2,7 +2,6 @@ package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.CreateSkillDto;
@@ -24,31 +23,25 @@ public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
-    @Value("${skill.minimal.offers}")
-    private int minimalSkillOffers;
 
     @Override
     @Transactional
     public SkillDto create(CreateSkillDto skillDto) {
         log.info("Получили новый объект по RestAPI: {} ", skillDto);
         Skill skill = skillMapper.toSkill(skillDto);
-
         log.info("Проверяем, нет ли уже такого заголовка в базе");
         if (skillRepository.existsByTitle(skill.getTitle())) {
-            throw new DataValidationException("Данный заголовок уже существует: " + skill.getTitle());
+            throw new DataValidationException("Данный заголовок уже существует");
         }
 
-        log.info("Начинаем писать в базу: {} ", skill);
         skill = skillRepository.save(skill);
         log.info("В базу сохранен новый объект: {} ", skill);
-
         return skillMapper.toSkillDto(skill);
     }
 
     @Override
     public List<SkillDto> getByUserId(Long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
-        validateListNotEmpty(skills, "skill");
         if (skills.isEmpty()) {
             throw new EntityNotFoundException("No skills found for user with id " + userId);
         }
@@ -60,7 +53,9 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
-        validateListNotEmpty(skills, "skill");
+        if (skills.isEmpty()) {
+            throw new EntityNotFoundException("No offered skills found for user with id " + userId);
+        }
         return skills.stream()
                 .map(skill -> skillMapper.toSkillDto(skill))
                 .map(skill -> {
@@ -74,19 +69,14 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public void acquireSkillFromOffers(long skillId, long userId) {
         log.info("Пользователь с id {} хочет приобрести скилл с id {}", userId, skillId);
-        if (skillRepository.existsById(skillId)) {
+        if (!skillRepository.existsById(skillId)) {
             throw new EntityNotFoundException("Skill with id " + skillId + " not found");
         }
-        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= minimalSkillOffers) {
+        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) >= 3) {
             skillRepository.assignSkillToUser(skillId, userId);
         } else {
             throw new IllegalStateException("Требуется не менее трех предложений скилла для его приобретения");
         }
-    }
 
-    private void validateListNotEmpty(List<Skill> value, String paramName) {
-        if (value.isEmpty()) {
-            throw new DataValidationException(paramName + " лист объектов не найден");
-        }
     }
 }
