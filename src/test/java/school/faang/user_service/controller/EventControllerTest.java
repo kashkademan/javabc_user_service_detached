@@ -66,8 +66,8 @@ public class EventControllerTest {
     @Test
     @DisplayName("Создание события — успешный сценарий")
     void createEvent_success() throws Exception {
-        LocalDateTime startDate = LocalDateTime.of(2025, 7, 20, 10, 0);
-        LocalDateTime endDate = LocalDateTime.of(2025, 7, 21, 12, 0);
+        LocalDateTime startDate = LocalDateTime.of(2025, 7, 27, 10, 0);
+        LocalDateTime endDate = LocalDateTime.of(2025, 7, 28, 12, 0);
 
         EventCreateDto createDto = new EventCreateDto(
                 "Sample Event",
