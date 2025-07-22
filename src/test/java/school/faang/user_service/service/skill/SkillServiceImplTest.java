@@ -72,10 +72,11 @@ public class SkillServiceImplTest {
         when(skillRepository.save(skill)).thenReturn(skill);
 
         SkillDto skillDtoResult = skillService.create(createSkillDto);
-        assertEquals(skillDtoResult.title(), inputData);
-        assertEquals(skillDtoResult.id(), 1L);
 
         verify(skillMapper).toSkill(createSkillDto);
+
+        assertEquals(skillDtoResult.title(), inputData);
+        assertEquals(skillDtoResult.id(), 1L);
 
     }
 
@@ -117,10 +118,12 @@ public class SkillServiceImplTest {
         when(skillMapper.toSkillDto(skill)).thenReturn(skillDto);
 
         List<SkillDto> skills = skillService.getByUserId(userId);
+
+        verify(skillRepository).findAllByUserId(userId);
+
         assertEquals(skills.get(0).id(), 1L);
         assertEquals(skills.get(0).title(), "Java");
 
-        verify(skillRepository).findAllByUserId(userId);
     }
 
     @Test
