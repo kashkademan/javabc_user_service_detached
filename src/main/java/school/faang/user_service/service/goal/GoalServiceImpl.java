@@ -19,6 +19,7 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public GoalDto create(CreateGoalDto createGoalDto) {
         Goal goal = goalMapper.toGoal(createGoalDto);
-        goal.setMento;
+        goal.setMentor(userRepository.getByIdOrThrow(createGoalDto.mentorId()));
+        goal.setUsers(userRepository.findAll());
     }
 }
