@@ -38,11 +38,6 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
             }
         } catch (ForbiddenException forbiddenException) {
             forbiddenException.getMessage();
-            if (!validateId(followeeId)) {
-            }
-            if (findIdInSubscribers(followeeId)) {
-                log.info("You are already subscribed");
-            }
         }
     }
 
@@ -94,6 +89,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     @Override
     public boolean findIdInSubscribers(long id) {
-        return subscriptionRepository.findByFollowerId(id).anyMatch(user -> user.getId().equals(userContext.getUserId()));
+        return subscriptionRepository.findByFollowerId(id).anyMatch(user -> user.getId()
+                .equals(userContext.getUserId()));
     }
 }
