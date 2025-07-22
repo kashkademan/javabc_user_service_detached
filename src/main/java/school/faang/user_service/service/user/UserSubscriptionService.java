@@ -20,8 +20,8 @@ public interface UserSubscriptionService {
      * the business requirement that the user
      * cannot subscribe to itself.
      *
-     * @param followerId -the number of the user who becomes a subscriber
-     * @param followeeId - number of followee
+     * @param followerId the number of the user who becomes a subscriber
+     * @param followeeId  number of followee
      * @since 1.0
      *
      */
@@ -32,8 +32,8 @@ public interface UserSubscriptionService {
      * the business requirement that the user
      * cannot unsubscribe from a user you are not subscribed to.
      *
-     * @param followerId - the number of the user who becomes a subscriber
-     * @param followeeId - number of followee
+     * @param followerId  the number of the user who becomes a subscriber
+     * @param followeeId  number of followee
      * @since 1.0
      */
 
@@ -41,16 +41,17 @@ public interface UserSubscriptionService {
     /**
      * The getFollowersCount method is designed to get the number of a user's followers.
      *
-     * @param followeeId - user number whose number of subscribers can be found out
+     * @param followeeId  user number whose number of subscribers can be found out
      * @since 1.0
      * @return returns a Count Response object containing information about the number
      * of subscribers the user has
      */
+
     CountResponse getFollowersCount(long followeeId);
     /**
      * The getFolloweesCount method is used to get the number of user subscriptions.
      *
-     * @param followerId - the user number whose number of subscriptions you want to find out
+     * @param followerId  the user number whose number of subscriptions you want to find out
      * @since 1.0
      * @return returns a Count Response object containing information about the number
      * of subscriptions the user has
@@ -64,14 +65,16 @@ public interface UserSubscriptionService {
      * @since 1.0
      * @return returns a list of the user's subscribers as a list of UserDto objects
      */
+
     List<UserDto> getFollowers(long followeeId);
     /**
      * The getFollowees method is designed to get a list of user's subscriptions as a list of UserDto objects.
      *
-     * @param followerId) - the number of the user whose subscription list they want to receive
+     * @param followerId the number of the user whose subscription list they want to receive
      * @since 1.0
      * @return returns a list of subscriptions for this user
      */
+
 
     List<UserDto> getFollowees(long followerId);
     /**
@@ -82,6 +85,7 @@ public interface UserSubscriptionService {
      * @return returns true or false
      */
 
+
     boolean validateId(long id);
     /**
      * The findIdInSubscribers method is created to check whether the user is a subscriber or not.
@@ -90,6 +94,7 @@ public interface UserSubscriptionService {
      * @since 1.0
      * @return returns true or false
      */
+
 
     boolean findIdInSubscribers(long id);
 
