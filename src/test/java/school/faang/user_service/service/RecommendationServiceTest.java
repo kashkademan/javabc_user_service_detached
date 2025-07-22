@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -75,6 +76,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Throws a ForbiddenException when a user tries to post a recommendation for themselves")
     public void testUserSelfRecommend() {
         CreateRecommendationDto dto = buildCreateDto(3L, "some content");
         when(userContext.getUserId()).thenReturn(dto.receiverId());
@@ -84,6 +86,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("")
     public void testLatestRecommendationCheck() {
         CreateRecommendationDto dto = buildCreateDto(3L, "some content");
         User author = buildUser(1L);
@@ -95,6 +98,7 @@ public class RecommendationServiceTest {
                         LocalDateTime.now().minusMonths(repeatRecommendationTimeLimit - 2))
         ));
 
+        //assertEquals(6, repeatRecommendationTimeLimit);
         assertThrows(ForbiddenException.class,
                 () -> recommendationService.create(dto));
     }
