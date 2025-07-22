@@ -5,8 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.controller.goal.GoalInvitationController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
@@ -26,21 +28,33 @@ class GoalInvitationControllerTest {
 
     @Test
     void testCreateInvitation() {
-        GoalInvitationDto dto = new GoalInvitationDto();
-        controller.createInvitation(dto);
-        verify(goalInvitationService).createInvitation(dto);
+        GoalInvitationCreateDto createDto = new GoalInvitationCreateDto();
+        GoalInvitationDto savedDto = new GoalInvitationDto();
+        savedDto.setGoalId(123L);
+
+        when(goalInvitationService.createInvitation(createDto)).thenReturn(savedDto);
+
+        ResponseEntity<GoalInvitationDto> response = controller.createInvitation(createDto);
+
+        verify(goalInvitationService).createInvitation(createDto);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(123L, response.getBody().getGoalId());
     }
 
     @Test
     void testAcceptGoalInvitation() {
-        controller.acceptGoalInvitation(10L);
+        ResponseEntity<Void> response = controller.acceptGoalInvitation(10L);
+
         verify(goalInvitationService).acceptGoalInvitation(10L);
+        assertEquals(204, response.getStatusCodeValue()); // No Content
     }
 
     @Test
     void testRejectGoalInvitation() {
-        controller.rejectGoalInvitation(5L);
+        ResponseEntity<Void> response = controller.rejectGoalInvitation(5L);
+
         verify(goalInvitationService).rejectGoalInvitation(5L);
+        assertEquals(204, response.getStatusCodeValue());
     }
 
     @Test
@@ -51,10 +65,11 @@ class GoalInvitationControllerTest {
 
         when(goalInvitationService.getInvitations(filter)).thenReturn(List.of(dto));
 
-        List<GoalInvitationDto> result = controller.getInvitations(filter);
+        ResponseEntity<List<GoalInvitationDto>> response = controller.getInvitations(filter);
 
         verify(goalInvitationService).getInvitations(filter);
-        assertEquals(1, result.size());
-        assertEquals(100L, result.get(0).getGoalId());
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1, response.getBody().size());
+        assertEquals(100L, response.getBody().get(0).getGoalId());
     }
 }

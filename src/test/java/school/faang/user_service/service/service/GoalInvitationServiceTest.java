@@ -3,12 +3,14 @@ package school.faang.user_service.service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import school.faang.user_service.dto.goal.GoalInvitationCreateDto;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
+import school.faang.user_service.filter.goal_invitation.GoalInvitationFilter;
 import school.faang.user_service.mapper.GoalInvitationMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -19,6 +21,7 @@ import school.faang.user_service.service.goal.GoalService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,7 +36,8 @@ class GoalInvitationServiceTest {
     private GoalService goalService;
     @Mock
     private UserService userService;
-
+    @Mock
+    private List<GoalInvitationFilter> filters;  // нужно мокать, чтобы сервис работал
     @Spy
     private GoalInvitationMapperImpl goalInvitationMapper;
 
@@ -47,14 +51,14 @@ class GoalInvitationServiceTest {
 
     @Test
     void createInvitation_shouldSaveEntityWhenValid() {
-        final GoalInvitationDto dto = new GoalInvitationDto();
+        GoalInvitationCreateDto dto = new GoalInvitationCreateDto();
         dto.setGoalId(1L);
         dto.setInviterId(2L);
         dto.setInvitedUserId(3L);
 
-        final Goal goal = new Goal();
-        final User inviter = new User();
-        final User invited = new User();
+        Goal goal = new Goal();
+        User inviter = new User();
+        User invited = new User();
 
         when(userRepository.existsById(2L)).thenReturn(true);
         when(userRepository.existsById(3L)).thenReturn(true);
@@ -64,11 +68,10 @@ class GoalInvitationServiceTest {
 
         goalInvitationService.createInvitation(dto);
 
-        final ArgumentCaptor<GoalInvitation> captor =
-                ArgumentCaptor.forClass(GoalInvitation.class);
+        ArgumentCaptor<GoalInvitation> captor = ArgumentCaptor.forClass(GoalInvitation.class);
         verify(goalInvitationRepository).save(captor.capture());
 
-        final GoalInvitation saved = captor.getValue();
+        GoalInvitation saved = captor.getValue();
         assertEquals(goal, saved.getGoal());
         assertEquals(inviter, saved.getInviter());
         assertEquals(invited, saved.getInvited());
@@ -77,7 +80,7 @@ class GoalInvitationServiceTest {
 
     @Test
     void createInvitation_shouldThrowWhenInviterOrInvitedIsNull() {
-        final GoalInvitationDto dto = new GoalInvitationDto();
+        GoalInvitationCreateDto dto = new GoalInvitationCreateDto();
         dto.setGoalId(1L);
         dto.setInviterId(null);
         dto.setInvitedUserId(3L);
@@ -88,7 +91,7 @@ class GoalInvitationServiceTest {
 
     @Test
     void createInvitation_shouldThrowWhenInviterEqualsInvited() {
-        final GoalInvitationDto dto = new GoalInvitationDto();
+        GoalInvitationCreateDto dto = new GoalInvitationCreateDto();
         dto.setGoalId(1L);
         dto.setInviterId(2L);
         dto.setInvitedUserId(2L);
@@ -99,7 +102,7 @@ class GoalInvitationServiceTest {
 
     @Test
     void createInvitation_shouldThrowWhenUserDoesNotExist() {
-        final GoalInvitationDto dto = new GoalInvitationDto();
+        GoalInvitationCreateDto dto = new GoalInvitationCreateDto();
         dto.setGoalId(1L);
         dto.setInviterId(2L);
         dto.setInvitedUserId(3L);
@@ -113,13 +116,13 @@ class GoalInvitationServiceTest {
 
     @Test
     void acceptGoalInvitation_shouldAcceptWhenValid() {
-        final User invited = new User();
+        User invited = new User();
         invited.setGoals(new ArrayList<>());
 
-        final Goal goal = new Goal();
+        Goal goal = new Goal();
         goal.setUsers(new ArrayList<>());
 
-        final GoalInvitation invitation = new GoalInvitation();
+        GoalInvitation invitation = new GoalInvitation();
         invitation.setInvited(invited);
         invitation.setGoal(goal);
 
@@ -144,13 +147,13 @@ class GoalInvitationServiceTest {
 
     @Test
     void acceptGoalInvitation_shouldThrowWhenUserHasMaxGoals() {
-        final User invited = new User();
+        User invited = new User();
         invited.setGoals(List.of(new Goal(), new Goal(), new Goal()));
 
-        final Goal goal = new Goal();
+        Goal goal = new Goal();
         goal.setUsers(new ArrayList<>());
 
-        final GoalInvitation invitation = new GoalInvitation();
+        GoalInvitation invitation = new GoalInvitation();
         invitation.setInvited(invited);
         invitation.setGoal(goal);
 
@@ -163,14 +166,14 @@ class GoalInvitationServiceTest {
 
     @Test
     void acceptGoalInvitation_shouldThrowWhenUserAlreadyInGoal() {
-        final User invited = new User();
+        User invited = new User();
         invited.setGoals(new ArrayList<>());
 
-        final Goal goal = new Goal();
+        Goal goal = new Goal();
         goal.setUsers(new ArrayList<>());
         goal.getUsers().add(invited);
 
-        final GoalInvitation invitation = new GoalInvitation();
+        GoalInvitation invitation = new GoalInvitation();
         invitation.setInvited(invited);
         invitation.setGoal(goal);
 
@@ -183,8 +186,8 @@ class GoalInvitationServiceTest {
 
     @Test
     void rejectGoalInvitation_shouldSetRejectedWhenValid() {
-        final Goal goal = new Goal();
-        final GoalInvitation invitation = new GoalInvitation();
+        Goal goal = new Goal();
+        GoalInvitation invitation = new GoalInvitation();
         invitation.setGoal(goal);
 
         when(goalInvitationRepository.findById(1L))
@@ -198,7 +201,7 @@ class GoalInvitationServiceTest {
 
     @Test
     void rejectGoalInvitation_shouldThrowWhenGoalNull() {
-        final GoalInvitation invitation = new GoalInvitation();
+        GoalInvitation invitation = new GoalInvitation();
         invitation.setGoal(null);
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
@@ -216,61 +219,23 @@ class GoalInvitationServiceTest {
     }
 
     @Test
-    void getInvitations_shouldFilterByInviterId() {
-        final GoalInvitation inv1 = new GoalInvitation();
-        final GoalInvitation inv2 = new GoalInvitation();
-        final User inviter1 = new User();
-        final User inviter2 = new User();
-        inviter1.setId(10L);
-        inviter2.setId(20L);
-        inv1.setInviter(inviter1);
-        inv2.setInviter(inviter2);
+    void getInvitations_shouldApplyFilters() {
+        GoalInvitation invitation = new GoalInvitation();
+        List<GoalInvitation> invitations = List.of(invitation);
 
-        when(goalInvitationRepository.findAll()).thenReturn(List.of(inv1, inv2));
+        when(goalInvitationRepository.findAll()).thenReturn(invitations);
 
-        final InvitationFilterDto filter = new InvitationFilterDto();
-        filter.setInviterId(10L);
+        // Мокаем фильтры
+        GoalInvitationFilter filter = mock(GoalInvitationFilter.class);
+        when(filters.iterator()).thenReturn(List.of(filter).iterator());
+        when(filter.isApplicable(any())).thenReturn(true);
+        when(filter.apply(any(), any())).thenAnswer(invocation ->
+                ((Stream<GoalInvitation>) invocation.getArgument(0)).filter(inv -> true));
 
-        final List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
-    void getInvitations_shouldFilterByInvitedId() {
-        final GoalInvitation inv1 = new GoalInvitation();
-        final GoalInvitation inv2 = new GoalInvitation();
-        final User invited1 = new User();
-        final User invited2 = new User();
-        invited1.setId(1L);
-        invited2.setId(2L);
-        inv1.setInvited(invited1);
-        inv2.setInvited(invited2);
-
-        when(goalInvitationRepository.findAll()).thenReturn(List.of(inv1, inv2));
-
-        final InvitationFilterDto filter = new InvitationFilterDto();
-        filter.setInvitedId(2L);
-
-        final List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
+        InvitationFilterDto filterDto = new InvitationFilterDto();
+        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filterDto);
 
         assertEquals(1, result.size());
-    }
-
-    @Test
-    void getInvitations_shouldFilterByStatus() {
-        final GoalInvitation inv1 = new GoalInvitation();
-        final GoalInvitation inv2 = new GoalInvitation();
-        inv1.setStatus(RequestStatus.PENDING);
-        inv2.setStatus(RequestStatus.ACCEPTED);
-
-        when(goalInvitationRepository.findAll()).thenReturn(List.of(inv1, inv2));
-
-        final InvitationFilterDto filter = new InvitationFilterDto();
-        filter.setStatus(RequestStatus.ACCEPTED);
-
-        final List<GoalInvitationDto> result = goalInvitationService.getInvitations(filter);
-
-        assertEquals(1, result.size());
+        verify(filter, times(1)).apply(any(), eq(filterDto));
     }
 }
