@@ -44,4 +44,3 @@ user:
   password:
     min:
       length: 6
-
