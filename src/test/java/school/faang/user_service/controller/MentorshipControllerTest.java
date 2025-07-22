@@ -36,8 +36,8 @@ class MentorshipControllerTest {
 
     private MockMvc mockMvc;
 
-    private final long MENTOR_ID = 1L;
-    private final long MENTEE_ID = 2L;
+    private long mentorId = 1L;
+    private long menteeId = 2L;
     private final UserDto userDto = new UserDto(
             1L,
             "testUser",
@@ -52,48 +52,48 @@ class MentorshipControllerTest {
     }
 
     @Test
-    void addMentorship_Success() throws Exception {
-        doNothing().when(service).addMentorship(MENTOR_ID, MENTEE_ID);
+    void addMentorshipTest() throws Exception {
+        doNothing().when(service).addMentorship(mentorId, menteeId);
 
-        mockMvc.perform(post("/mentorships/{mentorId}?menteeId={menteeId}", MENTOR_ID, MENTEE_ID))
+        mockMvc.perform(post("/mentorships/{mentorId}?menteeId={menteeId}", mentorId, menteeId))
                 .andExpect(status().isOk());
 
-        verify(service).addMentorship(MENTOR_ID, MENTEE_ID);
+        verify(service).addMentorship(mentorId, menteeId);
     }
 
     @Test
-    void getMentees_Success() throws Exception {
-        when(service.getMentees(MENTOR_ID)).thenReturn(List.of(userDto));
+    void getMenteesTest() throws Exception {
+        when(service.getMentees(mentorId)).thenReturn(List.of(userDto));
 
-        mockMvc.perform(get("/mentorships/mentees/{userId}", MENTOR_ID))
+        mockMvc.perform(get("/mentorships/mentees/{userId}", mentorId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(userDto.id()))
                 .andExpect(jsonPath("$[0].username").value(userDto.username()));
 
-        verify(service).getMentees(MENTOR_ID);
+        verify(service).getMentees(mentorId);
     }
 
     @Test
-    void getMentors_Success() throws Exception {
-        when(service.getMentors(MENTEE_ID)).thenReturn(List.of(userDto));
+    void getMentorsTest() throws Exception {
+        when(service.getMentors(menteeId)).thenReturn(List.of(userDto));
 
-        mockMvc.perform(get("/mentorships/mentors/{userId}", MENTEE_ID))
+        mockMvc.perform(get("/mentorships/mentors/{userId}", menteeId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(userDto.id()))
                 .andExpect(jsonPath("$[0].username").value(userDto.username()));
 
-        verify(service).getMentors(MENTEE_ID);
+        verify(service).getMentors(menteeId);
     }
 
     @Test
-    void deleteMentorship_Success() throws Exception {
-        doNothing().when(service).deleteMentorship(MENTEE_ID, MENTOR_ID);
+    void deleteMentorshipTest() throws Exception {
+        doNothing().when(service).deleteMentorship(menteeId, mentorId);
 
-        mockMvc.perform(delete("/mentorships/{menteeId}?mentorId={mentorId}", MENTEE_ID, MENTOR_ID))
+        mockMvc.perform(delete("/mentorships/{menteeId}?mentorId={mentorId}", menteeId, mentorId))
                 .andExpect(status().isOk());
 
-        verify(service).deleteMentorship(MENTEE_ID, MENTOR_ID);
+        verify(service).deleteMentorship(menteeId, mentorId);
     }
 }

@@ -41,8 +41,8 @@ class MentorshipServiceImplTest {
     @InjectMocks
     private MentorshipServiceImpl mentorshipService;
 
-    private final long MENTOR_ID = 1L;
-    private final long MENTEE_ID = 2L;
+    private long mentorId = 1L;
+    private long menteeId = 2L;
     private User mentor;
     private User mentee;
     private UserDto mentorDto;
@@ -51,112 +51,113 @@ class MentorshipServiceImplTest {
     @BeforeEach
     void setUp() {
         mentor = new User();
-        mentor.setId(MENTOR_ID);
+
+        mentor.setId(mentorId);
 
         mentee = new User();
-        mentee.setId(MENTEE_ID);
+        mentee.setId(menteeId);
 
-        mentorDto = new UserDto(MENTOR_ID, "mentor_user", "mentor@example.com", "+123456789", "About mentor");
-        menteeDto = new UserDto(MENTEE_ID, "mentee_user", "mentee@example.com", "+987654321", "About mentee");
+        mentorDto = new UserDto(mentorId, "mentor_user", "mentor@example.com", "+123456789", "About mentor");
+        menteeDto = new UserDto(menteeId, "mentee_user", "mentee@example.com", "+987654321", "About mentee");
     }
 
     @Test
-    void addMentorship_Success() {
-        when(mentorshipRepository.existsById(MENTOR_ID)).thenReturn(false);
-        when(mentorshipRepository.existsById(MENTEE_ID)).thenReturn(false);
-        when(mentorshipRepository.findById(MENTOR_ID)).thenReturn(Optional.of(mentor));
-        when(mentorshipRepository.findById(MENTEE_ID)).thenReturn(Optional.of(mentee));
+    void addMentorshipSuccessTest() {
+        when(mentorshipRepository.existsById(mentorId)).thenReturn(false);
+        when(mentorshipRepository.existsById(menteeId)).thenReturn(false);
+        when(mentorshipRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
+        when(mentorshipRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
-        assertDoesNotThrow(() -> mentorshipService.addMentorship(MENTOR_ID, MENTEE_ID));
+        assertDoesNotThrow(() -> mentorshipService.addMentorship(mentorId, menteeId));
         verify(mentorshipRepository, times(1)).save(mentee);
     }
 
     @Test
-    void addMentorship_SameIds_ThrowsException() {
+    void addMentorshipSameIdsThrowsExceptionTest() {
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.addMentorship(MENTOR_ID, MENTOR_ID));
+                () -> mentorshipService.addMentorship(mentorId, mentorId));
     }
 
     @Test
-    void addMentorship_MentorNotFound_ThrowsException() {
-        when(mentorshipRepository.existsById(MENTOR_ID)).thenReturn(false);
-        when(mentorshipRepository.findById(MENTOR_ID)).thenReturn(Optional.empty());
+    void addMentorshipMentorNotFoundThrowsExceptionTest() {
+        when(mentorshipRepository.existsById(mentorId)).thenReturn(false);
+        when(mentorshipRepository.findById(mentorId)).thenReturn(Optional.empty());
 
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.addMentorship(MENTOR_ID, MENTEE_ID));
+                () -> mentorshipService.addMentorship(mentorId, menteeId));
     }
 
     @Test
-    void addMentorship_RelationshipExists_ThrowsException() {
-        when(mentorshipRepository.existsById(MENTOR_ID)).thenReturn(true);
+    void addMentorshipThrowsExceptionTest() {
+        when(mentorshipRepository.existsById(mentorId)).thenReturn(true);
 
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.addMentorship(MENTOR_ID, MENTEE_ID));
+                () -> mentorshipService.addMentorship(mentorId, menteeId));
     }
 
     @Test
-    void getMentees_Success() {
+    void getMenteesTest() {
         User mentor = new User();
-        mentor.setId(MENTOR_ID);
+        mentor.setId(mentorId);
         mentor.setMentees(List.of(mentee));
 
-        when(userRepository.existsById(MENTOR_ID)).thenReturn(true);
-        when(mentorshipRepository.getByIdOrThrow(MENTOR_ID)).thenReturn(mentor);
+        when(userRepository.existsById(mentorId)).thenReturn(true);
+        when(mentorshipRepository.getByIdOrThrow(mentorId)).thenReturn(mentor);
         when(userMapper.toUserDto(mentee)).thenReturn(menteeDto);
 
-        List<UserDto> result = mentorshipService.getMentees(MENTOR_ID);
+        List<UserDto> result = mentorshipService.getMentees(mentorId);
 
         assertEquals(1, result.size());
-        assertEquals(MENTEE_ID, result.get(0).id());
+        assertEquals(menteeId, result.get(0).id());
     }
 
     @Test
-    void getMentees_UserNotFound_ThrowsException() {
-        when(userRepository.existsById(MENTOR_ID)).thenReturn(false);
+    void getMenteesThrowsExceptionTest() {
+        when(userRepository.existsById(mentorId)).thenReturn(false);
 
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.getMentees(MENTOR_ID));
+                () -> mentorshipService.getMentees(mentorId));
     }
 
     @Test
-    void getMentors_Success() {
+    void getMentorsTest() {
         User mentee = new User();
-        mentee.setId(MENTEE_ID);
+        mentee.setId(menteeId);
         mentee.setMentors(List.of(mentor));
 
-        when(userRepository.existsById(MENTEE_ID)).thenReturn(true);
-        when(mentorshipRepository.getByIdOrThrow(MENTEE_ID)).thenReturn(mentee);
+        when(userRepository.existsById(menteeId)).thenReturn(true);
+        when(mentorshipRepository.getByIdOrThrow(menteeId)).thenReturn(mentee);
         when(userMapper.toUserDto(mentor)).thenReturn(mentorDto);
 
-        List<UserDto> result = mentorshipService.getMentors(MENTEE_ID);
+        List<UserDto> result = mentorshipService.getMentors(menteeId);
 
         assertEquals(1, result.size());
-        assertEquals(MENTOR_ID, result.get(0).id()); // Используем id() вместо getId()
+        assertEquals(mentorId, result.get(0).id()); // Используем id() вместо getId()
     }
 
     @Test
-    void getMentors_UserNotFound_ThrowsException() {
-        when(userRepository.existsById(MENTEE_ID)).thenReturn(false);
+    void getMentorsThrowsExceptionTest() {
+        when(userRepository.existsById(menteeId)).thenReturn(false);
 
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.getMentors(MENTEE_ID));
+                () -> mentorshipService.getMentors(menteeId));
     }
 
     @Test
-    void deleteMentorship_MentorNotInList_ThrowsException() {
+    void deleteMentorshipThrowsExceptionTest() {
         // Создаем mock для mentee
         User mentee = mock(User.class);
 
-        when(mentorshipRepository.getByIdOrThrow(MENTEE_ID)).thenReturn(mentee);
+        when(mentorshipRepository.getByIdOrThrow(menteeId)).thenReturn(mentee);
         when(mentee.getMentors()).thenReturn(Collections.emptyList());
 
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.deleteMentorship(MENTEE_ID, MENTOR_ID));
+                () -> mentorshipService.deleteMentorship(menteeId, mentorId));
     }
 
     @Test
-    void deleteMentorship_SameIds_ThrowsException() {
+    void deleteMentorshipSameIdsThrowsExceptionTest() {
         assertThrows(DataValidationException.class,
-                () -> mentorshipService.deleteMentorship(MENTOR_ID, MENTOR_ID));
+                () -> mentorshipService.deleteMentorship(mentorId, mentorId));
     }
 }
