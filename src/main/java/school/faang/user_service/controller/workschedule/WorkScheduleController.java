@@ -1,32 +1,30 @@
 package school.faang.user_service.controller.workschedule;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.workschedule.WorkScheduleService;
 
+@RestController
+@RequestMapping
 public class WorkScheduleController {
     private WorkScheduleService workScheduleService;
     private UserContext userContext;
 
+    @GetMapping("/addworkschedule")
     public WorkScheduleDto addWorkSchedule(WorkScheduleDto dto) {
-        if (!(dto.startTime().isBefore(dto.startLunch()) && dto.endLunch().isBefore(dto.endTime()))) {
-            throw new DataValidationException("Не коректные данные!");
-        }
-
         return workScheduleService.addWorkSchedule(userContext.getUserId(), dto);
     }
 
+    @GetMapping("/updateworkschedule")
     public WorkScheduleDto updateWorkSchedule(long workScheduleId, WorkScheduleDto dto) {
-        if (!(dto.startTime().isBefore(dto.startLunch())
-                && dto.startLunch().isBefore(dto.endLunch())
-                && dto.endLunch().isBefore(dto.endTime()))) {
-            //startTime < (меньше/раньше чем) startLunch < endLunch < endTime
-            throw new DataValidationException("Не коректные данные!");
-        }
         return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, dto);
     }
 
+    @GetMapping("/getbyid")
     public WorkScheduleDto getById(long workScheduleId) {
         return workScheduleService.getById(workScheduleId);
     }
