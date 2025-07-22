@@ -39,6 +39,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+//@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceTest {
 
@@ -86,7 +87,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("Latest recommendation should be posted more than 6 months ago")
     public void testLatestRecommendationCheck() {
         CreateRecommendationDto dto = buildCreateDto(3L, "some content");
         User author = buildUser(1L);
@@ -104,6 +105,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should create recommendations")
     public void testRecommendationCreation() {
         CreateRecommendationDto dto = buildCreateDto(3L, "some content");
         long newId = 10L;
@@ -133,6 +135,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw ForbiddenException when updating records authored by other users")
     public void testRecommendationUpdatePermissions() {
         long id = 1L;
         long authorId = 3L;
@@ -152,6 +155,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should update recommendations")
     public void testRecommendationUpdate() {
         long id = 1L;
         long authorId = 2L;
@@ -178,6 +182,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw ForbiddenException when deleting records authored by other users")
     public void testRecommendationDeletePermissions() {
         long id = 1L;
         when(userContext.getUserId()).thenReturn(2L);
@@ -193,6 +198,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete recommendations")
     public void testRecommendationDelete() {
         long id = 1L;
         long authorId = 2L;
@@ -215,6 +221,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Should find no matches in the DB")
     public void testRecommendationNoMatch() {
         Recommendation rec1 = buildRecommendation(1L, buildUser(1L), buildUser(2L), "Java");
         Recommendation rec2 = buildRecommendation(2L, buildUser(1L), buildUser(3L), "Python");
@@ -228,6 +235,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
+    @DisplayName("Filters recommendations based on author")
     public void testRecommendationAuthorFiltering() {
         Recommendation firstRecommendation =
                 buildRecommendation(1L, buildUser(1L), buildUser(2L), "first Recommendation Java");
