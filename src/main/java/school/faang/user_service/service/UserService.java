@@ -97,6 +97,10 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    public void updateUser(User user) {
+        userRepo.save(user);
+    }
+
     private void publishProfilePictureEvent(Long userId, String newFileId, String newSmallFileId,
                                             String oldFileId, String oldSmallFileId) {
         ProfilePicEvent event = ProfilePicEvent.builder()

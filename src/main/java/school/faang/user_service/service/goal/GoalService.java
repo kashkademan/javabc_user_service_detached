@@ -106,6 +106,11 @@ public class GoalService {
         return applyFilters(goalRepository.findGoalsByUserId(userId), goalFilterDto);
     }
 
+    public Goal getGoalOrThrow(long goalId) {
+        return goalRepository.findById(goalId)
+                .orElseThrow(() -> new IllegalArgumentException("Goal doesn't exist!"));
+    }
+
     private List<GoalDto> applyFilters(Stream<Goal> goals, @Valid GoalFilterDto filterDto) {
         for (GoalFilter filter : filters) {
             if (filter.isApplicable(filterDto)) {
@@ -113,10 +118,5 @@ public class GoalService {
             }
         }
         return goals.map(goalMapper::toDto).toList();
-    }
-
-    private Goal getGoalOrThrow(long goalId) {
-        return goalRepository.findById(goalId)
-                .orElseThrow(() -> new IllegalArgumentException("Goal doesn't exist!"));
     }
 }
