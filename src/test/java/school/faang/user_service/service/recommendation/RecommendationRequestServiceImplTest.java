@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.RejectionDto;
@@ -30,7 +32,6 @@ import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,7 @@ import static school.faang.user_service.entity.RequestStatus.PENDING;
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
 class RecommendationRequestServiceImplTest {
     @Mock
     private UserContext userContext;
@@ -87,8 +89,10 @@ class RecommendationRequestServiceImplTest {
 
     private RecommendationRequestServiceImpl recommendationRequestService;
 
-    private final long quantity = 6L;
-    private final TemporalUnit period = ChronoUnit.MONTHS;
+    @Value("${recommendation-request.once-every.quantity:6}")
+    private int quantity;
+    @Value("${recommendation-request.once-every.period:MONTHS}")
+    private ChronoUnit period;
 
     @BeforeEach
     void setUp() {
@@ -106,7 +110,9 @@ class RecommendationRequestServiceImplTest {
                 Set.of(recommendationRequestMessageContainsFilter,
                         recommendationRequestReceiverIdFilter,
                         recommendationRequestRequesterIdFilter,
-                        recommendationRequestStatusFilter)
+                        recommendationRequestStatusFilter),
+                quantity,
+                period
         );
     }
 

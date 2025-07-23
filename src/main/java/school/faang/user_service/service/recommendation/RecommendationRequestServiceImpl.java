@@ -41,9 +41,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final Set<RecommendationRequestFilter> recommendationRequestFilters;
 
     @Value("${recommendation-request.once-every.quantity:6}")
-    private int quantity;
+    private final int quantity;
     @Value("${recommendation-request.once-every.period:MONTHS}")
-    private ChronoUnit period;
+    private final ChronoUnit period;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {

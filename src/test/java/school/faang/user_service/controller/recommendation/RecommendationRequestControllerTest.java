@@ -28,54 +28,63 @@ class RecommendationRequestControllerTest {
     @Test
     @DisplayName("Create recommendation request with validate string is null")
     void testCreateWithValidateStringIsNull() {
-        CreateRecommendationRequestDto recommendationDto = new CreateRecommendationRequestDto(
-                1L,
-                null,
-                null);
+        CreateRecommendationRequestDto recommendationDto =
+                new CreateRecommendationRequestDto(
+                        1L,
+                        null,
+                        null);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestController.create(recommendationDto));
+        assertThrows(DataValidationException.class, () ->
+                recommendationRequestController.create(recommendationDto));
     }
 
     @Test
     @DisplayName("Create recommendation request with validate string is empty")
     void testCreateWithValidateStringIsEmpty() {
-        CreateRecommendationRequestDto recommendationDto = new CreateRecommendationRequestDto(
-                1L,
-                "",
-                null);
+        CreateRecommendationRequestDto recommendationDto =
+                new CreateRecommendationRequestDto(
+                        1L,
+                        "",
+                        null);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestController.create(recommendationDto));
+        assertThrows(DataValidationException.class, () ->
+                recommendationRequestController.create(recommendationDto));
     }
 
     @Test
     @DisplayName("Create recommendation request with validate string is blank")
     void testCreateWithValidateStringIsBlank() {
-        CreateRecommendationRequestDto recommendationDto = new CreateRecommendationRequestDto(
-                1L,
-                "  ",
-                null);
+        CreateRecommendationRequestDto recommendationDto =
+                new CreateRecommendationRequestDto(
+                        1L,
+                        "  ",
+                        null);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestController.create(recommendationDto));
+        assertThrows(DataValidationException.class, () ->
+                recommendationRequestController.create(recommendationDto));
     }
 
     @Test
     @DisplayName("Create recommendation request with validate receiverId is null")
     void testCreateWithValidateReceiverIdIsNull() {
-        CreateRecommendationRequestDto recommendationDto = new CreateRecommendationRequestDto(
-                null,
-                "some message",
-                null);
+        CreateRecommendationRequestDto recommendationDto =
+                new CreateRecommendationRequestDto(
+                        null,
+                        "some message",
+                        null);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestController.create(recommendationDto));
+        assertThrows(DataValidationException.class, () ->
+                recommendationRequestController.create(recommendationDto));
     }
 
     @Test
     @DisplayName("Create recommendation request with valid data")
     void testCreateWithValidData() {
-        CreateRecommendationRequestDto createRecommendationRequestDto = new CreateRecommendationRequestDto(
-                3L,
-                "some message",
-                null);
+        CreateRecommendationRequestDto createRecommendationRequestDto =
+                new CreateRecommendationRequestDto(
+                        3L,
+                        "some message",
+                        null);
 
         recommendationRequestController.create(createRecommendationRequestDto);
 
@@ -92,7 +101,8 @@ class RecommendationRequestControllerTest {
                 null,
                 null);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestController.getByFilters(filters));
+        assertThrows(DataValidationException.class, () ->
+                recommendationRequestController.getByFilters(filters));
 
     }
 
@@ -140,7 +150,8 @@ class RecommendationRequestControllerTest {
         RejectionDto rejection = new RejectionDto(null);
 
         assertThrows(DataValidationException.class, () ->
-                recommendationRequestController.reject(recommendationRequestId, rejection));
+                recommendationRequestController
+                        .reject(recommendationRequestId, rejection));
     }
 
     @Test
@@ -150,7 +161,8 @@ class RecommendationRequestControllerTest {
         RejectionDto rejection = new RejectionDto("");
 
         assertThrows(DataValidationException.class, () ->
-                recommendationRequestController.reject(recommendationRequestId, rejection));
+                recommendationRequestController
+                        .reject(recommendationRequestId, rejection));
     }
 
     @Test
@@ -160,7 +172,8 @@ class RecommendationRequestControllerTest {
         RejectionDto rejection = new RejectionDto("  ");
 
         assertThrows(DataValidationException.class, () ->
-                recommendationRequestController.reject(recommendationRequestId, rejection));
+                recommendationRequestController
+                        .reject(recommendationRequestId, rejection));
     }
 
     @Test
