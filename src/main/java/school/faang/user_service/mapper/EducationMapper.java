@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.education.UpdateEducationDto;
@@ -24,6 +25,7 @@ public interface EducationMapper {
     /**
      * Преобразует DTO создания образования в сущность {@link Education}.
      */
+    @Mapping(target = "user", source = "user")
     Education toEntity(CreateEducationDto createEducationDto, User user);
 
     /**
