@@ -74,5 +74,4 @@ public class RedisConfig {
     public ChannelTopic skillAcquiredTopic() {
         return new ChannelTopic(skillAcquiredChannel);
     }
-
 }
