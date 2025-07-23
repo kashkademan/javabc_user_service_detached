@@ -16,13 +16,7 @@ import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.filter.Filter;
 import school.faang.user_service.service.filter.FilterService;
-import school.faang.user_service.service.filter.user.UserAboutMeContainsFilter;
-import school.faang.user_service.service.filter.user.UserEmailContainsFilter;
-import school.faang.user_service.service.filter.user.UserFilterServiceImpl;
-import school.faang.user_service.service.filter.user.UserPhoneFilter;
-import school.faang.user_service.service.filter.user.UserUsernameContainsFilter;
 
 import java.util.List;
 
@@ -32,12 +26,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
-    private UserUsernameContainsFilter usernameContainsFilter = new UserUsernameContainsFilter();
-    private UserEmailContainsFilter emailContainsFilter = new UserEmailContainsFilter();
-    private UserPhoneFilter phoneFilter = new UserPhoneFilter();
-    private UserAboutMeContainsFilter aboutMeContainsFilter = new UserAboutMeContainsFilter();
-    private List<Filter<User, UserFilterDto>> filters
-            = List.of(usernameContainsFilter, phoneFilter, emailContainsFilter, aboutMeContainsFilter);
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -48,21 +36,20 @@ class UserServiceImplTest {
     private UserMapperImpl userMapper;
     @Mock
     private UserContext userContext;
-    @Spy
-    private FilterService<User, UserFilterDto> filterService = new UserFilterServiceImpl(filters);
+    @Mock
+    private FilterService<User, UserFilterDto> filterService;
 
     @InjectMocks
     private UserServiceImpl service;
 
-    private final UserServiceTestData testData = new UserServiceTestData();
 
     @Test
     void create_success() {
-        var country = testData.getCountry(1L, "Kazakhstan");
-        var createDto = testData.getCreateDto("Myrzakhmet", 1L);
-        var currentUser = testData.getUser(null, createDto, country);
-        var user = testData.getUser(1L, createDto, country);
-        var userDto = testData.getViewDto(user);
+        var country = UserServiceTestData.buildCountry(1L, "Kazakhstan");
+        var createDto = UserServiceTestData.buildCreateDto("Myrzakhmet", 1L);
+        var currentUser = UserServiceTestData.buildLiteUser(null, createDto, country);
+        var user = UserServiceTestData.buildLiteUser(1L, createDto, country);
+        var userDto = UserServiceTestData.toViewDto(user);
 
         when(countryRepository.getByIdOrThrow(country.getId()))
                 .thenReturn(country);
@@ -75,9 +62,9 @@ class UserServiceImplTest {
 
     @Test
     void update() {
-        var country = testData.getCountry(1L, "America");
-        var user = testData.getUser(1L, "Myrzakhmet", country);
-        var updateDto = testData.getUpdateDto(user);
+        var country = UserServiceTestData.buildCountry(1L, "America");
+        var user = UserServiceTestData.buildFullUser(1L, "Myrzakhmet", country);
+        var updateDto = UserServiceTestData.buildUpdateDto(user);
         var newUser = userMapper.clone(user);
         userMapper.update(updateDto, newUser);
 
@@ -96,8 +83,8 @@ class UserServiceImplTest {
 
     @Test
     void getById() {
-        var country = testData.getCountry(1L, "CountryName");
-        var user = testData.getUser(1L, "user", country);
+        var country = UserServiceTestData.buildCountry(1L, "CountryName");
+        var user = UserServiceTestData.buildFullUser(1L, "user", country);
 
         when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
 
@@ -108,13 +95,17 @@ class UserServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("school.faang.user_service.service.user.UserServiceTestData#provideParams")
-    void getUsers(UserFilterDto filterDto, List<User> users, List<UserDto> expected) {
+    void getUsers(UserFilterDto filterDto, List<User> users,
+                  List<User> filteredUsers, List<UserDto> expected) {
         if (filterDto.onlyPremium()) {
             when(userRepository.findPremiumUsers())
                     .thenReturn(users.stream());
         } else {
             when(userRepository.findAll()).thenReturn(users);
         }
+
+        when(filterService.getFilteredList(eq(users), eq(filterDto)))
+                .thenReturn(filteredUsers);
 
         var actual = service.getUsers(filterDto);
         assertEquals(expected, actual);
