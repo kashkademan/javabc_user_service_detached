@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.redis.RedisProperties;
 import school.faang.user_service.messaging.events.FollowerEvent;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -20,7 +19,6 @@ public class FollowerEventPublisher implements MessagePublisher<FollowerEvent>{
     @Autowired
     private final CommonPublisher publisher;
 
-
     @PostConstruct
     private void init() {
         this.redisTopic = properties.getChannels().get(REDIS_TOPIC_KEY);
@@ -29,22 +27,5 @@ public class FollowerEventPublisher implements MessagePublisher<FollowerEvent>{
     @Override
     public void publishMessage(FollowerEvent followerEvent) {
         publisher.sendRedis(redisTopic, followerEvent);
-    }
-    public void createAndPublishMessage(long followerId, long followeeId) {
-        log.debug("""
-                Create and publishing Follower Event with follower id: {},\
-                and foloweeId: {} was started
-                """, followerId, followeeId);
-        FollowerEvent followerEvent = FollowerEvent.builder()
-                .followerId(followerId)
-                .followeeId(followeeId)
-                .subscriptionTime(LocalDateTime.now())
-                .build();
-
-        publishMessage(followerEvent);
-        log.debug("""
-                Publishing Follower Event with follower id: {}
-                and with followee id: {} was finished
-                """, followerId, followeeId);
     }
 }

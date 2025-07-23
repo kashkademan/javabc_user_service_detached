@@ -1,11 +1,13 @@
 package school.faang.user_service.service.subscription;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserDtoFilter;
 import school.faang.user_service.entity.User;
 
+import school.faang.user_service.messaging.events.FollowerEvent;
 import school.faang.user_service.messaging.publishers.FollowerEventPublisher;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.subscription.UserFilterStrategy;
@@ -15,8 +17,10 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.SubscriptionService;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -39,8 +43,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         } else {
             subscriptionRepository.followUser(followerId, followeeId);
         }
+        log.debug("""
+                Create and publishing Follower Event with follower id: {},\
+                and foloweeId: {} was started
+                """, followerId, followeeId);
+        FollowerEvent followerEvent = FollowerEvent.builder()
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .subscriptionTime(LocalDateTime.now())
+                .build();
 
-        followerEventPublisher.createAndPublishMessage(followerId, followeeId);
+        followerEventPublisher.publishMessage(followerEvent);
+        log.debug("""
+                Publishing Follower Event with follower id: {}
+                and with followee id: {} was finished
+                """, followerId, followeeId);
     }
 
     @Override
