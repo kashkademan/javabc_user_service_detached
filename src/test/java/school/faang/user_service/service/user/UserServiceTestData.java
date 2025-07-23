@@ -75,6 +75,7 @@ public class UserServiceTestData {
         user.country(country);
         return user.build();
     }
+
     public static UserUpdateDto buildUpdateDto(User user) {
         return new UserUpdateDto(
                 "new " + user.getUsername(),
