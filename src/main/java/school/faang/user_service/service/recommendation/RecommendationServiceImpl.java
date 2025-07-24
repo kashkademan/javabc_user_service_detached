@@ -101,7 +101,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private void validateAuthorIsNotReceiver(Long authorId, Long receiverId) {
         if (authorId.equals(receiverId)) {
-            throw new DataValidationException("Вы не можете написать рекомендацию себе");
+            throw new DataValidationException("Вы не можете написать рекомендацию себе!");
         }
     }
 
