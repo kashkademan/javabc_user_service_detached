@@ -59,7 +59,7 @@ public class EventControllerTest {
         viewDto = new EventViewDto(
                 1L,
                 "Sample Event",
-                "Description ",
+                "Description",
                 startDate,
                 endDate,
                 EventType.WEBINAR,

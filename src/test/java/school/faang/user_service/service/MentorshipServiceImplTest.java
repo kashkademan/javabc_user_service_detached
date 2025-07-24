@@ -60,8 +60,17 @@ class MentorshipServiceImplTest {
         mentee.setId(menteeId);
         mentee.setMentors(new ArrayList<>()); // Используем ArrayList вместо HashSet
 
-        mentorDto = new UserDto(mentorId, "mentor_user", "mentor@example.com", "+123456789", "About mentor");
-        menteeDto = new UserDto(menteeId, "mentee_user", "mentee@example.com", "+987654321", "About mentee");
+        mentorDto = new UserDto(
+                mentorId,
+                "mentor_user",
+                "mentor@example.com",
+                "+123456789",
+                "About mentor");
+        menteeDto = new UserDto(menteeId,
+                "mentee_user",
+                "mentee@example.com",
+                "+987654321",
+                "About mentee");
     }
 
     @Test
