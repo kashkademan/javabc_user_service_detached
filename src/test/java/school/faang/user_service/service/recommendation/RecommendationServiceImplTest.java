@@ -75,7 +75,7 @@ class RecommendationServiceImplTest {
         DataValidationException ex = assertThrows(DataValidationException.class,
                 () -> recommendationServiceImpl.create(createDto));
 
-        assertEquals("Вы не можете написать рекомендацию себе", ex.getMessage());
+        assertEquals("Вы не можете написать рекомендацию себе!", ex.getMessage());
     }
 
     @Test
