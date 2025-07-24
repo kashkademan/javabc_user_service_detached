@@ -14,15 +14,17 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipServiceImpl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,25 +53,28 @@ class MentorshipServiceImplTest {
     @BeforeEach
     void setUp() {
         mentor = new User();
-
         mentor.setId(mentorId);
+        mentor.setMentees(new ArrayList<>()); // Используем ArrayList вместо HashSet
 
         mentee = new User();
         mentee.setId(menteeId);
+        mentee.setMentors(new ArrayList<>()); // Используем ArrayList вместо HashSet
 
-        mentorDto = new UserDto(mentorId, " mentor_user", "mentor@example.com", "+123456789", "About mentor");
-        menteeDto = new UserDto(menteeId, " mentee_user", "mentee@example.com", "+987654321", "About mentee");
+        mentorDto = new UserDto(mentorId, "mentor_user", "mentor@example.com", "+123456789", "About mentor");
+        menteeDto = new UserDto(menteeId, "mentee_user", "mentee@example.com", "+987654321", "About mentee");
     }
 
     @Test
-    void addMentorshipSuccessTest() {
-        when(mentorshipRepository.existsById(mentorId)).thenReturn(false);
-        when(mentorshipRepository.existsById(menteeId)).thenReturn(false);
+    void addMentorship_Success() {
         when(mentorshipRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
         when(mentorshipRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
-        assertDoesNotThrow(() -> mentorshipService.addMentorship(mentorId, menteeId));
-        verify(mentorshipRepository, times(1)).save(mentee);
+        mentorshipService.addMentorship(mentorId, menteeId);
+
+        verify(mentorshipRepository).save(mentor);
+        verify(mentorshipRepository).save(mentee);
+
+        assertTrue(mentor.getMentees().contains(mentee));
     }
 
     @Test
@@ -79,20 +84,23 @@ class MentorshipServiceImplTest {
     }
 
     @Test
-    void addMentorshipMentorNotFoundThrowsExceptionTest() {
-        when(mentorshipRepository.existsById(mentorId)).thenReturn(false);
+    void addMentorship_MentorNotFound() {
         when(mentorshipRepository.findById(mentorId)).thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class,
-                () -> mentorshipService.addMentorship(mentorId, menteeId));
+        assertThrows(DataValidationException.class, () -> {
+            mentorshipService.addMentorship(mentorId, menteeId);
+        });
+        verify(mentorshipRepository, never()).save(any(User.class));
     }
 
     @Test
-    void addMentorshipThrowsExceptionTest() {
-        when(mentorshipRepository.existsById(mentorId)).thenReturn(true);
+    void addMentorship_MenteeNotFound() {
+        when(mentorshipRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
+        when(mentorshipRepository.findById(menteeId)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class,
-                () -> mentorshipService.addMentorship(mentorId, menteeId));
+        assertThrows(DataValidationException.class, () -> {
+            mentorshipService.addMentorship(mentorId, menteeId);
+        });
+        verify(mentorshipRepository, never()).save(any(User.class));
     }
 
     @Test

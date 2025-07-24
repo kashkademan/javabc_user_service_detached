@@ -41,13 +41,19 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Transactional
     public void addMentorship(long mentorId, long menteeId) {
         validateMentorship(mentorId, menteeId);
-        if (mentorshipRepository.getByIdOrThrow(mentorId).getMentees().contains(menteeId) ) {
-            throw new DataValidationException("Mentorship relationship already exists");
-        }
+
         User mentor = mentorshipRepository.findById(mentorId)
                 .orElseThrow(() -> new DataValidationException("Mentor not found"));
         User mentee = mentorshipRepository.findById(menteeId)
                 .orElseThrow(() -> new DataValidationException("Mentee not found"));
+
+        if (mentor.getMentees().contains(mentee)) {
+            throw new DataValidationException("Mentorship relationship already exists");
+        }
+
+        mentor.getMentees().add(mentee);
+
+        mentorshipRepository.save(mentor);
         mentorshipRepository.save(mentee);
     }
 
