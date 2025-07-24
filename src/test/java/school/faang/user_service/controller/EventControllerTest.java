@@ -48,14 +48,20 @@ public class EventControllerTest {
 
     private EventViewDto viewDto;
 
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+
     @BeforeEach
     void setup() {
+        startDate = LocalDateTime.now().plusDays(1);
+        endDate = LocalDateTime.now().plusDays(2);
+
         viewDto = new EventViewDto(
                 1L,
                 "Sample Event",
                 "Description",
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2),
+                startDate,
+                endDate,
                 EventType.WEBINAR,
                 42L,
                 EventStatus.PLANNED,
@@ -66,8 +72,6 @@ public class EventControllerTest {
     @Test
     @DisplayName("Создание события — успешный сценарий")
     void createEvent_success() throws Exception {
-        LocalDateTime startDate = LocalDateTime.of(2025, 7, 27, 10, 0);
-        LocalDateTime endDate = LocalDateTime.of(2025, 7, 28, 12, 0);
 
         EventCreateDto createDto = new EventCreateDto(
                 "Sample Event",
