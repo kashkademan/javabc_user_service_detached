@@ -153,7 +153,6 @@ class MentorshipServiceImplTest {
 
     @Test
     void deleteMentorshipThrowsExceptionTest() {
-        // Создаем mock для mentee
         User mentee = mock(User.class);
 
         when(mentorshipRepository.getByIdOrThrow(menteeId)).thenReturn(mentee);
