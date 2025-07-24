@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -30,38 +30,19 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final UserContext userContext;
     private final List<RecommendationFilter> filters;
 
-    private void validateAuthorIsNotReceiver(Long authorId, Long receiverId) {
-        if (authorId.equals(receiverId)) {
-            throw new DataValidationException("Вы не можете написать рекомендацию себе");
-        }
-    }
-
-    private void validateRecommendationFrequency(Optional<Recommendation> lastRecommendation,
-                                                 LocalDateTime sixMonthAgo) {
-        if (lastRecommendation.isPresent()
-                && lastRecommendation.get().getCreatedAt().isAfter(sixMonthAgo)) {
-            throw new ForbiddenException("Вы не можете писать рекомендации чаще, чем раз в полгода");
-        }
-    }
-
-    private void validateAuthorIsCurrentUser(Long currentId, Long authorId) {
-        if (!currentId.equals(authorId)) {
-            throw new ForbiddenException("Вы можете редактировать только свои рекомендации");
-        }
-    }
-
     @Override
     @Transactional
-    public RecommendationDto create(CreateRecommendationDto recommendationDto) {
+    public RecommendationDto create(RecommendationCreateDto recommendationDto) {
         LocalDateTime sixMonthAgo = LocalDateTime.now().minusMonths(6);
 
         Long authorId = userContext.getUserId();
         Long receiverId = recommendationDto.receiverId();
 
+        validateAuthorIsNotReceiver(authorId, receiverId);
+
         Optional<Recommendation> lastRecommendation = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
 
-        validateAuthorIsNotReceiver(authorId, receiverId);
         validateRecommendationFrequency(lastRecommendation, sixMonthAgo);
 
         Long recommendationId = recommendationRepository.create(
@@ -71,29 +52,30 @@ public class RecommendationServiceImpl implements RecommendationService {
         );
 
         Recommendation savedRecommendation = recommendationRepository.findById(recommendationId)
-                .orElseThrow(() -> new RuntimeException("Не удалось найти созданную рекомендацию"));
+                .orElseThrow(() -> new EntityNotFoundException("Не удалось найти созданную рекомендацию"));
 
         log.info("Рекомендация для пользователя {} создана", recommendationDto.receiverId());
 
-        return recommendationMapper.toRecommedationDto(savedRecommendation);
+        return recommendationMapper.toViewDto(savedRecommendation);
     }
 
     @Override
     @Transactional
-    public RecommendationDto update(long recommendationId, UpdateRecommendationDto updateRecommendationDto) {
+    public RecommendationDto update(long recommendationId, RecommendationUpdateDto updateRecommendationDto) {
         Long currentId = userContext.getUserId();
-        Recommendation recommendation = recommendationRepository.findById(updateRecommendationDto.getAuthorId())
+        Long receiverId = updateRecommendationDto.receiverId();
+        Long authorId = updateRecommendationDto.authorId();
+
+        recommendationRepository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Рекомендация не найдена"));
 
-        validateAuthorIsCurrentUser(userContext.getUserId(), updateRecommendationDto.getAuthorId());
+        validateAuthorIsCurrentUser(currentId, authorId);
 
-        recommendation.setContent(updateRecommendationDto.getContent());
+        Recommendation updatedRecommendation = recommendationRepository.update(authorId,
+                receiverId, updateRecommendationDto.content());
 
-        Recommendation updatedRecommendation = recommendationRepository.update(updateRecommendationDto.getAuthorId(),
-                updateRecommendationDto.getRecieverId(), updateRecommendationDto.getContent());
-
-        log.info("Рекомендация для пользователя {} обновлена", updateRecommendationDto.getRecieverId());
-        return recommendationMapper.toRecommedationDto(updatedRecommendation);
+        log.info("Рекомендация для пользователя {} обновлена", receiverId);
+        return recommendationMapper.toViewDto(updatedRecommendation);
     }
 
     @Override
@@ -113,7 +95,27 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
         return recommendations
-                .map(recommendationMapper::toRecommedationDto)
+                .map(recommendationMapper::toViewDto)
                 .toList();
+    }
+
+    private void validateAuthorIsNotReceiver(Long authorId, Long receiverId) {
+        if (authorId.equals(receiverId)) {
+            throw new DataValidationException("Вы не можете написать рекомендацию себе");
+        }
+    }
+
+    private void validateRecommendationFrequency(Optional<Recommendation> lastRecommendation,
+                                                 LocalDateTime sixMonthAgo) {
+        if (lastRecommendation.isPresent()
+                && lastRecommendation.get().getCreatedAt().isAfter(sixMonthAgo)) {
+            throw new ForbiddenException("Вы не можете писать рекомендации чаще, чем раз в полгода");
+        }
+    }
+
+    private void validateAuthorIsCurrentUser(Long currentId, Long authorId) {
+        if (!currentId.equals(authorId)) {
+            throw new ForbiddenException("Вы можете редактировать только свои рекомендации");
+        }
     }
 }
