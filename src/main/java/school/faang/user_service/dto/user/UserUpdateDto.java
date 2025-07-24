@@ -1,10 +1,16 @@
 package school.faang.user_service.dto.user;
 
-public record UpdateUserDto(
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record UserUpdateDto(
+        @NotBlank
         String username,
+        @NotBlank
         String email,
         String phone,
         String aboutMe,
+        @NotNull
         Long countryId,
         String city
 ) {

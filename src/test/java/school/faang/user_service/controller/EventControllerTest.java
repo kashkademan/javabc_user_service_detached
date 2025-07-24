@@ -96,9 +96,9 @@ public class EventControllerTest {
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(viewDto.getId()))
-                .andExpect(jsonPath("$.title").value("Sample Event"));
+                .andExpect(jsonPath("$.title").value("Sample Event"))
+                .andExpect(status().isOk());
     }
 
 

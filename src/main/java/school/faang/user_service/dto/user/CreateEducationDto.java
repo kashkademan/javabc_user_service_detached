@@ -23,11 +23,9 @@ import lombok.NonNull;
 public class CreateEducationDto {
 
     @NonNull
-    @NotBlank(message = "It cannot be empty")
     private Integer yearFrom;
 
     @NonNull
-    @NotBlank(message = "It cannot be empty")
     private Integer yearTo;
 
     @NonNull
