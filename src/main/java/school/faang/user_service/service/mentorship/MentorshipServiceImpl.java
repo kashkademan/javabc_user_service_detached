@@ -41,7 +41,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Transactional
     public void addMentorship(long mentorId, long menteeId) {
         validateMentorship(mentorId, menteeId);
-        if (mentorshipRepository.existsById(mentorId) || mentorshipRepository.existsById(menteeId)) {
+        if (mentorshipRepository.getByIdOrThrow(mentorId).getMentees().contains(menteeId) ) {
             throw new DataValidationException("Mentorship relationship already exists");
         }
         User mentor = mentorshipRepository.findById(mentorId)
@@ -80,6 +80,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     @Override
+    @Transactional
     public void deleteMentorship(long menteeId, long mentorId) {
         validateMentorship(menteeId, mentorId);
         User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
