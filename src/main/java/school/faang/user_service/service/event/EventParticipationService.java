@@ -1,11 +1,11 @@
 package school.faang.user_service.service.event;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.UserService;
@@ -80,9 +80,5 @@ public class EventParticipationService {
         if (eventId < 1) {
             throw new IllegalArgumentException("Event ID must be positive");
         }
-    }
-
-    public boolean existsById(long eventId) {
-        return eventParticipationRepository.existsById(eventId);
     }
 }
