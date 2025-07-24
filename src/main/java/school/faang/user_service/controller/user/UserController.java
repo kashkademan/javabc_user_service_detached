@@ -1,47 +1,51 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.user.CreateUserDto;
-import school.faang.user_service.dto.user.UpdateUserDto;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserUpdateDto;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-@Component
+import java.util.List;
+
+@RestController
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final UserService service;
 
-    public UserDto create(CreateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateString(userDto.password(), "password");
-        validateNotNull(userDto.countryId(), "country");
-        return userService.create(userDto);
+    @PostMapping
+    public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto userDto) {
+        var user = service.create(userDto);
+        return ResponseEntity.ok(user);
     }
 
-    public UserDto update(long userId, UpdateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateNotNull(userDto.countryId(), "country");
-        return userService.update(userId, userDto);
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDto> update(@PathVariable long userId, @Valid @RequestBody UserUpdateDto userDto) {
+        var user = service.update(userId, userDto);
+        return ResponseEntity.ok(user);
     }
 
-    public UserDto getById(long userId) {
-        return userService.getById(userId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getById(@PathVariable long userId) {
+        var user = service.getById(userId);
+        return ResponseEntity.ok(user);
     }
 
-    private void validateString(String value, String paramName) {
-        if (StringUtils.isNotBlank(value)) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
-    }
-
-    private void validateNotNull(Object value, String paramName) {
-        if (value == null) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> getUsers(@Valid @ModelAttribute UserFilterDto filter) {
+        var users = service.getUsers(filter);
+        return ResponseEntity.ok(users);
     }
 }
