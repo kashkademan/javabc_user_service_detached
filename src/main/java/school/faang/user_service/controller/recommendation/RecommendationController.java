@@ -29,7 +29,8 @@ public class RecommendationController {
     }
 
     @PutMapping("/recommendation/{recommendationId}")
-    public RecommendationDto update(@PathVariable long recommendationId, @RequestBody @Validated UpdateRecommendationDto recommendationDto) {
+    public RecommendationDto update(@PathVariable long recommendationId,
+                                    @RequestBody @Validated UpdateRecommendationDto recommendationDto) {
         return recommendationService.update(recommendationId, recommendationDto);
     }
 
