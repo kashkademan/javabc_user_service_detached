@@ -49,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(RecommendationRequestController.class)
 public class RecommendationRequestControllerTest {
-    private static final String REQUEST_MAPPING = "/recommendations";
 
     @Autowired
     MockMvc mockMvc;
@@ -62,9 +61,6 @@ public class RecommendationRequestControllerTest {
 
     @Autowired
     private ObjectMapper objMapper;
-
-    @InjectMocks
-    RecommendationRequestController controller;
 
     @Test
     @DisplayName("/GET recommendations/10 -> 200 ")
@@ -82,13 +78,13 @@ public class RecommendationRequestControllerTest {
 
         when(service.getById(eq(requestId))).thenReturn(viewDto);
 
-        mockMvc.perform(get("/recommendations/{requestId}", requestId)
+        mockMvc.perform(get("/recommendation-requests/{requestId}", requestId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("/GET /recommendations -> 200")
+    @DisplayName("/GET /recommendation-requests -> 200")
     public void testGetByFiltersSuccessful() throws Exception {
         when(service.getByFilters(any(RecommendationRequestFilterDto.class))).thenReturn(List.of(
                 new RecommendationRequestViewDto(
@@ -109,7 +105,7 @@ public class RecommendationRequestControllerTest {
                         null)
         ));
 
-        mockMvc.perform(get("/recommendations")
+        mockMvc.perform(get("/recommendation-requests")
                         .param("requesterId", "1")
                         .param("status", "PENDING")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -119,9 +115,8 @@ public class RecommendationRequestControllerTest {
                 .andExpect(jsonPath("$[0].status").value("PENDING"));
     }
 
-
     @Test
-    @DisplayName("/POST /recommendations -> 201 Created")
+    @DisplayName("/POST /recommendation-requests -> 201 Created")
     public void testCreateSuccessful() throws Exception {
         RecommendationRequestCreateDto createDto = new RecommendationRequestCreateDto(
                 "Сообщение", 1L, null
@@ -133,7 +128,7 @@ public class RecommendationRequestControllerTest {
 
         when(service.create(any(RecommendationRequestCreateDto.class))).thenReturn(viewDto);
 
-        mockMvc.perform(post("/recommendations")
+        mockMvc.perform(post("/recommendation-requests")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
@@ -143,12 +138,12 @@ public class RecommendationRequestControllerTest {
     }
 
     @Test
-    @DisplayName("/POST /recommendations/{id}/accept -> 200 OK, успешное принятие запроса")
+    @DisplayName("/POST /recommendation-requests/{id}/accept -> 200 OK, успешное принятие запроса")
     public void testAcceptSuccessful() throws Exception {
         long requesterId = 1L;
         doNothing().when(service).accept(requesterId);
 
-        mockMvc.perform(post("/recommendations/{id}/accept", requesterId)
+        mockMvc.perform(post("/recommendation-requests/{id}/accept", requesterId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(result -> verify(service, times(1))
@@ -156,7 +151,7 @@ public class RecommendationRequestControllerTest {
     }
 
     @Test
-    @DisplayName("/POST /recommendations/{id}/reject -> 200 OK, успешное принятие запроса")
+    @DisplayName("/POST /recommendation-requests/{id}/reject -> 200 OK, успешное принятие запроса")
     public void testRejectSuccessful() throws Exception {
         long requesterId = 1L;
         RejectionDto rejectionDto = new RejectionDto(
@@ -165,7 +160,7 @@ public class RecommendationRequestControllerTest {
 
         doNothing().when(service).reject(requesterId, rejectionDto);
 
-        mockMvc.perform(post("/recommendations/{id}/reject", requesterId)
+        mockMvc.perform(post("/recommendation-requests/{id}/reject", requesterId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objMapper.writeValueAsString(rejectionDto)))
                 .andExpect(status().isOk())

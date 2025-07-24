@@ -43,7 +43,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/recommendations")
+@RequestMapping("/recommendation-requests")
 public class RecommendationRequestController {
     private final RecommendationRequestService service;
 
