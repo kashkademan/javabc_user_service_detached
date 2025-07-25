@@ -43,18 +43,11 @@ class LeaderBoardControllerTest {
     @Test
     void getTopLeaders_validData_returnsLeaders() throws Exception {
         when(redisTemplate.opsForZSet()).thenReturn(zsetOperations);
-
-        var tuple1 = LeaderBoardControllerTestData.tuple("1", 100.0);
-        var tuple2 = LeaderBoardControllerTestData.tuple("2", 200.0);
-
         when(zsetOperations.reverseRangeWithScores("leaderboard", 0, 9))
-                .thenReturn(Set.of(tuple1, tuple2));
-
-        UserIdUsernameProjection u1 = LeaderBoardControllerTestData.user(1L, "Alice");
-        UserIdUsernameProjection u2 = LeaderBoardControllerTestData.user(2L, "Bob");
+                .thenReturn(LeaderBoardControllerTestData.tuples());
 
         when(userRepository.findByIdIn(List.of(1L, 2L)))
-                .thenReturn(List.of(u1, u2));
+                .thenReturn(LeaderBoardControllerTestData.users());
 
         var mvcResult = mockMvc.perform(get("/leaders/top?limit=10")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -62,11 +55,6 @@ class LeaderBoardControllerTest {
                 .andReturn();
 
         String responseJson = mvcResult.getResponse().getContentAsString();
-
-        List<LeaderDto> actual = List.of(
-                new LeaderDto(2L, "Bob", 200L),
-                new LeaderDto(1L, "Alice", 100L)
-        );
 
         assertThat(responseJson).contains("Bob", "Alice", "200", "100");
     }

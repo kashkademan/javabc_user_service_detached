@@ -105,7 +105,7 @@ public class EducationControllerTest {
         );
         when(userContext.getUserId()).thenReturn(userId);
         when(educationService.updateEducation(userId, educationId, update)).thenReturn(viewDto);
-        mockMvc.perform(put("/educations/{educationId}", educationId)
+        mockMvc.perform(put("/educations/{educationId}/count", educationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())

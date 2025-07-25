@@ -22,11 +22,11 @@ import school.faang.user_service.service.education.EducationService;
  * EducationController для управления образованием пользователя.
  * <p>
  * Предоставляет эндпоинты для:
- *  * <ul>
- *  *     <li>Добавления образования,</li>
- *  *     <li>Обновления образования,</li>
- *  *     <li>Получения образования по его ID,</li>
- *  * </ul>
+ * * <ul>
+ * *     <li>Добавления образования,</li>
+ * *     <li>Обновления образования,</li>
+ * *     <li>Получения образования по его ID,</li>
+ * * </ul>
  * </p>*
  *
  * @author fomchenkoandrey
@@ -52,8 +52,8 @@ public class EducationController {
     public ResponseEntity<EducationViewDto> updateEducation(@PathVariable long educationId,
                                                             @Valid @RequestBody UpdateEducationDto educationDto) {
         long userId = userContext.getUserId();
-        EducationViewDto updateEducation = service.updateEducation(userId, educationId, educationDto);
-        return ResponseEntity.ok(updateEducation);
+        EducationViewDto updatedEducation = service.updateEducation(userId, educationId, educationDto);
+        return ResponseEntity.ok(updatedEducation);
     }
 
     @GetMapping("/{educationId}")
