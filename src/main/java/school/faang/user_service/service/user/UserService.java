@@ -1,8 +1,11 @@
 package school.faang.user_service.service.user;
 
-import school.faang.user_service.dto.user.CreateUserDto;
-import school.faang.user_service.dto.user.UpdateUserDto;
+import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserUpdateDto;
+
+import java.util.List;
 
 /**
  * Сервис для управления пользователями.
@@ -21,10 +24,10 @@ public interface UserService {
      *         при нарушении выбрасывается {@code DataValidationException}.</li>
      * </ul>
      *
-     * @param userDto объект {@link CreateUserDto}, содержащий информацию для создания пользователя
+     * @param userDto объект {@link UserCreateDto}, содержащий информацию для создания пользователя
      * @return объект {@link UserDto}, представляющий созданного пользователя
      */
-    UserDto create(CreateUserDto userDto);
+    UserDto create(UserCreateDto userDto);
 
     /**
      * Обновляет информацию о существующем пользователе.
@@ -39,11 +42,11 @@ public interface UserService {
      *         иначе выбрасывается {@code DataIntegrityViolationException}.</li>
      * </ul>
      *
-     * @param userId идентификатор пользователя, чьи данные необходимо обновить
-     * @param userDto объект {@link UpdateUserDto}, содержащий обновлённые данные пользователя
+     * @param userId  идентификатор пользователя, чьи данные необходимо обновить
+     * @param userDto объект {@link UserUpdateDto}, содержащий обновлённые данные пользователя
      * @return объект {@link UserDto}, представляющий обновлённого пользователя
      */
-    UserDto update(long userId, UpdateUserDto userDto);
+    UserDto update(long userId, UserUpdateDto userDto);
 
     /**
      * Возвращает информацию о пользователе по его идентификатору.
@@ -55,6 +58,14 @@ public interface UserService {
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
     UserDto getById(long userId);
+
+    /**
+     * Возвращает список отфильтрованных пользователей
+     *
+     * @param filter параметры фильтрации {@link UserFilterDto}
+     * @return список пользователей в виде List<{@link UserDto}>
+     */
+    List<UserDto> getUsers(UserFilterDto filter);
 }
 
 
