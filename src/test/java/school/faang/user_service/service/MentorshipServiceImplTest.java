@@ -54,11 +54,11 @@ class MentorshipServiceImplTest {
     void setUp() {
         mentor = new User();
         mentor.setId(mentorId);
-        mentor.setMentees(new ArrayList<>()); // Используем ArrayList вместо HashSet
+        mentor.setMentees(new ArrayList<>());
 
         mentee = new User();
         mentee.setId(menteeId);
-        mentee.setMentors(new ArrayList<>()); // Используем ArrayList вместо HashSet
+        mentee.setMentors(new ArrayList<>());
 
         mentorDto = new UserDto(
                 mentorId,

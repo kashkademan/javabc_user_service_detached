@@ -23,7 +23,6 @@ public interface MentorshipService {
      *
      * @param mentorId ID пользователя, который становится ментором
      * @param menteeId ID пользователя, который становится подопечным (менти)
-     * @throws school.faang.user_service.exception.DataValidationException если:
      *          <ul>
      *              <li>mentorId == menteeId (пользователь не может быть ментором сам себе),</li>
      *              <li>пользователь с mentorId не найден,</li>
@@ -38,7 +37,6 @@ public interface MentorshipService {
      *
      * @param userId ID пользователя (ментора)
      * @return список {@link UserDto} подопечных
-     * @throws school.faang.user_service.exception.DataValidationException если пользователь не найден
      */
     List<UserDto> getMentees(long userId);
 
@@ -47,7 +45,6 @@ public interface MentorshipService {
      *
      * @param userId ID пользователя (менти)
      * @return список {@link UserDto} менторов
-     * @throws school.faang.user_service.exception.DataValidationException если пользователь не найден
      */
     List<UserDto> getMentors(long userId);
 
@@ -56,7 +53,6 @@ public interface MentorshipService {
      *
      * @param menteeId ID подопечного (менти)
      * @param mentorId ID ментора
-     * @throws school.faang.user_service.exception.DataValidationException если:
      *          <ul>
      *              <li>связь не существует,</li>
      *              <li>пользователь с mentorId не найден,</li>
