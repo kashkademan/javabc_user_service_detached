@@ -44,3 +44,7 @@ user:
   password:
     min:
       length: 6
+
+recommendation:
+  repeat:
+    limit: 6
