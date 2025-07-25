@@ -9,13 +9,10 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.rating_service.config.LeaderDto;
 import school.faang.user_service.rating_service.controller.LeaderBoardController;
-import school.faang.user_service.rating_service.rating_aspect.UserIdUsernameProjection;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
