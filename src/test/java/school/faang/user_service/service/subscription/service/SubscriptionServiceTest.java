@@ -12,6 +12,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.subscription.UserFilterStrategy;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messaging.publishers.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.subscription.SubscriptionServiceImpl;
@@ -44,6 +45,8 @@ public class SubscriptionServiceTest {
     private UserRepository userRepository;
     @InjectMocks
     private SubscriptionServiceImpl subscriptionService;
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
 
     private static final long FOLLOWER_ID = 1L;
     private static final long FOLLOWEE_ID = 2L;
