@@ -1,7 +1,3 @@
-app:
-  goals:
-    max-active-goals: 3
-
 user:
   password:
     min:
@@ -10,4 +6,12 @@ user:
 logging:
   level:
     root: WARN
-    school.faang.user_service.service.goal: INFO
+    school.faang.user_service.service.goal: INFO 
+
+skill:
+  minimal:
+    offers: 3
+   
+app:
+  goals:
+    max-active-goals: 3
