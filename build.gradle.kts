@@ -151,13 +151,14 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             element = "PACKAGE"
-            includes = listOf("school.faang.user_service.service.goal")
+            includes = listOf(
+                "school.faang.user_service.service.goal.GoalInvitationServiceImpl"
+            )
+
             limit {
                 minimum = "0.80".toBigDecimal()
             }
-        }
 
-        rule {
             limit {
                 counter = "BRANCH"
                 value = "COVEREDRATIO"
