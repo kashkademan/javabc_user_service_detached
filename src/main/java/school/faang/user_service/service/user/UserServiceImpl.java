@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final FilterService<User, UserFilterDto> filterService;
+    private final UserAvatarService avatarService;
 
     @Override
     @Transactional
@@ -46,6 +48,15 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
+        try {
+            String avatarUrl = avatarService.generateAndUpload(user.getUsername()).getUrl();
+            user.setAvatarUrl(avatarUrl);
+            log.info("Generated avatar for user {}: {}", user.getId(), avatarUrl);
+        } catch (Exception e) {
+            log.warn("Failed to generate avatar for user {}: {}", user.getId(), e.getMessage());
+        }
+
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
