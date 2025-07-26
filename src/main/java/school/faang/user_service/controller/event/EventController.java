@@ -16,6 +16,8 @@ import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
+    @RatingAction(ActionType.ADD_EVENT)
     public ResponseEntity<EventViewDto> create(@Valid @RequestBody EventCreateDto eventDto) {
         return ResponseEntity.ok(eventService.create(eventDto));
     }

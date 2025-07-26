@@ -18,6 +18,8 @@ import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -30,6 +32,7 @@ public class GoalController {
     private final GoalService service;
 
     @PostMapping
+    @RatingAction(ActionType.ADD_GOAL)
     public ResponseEntity<GoalDto> create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
         return new ResponseEntity<>(service.create(goalCreateDto), HttpStatus.OK);
     }
