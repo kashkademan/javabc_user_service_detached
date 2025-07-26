@@ -51,7 +51,8 @@ class UserControllerTest {
                 "JohnDoe",
                 "johndoe@example.com",
                 "1234567890",
-                "About John Doe"
+                "About John Doe",
+                null
         );
     }
 
@@ -115,14 +116,16 @@ class UserControllerTest {
                 "MichaelJohnson",
                 "michaeljohnson@example.com",
                 "1112223333",
-                "About Michael Johnson"
+                "About Michael Johnson",
+                null
         );
         var userWithPremium = new UserDto(
                 2L,
                 "JaneSmith",
                 "janesmith@example.com",
                 "0987654321",
-                "About Jane Smith"
+                "About Jane Smith",
+                null
         );
         var filter1 = new UserFilterDto("John", null, null, null, false);
         var filter2 = new UserFilterDto(null, null, null, null, true);

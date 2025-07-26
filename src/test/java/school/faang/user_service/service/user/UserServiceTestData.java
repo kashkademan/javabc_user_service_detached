@@ -26,7 +26,7 @@ public class UserServiceTestData {
         var phone = user.getPhone();
         var aboutMe = user.getAboutMe();
 
-        return new UserDto(id, username, email, phone, aboutMe);
+        return new UserDto(id, username, email, phone, aboutMe, null);
     }
 
     public static Country buildCountry(long id, String name) {
