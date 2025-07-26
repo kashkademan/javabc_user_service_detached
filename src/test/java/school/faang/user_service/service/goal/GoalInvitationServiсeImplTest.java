@@ -156,7 +156,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если отправитель не найден")
-    void create_ShouldThrowException_WhenInviterNotFound() {
+    void createShouldThrowException_WhenInviterNotFound() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -171,7 +171,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если приглашаемый пользователь не найден")
-    void create_ShouldThrowException_WhenInvitedUserNotFound() {
+    void createShouldThrowException_WhenInvitedUserNotFound() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
@@ -186,7 +186,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение при попытке пригласить самого себя")
-    void create_ShouldThrowException_WhenUserTriesToInviteThemselves() {
+    void createShouldThrowException_WhenUserTriesToInviteThemselves() {
         createDto.setInvitedUserId(1L);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
@@ -203,7 +203,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если пользователь уже участвует в цели")
-    void create_ShouldThrowException_WhenUserAlreadyParticipating() {
+    void createShouldThrowException_WhenUserAlreadyParticipating() {
         goal.getUsers().add(invited);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
@@ -220,7 +220,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен успешно принять приглашение")
-    void accept_ShouldAcceptInvitationSuccessfully() {
+    void acceptShouldAcceptInvitationSuccessfully() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
         when(goalRepository.countActiveGoalsPerUser(2L)).thenReturn(2);
@@ -236,7 +236,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если приглашение не найдено")
-    void accept_ShouldThrowException_WhenInvitationNotFound() {
+    void acceptShouldThrowException_WhenInvitationNotFound() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -250,7 +250,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить ForbiddenException если пользователь пытается принять чужое приглашение")
-    void accept_ShouldThrowForbiddenException_WhenNotInvitationRecipient() {
+    void acceptShouldThrowForbiddenException_WhenNotInvitationRecipient() {
         when(userContext.getUserId()).thenReturn(3L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
 
@@ -264,7 +264,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если у пользователя слишком много активных целей")
-    void accept_ShouldThrowException_WhenUserHasTooManyActiveGoals() {
+    void acceptShouldThrowException_WhenUserHasTooManyActiveGoals() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
         when(goalRepository.countActiveGoalsPerUser(2L)).thenReturn(3);
@@ -279,7 +279,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен успешно отклонить приглашение")
-    void reject_ShouldRejectInvitationSuccessfully() {
+    void rejectShouldRejectInvitationSuccessfully() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
 
