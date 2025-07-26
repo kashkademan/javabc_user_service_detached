@@ -5,6 +5,7 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
 }
 
 group = "faang.school"
@@ -74,6 +75,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation("org.mockito:mockito-core:5.1.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
+    testImplementation("org.mockito:mockito-inline:5.1.1")
 }
 
 jsonSchema2Pojo {
@@ -83,15 +88,95 @@ jsonSchema2Pojo {
     setSourceType("jsonschema")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+jacoco {
+    toolVersion = "0.8.10"
 }
 
-val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+tasks.withType<Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**Impl*",
+                    "**/*MapperImpl*",
+                    "**/model/**",
+                    "**/enumeration/**"
+                )
+            }
+        })
+    )
+
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+
+        rule {
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+        }
+
+        rule {
+            excludes = listOf(
+                "*.config.*",
+                "*.dto.*",
+                "*.entity.*",
+                "*Application*",
+                "*.exception.*",
+                "*MapperImpl*",
+                "*.model.*",
+                "*.enumeration.*"
+            )
+        }
+    }
+}
+
+val test by tasks.getting(Test::class) {
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+    }
+}
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+
 kotlin {
     jvmToolchain(17)
 }
@@ -115,4 +200,14 @@ tasks.checkstyleTest {
     include("**/*.java")
 
     classpath = files()
+}
+
+tasks.register<Test>("unitTest") {
+    description = "Запускает только unit-тесты"
+    group = "verification"
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+    include("**/*Test.class")
+    exclude("**/*IntegrationTest.class")
 }
