@@ -1,3 +1,7 @@
+skill:
+  minimal:
+    offers: 3
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -44,3 +48,7 @@ user:
 app:
   goals:
     max-active-goals: 3
+    
+recommendation:
+  repeat:
+    limit: 6
