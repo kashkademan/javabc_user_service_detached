@@ -6,12 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.property.RecommendationRequestProperty;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -54,7 +53,6 @@ import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
 import static school.faang.user_service.entity.RequestStatus.PENDING;
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
 
-@ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
 class RecommendationRequestServiceImplTest {
     @Mock
@@ -87,12 +85,9 @@ class RecommendationRequestServiceImplTest {
     @Mock
     private RecommendationRequestFilter recommendationRequestStatusFilter;
 
-    private RecommendationRequestServiceImpl recommendationRequestService;
+    private RecommendationRequestProperty recommendationRequestProperty;
 
-    @Value("${recommendation-request.once-every.quantity:6}")
-    private int quantity;
-    @Value("${recommendation-request.once-every.period:MONTHS}")
-    private ChronoUnit period;
+    private RecommendationRequestServiceImpl recommendationRequestService;
 
     @BeforeEach
     void setUp() {
@@ -100,6 +95,11 @@ class RecommendationRequestServiceImplTest {
                 recommendationRequestMapper,
                 "userMapper",
                 userMapper);
+
+        recommendationRequestProperty = new RecommendationRequestProperty(
+                6,
+                ChronoUnit.MONTHS
+        );
 
         recommendationRequestService = new RecommendationRequestServiceImpl(
                 recommendationRequestRepository,
@@ -111,8 +111,8 @@ class RecommendationRequestServiceImplTest {
                         recommendationRequestReceiverIdFilter,
                         recommendationRequestRequesterIdFilter,
                         recommendationRequestStatusFilter),
-                quantity,
-                period
+                recommendationRequestProperty.quantity(),
+                recommendationRequestProperty.period()
         );
     }
 
@@ -179,9 +179,13 @@ class RecommendationRequestServiceImplTest {
                         recommendationRequest.getMessage(),
                         null);
 
+        
+        
         assertTrue(latestPendingRequest.isPresent());
         assertTrue(latestPendingRequest.get().getCreatedAt()
-                .plus(quantity, period).isAfter(LocalDateTime.now()));
+                .plus(recommendationRequestProperty.quantity(),
+                        recommendationRequestProperty.period())
+                .isAfter(LocalDateTime.now()));
         assertThrows(DataValidationException.class, () ->
                 recommendationRequestService.create(createRecommendationRequestDto));
     }
@@ -191,7 +195,8 @@ class RecommendationRequestServiceImplTest {
     void testCreateLaterThanAllowedPeriod() {
         RecommendationRequest recommendationRequest = getRecommendationRequest();
         recommendationRequest.setCreatedAt(LocalDateTime.now()
-                .minusMonths(quantity).minusDays(1));
+                .minusMonths(recommendationRequestProperty.quantity())
+                .minusDays(1));
         long requesterId = recommendationRequest.getRequester().getId();
         long receiverId = recommendationRequest.getReceiver().getId();
 
@@ -206,7 +211,9 @@ class RecommendationRequestServiceImplTest {
 
         assertTrue(latestPendingRequest.isPresent());
         assertFalse(latestPendingRequest.get().getCreatedAt()
-                .plus(quantity, period).isAfter(LocalDateTime.now()));
+                .plus(recommendationRequestProperty.quantity(),
+                        recommendationRequestProperty.period())
+                .isAfter(LocalDateTime.now()));
     }
 
     @Test
