@@ -3,6 +3,8 @@ package school.faang.user_service.avatar;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -22,6 +24,7 @@ import java.net.URI;
  * @since 25.07.2025
  */
 @Configuration
+@Profile("!test")
 public class S3Config {
 
     @Value("${cloud.aws.s3.access-key}")
@@ -37,6 +40,7 @@ public class S3Config {
     private String endpoint;
 
     @Bean
+    @Lazy
     public S3Client s3Client() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 

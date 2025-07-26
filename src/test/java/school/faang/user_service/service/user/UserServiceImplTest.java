@@ -8,6 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import school.faang.user_service.TestS3Config;
+import school.faang.user_service.avatar.dto.AvatarDto;
+import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -21,9 +26,12 @@ import school.faang.user_service.service.filter.FilterService;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+@Import(TestS3Config.class)
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
     @Mock
@@ -38,10 +46,11 @@ class UserServiceImplTest {
     private UserContext userContext;
     @Mock
     private FilterService<User, UserFilterDto> filterService;
+    @Mock
+    private UserAvatarService avatarService;
 
     @InjectMocks
     private UserServiceImpl service;
-
 
     @Test
     void create_success() {
@@ -49,12 +58,14 @@ class UserServiceImplTest {
         var createDto = UserServiceTestData.buildCreateDto("Myrzakhmet", 1L);
         var currentUser = UserServiceTestData.buildLiteUser(null, createDto, country);
         var user = UserServiceTestData.buildLiteUser(1L, createDto, country);
-        var userDto = UserServiceTestData.toViewDto(user);
+        final var userDto = UserServiceTestData.toViewDto(user);
 
         when(countryRepository.getByIdOrThrow(country.getId()))
                 .thenReturn(country);
-        when(userRepository.save(eq(currentUser)))
+        when(userRepository.save(any(User.class)))
                 .thenReturn(user);
+        when(avatarService.generateAndUpload(eq(createDto.username())))
+                .thenReturn(new AvatarDto("https://example.com/avatar.svg"));
 
         var actual = service.create(createDto);
         assertEquals(userDto, actual);

@@ -33,6 +33,12 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
+     * библиотека для чтения env
+     */
+    implementation ("io.github.cdimascio:dotenv-java:2.2.4")
+
+
+    /**
      * Database
      */
     implementation("org.liquibase:liquibase-core")

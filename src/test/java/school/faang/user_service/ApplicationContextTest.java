@@ -3,6 +3,8 @@ package school.faang.user_service;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MinIOContainer;
@@ -13,6 +15,8 @@ import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest(classes = UserServiceApplication.class)
 @Testcontainers
+@ActiveProfiles("test")
+@Import(TestS3Config.class)
 class ApplicationContextTest {
 
     @Container
