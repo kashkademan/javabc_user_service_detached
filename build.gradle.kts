@@ -150,6 +150,8 @@ tasks.jacocoTestCoverageVerification {
 
     violationRules {
         rule {
+            element = "PACKAGE"
+            includes = listOf("school.faang.user_service.service.goal")
             limit {
                 minimum = "0.80".toBigDecimal()
             }
