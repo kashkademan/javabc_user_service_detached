@@ -1,5 +1,6 @@
 package school.faang.user_service.service.workschedule;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.User;
@@ -34,7 +35,6 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         if (!(dto.startTime().isBefore(dto.startLunch())
                 && dto.startLunch().isBefore(dto.endLunch())
                 && dto.endLunch().isBefore(dto.endTime()))) {
-            //startTime < (меньше/раньше чем) startLunch < endLunch < endTime
             throw new DataValidationException("Не коректные данные!");
         }
 

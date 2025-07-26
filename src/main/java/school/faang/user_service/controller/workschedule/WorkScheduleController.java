@@ -8,7 +8,7 @@ import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.service.workschedule.WorkScheduleService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/v1/schedule")
 public class WorkScheduleController {
     private WorkScheduleService workScheduleService;
     private UserContext userContext;
