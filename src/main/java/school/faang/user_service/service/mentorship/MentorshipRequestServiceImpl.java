@@ -39,7 +39,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Transactional
     public MentorshipRequestViewDto create(MentorshipRequestCreateDto createDto) {
         Long requesterId = userContext.getUserId();
-        Long receiverId = createDto.getReceiverId();
+        Long receiverId = createDto.receiverId();
 
         if (requesterId.equals(receiverId)) {
             throw new BadRequestException("You cannot request mentorship from your self");
@@ -53,14 +53,14 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
                 });
 
         MentorshipRequest request = mentorshipRequestRepository
-                .create(requesterId, receiverId, createDto.getDescription());
+                .create(requesterId, receiverId, createDto.description());
         return mapper.toEntity(request);
     }
 
     @Override
     @Transactional
     public List<MentorshipRequestViewDto> getByFilters(MentorshipRequestFilterDto filter) {
-        if (filter.getRequesterId() == null && filter.getReceiverId() == null) {
+        if (filter.requesterId() == null && filter.receiverId() == null) {
             throw new BadRequestException("RequesterId or ReceiverId must be provided");
         }
 
@@ -101,7 +101,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public void reject(long requestId, RejectionDto rejectionDto) {
         Long currentUserId = userContext.getUserId();
 
-        if (rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
+        if (rejectionDto.reason() == null || rejectionDto.reason().isBlank()) {
             throw new BadRequestException("Rejection reason must not be empty");
         }
 
@@ -113,7 +113,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         }
 
         request.setStatus(RequestStatus.REJECTED);
-        request.setRejectionReason(rejectionDto.getReason());
+        request.setRejectionReason(rejectionDto.reason());
         mentorshipRequestRepository.save(request);
     }
 }

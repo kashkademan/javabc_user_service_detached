@@ -14,12 +14,12 @@ public class MentorshipRequestReceiverFilter implements Filter<MentorshipRequest
 
     @Override
     public boolean isApplicable(MentorshipRequestFilterDto dto) {
-        return dto.getReceiverId() != null;
+        return dto.receiverId() != null;
     }
 
     @Override
     public Stream<MentorshipRequest> filter(Stream<MentorshipRequest> entities, MentorshipRequestFilterDto dto) {
-        Long receiverId = dto.getReceiverId();
+        Long receiverId = dto.receiverId();
         return entities.filter(entity -> entity.getReceiver().getId().equals(receiverId));
     }
 }

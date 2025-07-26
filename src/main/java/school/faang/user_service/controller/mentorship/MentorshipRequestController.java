@@ -13,7 +13,7 @@ import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestViewDto;
-import school.faang.user_service.service.mentorship.MentorshipRequestServiceImpl;
+import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
 
@@ -25,21 +25,22 @@ import java.util.List;
  * </p>
  */
 @RestController
-@RequestMapping("/mentors")
+@RequestMapping("/mentorship-requests")
 @RequiredArgsConstructor
 public class MentorshipRequestController {
 
-    private final MentorshipRequestServiceImpl service;
+    private final MentorshipRequestService service;
 
     @PostMapping
-    public ResponseEntity<MentorshipRequestViewDto> addMentorshipRequest(@RequestBody
-                                                                         @Valid MentorshipRequestCreateDto dto) {
+    public ResponseEntity<MentorshipRequestViewDto> addMentorshipRequest(
+            @Valid @RequestBody MentorshipRequestCreateDto dto) {
         MentorshipRequestViewDto result = service.create(dto);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping
-    public ResponseEntity<List<MentorshipRequestViewDto>> getByFilters(MentorshipRequestFilterDto filter) {
+    public ResponseEntity<List<MentorshipRequestViewDto>> getByFilters(
+            MentorshipRequestFilterDto filter) {
         List<MentorshipRequestViewDto> requests = service.getByFilters(filter);
         return ResponseEntity.ok(requests);
     }
@@ -54,7 +55,6 @@ public class MentorshipRequestController {
     public ResponseEntity<Void> reject(
             @PathVariable long requestId,
             @Valid @RequestBody RejectionDto rejectionDto) {
-
         service.reject(requestId, rejectionDto);
         return ResponseEntity.ok().build();
     }

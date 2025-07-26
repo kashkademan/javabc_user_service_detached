@@ -15,12 +15,12 @@ public class MentorshipRequestStatusFilter implements Filter<MentorshipRequest, 
 
     @Override
     public boolean isApplicable(MentorshipRequestFilterDto dto) {
-        return dto.getStatus() != null;
+        return dto.status() != null;
     }
 
     @Override
     public Stream<MentorshipRequest> filter(Stream<MentorshipRequest> entities, MentorshipRequestFilterDto dto) {
-        RequestStatus targetStatus = dto.getStatus();
+        RequestStatus targetStatus = dto.status();
         return entities.filter(entity -> entity.getStatus().equals(targetStatus));
     }
 }

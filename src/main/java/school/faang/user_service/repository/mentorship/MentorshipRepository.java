@@ -1,6 +1,5 @@
 package school.faang.user_service.repository.mentorship;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +19,6 @@ public interface MentorshipRepository extends JpaRepository<User, Long> {
     boolean existsByMentorIdAndMenteeId(Long mentorId, Long menteeId);
 
     @Modifying
-    @Transactional
     @Query(value = "INSERT INTO mentorship (mentor_id, mentee_id) "
                    + "VALUES (:mentorId, :menteeId)", nativeQuery = true)
     void createMentorship(Long mentorId, Long menteeId);
