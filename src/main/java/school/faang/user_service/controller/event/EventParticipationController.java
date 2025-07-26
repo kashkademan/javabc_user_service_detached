@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class EventParticipationController {
     private final UserContext userContext;
 
     @PostMapping
+    @RatingAction(ActionType.PARTICIPATION_IN_THE_EVENT)
     public ResponseEntity<Void> registerParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
         service.registerParticipant(eventId, userId);

@@ -15,6 +15,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerViewDto;
 import school.faang.user_service.dto.career.CareerCreateDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.career.CareerService;
 
 @RestController
@@ -25,6 +27,7 @@ public class CareerController {
     private final UserContext userContext;
 
     @PostMapping
+    @RatingAction(ActionType.ADD_CAREER)
     public ResponseEntity<CareerViewDto> addCareer(@RequestBody @Valid CareerCreateDto careerDto) {
         long userId = userContext.getUserId();
         return ResponseEntity.ok(careerService.career(userId, careerDto));

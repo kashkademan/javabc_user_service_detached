@@ -35,8 +35,12 @@ dependencies {
     /**
      * библиотека для чтения env
      */
-    implementation ("io.github.cdimascio:dotenv-java:2.2.4")
+    implementation("io.github.cdimascio:dotenv-java:2.2.4")
 
+    /**
+     * kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka")
 
     /**
      * Database

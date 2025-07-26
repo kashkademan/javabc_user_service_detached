@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleViewDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.workschedule.WorkScheduleService;
 
 /**
@@ -36,6 +38,7 @@ public class WorkScheduleController {
     private final WorkScheduleService service;
 
     @PostMapping
+    @RatingAction(ActionType.ADD_WORKSCHEDULE)
     public ResponseEntity<WorkScheduleViewDto> addWorkSchedule(
             @RequestBody @Valid WorkScheduleCreateDto workScheduleCreateDto) {
         WorkScheduleViewDto create = service.addWorkSchedule(workScheduleCreateDto);
