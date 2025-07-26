@@ -130,6 +130,24 @@ tasks.jacocoTestReport {
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.jacocoTestReport)
 
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**Impl*",
+                    "**/*MapperImpl*",
+                    "**/model/**",
+                    "**/enumeration/**"
+                )
+            }
+        })
+    )
+
     violationRules {
         rule {
             limit {
@@ -143,19 +161,6 @@ tasks.jacocoTestCoverageVerification {
                 value = "COVEREDRATIO"
                 minimum = "0.70".toBigDecimal()
             }
-        }
-
-        rule {
-            excludes = listOf(
-                "*.config.*",
-                "*.dto.*",
-                "*.entity.*",
-                "*Application*",
-                "*.exception.*",
-                "*MapperImpl*",
-                "*.model.*",
-                "*.enumeration.*"
-            )
         }
     }
 }
