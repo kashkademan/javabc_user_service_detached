@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,14 +22,16 @@ public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
-    @PostMapping("/Subscription")
+    @PostMapping("/subscription")
     public void followUser(@RequestParam long followeeId) {
+        @NotNull(message = "followerId не должен быть null")
         long followerId = userContext.getUserId();
         userSubscriptionService.followUser(followerId, followeeId);
     }
 
-    @PostMapping("/disclaimer")
+    @PostMapping("/repulse")
     public void unfollowUser(@Valid @RequestParam long followeeId) {
+        @NotNull(message = "followerId не должен быть null")
         long followerId = userContext.getUserId();
         userSubscriptionService.unfollowUser(followerId, followeeId);
     }

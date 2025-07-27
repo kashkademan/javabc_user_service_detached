@@ -2,6 +2,7 @@ package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
@@ -9,6 +10,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 @Slf4j
@@ -22,11 +24,13 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new ForbiddenException("Пользователь попытался подписаться на самого себя.");
+            throw new ForbiddenException(MessageFormat
+                    .format("Пользователь под ID: {0} попытался подписаться на самого себя.", followerId));
         }
 
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new ForbiddenException("Пользователь уже подписан на этого пользователя");
+            throw new ForbiddenException(MessageFormat
+                    .format("Пользователь под ID: {0} уже подписан на ID: {1}.", followerId, followeeId));
         }
 
         subscriptionRepository.followUser(followerId, followeeId);
@@ -36,41 +40,43 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            throw new ForbiddenException("Пользователь не может отписаться от самого себя");
+            throw new ForbiddenException(MessageFormat
+                    .format("Пользователь под ID: {0} попытался отписаться от самого себя.", followerId));
         }
-
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new ForbiddenException("Пользователь не подписывался, чтобы отписаться.");
+            throw new ForbiddenException(
+                    MessageFormat
+                            .format("Пользователь {0} и так не подписан на пользователя {1}", followerId, followeeId)
+            );
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
-        log.info("Вы отписались от пользователя");
+        log.info("{} отписался от пользователя под ID: {}", followeeId, followeeId);
     }
 
     @Override
-    public CountResponse getFollowersCount(long followeeId) {
+    public CountResponse getFollowersCount(@NotNull long followeeId) {
         long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+        log.info("У пользователя под ID: {}. Количество подписчиков: {}.", followeeId, count);
         return new CountResponse(count);
     }
 
     @Override
-    public CountResponse getFolloweesCount(long followerId) {
+    public CountResponse getFolloweesCount(@NotNull long followerId) {
         long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
         log.info("Количество подписчиков у пользователя {}", count);
         return new CountResponse(count);
     }
 
     @Override
-    public List<UserDto> getFollowers(long followeeId) {
-        return subscriptionRepository.findByFolloweeId(followeeId)
-                .map(userMapper::toUserDto)
-                .toList();
+    public List<UserDto> getFollowers(@NotNull long followeeId) {
+        log.info("У пользователя под ID: {}. Был получен список подписчиков", followeeId);
+        return subscriptionRepository.findByFolloweeId(followeeId).map(userMapper::toUserDto).toList();
     }
 
     @Override
-    public List<UserDto> getFollowees(long followerId) {
-        return subscriptionRepository.findByFollowerId(followerId)
-                .map(userMapper::toUserDto)
-                .toList();
+    public List<UserDto> getFollowees(@NotNull long followerId) {
+        log.info("Был получен список подписчиков у пользователя под ID: {}", followerId);
+        return subscriptionRepository.findByFollowerId(followerId).map(userMapper::toUserDto).toList();
     }
 
 
