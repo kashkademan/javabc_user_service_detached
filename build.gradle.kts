@@ -39,6 +39,11 @@ dependencies {
 
 
     /**
+     * kafka
+     */
+    implementation("org.springframework.kafka:spring-kafka")
+
+    /**
      * Database
      */
     implementation("org.liquibase:liquibase-core")

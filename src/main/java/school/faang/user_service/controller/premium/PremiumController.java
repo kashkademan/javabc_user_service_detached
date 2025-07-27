@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserWithPremiumDto;
+import school.faang.user_service.rating_service.rating_aspect.ActionType;
+import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.premium.PremiumServiceImpl;
 
 import java.util.List;
@@ -42,6 +44,7 @@ public class PremiumController {
     private final UserContext context;
 
     @PostMapping("/buy")
+    @RatingAction(ActionType.BUY_PREMIUM)
     public ResponseEntity<PremiumDto> buyPremium(@RequestParam int days) {
         PremiumDto premiumDto = service.buyPremium(context.getUserId(), days);
         return ResponseEntity.ok(premiumDto);

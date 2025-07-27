@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.rating_service.rating_aspect.UserIdUsernameProjection;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,6 +29,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUsernameLike(String username);
 
     User findByEmailIgnoreCase(String email);
+
+    List<UserIdUsernameProjection> findByIdIn(List<Long> ids);
 
     default User getByIdOrThrow(long userId) {
         return findById(userId)
