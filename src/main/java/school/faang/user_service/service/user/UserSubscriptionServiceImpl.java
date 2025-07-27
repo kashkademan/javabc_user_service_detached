@@ -84,13 +84,10 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         String actionText = (type == SubscriptionType.FOLLOW) ? "подписки" : "отписки";
         log.info("Попытка {}: followerId={}, followeeId={}", actionText, followerId, followeeId);
 
-        boolean isExistFollower = userRepository.existsById(followerId);
-        boolean isExistFollowee = userRepository.existsById(followeeId);
-
         if (followerId.equals(followeeId)) {
             String selfActionText = (type == SubscriptionType.FOLLOW) ? "подписаться на" : "отписаться от";
             log.error("Пользователь попытался {} самого себя: id={}", selfActionText, followerId);
-            throw new DataValidationException("Нельзя " + selfActionText + "на самого себя");
+            throw new DataValidationException("Нельзя " + selfActionText + " самого себя");
         }
 
         boolean alreadyFollowed = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
