@@ -31,16 +31,16 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void testSungUpForYourself() {
-        long userId = 1L;
+        long userId = 1;
         assertThrows(ForbiddenException.class, () ->
                 userSubscriptionService.followUser(userId, userId)
         );
     }
 
     @Test
-    void AlreadySignedTest() {
-        long followerId = 1L;
-        long followeeId = 2L;
+    void alreadySignedTest() {
+        long followerId = 1;
+        long followeeId = 2;
 
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
                 .thenReturn(true);
@@ -51,8 +51,8 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void followUserTest() {
-        long followerId = 1L;
-        long followeeId = 2L;
+        long followerId = 1;
+        long followeeId = 2;
 
         userSubscriptionService.followUser(followerId, followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
@@ -61,7 +61,7 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void unsubscribeFromYourselfTest() {
-        long userId = 1L;
+        long userId = 1;
         assertThrows(ForbiddenException.class, () ->
                 userSubscriptionService.followUser(userId, userId)
         );
@@ -69,8 +69,8 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void andSoUnsignedTest() {
-        long followerId = 1L;
-        long followeeId = 2L;
+        long followerId = 1;
+        long followeeId = 2;
 
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
                 .thenReturn(false);
@@ -81,8 +81,8 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void unfollowUserTest() {
-        long followerId = 1L;
-        long followeeId = 2L;
+        long followerId = 1;
+        long followeeId = 2;
 
         subscriptionRepository.unfollowUser(followerId, followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
@@ -91,7 +91,7 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void getFollowersCountTest() {
-        long userId = 1l;
+        long userId = 1;
 
         Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(userId))
                 .thenReturn(15);
@@ -104,7 +104,7 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void getFolloweesCount() {
-        long userId = 1l;
+        long userId = 1;
 
         Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(userId))
                 .thenReturn(15);
@@ -117,7 +117,6 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void getFollowersTest() {
-        long userId = 60l;
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("Dima");
@@ -126,16 +125,16 @@ class UserSubscriptionServiceImplTest {
         user2.setId(2L);
         user2.setUsername("Nik");
 
-        UserDto dto1 = new UserDto(1l, "Dima", "dimak@Mail", "77814132", "asd");
-        UserDto dto2 = new UserDto(2l, "Nik", "Nik@Mail", "77814132", "asd");
-
         List<User> followers = List.of(user1, user2);
-        List<UserDto> expectedDtos = List.of(dto1, dto2);
-
+        long userId = 60;
+        UserDto dto1 = new UserDto(1L, "Dima", "dimak@Mail", "77814132", "asd");
+        UserDto dto2 = new UserDto(2L, "Nik", "Nik@Mail", "77814132", "asd");
         Mockito.when(subscriptionRepository.findByFolloweeId(userId))
                 .thenReturn(followers.stream());
         Mockito.when(userMapper.toUserDto(user1)).thenReturn(dto1);
         Mockito.when(userMapper.toUserDto(user2)).thenReturn(dto2);
+
+        List<UserDto> expectedDtos = List.of(dto1, dto2);
 
         List<UserDto> result = userSubscriptionService.getFollowers(userId);
         assertEquals(expectedDtos, result);
@@ -147,7 +146,6 @@ class UserSubscriptionServiceImplTest {
 
     @Test
     void getFolloweesTest() {
-        long userId = 60l;
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("Dima");
@@ -156,16 +154,17 @@ class UserSubscriptionServiceImplTest {
         user2.setId(2L);
         user2.setUsername("Nik");
 
-        UserDto dto1 = new UserDto(1l, "Dima", "dimak@Mail", "77814132", "asd");
-        UserDto dto2 = new UserDto(2l, "Nik", "Nik@Mail", "77814132", "asd");
-
+        long userId = 60;
+        UserDto dto1 = new UserDto(1L, "Dima", "dimak@Mail", "77814132", "asd");
+        UserDto dto2 = new UserDto(2L, "Nik", "Nik@Mail", "77814132", "asd");
         List<User> followers = List.of(user1, user2);
-        List<UserDto> expectedDtos = List.of(dto1, dto2);
 
         Mockito.when(subscriptionRepository.findByFollowerId(userId))
                 .thenReturn(followers.stream());
         Mockito.when(userMapper.toUserDto(user1)).thenReturn(dto1);
         Mockito.when(userMapper.toUserDto(user2)).thenReturn(dto2);
+
+        List<UserDto> expectedDtos = List.of(dto1, dto2);
 
         List<UserDto> result = userSubscriptionService.getFollowees(userId);
         assertEquals(expectedDtos, result);
