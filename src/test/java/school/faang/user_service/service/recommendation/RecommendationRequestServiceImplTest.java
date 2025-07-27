@@ -111,8 +111,7 @@ class RecommendationRequestServiceImplTest {
                         recommendationRequestReceiverIdFilter,
                         recommendationRequestRequesterIdFilter,
                         recommendationRequestStatusFilter),
-                recommendationRequestProperty.quantity(),
-                recommendationRequestProperty.period()
+                recommendationRequestProperty
         );
     }
 

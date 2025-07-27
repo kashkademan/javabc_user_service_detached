@@ -2,9 +2,9 @@ package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.property.RecommendationRequestProperty;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -21,7 +21,6 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +38,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserContext userContext;
     private final SkillRequestRepository skillRequestRepository;
     private final Set<RecommendationRequestFilter> recommendationRequestFilters;
-
-    @Value("${recommendation-request.once-every.quantity:6}")
-    private final int quantity;
-    @Value("${recommendation-request.once-every.period:MONTHS}")
-    private final ChronoUnit period;
+    private final RecommendationRequestProperty property;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -58,9 +53,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .findLatestPendingRequest(requesterId, receiverId);
 
         if (latestPendingRequest.isPresent() && latestPendingRequest.get().getCreatedAt()
-                .plus(quantity, period).isAfter(LocalDateTime.now())) {
+                .plus(property.quantity(), property.period()).isAfter(LocalDateTime.now())) {
             throw new DataValidationException("You can send recommendation request once every "
-                    + quantity + " " + period.toString().toLowerCase());
+                    + property.quantity() + " " + property.period().toString().toLowerCase());
         }
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper
