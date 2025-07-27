@@ -72,14 +72,6 @@ public class UserSubscriptionServiceImplTest {
     @InjectMocks
     private UserSubscriptionServiceImpl userSubscriptionService;
 
-    // можно ли создать отдельный приватный метод прям здесь, в него запихнуть повторяющийся код с ошибкой
-// DataValidationException exception = assertThrows(DataValidationException.class)
-// private void assertThrowsWithMessage(String expectedMessage, Executable executable) {
-//    DataValidationException exception = assertThrows(DataValidationException.class, executable);
-//    assertEquals(expectedMessage, exception.getMessage());
-// }
-// тогда вызов будет таким
-// assertThrowsWithMessage("Нельзя подписаться на самого себя", () -> userSubscriptionService.followUser(1L));
     @Test
     public void testFollowUserFollowsHimself() {
         long followeeId = 1L;

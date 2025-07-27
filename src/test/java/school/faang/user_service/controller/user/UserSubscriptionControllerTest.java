@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.ResultMatcher;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
@@ -19,8 +20,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * UserSubscriptionControllerTest — описание класса.
@@ -79,7 +83,7 @@ public class UserSubscriptionControllerTest {
         mockMvc.perform(get("/subscriptions/followers/count")
                         .param("followeeId", String.valueOf(followeeId)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect((ResultMatcher) content().json(objectMapper.writeValueAsString(response)));
 
         verify(service).getFollowersCount(followeeId);
     }
@@ -94,7 +98,7 @@ public class UserSubscriptionControllerTest {
         mockMvc.perform(get("/subscriptions/followees/count")
                         .param("followerId", String.valueOf(followerId)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect((ResultMatcher) content().json(objectMapper.writeValueAsString(response)));
 
         verify(service).getFolloweesCount(followerId);
     }
@@ -114,7 +118,7 @@ public class UserSubscriptionControllerTest {
                         .param("experienceFrom", "2")
                         .param("experienceTo", "4"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(filteredFollowers)));
+                .andExpect((ResultMatcher) content().json(objectMapper.writeValueAsString(filteredFollowers)));
 
         verify(service).getFollowers(eq(1L), any(UserFiltersDto.class));
     }
@@ -131,7 +135,7 @@ public class UserSubscriptionControllerTest {
         mockMvc.perform(get("/subscriptions/followees")
                         .param("followerId", String.valueOf(followerId)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(filteredFollowees)));
+                .andExpect((ResultMatcher) content().json(objectMapper.writeValueAsString(filteredFollowees)));
 
         verify(service).getFollowees(eq(followerId), any(UserFiltersDto.class));
     }
