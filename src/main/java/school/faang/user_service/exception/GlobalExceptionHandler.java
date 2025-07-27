@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  *     <li>Неавторизованного доступа (UnauthorizedException)</li>
  *     <li>Попыток повторного приобретения премиум-подписки (PremiumAlreadyExistsException)</li>
  *     <li>Неуспешных попыток оплаты (PaymentFailedException)</li>
+ *     <li>Ошибок генерации картинок</li>
  *     <li>И любых других необработанных исключений (Exception)</li>
  * </ul>
  * </p>
@@ -113,6 +114,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(AvatarGenerateException.class)
+    public ResponseEntity<ErrorResponse> handleHttpGenerateException(RuntimeException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(error);
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(ForbiddenException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -142,7 +153,7 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-  
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
         ex.printStackTrace();

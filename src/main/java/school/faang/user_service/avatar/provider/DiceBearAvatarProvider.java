@@ -1,9 +1,10 @@
 package school.faang.user_service.avatar.provider;
 
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.exception.AvatarGenerateException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -50,19 +51,24 @@ public class DiceBearAvatarProvider implements AvatarProvider {
      * @param key уникальный ключ (например, username или UUID)
      * @return объект {@link AvatarFile}, содержащий сгенерированный аватар
      */
-    @SneakyThrows
     @Override
     public AvatarFile generate(String key) {
+
         String url = String.format("https://api.dicebear.com/7.x/%s/%s?seed=%s", STYLE, FORMAT, key);
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
 
-        try (InputStream content = connection.getInputStream()) {
-            byte[] bytes = content.readAllBytes();
-            long contentLength = bytes.length;
-            String contentType = connection.getContentType();
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("GET");
 
-            return new AvatarFile(new ByteArrayInputStream(bytes), contentLength, contentType);
+            try (InputStream content = connection.getInputStream()) {
+                byte[] bytes = content.readAllBytes();
+                long contentLength = bytes.length;
+                String contentType = connection.getContentType();
+
+                return new AvatarFile(new ByteArrayInputStream(bytes), contentLength, contentType);
+            }
+        } catch (IOException e) {
+            throw new AvatarGenerateException("Failed to generate avatar from DiceBear API", e);
         }
     }
 }
