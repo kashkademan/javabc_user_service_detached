@@ -2,7 +2,9 @@ package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -24,8 +26,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MentorshipRequestServiceImplTest {
 
@@ -55,12 +64,10 @@ public class MentorshipRequestServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // --- create method tests ---
-
     @Test
     void create_throwsExceptionIfRequestIsTooFrequent() {
-        // Arrange
-        long userId = 1L;
+
+        final long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
 
         MentorshipRequest lastRequest = new MentorshipRequest();
@@ -70,7 +77,6 @@ public class MentorshipRequestServiceImplTest {
 
         CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", userId + 1);
 
-        // Act & Assert
         DataValidationException ex = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestService.create(dto);
         });
@@ -79,7 +85,7 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void create_throwsExceptionIfRequestToSelf() {
-        long userId = 1L;
+        final long userId = 1L;
 
         CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto(
                 "Хочу быть сам себе ментором", userId
@@ -96,8 +102,8 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void create_throwsExceptionIfActiveRequestExists() {
-        long userId = 1L;
-        long mentorId = 2L;
+        final long userId = 1L;
+        final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
         when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
@@ -119,8 +125,8 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void create_successfulCreation() {
-        long userId = 1L;
-        long mentorId = 2L;
+        final long userId = 1L;
+        final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
         when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
@@ -159,11 +165,11 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void create_throwsExceptionIfUserNotFound() {
-        long userId = 1L;
-        long mentorId = 2L;
+        final long userId = 1L;
+        final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());  // нет пользователя
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", mentorId);
 
@@ -176,13 +182,13 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void create_allowsRequestIfLastRequestOlderThanThreeMonths() {
-        long userId = 1L;
-        long mentorId = 2L;
+        final long userId = 1L;
+        final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
-
         MentorshipRequest lastRequest = new MentorshipRequest();
-        lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(4)); // больше 3 месяцев назад
+
+        lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(4));
         when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
                 .thenReturn(Optional.of(lastRequest));
 
@@ -215,13 +221,12 @@ public class MentorshipRequestServiceImplTest {
         assertEquals(mentorshipRequestDto, result);
     }
 
-    // --- getByFilters tests ---
-
     @Test
     void getByFilters_filterByReceiverId() {
-        User requester = new User();
+        final User requester = new User();
+        final User receiver = new User();
+
         requester.setId(1L);
-        User receiver = new User();
         receiver.setId(2L);
 
         MentorshipRequest req1 = new MentorshipRequest();
@@ -247,9 +252,10 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void getByFilters_filterByStatus() {
-        User requester = new User();
+        final User requester = new User();
+        final User receiver = new User();
+
         requester.setId(1L);
-        User receiver = new User();
         receiver.setId(2L);
 
         MentorshipRequest req1 = new MentorshipRequest();
@@ -275,12 +281,13 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void getByFilters_filterByMultipleFields() {
-        User requester = new User();
+        final User requester = new User();
+        final User receiver = new User();
+        final MentorshipRequest req1 = new MentorshipRequest();
+
         requester.setId(1L);
-        User receiver = new User();
         receiver.setId(2L);
 
-        MentorshipRequest req1 = new MentorshipRequest();
         req1.setRequester(requester);
         req1.setReceiver(receiver);
         req1.setStatus(RequestStatus.PENDING);
@@ -343,12 +350,11 @@ public class MentorshipRequestServiceImplTest {
         assertEquals(dto, result.get(0));
     }
 
-    // --- accept tests ---
-
     @Test
     void accept_successful() {
-        long userId = 2L;
-        long requestId = 10L;
+
+        final long userId = 2L;
+        final long requestId = 10L;
 
         when(userContext.getUserId()).thenReturn(userId);
 
@@ -377,9 +383,8 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void accept_throwsExceptionIfAlreadyMentor() {
-        long userId = 2L;
-        long requestId = 10L;
-
+        final long userId = 2L;
+        final long requestId = 10L;
         when(userContext.getUserId()).thenReturn(userId);
 
         User requester = new User();
@@ -408,8 +413,9 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void accept_throwsExceptionIfRequestNotPending() {
-        long userId = 2L;
-        long requestId = 10L;
+
+        final long userId = 2L;
+        final long requestId = 10L;
 
         when(userContext.getUserId()).thenReturn(userId);
 
@@ -436,8 +442,9 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void accept_throwsExceptionIfNotReceiver() {
-        long currentUserId = 3L;
-        long requestId = 10L;
+
+        final long currentUserId = 3L;
+        final long requestId = 10L;
 
         when(userContext.getUserId()).thenReturn(currentUserId);
 
@@ -462,11 +469,10 @@ public class MentorshipRequestServiceImplTest {
         verify(mentorshipRequestRepository, never()).save(any());
     }
 
-
     @Test
     void reject_successful() {
-        long requestId = 1L;
-        String reason = "Причина отказа";
+        final long requestId = 1L;
+        final String reason = "Причина отказа";
 
         User requester = new User();
         requester.setId(1L);
@@ -486,38 +492,31 @@ public class MentorshipRequestServiceImplTest {
         mentorshipRequestService.reject(requestId, new RejectionDto(reason));
 
         assertEquals(RequestStatus.REJECTED, request.getStatus());
-        // Можно проверить, что причина где-то сохранилась, если есть поле, например:
-        // assertEquals(reason, request.getRejectionReason());
 
         verify(mentorshipRequestRepository).save(request);
     }
 
     @Test
     void reject_throwsExceptionIfReasonIsBlank() {
-        long requestId = 1L;
-        long currentUserId = 100L;
+        final long requestId = 1L;
+        final long currentUserId = 100L;
+        final RejectionDto rejectionDto = new RejectionDto("");
 
-        RejectionDto rejectionDto = new RejectionDto(""); // пустая причина
-
-        // Подготовка запроса
         MentorshipRequest request = new MentorshipRequest();
         request.setId(requestId);
         request.setStatus(RequestStatus.PENDING);
 
-        // Обязательный requester
         User requester = new User();
         requester.setId(200L);
         request.setRequester(requester);
 
-        // Обязательный receiver = текущий пользователь
         User receiver = new User();
         receiver.setId(currentUserId);
         request.setReceiver(receiver);
 
         when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-        when(userContext.getUserId()).thenReturn(currentUserId); // эмуляция текущего пользователя
+        when(userContext.getUserId()).thenReturn(currentUserId);
 
-        // Проверка, что выбрасывается исключение
         assertThrows(DataValidationException.class,
                 () -> mentorshipRequestService.reject(requestId, rejectionDto));
 
@@ -537,6 +536,7 @@ public class MentorshipRequestServiceImplTest {
 
         verify(mentorshipRequestRepository).findById(requestId);
     }
+
     @Test
     void reject_throwsExceptionIfNotReceiver() {
         long requestId = 1L;

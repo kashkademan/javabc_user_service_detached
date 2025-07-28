@@ -18,8 +18,18 @@ import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.isNull;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestControllerTest {
@@ -37,7 +47,6 @@ class MentorshipRequestControllerTest {
     void testRejectThrowsExceptionWhenRejectionDtoIsNull() {
         long requestId = 1L;
 
-        // Настройка: когда reject вызывается с null — выбрасывается исключение
         doThrow(new DataValidationException("Причина отказа должна быть указана"))
                 .when(mentorshipRequestService)
                 .reject(eq(requestId), isNull());
@@ -52,7 +61,6 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testCreate() {
-        // Arrange
         CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring Boot", 2L);
 
         UserDto requester = new UserDto(1L, "Requester", null, null, null);
@@ -68,10 +76,8 @@ class MentorshipRequestControllerTest {
 
         when(mentorshipRequestService.create(createDto)).thenReturn(expectedDto);
 
-        // Act
         MentorshipRequestDto result = mentorshipRequestController.create(createDto);
 
-        // Assert
         assertNotNull(result);
         assertEquals(expectedDto.description(), result.description());
         assertEquals(expectedDto.requester().id(), result.requester().id());
@@ -98,7 +104,6 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testGetByFilters() {
-        // Arrange
         MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
         filterDto.setRequesterId(1L);
         filterDto.setReceiverId(2L);
@@ -117,10 +122,8 @@ class MentorshipRequestControllerTest {
 
         when(mentorshipRequestService.getByFilters(filterDto)).thenReturn(List.of(requestDto));
 
-        // Act
         List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(filterDto);
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(requestDto.description(), result.get(0).description());
@@ -159,15 +162,12 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testAccept() {
-        // Arrange
         long requestId = 1L;
 
         doNothing().when(mentorshipRequestService).accept(requestId);
 
-        // Act
         mentorshipRequestController.accept(requestId);
 
-        // Assert
         verify(mentorshipRequestService).accept(requestId);
     }
 
@@ -191,13 +191,10 @@ class MentorshipRequestControllerTest {
         long requestId = 1L;
         RejectionDto rejectionDto = new RejectionDto("Not a good time");
 
-        // Здесь нет возврата, просто проверим вызов сервиса
         doNothing().when(mentorshipRequestService).reject(requestId, rejectionDto);
 
-        // Act
         mentorshipRequestController.reject(requestId, rejectionDto);
 
-        // Assert
         verify(mentorshipRequestService).reject(requestId, rejectionDto);
     }
 
