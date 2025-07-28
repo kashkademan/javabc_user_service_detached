@@ -32,9 +32,6 @@ import static org.mockito.Mockito.when;
 
 /**
  * RecommendationServiceImplTest — тестирование класса {@link RecommendationServiceImpl}.
- * <p>
- *
- * </p>*
  *
  * @author bozya
  * @since 18.07.2025
@@ -64,7 +61,7 @@ class RecommendationServiceImplTest {
     private RecommendationServiceImpl recommendationServiceImpl;
 
     @Test
-    @DisplayName("Проверка на то что пользователь не является получателем")
+    @DisplayName("Проверка на то, что пользователь-отправитель не является получателем")
     void testCreateAuthorIsNotReceiver() {
         Long authorId = 1L;
 
@@ -79,7 +76,7 @@ class RecommendationServiceImplTest {
     }
 
     @Test
-    @DisplayName("Проверка частоты оставления рекомендации")
+    @DisplayName("Проверка частоты отправки рекомендации")
     void testCreateRecommendationFrequency() {
         Long authorId = 1L;
         Long receiverId = 2L;
@@ -116,8 +113,7 @@ class RecommendationServiceImplTest {
         RecommendationViewDto expectedDto = new
                 RecommendationViewDto(10L, receiverId, authorId, createDto.content(), dateOfRecommendation);
 
-        when(userContext.getUserId())
-                .thenReturn(authorId);
+        when(userContext.getUserId()).thenReturn(authorId);
 
         when(recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId))
@@ -141,7 +137,7 @@ class RecommendationServiceImplTest {
     }
 
     @Test
-    @DisplayName("Проверка обновления рекомендации")
+    @DisplayName("Успешеная проверка обновления рекомендации")
     void testUpdateRecommendation() {
         long recommendationId = 10L;
         LocalDate dateOfRecommendation = LocalDate.now();
@@ -152,29 +148,32 @@ class RecommendationServiceImplTest {
         User receiver = new User();
         receiver.setId(2L);
 
-        RecommendationUpdateDto updateDto = new
-                RecommendationUpdateDto(author.getId(), receiver.getId(), "Новая рекомендация");
+        RecommendationUpdateDto updateDto = new RecommendationUpdateDto(
+            author.getId(),
+            receiver.getId(),
+    "Новая рекомендация"
+        );
 
         Recommendation existingRecommendation = Recommendation.builder()
-                .id(recommendationId)
-                .author(author)
-                .receiver(receiver)
-                .content("Старая рекомендация")
-                .build();
+            .id(recommendationId)
+            .author(author)
+            .receiver(receiver)
+            .content("Старая рекомендация")
+            .build();
 
         Recommendation updatedRecommendation = Recommendation.builder()
-                .id(recommendationId)
-                .author(author)
-                .receiver(receiver)
-                .content(updateDto.content())
-                .build();
+            .id(recommendationId)
+            .author(author)
+            .receiver(receiver)
+            .content(updateDto.content())
+            .build();
 
         RecommendationViewDto expectedDto = new RecommendationViewDto(
-                recommendationId,
-                receiver.getId(),
-                author.getId(),
-                updateDto.content(),
-                dateOfRecommendation
+            recommendationId,
+            receiver.getId(),
+            author.getId(),
+            updateDto.content(),
+            dateOfRecommendation
         );
 
         when(userContext.getUserId()).thenReturn(author.getId());
@@ -198,7 +197,7 @@ class RecommendationServiceImplTest {
     }
 
     @Test
-    @DisplayName("Проверка удаления рекомендации")
+    @DisplayName("Проверка успешного удаления рекомендации")
     void testDeleteRecommendation() {
         long recommendationId = 10L;
         long currentUserId = 1L;

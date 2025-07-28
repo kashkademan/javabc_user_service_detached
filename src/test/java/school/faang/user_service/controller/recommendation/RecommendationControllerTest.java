@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * RecommendationControllerTest — тест для контроллера {@link RecommendationController}.
- * <p>
- *
- * </p>*
  *
  * @author bozya
  * @since 24.07.2025
@@ -50,6 +48,8 @@ public class RecommendationControllerTest {
 
     @MockBean
     private RecommendationService recommendationService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("/POST /recommendations -> 201 created")
@@ -58,18 +58,19 @@ public class RecommendationControllerTest {
         Long receiverId = 2L;
         String content = "content";
 
+        RecommendationCreateDto request = RecommendationCreateDto.builder()
+                .authorId(authorId)
+                .receiverId(receiverId)
+                .content(content)
+                .build();
+
         RecommendationViewDto responseDto = new RecommendationViewDto(1L, authorId, receiverId, content, null);
 
         when(recommendationService.create(any(RecommendationCreateDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/recommendations")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "authorId": 1,
-                            "receiverId": 2,
-                            "content": "content"
-                        }"""))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.authorId").value(authorId))

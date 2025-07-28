@@ -13,9 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * RecommendationFilterContentContainsTest — описание класса.
- * <p>
- * </p>*
+ * RecommendationFilterContentContainsTest — тестирование класса {@link RecommendationFilterContentContains}.
  *
  * @author bozya
  * @since 24.07.2025
@@ -67,7 +65,8 @@ public class RecommendationFilterContentContainsTest {
     }
 
     @Test
-    @DisplayName("filter не возвращает рекомендации, когда content равен null")
+    @DisplayName("проверка как фильтр обрабатывает рекомендации с null-значением в поле content" +
+            " и возвращает пустой Stream<Recommendation>")
     void testFilterReturnEmptyStreamWhenContentIsNull() {
         String filterString = "Привет";
 

@@ -15,9 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * RecommendationFilterAuthorIdTest — тест фильтра по автору.
- * <p>
- * </p>*
- *
  * @author bozya
  * @since 23.07.2025
  */
@@ -43,30 +40,14 @@ public class RecommendationFilterAuthorIdTest {
     void testFilterReturnOnlyAuthorId() {
         Long authorId = 1L;
 
-        Stream<Recommendation> recommendations = Stream.of(
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build(),
-                Recommendation.builder()
-                        .author(User.builder().id(2L).build())
-                        .build(),
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build());
-
         RecommendationFilterDto filterDto = new RecommendationFilterDto("Привет", authorId, null);
 
-        Stream<Recommendation> result = recommendationFilter.filter(recommendations, filterDto);
+        Stream<Recommendation> result = recommendationFilter.filter(createTestRecommendations(authorId), filterDto);
 
         Stream<Recommendation> expectedRecommendations = Stream.of(
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build(),
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build());
-
-
+                createRecommendation(authorId),
+                createRecommendation(authorId)
+        );
 
         List<Recommendation> resultList = result.toList();
         List<Recommendation> expectedList = expectedRecommendations.toList();
@@ -78,27 +59,18 @@ public class RecommendationFilterAuthorIdTest {
     }
 
     @Test
-    @DisplayName("filter возвращает пустой результат, когда нет рекомендаций от указанного автора")
+    @DisplayName("фильтр рекомендаций по authorId возвращает пустой Stream," +
+            " если в списке рекомендаций нет записей от указанного автора")
     void testFilterReturnEmptyStreamWhenAuthorNotFound() {
         Long authorId = 1L;
 
-        Stream<Recommendation> recommendations = Stream.of(
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build(),
-                Recommendation.builder()
-                        .author(User.builder().id(2L).build())
-                        .build(),
-                Recommendation.builder()
-                        .author(User.builder().id(authorId).build())
-                        .build());
-
         RecommendationFilterDto filterDto = new RecommendationFilterDto("Привет", 3L, null);
 
-        Stream<Recommendation> result = recommendationFilter.filter(recommendations, filterDto);
+        Stream<Recommendation> result = recommendationFilter.filter(createTestRecommendations(authorId), filterDto);
 
         assertEquals(0, result.count());
     }
+
 
     @Test
     @DisplayName("filter возвращает пустой результат для пустого списка рекомендаций")
@@ -112,5 +84,19 @@ public class RecommendationFilterAuthorIdTest {
         Stream<Recommendation> result = recommendationFilter.filter(recommendations, filterDto);
 
         assertEquals(0, result.count());
+    }
+
+    private Stream<Recommendation> createTestRecommendations(Long authorId) {
+        return Stream.of(
+                createRecommendation(authorId),
+                createRecommendation(2L),
+                createRecommendation(authorId)
+        );
+    }
+
+    private Recommendation createRecommendation(Long authorId) {
+        return Recommendation.builder()
+                .author(User.builder().id(authorId).build())
+                .build();
     }
 }
