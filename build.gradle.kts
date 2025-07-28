@@ -5,6 +5,7 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
 }
 
 group = "faang.school"
@@ -115,4 +116,11 @@ tasks.checkstyleTest {
     include("**/*.java")
 
     classpath = files()
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
