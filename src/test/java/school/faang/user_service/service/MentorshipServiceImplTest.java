@@ -149,7 +149,7 @@ class MentorshipServiceImplTest {
         List<UserDto> result = mentorshipService.getMentors(menteeId);
 
         assertEquals(1, result.size());
-        assertEquals(mentorId, result.get(0).id()); // Используем id() вместо getId()
+        assertEquals(mentorId, result.get(0).id());
     }
 
     @Test
