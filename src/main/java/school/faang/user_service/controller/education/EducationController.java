@@ -53,12 +53,11 @@ public class EducationController {
                                     })
                             })
             })
-    public ResponseEntity<EducationDto> addEducationToUser(@RequestParam Integer userId,
+    public EducationDto addEducationToUser(@RequestParam Integer userId,
                                                            @RequestBody @Validated EducationDto educationDto) {
         EducationDto result = educationService.addEducation(userId, educationDto);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(result);
+        return result;
+
     }
 
     @PutMapping
@@ -89,10 +88,10 @@ public class EducationController {
                                     })
                             })
             })
-    public ResponseEntity<Void> updateEducation(@RequestParam Integer educationId,
+    public void updateEducation(@RequestParam Integer educationId,
                                                 @RequestBody EducationDto educationDto) {
         educationService.updateEducation(educationId, educationDto);
-        return ResponseEntity.ok().build();
+
     }
 
     @GetMapping
