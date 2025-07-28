@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
@@ -32,7 +32,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     @Transactional
-    public RecommendationDto create(RecommendationCreateDto recommendationDto) {
+    public RecommendationViewDto create(RecommendationCreateDto recommendationDto) {
         LocalDateTime sixMonthAgo = LocalDateTime.now().minusMonths(6);
 
         Long authorId = userContext.getUserId();
@@ -61,7 +61,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     @Transactional
-    public RecommendationDto update(long recommendationId, RecommendationUpdateDto updateRecommendationDto) {
+    public RecommendationViewDto update(long recommendationId, RecommendationUpdateDto updateRecommendationDto) {
         Long currentId = userContext.getUserId();
         Long receiverId = updateRecommendationDto.receiverId();
         Long authorId = updateRecommendationDto.authorId();
@@ -87,7 +87,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     @Transactional
-    public List<RecommendationDto> getByFilters(RecommendationFilterDto filtersDto) {
+    public List<RecommendationViewDto> getByFilters(RecommendationFilterDto filtersDto) {
         var recommendations = recommendationRepository.findAll().stream();
         for (RecommendationFilter filter : filters) {
             if (filter.isApplicable(filtersDto)) {

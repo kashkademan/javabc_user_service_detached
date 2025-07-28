@@ -9,7 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.user.User;
@@ -84,8 +84,6 @@ class RecommendationServiceImplTest {
         Long authorId = 1L;
         Long receiverId = 2L;
 
-
-
         Recommendation lastRec = new Recommendation();
         lastRec.setCreatedAt(LocalDateTime.now().minusMonths(3));
 
@@ -115,8 +113,8 @@ class RecommendationServiceImplTest {
         recommendation.setId(10L);
         recommendation.setContent(createDto.content());
 
-        RecommendationDto expectedDto = new
-                RecommendationDto(10L, receiverId, authorId, createDto.content(), dateOfRecommendation);
+        RecommendationViewDto expectedDto = new
+                RecommendationViewDto(10L, receiverId, authorId, createDto.content(), dateOfRecommendation);
 
         when(userContext.getUserId())
                 .thenReturn(authorId);
@@ -132,7 +130,7 @@ class RecommendationServiceImplTest {
 
         when(recommendationMapper.toViewDto(recommendation)).thenReturn(expectedDto);
 
-        RecommendationDto actualDto = recommendationServiceImpl.create(createDto);
+        RecommendationViewDto actualDto = recommendationServiceImpl.create(createDto);
 
         assertEquals(expectedDto, actualDto);
 
@@ -171,7 +169,7 @@ class RecommendationServiceImplTest {
                 .content(updateDto.content())
                 .build();
 
-        RecommendationDto expectedDto = new RecommendationDto(
+        RecommendationViewDto expectedDto = new RecommendationViewDto(
                 recommendationId,
                 receiver.getId(),
                 author.getId(),
@@ -189,7 +187,7 @@ class RecommendationServiceImplTest {
 
         when(recommendationMapper.toViewDto(updatedRecommendation)).thenReturn(expectedDto);
 
-        RecommendationDto actualDto = recommendationServiceImpl.update(recommendationId, updateDto);
+        RecommendationViewDto actualDto = recommendationServiceImpl.update(recommendationId, updateDto);
 
         assertEquals(expectedDto, actualDto);
 

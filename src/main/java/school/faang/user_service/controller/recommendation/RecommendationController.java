@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
@@ -24,25 +24,25 @@ import java.util.List;
 @RequestMapping("/recommendations")
 @RequiredArgsConstructor
 public class RecommendationController {
-    private final RecommendationService recommendationService;
+    private final RecommendationService service;
 
     @PostMapping
-    public ResponseEntity<RecommendationDto> create(
+    public ResponseEntity<RecommendationViewDto> create(
             @RequestBody
             @Valid
             RecommendationCreateDto recommendationDto) {
-        RecommendationDto created = recommendationService.create(recommendationDto);
+        RecommendationViewDto created = service.create(recommendationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PutMapping("{recommendationId}")
-    public ResponseEntity<RecommendationDto> update(
+    @PutMapping("/{recommendationId}")
+    public ResponseEntity<RecommendationViewDto> update(
             @PathVariable
             long recommendationId,
             @RequestBody
             @Valid
             RecommendationUpdateDto recommendationDto) {
-        RecommendationDto updated = recommendationService.update(recommendationId, recommendationDto);
+        RecommendationViewDto updated = service.update(recommendationId, recommendationDto);
         return ResponseEntity.ok(updated);
     }
 
@@ -50,13 +50,13 @@ public class RecommendationController {
     public ResponseEntity delete(
             @PathVariable
             long recommendationId) {
-        recommendationService.delete(recommendationId);
+        service.delete(recommendationId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<RecommendationDto>> getByFilters(RecommendationFilterDto filters) {
-        List<RecommendationDto> filteredRecommendation = recommendationService.getByFilters(filters);
+    public ResponseEntity<List<RecommendationViewDto>> getByFilters(RecommendationFilterDto filters) {
+        List<RecommendationViewDto> filteredRecommendation = service.getByFilters(filters);
         return ResponseEntity.ok(filteredRecommendation);
     }
 }

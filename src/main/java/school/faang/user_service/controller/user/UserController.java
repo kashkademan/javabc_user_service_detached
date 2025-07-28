@@ -7,14 +7,12 @@ import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.recommendation.RecommendationService;
 import school.faang.user_service.service.user.UserService;
 
 @Component
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final RecommendationService recommendationService;
 
     public UserDto create(CreateUserDto userDto) {
         validateString(userDto.username(), "username");

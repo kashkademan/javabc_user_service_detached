@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
@@ -49,7 +49,7 @@ public class RecommendationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    RecommendationService recommendationService;
+    private RecommendationService recommendationService;
 
     @Test
     @DisplayName("/POST /recommendations -> 201 created")
@@ -58,7 +58,7 @@ public class RecommendationControllerTest {
         Long receiverId = 2L;
         String content = "content";
 
-        RecommendationDto responseDto = new RecommendationDto(1L, authorId, receiverId, content, null);
+        RecommendationViewDto responseDto = new RecommendationViewDto(1L, authorId, receiverId, content, null);
 
         when(recommendationService.create(any(RecommendationCreateDto.class))).thenReturn(responseDto);
 
@@ -85,7 +85,7 @@ public class RecommendationControllerTest {
         Long receiverId = 2L;
         String updatedContent = "updated";
 
-        RecommendationDto responseDto = new RecommendationDto(
+        RecommendationViewDto responseDto = new RecommendationViewDto(
                 recommendationId,
                 authorId,
                 receiverId,
@@ -129,9 +129,9 @@ public class RecommendationControllerTest {
     void testGetByFiltersSuccess() throws Exception {
         Long authorId = 1L;
         RecommendationFilterDto filters = new RecommendationFilterDto(null, authorId, null);
-        List<RecommendationDto> expectedRecommendations = List.of(
-                new RecommendationDto(1L, authorId, 2L, "Content 1", null),
-                new RecommendationDto(2L, authorId, 3L, "Content 2", null)
+        List<RecommendationViewDto> expectedRecommendations = List.of(
+                new RecommendationViewDto(1L, authorId, 2L, "Content 1", null),
+                new RecommendationViewDto(2L, authorId, 3L, "Content 2", null)
         );
 
         when(recommendationService.getByFilters(any(RecommendationFilterDto.class)))
