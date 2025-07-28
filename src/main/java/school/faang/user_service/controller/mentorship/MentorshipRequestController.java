@@ -46,14 +46,4 @@ public class MentorshipRequestController {
         mentorshipRequestService.reject(requestId, rejectionDto);
     }
 
-    public MentorshipRequestDto toMentorshipRequestDto(MentorshipRequest mentorshipRequest) {
-        if (mentorshipRequest == null
-                || mentorshipRequest.getRequester() == null
-                || mentorshipRequest.getReceiver() == null
-                || !StringUtils.hasText(mentorshipRequest.getDescription())) {
-            throw new DataValidationException("Некорректный объект запроса на менторство");
-        }
-
-        return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
-    }
 }

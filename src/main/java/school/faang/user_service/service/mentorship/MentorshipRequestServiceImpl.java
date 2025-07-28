@@ -135,7 +135,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         long currentUserId = userContext.getUserId();
         MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
 
-        if (rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
+        if (rejectionDto == null || rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
             throw new DataValidationException("Причина отказа должна быть указана");
         }
 
