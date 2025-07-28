@@ -79,6 +79,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.1.1")
     testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
     testImplementation("org.mockito:mockito-inline:5.1.1")
+    testAnnotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
 }
 
 jsonSchema2Pojo {
