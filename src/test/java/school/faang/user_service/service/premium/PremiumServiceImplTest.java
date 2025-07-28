@@ -8,6 +8,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.adapter.user.UserRepositoryAdapter;
@@ -25,6 +26,9 @@ import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.premium.impl.PremiumServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -51,6 +55,7 @@ public class PremiumServiceImplTest {
     private PaymentResponse paymentSuccesResponse;
     private PaymentResponse paymentFailedResponse;
     private PremiumPeriod period;
+    private List<Premium> testExpiredPremiums;
 
     @BeforeEach
     public void setUp() {
@@ -63,6 +68,12 @@ public class PremiumServiceImplTest {
         paymentFailedResponse.setStatus(PaymentStatus.FAILED);
 
         period = PremiumPeriod.ONE_MONTH;
+
+        Premium expiredPremium1 = createExpiredPremium(1L, LocalDateTime.now().minusDays(5));
+        Premium expiredPremium2 = createExpiredPremium(2L, LocalDateTime.now().minusDays(10));
+        Premium expiredPremium3 = createExpiredPremium(3L, LocalDateTime.now().minusDays(1));
+
+        testExpiredPremiums = Arrays.asList(expiredPremium1, expiredPremium2, expiredPremium3);
     }
 
     @Test
@@ -116,5 +127,43 @@ public class PremiumServiceImplTest {
         verify(premiumRepository, times(1)).existsByUserIdAndEndDateGreaterThan(eq(USER_ID), any(LocalDateTime.class));
         verify(paymentServiceClient, times(1)).pay(any(PaymentRequest.class));
         assertEquals("Оплата не прошла!Повторите попытку!", exception.getMessage());
+    }
+
+    @Test
+    public void testRemoveExpiredPremiumAccess_successful() {
+        doNothing().when(premiumRepository).deleteAll(testExpiredPremiums);
+
+        CompletableFuture<Void> result = premiumServiceImpl.removeExpiredPremiumAccess(testExpiredPremiums);
+
+        assertNotNull(result, "Результат не должен быть null");
+        assertTrue(result.isDone(), "Результат должен быть завершен");
+        assertFalse(result.isCompletedExceptionally(), "Результат не должен завершиться с ошибкой");
+        verify(premiumRepository, times(1)).deleteAll(testExpiredPremiums);
+        assertDoesNotThrow(() -> result.get(), "Получение результата не должно бросать исключение");
+    }
+
+    @Test
+    void testRemoveExpiredPremiumAccess_WhenRepositoryThrowsDataAccessException_ShouldPropagateException() {
+        String errorMessage = "Database connection failed";
+        DataAccessException expectedException = new DataAccessException(errorMessage) {
+        };
+        doThrow(expectedException).when(premiumRepository).deleteAll(testExpiredPremiums);
+
+        DataAccessException thrownException = assertThrows(
+                DataAccessException.class,
+                () -> premiumServiceImpl.removeExpiredPremiumAccess(testExpiredPremiums),
+                "Должно быть брошено DataAccessException"
+        );
+
+        assertEquals(errorMessage, thrownException.getMessage(),
+                "Сообщение об ошибке должно совпадать с ожидаемым");
+        verify(premiumRepository, times(1)).deleteAll(testExpiredPremiums);
+    }
+
+    private Premium createExpiredPremium(Long id, LocalDateTime endDate) {
+        Premium premium = new Premium();
+        premium.setId(id);
+        premium.setEndDate(endDate);
+        return premium;
     }
 }

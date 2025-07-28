@@ -77,4 +77,8 @@ cron:
   expression:
     delete_old_events: "0 23 * * * 6"
 
-
+premium:
+  scheduler:
+    time-to-run-remove-expired-premium: "0 0 0 * * Sun" # every sunday at 0 a.m.
+    number-of-threads: 8
+    batch-size: 100

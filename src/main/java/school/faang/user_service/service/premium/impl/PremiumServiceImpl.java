@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.adapter.user.UserRepositoryAdapter;
@@ -26,6 +27,8 @@ import school.faang.user_service.service.premium.PremiumService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -80,6 +83,20 @@ public class PremiumServiceImpl implements PremiumService {
         } catch (FeignException e) {
             log.error("paymentResponse response:{}", e.toString());
             throw new IllegalArgumentException(INTEGRATION_ERR_MSG);
+        }
+    }
+
+    @Override
+    @Async("fixedThreadPool")
+    @Transactional
+    public CompletableFuture<Void> removeExpiredPremiumAccess(List<Premium> premiums) {
+        try {
+            premiumRepository.deleteAll(premiums);
+            log.debug("Successfully removed {} premium accesses", premiums.size());
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("Error removing premium accesses", e);
+            throw e;
         }
     }
 }
