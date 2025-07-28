@@ -65,8 +65,8 @@ public class RecommendationFilterContentContainsTest {
     }
 
     @Test
-    @DisplayName("проверка как фильтр обрабатывает рекомендации с null-значением в поле content" +
-            " и возвращает пустой Stream<Recommendation>")
+    @DisplayName("проверка как фильтр обрабатывает рекомендации с null-значением в поле content"
+            + " и возвращает пустой Stream<Recommendation>")
     void testFilterReturnEmptyStreamWhenContentIsNull() {
         String filterString = "Привет";
 

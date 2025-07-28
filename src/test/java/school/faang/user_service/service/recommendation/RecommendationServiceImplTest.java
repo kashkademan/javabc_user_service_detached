@@ -149,9 +149,9 @@ class RecommendationServiceImplTest {
         receiver.setId(2L);
 
         RecommendationUpdateDto updateDto = new RecommendationUpdateDto(
-            author.getId(),
-            receiver.getId(),
-    "Новая рекомендация"
+                    author.getId(),
+                    receiver.getId(),
+            "Новая рекомендация"
         );
 
         Recommendation existingRecommendation = Recommendation.builder()

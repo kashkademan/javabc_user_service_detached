@@ -73,8 +73,8 @@ public class RecommendationFilterReceiverIdTest {
     }
 
     @Test
-    @DisplayName("Фильтр не возвращает рекомендации для указанного получателя" +
-            " если получатель не указан и возвращает пустой Stream<Recommendation>")
+    @DisplayName("Фильтр не возвращает рекомендации для указанного получателя"
+            + " если получатель не указан и возвращает пустой Stream<Recommendation>")
     void testFilterNotReturnRecommendationWhenReceiverIsNull() {
         RecommendationFilterDto filterDto = new RecommendationFilterDto(null, null, null);
 

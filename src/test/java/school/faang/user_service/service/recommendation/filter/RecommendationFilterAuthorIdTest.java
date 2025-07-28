@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * RecommendationFilterAuthorIdTest — тест фильтра по автору.
+ *
  * @author bozya
  * @since 23.07.2025
  */
@@ -59,8 +60,8 @@ public class RecommendationFilterAuthorIdTest {
     }
 
     @Test
-    @DisplayName("фильтр рекомендаций по authorId возвращает пустой Stream," +
-            " если в списке рекомендаций нет записей от указанного автора")
+    @DisplayName("фильтр рекомендаций по authorId возвращает пустой Stream,"
+            + " если в списке рекомендаций нет записей от указанного автора")
     void testFilterReturnEmptyStreamWhenAuthorNotFound() {
         Long authorId = 1L;
 
