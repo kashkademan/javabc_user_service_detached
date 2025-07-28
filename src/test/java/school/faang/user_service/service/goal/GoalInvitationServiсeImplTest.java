@@ -130,7 +130,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен успешно создать приглашение")
-    void create_ShouldCreateInvitationSuccessfully() {
+    void createSuccessfully() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
         when(userRepository.findById(2L)).thenReturn(Optional.of(invited));
@@ -141,7 +141,6 @@ class GoalInvitationServiceImplTest {
         GoalInvitationDto expectedDto = new GoalInvitationDto();
         expectedDto.setId(1L);
         expectedDto.setStatus(RequestStatus.PENDING);
-
         doReturn(expectedDto).when(goalInvitationMapper).toGoalInvitationDto(any(GoalInvitation.class));
 
         GoalInvitationDto result = goalInvitationService.create(1L, createDto);
@@ -156,7 +155,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если отправитель не найден")
-    void createShouldThrowException_WhenInviterNotFound() {
+    void createWhenInviterNotFound() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -171,7 +170,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если приглашаемый пользователь не найден")
-    void createShouldThrowException_WhenInvitedUserNotFound() {
+    void createWhenInvitedUserNotFound() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
@@ -186,7 +185,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение при попытке пригласить самого себя")
-    void createShouldThrowException_WhenUserTriesToInviteThemselves() {
+    void createWhenSelfInvite() {
         createDto.setInvitedUserId(1L);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
@@ -203,7 +202,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если пользователь уже участвует в цели")
-    void createShouldThrowException_WhenUserAlreadyParticipating() {
+    void createWhenAlreadyParticipating() {
         goal.getUsers().add(invited);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(inviter));
@@ -220,7 +219,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен успешно принять приглашение")
-    void acceptShouldAcceptInvitationSuccessfully() {
+    void acceptSuccessfully() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
         when(goalRepository.countActiveGoalsPerUser(2L)).thenReturn(2);
@@ -236,7 +235,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если приглашение не найдено")
-    void acceptShouldThrowException_WhenInvitationNotFound() {
+    void acceptWhenNotFound() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -250,7 +249,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить ForbiddenException если пользователь пытается принять чужое приглашение")
-    void acceptShouldThrowForbiddenException_WhenNotInvitationRecipient() {
+    void acceptWhenNotRecipient() {
         when(userContext.getUserId()).thenReturn(3L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
 
@@ -264,7 +263,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен выбросить исключение если у пользователя слишком много активных целей")
-    void acceptShouldThrowException_WhenUserHasTooManyActiveGoals() {
+    void acceptWhenTooManyGoals() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
         when(goalRepository.countActiveGoalsPerUser(2L)).thenReturn(3);
@@ -279,7 +278,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен успешно отклонить приглашение")
-    void rejectShouldRejectInvitationSuccessfully() {
+    void rejectSuccessfully() {
         when(userContext.getUserId()).thenReturn(2L);
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(pendingInvitation));
 
@@ -292,7 +291,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен вернуть все приглашения без фильтров")
-    void getByFilters_ShouldReturnAllInvitations_WhenNoFiltersApplied() {
+    void getByFiltersAll() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -306,7 +305,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен фильтровать по ID отправителя")
-    void getByFilters_ShouldFilterByInviterId() {
+    void getByFiltersInviterId() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -314,13 +313,13 @@ class GoalInvitationServiceImplTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getByFilters(filter);
 
-        assertEquals(2, result.size()); // pendingInvitation and acceptedInvitation have inviter.id = 1L
+        assertEquals(2, result.size());
         verify(goalInvitationMapper, times(2)).toGoalInvitationDto(any());
     }
 
     @Test
     @DisplayName("Должен фильтровать по ID получателя")
-    void getByFilters_ShouldFilterByInvitedId() {
+    void getByFiltersInvitedId() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -328,13 +327,13 @@ class GoalInvitationServiceImplTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getByFilters(filter);
 
-        assertEquals(2, result.size()); // pendingInvitation and rejectedInvitation have invited.id = 2L
+        assertEquals(2, result.size());
         verify(goalInvitationMapper, times(2)).toGoalInvitationDto(any());
     }
 
     @Test
     @DisplayName("Должен фильтровать по статусу PENDING")
-    void getByFilters_ShouldFilterByStatus_Pending() {
+    void getByFiltersPendingStatus() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -348,7 +347,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен фильтровать по статусу ACCEPTED")
-    void getByFilters_ShouldFilterByStatus_Accepted() {
+    void getByFiltersAcceptedStatus() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -362,7 +361,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен фильтровать по нескольким критериям")
-    void getByFilters_ShouldFilterByMultipleCriteria() {
+    void getByFiltersMultiple() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
@@ -370,17 +369,17 @@ class GoalInvitationServiceImplTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getByFilters(filter);
 
-        assertEquals(1, result.size()); // Only pendingInvitation matches all criteria
+        assertEquals(1, result.size());
         verify(goalInvitationMapper, times(1)).toGoalInvitationDto(pendingInvitation);
     }
 
     @Test
     @DisplayName("Должен вернуть пустой список если ничего не найдено")
-    void getByFilters_ShouldReturnEmptyList_WhenNoInvitationsMatchFilter() {
+    void getByFiltersNoMatch() {
         List<GoalInvitation> allInvitations = List.of(pendingInvitation, acceptedInvitation, rejectedInvitation);
         when(goalInvitationRepository.findAll()).thenReturn(allInvitations);
 
-        GoalInvitationFilterDto filter = new GoalInvitationFilterDto(999L, null, null); // Non-existent inviter
+        GoalInvitationFilterDto filter = new GoalInvitationFilterDto(999L, null, null);
 
         List<GoalInvitationDto> result = goalInvitationService.getByFilters(filter);
 
@@ -390,7 +389,7 @@ class GoalInvitationServiceImplTest {
 
     @Test
     @DisplayName("Должен обрабатывать пустой список приглашений")
-    void getByFilters_ShouldHandleEmptyInvitationList() {
+    void getByFiltersEmptyList() {
         when(goalInvitationRepository.findAll()).thenReturn(List.of());
         GoalInvitationFilterDto filter = new GoalInvitationFilterDto(1L, 2L, RequestStatus.PENDING);
 
