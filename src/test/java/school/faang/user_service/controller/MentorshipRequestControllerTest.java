@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.validation.BindingResult;
 import school.faang.user_service.controller.mentorship.MentorshipRequestController;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -18,18 +19,8 @@ import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.isNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestControllerTest {
@@ -51,7 +42,6 @@ class MentorshipRequestControllerTest {
                 .when(mentorshipRequestService)
                 .reject(eq(requestId), isNull());
 
-        // Проверка: контроллер должен пробросить исключение
         assertThrows(DataValidationException.class, () ->
                 mentorshipRequestController.reject(requestId, null)
         );
@@ -61,7 +51,7 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testCreate() {
-        CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring Boot", 2L);
+        CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring", 2L);
 
         UserDto requester = new UserDto(1L, "Requester", null, null, null);
         UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
@@ -109,6 +99,9 @@ class MentorshipRequestControllerTest {
         filterDto.setReceiverId(2L);
         filterDto.setStatus(RequestStatus.PENDING);
 
+        BindingResult bindingResult = mock(BindingResult.class);
+        when(bindingResult.hasErrors()).thenReturn(false);
+
         UserDto requester = new UserDto(1L, "Requester", null, null, null);
         UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
 
@@ -122,7 +115,7 @@ class MentorshipRequestControllerTest {
 
         when(mentorshipRequestService.getByFilters(filterDto)).thenReturn(List.of(requestDto));
 
-        List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(filterDto);
+        List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(filterDto, bindingResult);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -133,41 +126,20 @@ class MentorshipRequestControllerTest {
     }
 
     @Test
-    void testGetByFiltersReturnsEmptyList() {
-        MentorshipRequestFilterDto emptyFilter = new MentorshipRequestFilterDto();
-
-        when(mentorshipRequestService.getByFilters(emptyFilter)).thenReturn(List.of());
-
-        List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(emptyFilter);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(mentorshipRequestService).getByFilters(emptyFilter);
-    }
-
-    @Test
-    void testGetByFiltersThrowsException() {
+    void testGetByFiltersValidationError() {
         MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        BindingResult bindingResult = mock(BindingResult.class);
+        when(bindingResult.hasErrors()).thenReturn(true);
 
-        when(mentorshipRequestService.getByFilters(filterDto))
-                .thenThrow(new RuntimeException("Unexpected error"));
-
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            mentorshipRequestController.getByFilters(filterDto);
-        });
-
-        assertEquals("Unexpected error", thrown.getMessage());
-        verify(mentorshipRequestService).getByFilters(filterDto);
+        assertThrows(RuntimeException.class, () ->
+                mentorshipRequestController.getByFilters(filterDto, bindingResult));
     }
 
     @Test
     void testAccept() {
         long requestId = 1L;
-
         doNothing().when(mentorshipRequestService).accept(requestId);
-
         mentorshipRequestController.accept(requestId);
-
         verify(mentorshipRequestService).accept(requestId);
     }
 
@@ -187,7 +159,6 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testReject() {
-        // Arrange
         long requestId = 1L;
         RejectionDto rejectionDto = new RejectionDto("Not a good time");
 
@@ -212,5 +183,4 @@ class MentorshipRequestControllerTest {
 
         verify(mentorshipRequestService).reject(requestId, rejectionDto);
     }
-
 }

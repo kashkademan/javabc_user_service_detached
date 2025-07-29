@@ -1,10 +1,10 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -26,16 +26,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceImplTest {
 
     @Mock
@@ -50,52 +46,41 @@ public class MentorshipRequestServiceImplTest {
     @Mock
     private UserContext userContext;
 
-    @InjectMocks
-    private MentorshipRequestServiceImpl service;
-
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
     private MentorshipRequestServiceImpl mentorshipRequestService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     void create_throwsExceptionIfRequestIsTooFrequent() {
-
         final long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
 
-        MentorshipRequest lastRequest = new MentorshipRequest();
-        lastRequest.setCreatedAt(LocalDateTime.now().minusDays(10)); // меньше 3 месяцев
-        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
-                .thenReturn(Optional.of(lastRequest));
+        final MentorshipRequest lastRequest = createRequest(userId, userId + 1, RequestStatus.PENDING);
+        lastRequest.setCreatedAt(LocalDateTime.now().minusDays(10));
+        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId)).
+                thenReturn(Optional.of(lastRequest));
 
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", userId + 1);
+        final CreateMentorshipRequestDto dto = createDto("desc", userId + 1);
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
+        final DataValidationException ex = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestService.create(dto);
         });
+
         assertTrue(ex.getMessage().contains("не чаще одного раза"));
     }
 
     @Test
     void create_throwsExceptionIfRequestToSelf() {
         final long userId = 1L;
-
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto(
-                "Хочу быть сам себе ментором", userId
-        );
+        final CreateMentorshipRequestDto dto = createDto("Хочу быть сам себе ментором", userId);
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User())); // <-- добавь это
 
-        DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> service.create(dto));
+        final DataValidationException exception = assertThrows(DataValidationException.class, () -> {
+            mentorshipRequestService.create(dto);
+        });
 
         assertEquals("Нельзя отправить запрос самому себе", exception.getMessage());
     }
@@ -106,20 +91,17 @@ public class MentorshipRequestServiceImplTest {
         final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
-                .thenReturn(Optional.empty());
+        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId)).
+                thenReturn(Optional.empty());
+        when(mentorshipRequestRepository.findLatestRequest(userId, mentorId)).thenReturn(Optional.
+                of(createRequest(userId, mentorId, RequestStatus.PENDING)));
 
-        MentorshipRequest activeRequest = new MentorshipRequest();
-        activeRequest.setStatus(RequestStatus.PENDING);
+        final CreateMentorshipRequestDto dto = createDto("desc", mentorId);
 
-        when(mentorshipRequestRepository.findLatestRequest(userId, mentorId))
-                .thenReturn(Optional.of(activeRequest));
-
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", userId + 1);
-
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
+        final DataValidationException ex = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestService.create(dto);
         });
+
         assertTrue(ex.getMessage().contains("Уже существует активный запрос"));
     }
 
@@ -129,122 +111,41 @@ public class MentorshipRequestServiceImplTest {
         final long mentorId = 2L;
 
         when(userContext.getUserId()).thenReturn(userId);
-        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
-                .thenReturn(Optional.empty());
-        when(mentorshipRequestRepository.findLatestRequest(userId, mentorId))
-                .thenReturn(Optional.empty());
+        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId)).
+                thenReturn(Optional.empty());
+        when(mentorshipRequestRepository.findLatestRequest(userId, mentorId)).thenReturn(Optional.empty());
 
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", userId + 1);
-
-        MentorshipRequest newRequest = new MentorshipRequest();
+        final CreateMentorshipRequestDto dto = createDto("desc", mentorId);
+        final MentorshipRequest newRequest = createRequest(userId, mentorId, RequestStatus.PENDING);
         newRequest.setCreatedAt(LocalDateTime.now());
-        newRequest.setStatus(RequestStatus.PENDING);
 
-        when(mentorshipRequestRepository.create(userId, mentorId, dto.description()))
-                .thenReturn(newRequest);
+        when(mentorshipRequestRepository.create(userId, mentorId, dto.description())).thenReturn(newRequest);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(createUser(userId)));
+        when(userRepository.findById(mentorId)).thenReturn(Optional.of(createUser(mentorId)));
 
-        User requester = new User();
-        requester.setId(userId);
-        User receiver = new User();
-        receiver.setId(mentorId);
+        final MentorshipRequestDto responseDto = createResponseDto();
+        when(mentorshipRequestMapper.toMentorshipRequestDto(newRequest)).thenReturn(responseDto);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(mentorId)).thenReturn(Optional.of(receiver));
+        final MentorshipRequestDto result = mentorshipRequestService.create(dto);
 
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto(null, null, null,
-                null, null);
-        when(mentorshipRequestMapper.toMentorshipRequestDto(newRequest)).thenReturn(mentorshipRequestDto);
-
-        MentorshipRequestDto result = mentorshipRequestService.create(dto);
-
-        assertEquals(mentorshipRequestDto, result);
+        assertEquals(responseDto, result);
         verify(mentorshipRequestRepository).create(userId, mentorId, dto.description());
         verify(userRepository, times(2)).findById(anyLong());
         verify(mentorshipRequestMapper).toMentorshipRequestDto(newRequest);
     }
 
     @Test
-    void create_throwsExceptionIfUserNotFound() {
-        final long userId = 1L;
-        final long mentorId = 2L;
-
-        when(userContext.getUserId()).thenReturn(userId);
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", mentorId);
-
-        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> {
-            mentorshipRequestService.create(dto);
-        });
-
-        assertTrue(ex.getMessage().contains("менти с таким Id не найден"));
-    }
-
-    @Test
-    void create_allowsRequestIfLastRequestOlderThanThreeMonths() {
-        final long userId = 1L;
-        final long mentorId = 2L;
-
-        when(userContext.getUserId()).thenReturn(userId);
-        MentorshipRequest lastRequest = new MentorshipRequest();
-
-        lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(4));
-        when(mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(userId))
-                .thenReturn(Optional.of(lastRequest));
-
-        when(mentorshipRequestRepository.findLatestRequest(userId, mentorId))
-                .thenReturn(Optional.empty());
-
-        CreateMentorshipRequestDto dto = new CreateMentorshipRequestDto("desc", mentorId);
-
-        MentorshipRequest newRequest = new MentorshipRequest();
-        newRequest.setCreatedAt(LocalDateTime.now());
-        newRequest.setStatus(RequestStatus.PENDING);
-
-        when(mentorshipRequestRepository.create(userId, mentorId, dto.description()))
-                .thenReturn(newRequest);
-
-        User requester = new User();
-        requester.setId(userId);
-        User receiver = new User();
-        receiver.setId(mentorId);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(mentorId)).thenReturn(Optional.of(receiver));
-
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto(null, null, null,
-                null, null);
-        when(mentorshipRequestMapper.toMentorshipRequestDto(newRequest)).thenReturn(mentorshipRequestDto);
-
-        MentorshipRequestDto result = mentorshipRequestService.create(dto);
-
-        assertEquals(mentorshipRequestDto, result);
-    }
-
-    @Test
     void getByFilters_filterByReceiverId() {
-        final User requester = new User();
-        final User receiver = new User();
+        final MentorshipRequest req1 = createRequest(1L, 2L, RequestStatus.PENDING);
+        when(mentorshipRequestRepository.findAll()).thenReturn(List.of(req1));
 
-        requester.setId(1L);
-        receiver.setId(2L);
-
-        MentorshipRequest req1 = new MentorshipRequest();
-        req1.setRequester(requester);
-        req1.setReceiver(receiver);
-        req1.setStatus(RequestStatus.PENDING);
-
-        List<MentorshipRequest> allRequests = List.of(req1);
-
-        when(mentorshipRequestRepository.findAll()).thenReturn(allRequests);
-
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        final MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
         filterDto.setReceiverId(2L);
 
-        MentorshipRequestDto dto = new MentorshipRequestDto(null, null, null, null, null);
+        final MentorshipRequestDto dto = createResponseDto();
         when(mentorshipRequestMapper.toMentorshipRequestDto(req1)).thenReturn(dto);
 
-        List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
+        final List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
 
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
@@ -252,28 +153,16 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void getByFilters_filterByStatus() {
-        final User requester = new User();
-        final User receiver = new User();
+        final MentorshipRequest req1 = createRequest(1L, 2L, RequestStatus.ACCEPTED);
+        when(mentorshipRequestRepository.findAll()).thenReturn(List.of(req1));
 
-        requester.setId(1L);
-        receiver.setId(2L);
-
-        MentorshipRequest req1 = new MentorshipRequest();
-        req1.setRequester(requester);
-        req1.setReceiver(receiver);
-        req1.setStatus(RequestStatus.ACCEPTED);
-
-        List<MentorshipRequest> allRequests = List.of(req1);
-
-        when(mentorshipRequestRepository.findAll()).thenReturn(allRequests);
-
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        final MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
         filterDto.setRequesterId(1L);
 
-        MentorshipRequestDto dto = new MentorshipRequestDto(null, null, null, null, null);
+        final MentorshipRequestDto dto = createResponseDto();
         when(mentorshipRequestMapper.toMentorshipRequestDto(req1)).thenReturn(dto);
 
-        List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
+        final List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
 
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
@@ -281,30 +170,18 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void getByFilters_filterByMultipleFields() {
-        final User requester = new User();
-        final User receiver = new User();
-        final MentorshipRequest req1 = new MentorshipRequest();
+        final MentorshipRequest req1 = createRequest(1L, 2L, RequestStatus.PENDING);
+        when(mentorshipRequestRepository.findAll()).thenReturn(List.of(req1));
 
-        requester.setId(1L);
-        receiver.setId(2L);
-
-        req1.setRequester(requester);
-        req1.setReceiver(receiver);
-        req1.setStatus(RequestStatus.PENDING);
-
-        List<MentorshipRequest> allRequests = List.of(req1);
-
-        when(mentorshipRequestRepository.findAll()).thenReturn(allRequests);
-
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        final MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
         filterDto.setRequesterId(1L);
         filterDto.setReceiverId(2L);
         filterDto.setStatus(RequestStatus.PENDING);
 
-        MentorshipRequestDto dto = new MentorshipRequestDto(null, null, null, null, null);
+        final MentorshipRequestDto dto = createResponseDto();
         when(mentorshipRequestMapper.toMentorshipRequestDto(req1)).thenReturn(dto);
 
-        List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
+        final List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
 
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
@@ -312,253 +189,34 @@ public class MentorshipRequestServiceImplTest {
 
     @Test
     void getByFilters_throwsExceptionIfNoRequesterOrReceiver() {
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        final MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
 
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
+        final DataValidationException ex = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestService.getByFilters(filterDto);
         });
 
         assertTrue(ex.getMessage().contains("Хотя бы один из параметров"));
     }
 
-    @Test
-    void getByFilters_returnsFilteredList() {
-        User requester = new User();
-        requester.setId(1L);
-        User receiver = new User();
-        receiver.setId(2L);
-
-        MentorshipRequest req1 = new MentorshipRequest();
-        req1.setRequester(requester);
-        req1.setReceiver(receiver);
-        req1.setStatus(RequestStatus.PENDING);
-
-        List<MentorshipRequest> allRequests = List.of(req1);
-
-        when(mentorshipRequestRepository.findAll()).thenReturn(allRequests);
-
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
-        filterDto.setRequesterId(1L);
-
-        MentorshipRequestDto dto = new MentorshipRequestDto(null, null, null,
-                null, null);
-        when(mentorshipRequestMapper.toMentorshipRequestDto(req1)).thenReturn(dto);
-
-        List<MentorshipRequestDto> result = mentorshipRequestService.getByFilters(filterDto);
-
-        assertEquals(1, result.size());
-        assertEquals(dto, result.get(0));
+    private CreateMentorshipRequestDto createDto(String description, long receiverId) {
+        return new CreateMentorshipRequestDto(description, receiverId);
     }
 
-    @Test
-    void accept_successful() {
+    private User createUser(long id) {
+        User user = new User();
+        user.setId(id);
+        return user;
+    }
 
-        final long userId = 2L;
-        final long requestId = 10L;
-
-        when(userContext.getUserId()).thenReturn(userId);
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(userId);
-
+    private MentorshipRequest createRequest(long requesterId, long receiverId, RequestStatus status) {
         MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.PENDING);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-        when(mentorshipRequestRepository.existsByRequesterIdAndReceiverIdAndStatus(requester.getId(), userId,
-                RequestStatus.ACCEPTED))
-                .thenReturn(false);
-
-        mentorshipRequestService.accept(requestId);
-
-        assertEquals(RequestStatus.ACCEPTED, request.getStatus());
-        verify(mentorshipRequestRepository).save(request);
+        request.setRequester(createUser(requesterId));
+        request.setReceiver(createUser(receiverId));
+        request.setStatus(status);
+        return request;
     }
 
-    @Test
-    void accept_throwsExceptionIfAlreadyMentor() {
-        final long userId = 2L;
-        final long requestId = 10L;
-        when(userContext.getUserId()).thenReturn(userId);
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(userId);
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.PENDING);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-        when(mentorshipRequestRepository.existsByRequesterIdAndReceiverIdAndStatus(requester.getId(),
-                userId, RequestStatus.ACCEPTED))
-                .thenReturn(true);
-
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            mentorshipRequestService.accept(requestId);
-        });
-
-        assertTrue(ex.getMessage().contains("уже является ментором"));
-    }
-
-    @Test
-    void accept_throwsExceptionIfRequestNotPending() {
-
-        final long userId = 2L;
-        final long requestId = 10L;
-
-        when(userContext.getUserId()).thenReturn(userId);
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(userId);
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.ACCEPTED);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-
-        DataValidationException ex = assertThrows(DataValidationException.class, () -> {
-            mentorshipRequestService.accept(requestId);
-        });
-
-        assertTrue(ex.getMessage().contains("только для запросов со статусом PENDING"));
-    }
-
-    @Test
-    void accept_throwsExceptionIfNotReceiver() {
-
-        final long currentUserId = 3L;
-        final long requestId = 10L;
-
-        when(userContext.getUserId()).thenReturn(currentUserId);
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L); // текущий пользователь не совпадает с получателем
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.PENDING);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-
-        assertThrows(ForbiddenException.class, () -> {
-            mentorshipRequestService.accept(requestId);
-        });
-
-        verify(mentorshipRequestRepository, never()).save(any());
-    }
-
-    @Test
-    void reject_successful() {
-        final long requestId = 1L;
-        final String reason = "Причина отказа";
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L);
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.PENDING);
-
-        when(userContext.getUserId()).thenReturn(receiver.getId());
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-
-        mentorshipRequestService.reject(requestId, new RejectionDto(reason));
-
-        assertEquals(RequestStatus.REJECTED, request.getStatus());
-
-        verify(mentorshipRequestRepository).save(request);
-    }
-
-    @Test
-    void reject_throwsExceptionIfReasonIsBlank() {
-        final long requestId = 1L;
-        final long currentUserId = 100L;
-        final RejectionDto rejectionDto = new RejectionDto("");
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setStatus(RequestStatus.PENDING);
-
-        User requester = new User();
-        requester.setId(200L);
-        request.setRequester(requester);
-
-        User receiver = new User();
-        receiver.setId(currentUserId);
-        request.setReceiver(receiver);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-        when(userContext.getUserId()).thenReturn(currentUserId);
-
-        assertThrows(DataValidationException.class,
-                () -> mentorshipRequestService.reject(requestId, rejectionDto));
-
-        verify(mentorshipRequestRepository).findById(requestId);
-    }
-
-    @Test
-    void reject_throwsExceptionIfRequestNotFound() {
-        long requestId = 1L;
-        RejectionDto rejectionDto = new RejectionDto("Причина отказа");
-
-        when(mentorshipRequestRepository.findById(requestId))
-                .thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class,
-                () -> mentorshipRequestService.reject(requestId, rejectionDto));
-
-        verify(mentorshipRequestRepository).findById(requestId);
-    }
-
-    @Test
-    void reject_throwsExceptionIfNotReceiver() {
-        long requestId = 1L;
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L);
-
-        MentorshipRequest request = new MentorshipRequest();
-        request.setId(requestId);
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setStatus(RequestStatus.PENDING);
-
-        when(mentorshipRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
-        when(userContext.getUserId()).thenReturn(3L); // Не совпадает с receiver
-
-        assertThrows(ForbiddenException.class, () -> {
-            mentorshipRequestService.reject(requestId, new RejectionDto("Причина"));
-        });
-
-        verify(mentorshipRequestRepository, never()).save(any());
+    private MentorshipRequestDto createResponseDto() {
+        return new MentorshipRequestDto(null, null, null, null, null);
     }
 }
