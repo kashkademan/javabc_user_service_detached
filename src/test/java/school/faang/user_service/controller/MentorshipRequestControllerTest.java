@@ -35,7 +35,8 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testCreate() {
-        final CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring", 2L);
+        final CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto
+                ("Help with Spring Boot", 2L);
         final UserDto requester = new UserDto(1L, "Requester", null, null, null);
         final UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
 
