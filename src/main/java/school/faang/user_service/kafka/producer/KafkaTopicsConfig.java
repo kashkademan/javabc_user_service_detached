@@ -235,4 +235,16 @@ public class KafkaTopicsConfig {
                 .replicas(replicas)
                 .build();
     }
+
+    @Bean
+    public NewTopic profilePicEventTopic(
+            @Value("${spring.kafka.topics.profile-pic-event-topic.dlt.name}") String name,
+            @Value("${spring.kafka.topics.profile-pic-event-topic.dlt.partitions}") short partitions,
+            @Value("${spring.kafka.topics.profile-pic-event-topic.dlt.replication-factor}") short replicas) {
+        return TopicBuilder
+                .name(name)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
 }
