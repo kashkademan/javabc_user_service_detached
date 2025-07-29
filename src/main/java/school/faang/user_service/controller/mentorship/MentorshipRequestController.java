@@ -41,4 +41,5 @@ public class MentorshipRequestController {
     public void reject(@PathVariable long requestId, @RequestBody RejectionDto rejectionDto) {
         mentorshipRequestService.reject(requestId, rejectionDto);
     }
+
 }

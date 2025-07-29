@@ -3,9 +3,7 @@ package school.faang.user_service.service.mentorship;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,7 @@ import school.faang.user_service.repository.user.UserRepository;
 @RequiredArgsConstructor
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
-    public static final Period MENTORSHIP_REQUEST = Period.ofMonths(3);
+    private static final Period REQUEST_COOLDOWN = Period.ofMonths(3);
 
     private final MentorshipRepository mentorshipRepository;
     private final MentorshipRequestRepository mentorshipRequestRepository;
@@ -39,76 +37,68 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserRepository userRepository;
 
     @Override
-    public MentorshipRequestDto create(CreateMentorshipRequestDto mentorshipRequestDto) {
+    public MentorshipRequestDto create(CreateMentorshipRequestDto dto) {
         long requesterId = userContext.getUserId();
-        long receiverId = mentorshipRequestDto.mentorId();
+        long receiverId = dto.mentorId();
 
-        Optional<MentorshipRequest> lastMentorship = mentorshipRequestRepository
-                .findTopByRequesterIdOrderByCreatedAtDesc(requesterId);
-
-        lastMentorship.ifPresent(request -> {
-            if (request.getCreatedAt().isAfter(LocalDateTime.now().minus(MENTORSHIP_REQUEST))) {
-                throw new DataValidationException("Запрос можно отправить не чаще одного раза в "
-                        + MENTORSHIP_REQUEST.getMonths() + " месяца(ев)");
-            }
-        });
-
-        if (requesterId == receiverId) {
-            throw new DataValidationException("Нельзя отправить запрос самому себе");
-        }
-
-        mentorshipRequestRepository.findLatestRequest(requesterId, receiverId)
-                .ifPresent(latestRequest -> {
-                    if (latestRequest.getStatus() == RequestStatus.PENDING) {
-                        throw new DataValidationException("Уже существует активный запрос");
-                    }
-                });
+        checkCooldown(requesterId);
+        validateNotSelfRequest(requesterId, receiverId);
+        checkActiveRequestExists(requesterId, receiverId);
 
         MentorshipRequest request = mentorshipRequestRepository.create(
-                requesterId,
-                receiverId,
-                mentorshipRequestDto.description()
+                requesterId, receiverId, dto.description()
         );
-        request.setRequester(
-                userRepository.findById(requesterId)
-                        .orElseThrow(() -> new EntityNotFoundException("менти с таким Id не найден"))
-        );
-        request.setReceiver(
-                userRepository.findById(receiverId)
-                        .orElseThrow(() -> new EntityNotFoundException("Ментор с таким Id не найден"))
-        );
+
+        request.setRequester(userRepository.findById(requesterId)
+                .orElseThrow(() -> new EntityNotFoundException("Менти не найден")));
+        request.setReceiver(userRepository.findById(receiverId)
+                .orElseThrow(() -> new EntityNotFoundException("Ментор не найден")));
 
         log.info("Пользователь {} отправил запрос на менторство к {}", requesterId, receiverId);
         return mentorshipRequestMapper.toMentorshipRequestDto(request);
     }
 
-    private boolean isAlreadyMentor(long mentorId, long menteeId) {
-        return mentorshipRequestRepository.existsByRequesterIdAndReceiverIdAndStatus(
-                menteeId, mentorId, RequestStatus.ACCEPTED
-        );
+    private void checkCooldown(long requesterId) {
+        mentorshipRequestRepository.findTopByRequesterIdOrderByCreatedAtDesc(requesterId)
+                .ifPresent(request -> {
+                    if (request.getCreatedAt().isAfter(LocalDateTime.now().minus(REQUEST_COOLDOWN))) {
+                        throw new DataValidationException(
+                                "Запрос можно отправить не чаще одного раза в " +
+                                        REQUEST_COOLDOWN.getMonths() + " месяца(ев)"
+                        );
+                    }
+                });
+    }
+
+    private void validateNotSelfRequest(long requesterId, long receiverId) {
+        if (requesterId == receiverId) {
+            throw new DataValidationException("Нельзя отправить запрос самому себе");
+        }
+    }
+
+    private void checkActiveRequestExists(long requesterId, long receiverId) {
+        mentorshipRequestRepository.findLatestRequest(requesterId, receiverId)
+                .ifPresent(req -> {
+                    if (req.getStatus() == RequestStatus.PENDING) {
+                        throw new DataValidationException("Уже существует активный запрос");
+                    }
+                });
     }
 
     @Override
     public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filterDto) {
         if (filterDto.getRequesterId() == null && filterDto.getReceiverId() == null) {
-            throw new DataValidationException("Хотя бы один из параметров:"
-                    + " заказчикId или получательId должен быть задан");
+            throw new DataValidationException(
+                    "Хотя бы один из параметров: requesterId или receiverId должен быть задан"
+            );
         }
 
-        List<MentorshipRequest> allRequests = mentorshipRequestRepository.findAll();
-        Stream<MentorshipRequest> filtered = allRequests.stream();
-
-        if (filterDto.getRequesterId() != null) {
-            filtered = filtered.filter(r
-                    -> filterDto.getRequesterId().equals(r.getRequester().getId()));
-        }
-        if (filterDto.getReceiverId() != null) {
-            filtered = filtered.filter(r -> filterDto.getReceiverId().equals(r.getReceiver().getId()));
-        }
-        if (filterDto.getStatus() != null) {
-            filtered = filtered.filter(r -> r.getStatus() == filterDto.getStatus());
-        }
-        return filtered
+        return mentorshipRequestRepository.findAll().stream()
+                .filter(r -> filterDto.getRequesterId() == null
+                        || filterDto.getRequesterId().equals(r.getRequester().getId()))
+                .filter(r -> filterDto.getReceiverId() == null
+                        || filterDto.getReceiverId().equals(r.getReceiver().getId()))
+                .filter(r -> filterDto.getStatus() == null || filterDto.getStatus() == r.getStatus())
                 .map(mentorshipRequestMapper::toMentorshipRequestDto)
                 .collect(Collectors.toList());
     }
@@ -116,24 +106,24 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public void accept(long requestId) {
         long currentUserId = userContext.getUserId();
-        MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
-
-        long requesterId = request.getRequester().getId();
+        MentorshipRequest request = validateRequest(requestId, currentUserId);
 
         if (isAlreadyMentor(currentUserId, request.getRequester().getId())) {
-            throw new DataValidationException("ментор с Id" + currentUserId
-                    + "уже является ментором для пользователя с Id" + requesterId);
+            throw new DataValidationException(
+                    "Ментор " + currentUserId + " уже является ментором пользователя " +
+                            request.getRequester().getId()
+            );
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
         mentorshipRequestRepository.save(request);
-        log.info("Пользователь {} принял запрос на менторство от {}", currentUserId, request.getRequester().getId());
+        log.info("Пользователь {} принял запрос от {}", currentUserId, request.getRequester().getId());
     }
 
     @Override
     public void reject(long requestId, RejectionDto rejectionDto) {
         long currentUserId = userContext.getUserId();
-        MentorshipRequest request = validateRequestIsPendingAndReceiver(requestId, currentUserId);
+        MentorshipRequest request = validateRequest(requestId, currentUserId);
 
         if (rejectionDto == null || rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
             throw new DataValidationException("Причина отказа должна быть указана");
@@ -142,22 +132,29 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
         mentorshipRequestRepository.save(request);
+
         log.info("Пользователь {} отклонил запрос от {}. Причина: {}",
                 currentUserId, request.getRequester().getId(), rejectionDto.getReason());
     }
 
-    private MentorshipRequest validateRequestIsPendingAndReceiver(long requestId, long currentUserId) {
+    private MentorshipRequest validateRequest(long requestId, long currentUserId) {
         MentorshipRequest request = mentorshipRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("Запрос на менторство не найден"));
 
         if (request.getStatus() != RequestStatus.PENDING) {
-            throw new DataValidationException("Операции доступны только для запросов со статусом PENDING");
+            throw new DataValidationException("Можно обрабатывать только запросы в статусе PENDING");
         }
 
         if (!request.getReceiver().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Вы не можете обработать запрос, адресованный не вам");
+            throw new ForbiddenException("Вы не можетее обработать чужой запрос");
         }
+
         return request;
     }
-}
 
+    private boolean isAlreadyMentor(long mentorId, long menteeId) {
+        return mentorshipRequestRepository.existsByRequesterIdAndReceiverIdAndStatus(
+                menteeId, mentorId, RequestStatus.ACCEPTED
+        );
+    }
+}

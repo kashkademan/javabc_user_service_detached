@@ -229,7 +229,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.register<Test>("unitTest") {
-    description = "Запускает только unit-тесты"
+    description = "запускает только unit-тесты"
     group = "verification"
     useJUnitPlatform {
         excludeTags("integration")

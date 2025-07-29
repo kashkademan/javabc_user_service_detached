@@ -74,7 +74,7 @@ public class MentorshipRequestServiceImplTest {
     @Test
     void create_throwsExceptionIfRequestToSelf() {
         final long userId = 1L;
-        final CreateMentorshipRequestDto dto = createDto("Хочу быть сам себе ментором", userId);
+        final CreateMentorshipRequestDto dto = createDto("Хочу быть сам себе Ментором", userId);
 
         when(userContext.getUserId()).thenReturn(userId);
 
