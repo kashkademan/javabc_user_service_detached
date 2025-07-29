@@ -45,6 +45,10 @@ user:
     min:
       length: 6
 
+app:
+  goals:
+    max-active-goals: 3
+    
 recommendation:
   repeat:
     limit: 6
