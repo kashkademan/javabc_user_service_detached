@@ -21,7 +21,7 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
             WHERE author_id = :authorId AND receiver_id = :receiverId
             """)
     @Modifying
-    void update(long authorId, long receiverId, String content);
+    Recommendation update(long authorId, long receiverId, String content);
 
     @Modifying
     int deleteByIdAndAuthor_id(long id, long authorId);
