@@ -31,6 +31,8 @@ server:
 logging:
   level:
     root: info
+    org.springframework.web: DEBUG
+    org.springframework.http.converter.json: DEBUG
 
 project-service:
   host: localhost

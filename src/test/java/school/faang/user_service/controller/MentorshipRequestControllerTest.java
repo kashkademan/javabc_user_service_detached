@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BindingResult;
 import school.faang.user_service.controller.mentorship.MentorshipRequestController;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -35,28 +34,12 @@ class MentorshipRequestControllerTest {
     private MentorshipRequestController mentorshipRequestController;
 
     @Test
-    void testRejectThrowsExceptionWhenRejectionDtoIsNull() {
-        long requestId = 1L;
-
-        doThrow(new DataValidationException("Причина отказа должна быть указана"))
-                .when(mentorshipRequestService)
-                .reject(eq(requestId), isNull());
-
-        assertThrows(DataValidationException.class, () ->
-                mentorshipRequestController.reject(requestId, null)
-        );
-
-        verify(mentorshipRequestService).reject(eq(requestId), isNull());
-    }
-
-    @Test
     void testCreate() {
-        CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring", 2L);
+        final CreateMentorshipRequestDto createDto = new CreateMentorshipRequestDto("Help with Spring", 2L);
+        final UserDto requester = new UserDto(1L, "Requester", null, null, null);
+        final UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
 
-        UserDto requester = new UserDto(1L, "Requester", null, null, null);
-        UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
-
-        MentorshipRequestDto expectedDto = new MentorshipRequestDto(
+        final MentorshipRequestDto expectedDto = new MentorshipRequestDto(
                 123L,
                 "Help with Spring Boot",
                 requester,
@@ -66,7 +49,7 @@ class MentorshipRequestControllerTest {
 
         when(mentorshipRequestService.create(createDto)).thenReturn(expectedDto);
 
-        MentorshipRequestDto result = mentorshipRequestController.create(createDto);
+        final MentorshipRequestDto result = mentorshipRequestController.create(createDto);
 
         assertNotNull(result);
         assertEquals(expectedDto.description(), result.description());
@@ -79,12 +62,12 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testCreateThrowsExceptionOnInvalidInput() {
-        CreateMentorshipRequestDto invalidDto = new CreateMentorshipRequestDto(null, null);
+        final CreateMentorshipRequestDto invalidDto = new CreateMentorshipRequestDto(null, null);
 
         when(mentorshipRequestService.create(invalidDto))
                 .thenThrow(new DataValidationException("Invalid input"));
 
-        DataValidationException thrown = assertThrows(DataValidationException.class, () -> {
+        final DataValidationException thrown = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestController.create(invalidDto);
         });
 
@@ -94,18 +77,15 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testGetByFilters() {
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
+        final MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
         filterDto.setRequesterId(1L);
         filterDto.setReceiverId(2L);
         filterDto.setStatus(RequestStatus.PENDING);
 
-        BindingResult bindingResult = mock(BindingResult.class);
-        when(bindingResult.hasErrors()).thenReturn(false);
+        final UserDto requester = new UserDto(1L, "Requester", null, null, null);
+        final UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
 
-        UserDto requester = new UserDto(1L, "Requester", null, null, null);
-        UserDto receiver = new UserDto(2L, "Receiver", null, null, null);
-
-        MentorshipRequestDto requestDto = new MentorshipRequestDto(
+        final MentorshipRequestDto requestDto = new MentorshipRequestDto(
                 123L,
                 "Test description",
                 requester,
@@ -115,7 +95,7 @@ class MentorshipRequestControllerTest {
 
         when(mentorshipRequestService.getByFilters(filterDto)).thenReturn(List.of(requestDto));
 
-        List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(filterDto, bindingResult);
+        final List<MentorshipRequestDto> result = mentorshipRequestController.getByFilters(filterDto);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -126,30 +106,24 @@ class MentorshipRequestControllerTest {
     }
 
     @Test
-    void testGetByFiltersValidationError() {
-        MentorshipRequestFilterDto filterDto = new MentorshipRequestFilterDto();
-        BindingResult bindingResult = mock(BindingResult.class);
-        when(bindingResult.hasErrors()).thenReturn(true);
-
-        assertThrows(RuntimeException.class, () ->
-                mentorshipRequestController.getByFilters(filterDto, bindingResult));
-    }
-
-    @Test
     void testAccept() {
-        long requestId = 1L;
+        final long requestId = 1L;
+
         doNothing().when(mentorshipRequestService).accept(requestId);
+
         mentorshipRequestController.accept(requestId);
+
         verify(mentorshipRequestService).accept(requestId);
     }
 
     @Test
     void testAcceptThrowsException() {
-        long requestId = 1L;
+        final long requestId = 1L;
+
         doThrow(new DataValidationException("Invalid request"))
                 .when(mentorshipRequestService).accept(requestId);
 
-        DataValidationException thrown = assertThrows(DataValidationException.class, () -> {
+        final DataValidationException thrown = assertThrows(DataValidationException.class, () -> {
             mentorshipRequestController.accept(requestId);
         });
 
@@ -159,8 +133,8 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testReject() {
-        long requestId = 1L;
-        RejectionDto rejectionDto = new RejectionDto("Not a good time");
+        final long requestId = 1L;
+        final RejectionDto rejectionDto = new RejectionDto("Not a good time");
 
         doNothing().when(mentorshipRequestService).reject(requestId, rejectionDto);
 
@@ -171,8 +145,8 @@ class MentorshipRequestControllerTest {
 
     @Test
     void testRejectThrowsExceptionWhenReasonIsBlank() {
-        long requestId = 1L;
-        RejectionDto rejectionDto = new RejectionDto("");
+        final long requestId = 1L;
+        final RejectionDto rejectionDto = new RejectionDto("");
 
         doThrow(new DataValidationException("Причина отказа должна быть указана"))
                 .when(mentorshipRequestService)
@@ -182,5 +156,20 @@ class MentorshipRequestControllerTest {
                 () -> mentorshipRequestController.reject(requestId, rejectionDto));
 
         verify(mentorshipRequestService).reject(requestId, rejectionDto);
+    }
+
+    @Test
+    void testRejectThrowsExceptionWhenRejectionDtoIsNull() {
+        final long requestId = 1L;
+
+        doThrow(new DataValidationException("Причина отказа должна быть указана"))
+                .when(mentorshipRequestService)
+                .reject(eq(requestId), isNull());
+
+        assertThrows(DataValidationException.class, () ->
+                mentorshipRequestController.reject(requestId, null)
+        );
+
+        verify(mentorshipRequestService).reject(eq(requestId), isNull());
     }
 }

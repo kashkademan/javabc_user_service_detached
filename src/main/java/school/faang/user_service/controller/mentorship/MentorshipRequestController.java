@@ -1,11 +1,8 @@
 package school.faang.user_service.controller.mentorship;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
@@ -29,7 +26,9 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/filter")
-    public List<MentorshipRequestDto> getByFilters(@RequestBody MentorshipRequestFilterDto filterDto) {
+    public List<MentorshipRequestDto> getByFilters(
+            @Valid @RequestBody MentorshipRequestFilterDto filterDto
+    ) {
         return mentorshipRequestService.getByFilters(filterDto);
     }
 
@@ -42,5 +41,4 @@ public class MentorshipRequestController {
     public void reject(@PathVariable long requestId, @RequestBody RejectionDto rejectionDto) {
         mentorshipRequestService.reject(requestId, rejectionDto);
     }
-
 }
