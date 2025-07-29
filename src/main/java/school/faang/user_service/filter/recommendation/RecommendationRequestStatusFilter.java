@@ -28,6 +28,6 @@ public class RecommendationRequestStatusFilter implements RecommendationRequestF
             Stream<RecommendationRequest> requests,
             RecommendationRequestFilterDto filterDto) {
         return requests
-                .filter(request -> request.getStatus().equals(filterDto.status()));
+                .filter(request -> request.getStatus() == filterDto.status());
     }
 }
