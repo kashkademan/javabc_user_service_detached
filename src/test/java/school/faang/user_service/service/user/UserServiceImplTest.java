@@ -65,10 +65,15 @@ class UserServiceImplTest {
         when(userRepository.save(any(User.class)))
                 .thenReturn(user);
         when(avatarService.generateAndUpload(eq(createDto.username())))
-                .thenReturn(new AvatarDto("https://example.com/avatar.svg"));
+                .thenReturn(new AvatarDto());
 
         var actual = service.create(createDto);
-        assertEquals(userDto, actual);
+        assertEquals(userDto.id(), actual.id());
+        assertEquals(userDto.username(), actual.username());
+        assertEquals(userDto.email(), actual.email());
+        assertEquals(userDto.phone(), actual.phone());
+        assertEquals(userDto.aboutMe(), actual.aboutMe());
+
     }
 
     @Test

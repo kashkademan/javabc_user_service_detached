@@ -2,6 +2,7 @@ package school.faang.user_service.avatar.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO (Data Transfer Object) для передачи информации об аватаре.
@@ -14,6 +15,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class AvatarDto {
     private String url;
 }
