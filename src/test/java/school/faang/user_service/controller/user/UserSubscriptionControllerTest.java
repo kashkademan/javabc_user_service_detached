@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.user;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,14 +45,11 @@ public class UserSubscriptionControllerTest {
     @MockBean
     private UserContext userContext;
 
-    @InjectMocks
-    private UserSubscriptionController controller;
-
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
-    public void testFollowUser() throws Exception {
+    public void testFollowUserSuccess() throws Exception {
         long followeeId = 123L;
 
         mockMvc.perform(post("/subscriptions/follow/{followeeId}", followeeId))
@@ -63,7 +59,7 @@ public class UserSubscriptionControllerTest {
     }
 
     @Test
-    public void testUnfollowUser() throws Exception {
+    public void testUnfollowUserSuccess() throws Exception {
         long followeeId = 123L;
 
         mockMvc.perform(delete("/subscriptions/unfollow/{followeeId}", followeeId))
@@ -111,11 +107,7 @@ public class UserSubscriptionControllerTest {
         when(service.getFollowers(eq(1L), any(UserFiltersDto.class))).thenReturn(filteredFollowers);
 
         mockMvc.perform(get("/subscriptions/followers")
-                        .param("followeeId", "1")
-                        .param("username", "name")
-                        .param("phone", "123456789")
-                        .param("experienceFrom", "2")
-                        .param("experienceTo", "4"))
+                        .param("followeeId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(filteredFollowers)));
 

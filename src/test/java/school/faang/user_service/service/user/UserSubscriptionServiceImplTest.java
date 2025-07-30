@@ -52,6 +52,15 @@ public class UserSubscriptionServiceImplTest {
     private final UserFilter userPhoneFilter = new UserNamePatternFilterTest();
     private final UserFilter userExperienceFilter = new UserNamePatternFilterTest();
 
+    @Mock
+    private List<UserFilter> filters;
+
+    @Spy
+    private UserMapper mapper;
+
+    @InjectMocks
+    private UserSubscriptionServiceImpl userSubscriptionService;
+
     @BeforeEach
     void setUp() {
         userSubscriptionService = new UserSubscriptionServiceImpl(
@@ -62,15 +71,6 @@ public class UserSubscriptionServiceImplTest {
                 List.of(userNameFilter, userPhoneFilter, userExperienceFilter)
         );
     }
-
-    @Mock
-    private List<UserFilter> filters;
-
-    @Spy
-    private UserMapper mapper;
-
-    @InjectMocks
-    private UserSubscriptionServiceImpl userSubscriptionService;
 
     @Test
     public void testFollowUserFollowsHimself() {
