@@ -39,13 +39,15 @@ public class MentorshipController {
     }
 
     @GetMapping("/mentees/{userId}")
-    @Operation(summary = "Получить подопечных", description = "Возвращает список пользователей, которых обучает указанный пользователь")
+    @Operation(summary = "Получить подопечных",
+            description = "Возвращает список пользователей, которых обучает указанный пользователь")
     public ResponseEntity<List<UserDto>> getMentees(@PathVariable long userId) {
         return ResponseEntity.ok(service.getMentees(userId));
     }
 
     @GetMapping("/mentors/{userId}")
-    @Operation(summary = "Получить наставников", description = "Возвращает список пользователей, являющихся наставниками указанного пользователя")
+    @Operation(summary = "Получить наставников",
+            description = "Возвращает список пользователей, являющихся наставниками указанного пользователя")
     public ResponseEntity<List<UserDto>> getMentors(@PathVariable long userId) {
         return ResponseEntity.ok(service.getMentors(userId));
     }

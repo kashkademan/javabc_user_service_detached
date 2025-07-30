@@ -48,14 +48,16 @@ public class PremiumController {
 
     @PostMapping("/buy")
     @RatingAction(ActionType.BUY_PREMIUM)
-    @Operation(summary = "Купить премиум", description = "Позволяет пользователю приобрести премиум на указанное количество дней")
+    @Operation(summary = "Купить премиум",
+            description = "Позволяет пользователю приобрести премиум на указанное количество дней")
     public ResponseEntity<PremiumDto> buyPremium(@RequestParam int days) {
         PremiumDto premiumDto = service.buyPremium(context.getUserId(), days);
         return ResponseEntity.ok(premiumDto);
     }
 
     @GetMapping("/active-users")
-    @Operation(summary = "Получить пользователей с активным премиумом", description = "Возвращает список пользователей, у которых активна премиум-подписка")
+    @Operation(summary = "Получить пользователей с активным премиумом",
+            description = "Возвращает список пользователей, у которых активна премиум-подписка")
     public ResponseEntity<List<UserWithPremiumDto>> getUsersWithActivePremium() {
         List<UserWithPremiumDto> usersWithPremium = service.getUsersWithActivePremium();
         return ResponseEntity.ok(usersWithPremium);

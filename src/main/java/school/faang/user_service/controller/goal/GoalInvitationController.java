@@ -59,7 +59,8 @@ public class GoalInvitationController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Получить список приглашений", description = "Возвращает список приглашений по заданным фильтрам")
+    @Operation(summary = "Получить список приглашений",
+            description = "Возвращает список приглашений по заданным фильтрам")
     public ResponseEntity<List<GoalInvitationViewDto>> getList(@ModelAttribute GoalInvitationFilterDto dto) {
         List<GoalInvitationViewDto> invitation = service.getByFilters(dto);
         return ResponseEntity.ok(invitation);

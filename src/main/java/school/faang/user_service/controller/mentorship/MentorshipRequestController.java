@@ -35,7 +35,8 @@ public class MentorshipRequestController {
     private final MentorshipRequestService service;
 
     @PostMapping
-    @Operation(summary = "Создать запрос на наставничество", description = "Создаёт новый запрос и возвращает его представление")
+    @Operation(summary = "Создать запрос на наставничество",
+            description = "Создаёт новый запрос и возвращает его представление")
     public ResponseEntity<MentorshipRequestViewDto> addMentorshipRequest(
             @Valid @RequestBody MentorshipRequestCreateDto dto) {
         MentorshipRequestViewDto result = service.create(dto);
@@ -43,7 +44,8 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
-    @Operation(summary = "Получить список запросов", description = "Возвращает список запросов на наставничество по фильтрам")
+    @Operation(summary = "Получить список запросов",
+            description = "Возвращает список запросов на наставничество по фильтрам")
     public ResponseEntity<List<MentorshipRequestViewDto>> getByFilters(
             MentorshipRequestFilterDto filter) {
         List<MentorshipRequestViewDto> requests = service.getByFilters(filter);
@@ -58,7 +60,8 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{requestId}/reject")
-    @Operation(summary = "Отклонить запрос", description = "Отклоняет запрос на наставничество с указанием причины")
+    @Operation(summary = "Отклонить запрос",
+            description = "Отклоняет запрос на наставничество с указанием причины")
     public ResponseEntity<Void> reject(
             @PathVariable long requestId,
             @Valid @RequestBody RejectionDto rejectionDto) {

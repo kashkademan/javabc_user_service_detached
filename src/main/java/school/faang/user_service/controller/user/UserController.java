@@ -29,7 +29,8 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    @Operation(summary = "Создать пользователя", description = "Создаёт нового пользователя на основе переданных данных")
+    @Operation(summary = "Создать пользователя",
+            description = "Создаёт нового пользователя на основе переданных данных")
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto userDto) {
         var user = service.create(userDto);
         return ResponseEntity.ok(user);

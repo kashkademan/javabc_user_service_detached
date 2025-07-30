@@ -42,7 +42,8 @@ public class WorkScheduleController {
 
     @PostMapping
     @RatingAction(ActionType.ADD_WORKSCHEDULE)
-    @Operation(summary = "Добавить рабочее расписание", description = "Создаёт новое расписание и возвращает его представление")
+    @Operation(summary = "Добавить рабочее расписание",
+            description = "Создаёт новое расписание и возвращает его представление")
     public ResponseEntity<WorkScheduleViewDto> addWorkSchedule(
             @RequestBody @Valid WorkScheduleCreateDto workScheduleCreateDto) {
         WorkScheduleViewDto create = service.addWorkSchedule(workScheduleCreateDto);

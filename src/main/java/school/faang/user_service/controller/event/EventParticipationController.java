@@ -51,7 +51,8 @@ public class EventParticipationController {
     }
 
     @DeleteMapping
-    @Operation(summary = "Отменить регистрацию на событие", description = "Удаляет текущего пользователя из участников события")
+    @Operation(summary = "Отменить регистрацию на событие",
+            description = "Удаляет текущего пользователя из участников события")
     public ResponseEntity<Void> unregisterParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
         service.unregisterParticipant(eventId, userId);
@@ -59,13 +60,15 @@ public class EventParticipationController {
     }
 
     @GetMapping
-    @Operation(summary = "Получить всех участников события", description = "Возвращает список всех участников для указанного события")
+    @Operation(summary = "Получить всех участников события",
+            description = "Возвращает список всех участников для указанного события")
     public ResponseEntity<List<UserDto>> getAllParticipants(@PathVariable long eventId) {
         return ResponseEntity.ok(service.getAllParticipantsByEventId(eventId));
     }
 
     @GetMapping("/count")
-    @Operation(summary = "Посчитать участников события", description = "Возвращает количество участников указанного события")
+    @Operation(summary = "Посчитать участников события",
+            description = "Возвращает количество участников указанного события")
     public ResponseEntity<CountResponse> countParticipants(@PathVariable long eventId) {
         return ResponseEntity.ok(service.countParticipantsByEventId(eventId));
     }

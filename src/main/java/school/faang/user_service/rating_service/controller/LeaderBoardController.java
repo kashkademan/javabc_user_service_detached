@@ -38,7 +38,8 @@ public class LeaderBoardController {
     private final UserRepository userRepository;
 
     @GetMapping("/top")
-    @Operation(summary = "Получить топ лидеров", description = "Возвращает список пользователей с максимальными баллами из таблицы лидеров")
+    @Operation(summary = "Получить топ лидеров",
+            description = "Возвращает список пользователей с максимальными баллами из таблицы лидеров")
     public List<LeaderDto> getTopLeaders(
             @RequestParam(defaultValue = "10") int limit) {
         Set<ZSetOperations.TypedTuple<String>> topUsers =

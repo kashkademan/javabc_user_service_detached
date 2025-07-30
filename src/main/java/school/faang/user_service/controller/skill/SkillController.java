@@ -41,14 +41,16 @@ public class SkillController {
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "Получить навыки пользователя", description = "Возвращает список навыков по ID пользователя")
+    @Operation(summary = "Получить навыки пользователя",
+            description = "Возвращает список навыков по ID пользователя")
     public ResponseEntity<List<SkillViewDto>> getByUserId(@PathVariable Long userId) {
         List<SkillViewDto> skills = service.getByUserId(userId);
         return ResponseEntity.ok(skills);
     }
 
     @GetMapping("/offered")
-    @Operation(summary = "Получить предлагаемые навыки", description = "Возвращает список навыков, которые можно приобрести")
+    @Operation(summary = "Получить предлагаемые навыки",
+            description = "Возвращает список навыков, которые можно приобрести")
     public ResponseEntity<List<SkillOfferDto>> getOfferedSkills() {
         List<SkillOfferDto> skills = service.getOfferedSkills(context.getUserId());
         return ResponseEntity.ok(skills);

@@ -26,7 +26,8 @@ public class UserSubscriptionController {
     private final UserContext userContext;
 
     @PostMapping("/{followeeId}")
-    @Operation(summary = "Подписаться на пользователя", description = "Текущий пользователь подписывается на указанного по ID")
+    @Operation(summary = "Подписаться на пользователя",
+            description = "Текущий пользователь подписывается на указанного по ID")
     public ResponseEntity<Void> followUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.followUser(followerId, followeeId);
@@ -34,7 +35,8 @@ public class UserSubscriptionController {
     }
 
     @DeleteMapping("/{followeeId}")
-    @Operation(summary = "Отписаться от пользователя", description = "Текущий пользователь отписывается от указанного по ID")
+    @Operation(summary = "Отписаться от пользователя",
+            description = "Текущий пользователь отписывается от указанного по ID")
     public ResponseEntity<Void> unfollowUser(@PathVariable Long followeeId) {
         Long followerId = userContext.getUserId();
         subscriptionService.unfollowUser(followerId, followeeId);
@@ -42,25 +44,29 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/{followeeId}/count")
-    @Operation(summary = "Получить количество подписчиков", description = "Возвращает количество подписчиков у пользователя по ID")
+    @Operation(summary = "Получить количество подписчиков",
+            description = "Возвращает количество подписчиков у пользователя по ID")
     public ResponseEntity<CountResponse> getFollowersCount(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowersCount(followeeId));
     }
 
     @GetMapping("{followerId}/followees-count")
-    @Operation(summary = "Получить количество подписок", description = "Возвращает количество пользователей, на которых подписан данный пользователь")
+    @Operation(summary = "Получить количество подписок",
+            description = "Возвращает количество пользователей, на которых подписан данный пользователь")
     public ResponseEntity<CountResponse> getFolloweesCount(@PathVariable Long followerId) {
         return ResponseEntity.ok(subscriptionService.getFolloweesCount(followerId));
     }
 
     @GetMapping("/{followeeId}/followers")
-    @Operation(summary = "Получить список подписчиков", description = "Возвращает список пользователей, подписанных на указанного пользователя")
+    @Operation(summary = "Получить список подписчиков",
+            description = "Возвращает список пользователей, подписанных на указанного пользователя")
     public ResponseEntity<List<UserDto>> getFollowers(@PathVariable Long followeeId) {
         return ResponseEntity.ok(subscriptionService.getFollowers(followeeId));
     }
 
     @GetMapping("/{followerId}/followees")
-    @Operation(summary = "Получить список подписок", description = "Возвращает список пользователей, на которых подписан указанный пользователь")
+    @Operation(summary = "Получить список подписок",
+            description = "Возвращает список пользователей, на которых подписан указанный пользователь")
     public ResponseEntity<List<UserDto>> getFollowees(@PathVariable Long followerId) {
         return ResponseEntity.ok(subscriptionService.getFollowees(followerId));
     }
