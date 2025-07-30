@@ -33,4 +33,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
     }
+
+    int deleteByIdAndUsername(long userId, String username);
 }
