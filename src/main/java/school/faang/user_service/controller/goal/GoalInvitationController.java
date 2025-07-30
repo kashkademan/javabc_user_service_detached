@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.goal;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,54 +32,34 @@ import java.util.List;
 @RestController
 @RequestMapping("/goals-invitations")
 @RequiredArgsConstructor
+@Tag(name = "Приглашения к цели", description = "Управление приглашениями для целей")
 public class GoalInvitationController {
     private final GoalInvitationService service;
 
-    /**
-     * Создает новое приглашение к цели.
-     *
-     * @param goalId идентификатор цели
-     * @param dto    данные для создания приглашения
-     * @return созданное приглашение в виде {@link GoalInvitationViewDto}
-     */
     @PostMapping("/{goalId}")
+    @Operation(summary = "Создать приглашение к цели", description = "Создает новое приглашение к указанной цели")
     public ResponseEntity<GoalInvitationViewDto> create(@PathVariable long goalId,
                                                         @Valid @RequestBody GoalInvitationCreateDto dto) {
         GoalInvitationViewDto invitation = service.create(goalId, dto);
         return ResponseEntity.ok(invitation);
     }
 
-    /**
-     * Принимает приглашение по его идентификатору.
-     *
-     * @param invitationId идентификатор приглашения
-     * @return пустой ответ с HTTP-статусом 200 OK
-     */
     @PostMapping("/{invitationId}/accept")
+    @Operation(summary = "Принять приглашение", description = "Принимает приглашение по его идентификатору")
     public ResponseEntity<Void> accept(@PathVariable long invitationId) {
         service.accept(invitationId);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Отклоняет приглашение по его идентификатору.
-     *
-     * @param invitationId идентификатор приглашения
-     * @return пустой ответ с HTTP-статусом 200 OK
-     */
     @PostMapping("/{invitationId}/reject")
+    @Operation(summary = "Отклонить приглашение", description = "Отклоняет приглашение по его идентификатору")
     public ResponseEntity<Void> reject(@PathVariable long invitationId) {
         service.reject(invitationId);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Получает список приглашений с учетом фильтров.
-     *
-     * @param dto объект с параметрами фильтрации (например, inviterId, invitedId, status)
-     * @return список приглашений в виде List<{@link GoalInvitationViewDto}>
-     */
     @GetMapping("/search")
+    @Operation(summary = "Получить список приглашений", description = "Возвращает список приглашений по заданным фильтрам")
     public ResponseEntity<List<GoalInvitationViewDto>> getList(@ModelAttribute GoalInvitationFilterDto dto) {
         List<GoalInvitationViewDto> invitation = service.getByFilters(dto);
         return ResponseEntity.ok(invitation);

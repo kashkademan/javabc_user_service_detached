@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.event;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,14 +34,16 @@ import java.util.List;
  * @author JekaCAP
  */
 @RestController
-@RequestMapping("/events/{eventId}/participants")
 @RequiredArgsConstructor
+@RequestMapping("/events/{eventId}/participants")
+@Tag(name = "Участие в мероприятиях", description = "Управление участниками событий")
 public class EventParticipationController {
     private final EventParticipationService service;
     private final UserContext userContext;
 
     @PostMapping
     @RatingAction(ActionType.PARTICIPATION_IN_THE_EVENT)
+    @Operation(summary = "Зарегистрироваться на событие", description = "Регистрирует текущего пользователя на событие")
     public ResponseEntity<Void> registerParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
         service.registerParticipant(eventId, userId);
@@ -47,6 +51,7 @@ public class EventParticipationController {
     }
 
     @DeleteMapping
+    @Operation(summary = "Отменить регистрацию на событие", description = "Удаляет текущего пользователя из участников события")
     public ResponseEntity<Void> unregisterParticipant(@PathVariable long eventId) {
         long userId = userContext.getUserId();
         service.unregisterParticipant(eventId, userId);
@@ -54,11 +59,13 @@ public class EventParticipationController {
     }
 
     @GetMapping
+    @Operation(summary = "Получить всех участников события", description = "Возвращает список всех участников для указанного события")
     public ResponseEntity<List<UserDto>> getAllParticipants(@PathVariable long eventId) {
         return ResponseEntity.ok(service.getAllParticipantsByEventId(eventId));
     }
 
     @GetMapping("/count")
+    @Operation(summary = "Посчитать участников события", description = "Возвращает количество участников указанного события")
     public ResponseEntity<CountResponse> countParticipants(@PathVariable long eventId) {
         return ResponseEntity.ok(service.countParticipantsByEventId(eventId));
     }

@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.event;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,28 +36,33 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
+@Tag(name = "События", description = "Управление событиями")
 public class EventController {
 
     private final EventService eventService;
 
     @PostMapping
     @RatingAction(ActionType.ADD_EVENT)
+    @Operation(summary = "Создать событие", description = "Создает новое событие и возвращает его DTO")
     public ResponseEntity<EventViewDto> create(@Valid @RequestBody EventCreateDto eventDto) {
         return ResponseEntity.ok(eventService.create(eventDto));
     }
 
     @PutMapping("/{eventId}")
+    @Operation(summary = "Обновить событие", description = "Обновляет событие по идентификатору")
     public ResponseEntity<EventViewDto> update(@PathVariable long eventId,
                                                @Valid @RequestBody EventUpdateDto eventUpdateDto) {
         return ResponseEntity.ok(eventService.update(eventId, eventUpdateDto));
     }
 
     @GetMapping
+    @Operation(summary = "Получить список событий", description = "Возвращает список событий по фильтрам")
     public ResponseEntity<List<EventViewDto>> getList(@Valid @ModelAttribute EventFilterDto filters) {
         return ResponseEntity.ok(eventService.getList(filters));
     }
 
     @DeleteMapping("/{eventId}")
+    @Operation(summary = "Удалить событие", description = "Удаляет событие по идентификатору")
     public ResponseEntity<Void> delete(@PathVariable long eventId) {
         eventService.delete(eventId);
         return ResponseEntity.noContent().build();

@@ -1,5 +1,7 @@
 package school.faang.user_service.rating_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -27,15 +29,18 @@ import java.util.stream.Collectors;
  * Возвращает список пользователей с наивысшими рейтингами.
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/leaders")
+@Tag(name = "Таблица лидеров", description = "Получение топа пользователей по баллам")
+@RequiredArgsConstructor
 public class LeaderBoardController {
 
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
 
     @GetMapping("/top")
-    public List<LeaderDto> getTopLeaders(@RequestParam(defaultValue = "10") int limit) {
+    @Operation(summary = "Получить топ лидеров", description = "Возвращает список пользователей с максимальными баллами из таблицы лидеров")
+    public List<LeaderDto> getTopLeaders(
+            @RequestParam(defaultValue = "10") int limit) {
         Set<ZSetOperations.TypedTuple<String>> topUsers =
                 redisTemplate.opsForZSet().reverseRangeWithScores("leaderboard", 0, limit - 1);
 

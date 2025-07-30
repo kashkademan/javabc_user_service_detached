@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.education;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +37,13 @@ import school.faang.user_service.service.education.EducationService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/educations")
+@Tag(name = "Образование", description = "Управление образованием пользователя")
 public class EducationController {
 
     private final EducationService service;
     private final UserContext userContext;
 
+    @Operation(summary = "Добавить образование")
     @PostMapping
     @RatingAction(ActionType.ADD_EDUCATION)
     public ResponseEntity<EducationViewDto> addEducation(@Valid @RequestBody CreateEducationDto educationDto) {
@@ -48,6 +52,7 @@ public class EducationController {
         return ResponseEntity.ok(createdEducation);
     }
 
+    @Operation(summary = "Обновить образование по ID")
     @PutMapping("/{educationId}/count")
     public ResponseEntity<EducationViewDto> updateEducation(@PathVariable long educationId,
                                                             @Valid @RequestBody UpdateEducationDto educationDto) {
@@ -56,6 +61,7 @@ public class EducationController {
         return ResponseEntity.ok(updatedEducation);
     }
 
+    @Operation(summary = "Получить образование по ID")
     @GetMapping("/{educationId}")
     public ResponseEntity<EducationViewDto> getById(@PathVariable long educationId) {
         return ResponseEntity.ok(service.getById(educationId));
