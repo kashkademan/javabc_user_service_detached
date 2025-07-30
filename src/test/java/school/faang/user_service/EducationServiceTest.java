@@ -15,7 +15,6 @@ import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.NotSupportedDataException;
 import school.faang.user_service.repository.user.EducationRepository;
-import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.education.impl.EducationServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
