@@ -63,8 +63,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
                 .ifPresent(request -> {
                     if (request.getCreatedAt().isAfter(LocalDateTime.now().minus(REQUEST_COOLDOWN))) {
                         throw new DataValidationException(
-                                "Запрос можно отправить не чаще одного раза в " +
-                                        REQUEST_COOLDOWN.getMonths() + " месяца(ев)"
+                                "Запрос можно отправить не чаще одного раза в "
+                                        + REQUEST_COOLDOWN.getMonths() + " месяца(ев)"
                         );
                     }
                 });
@@ -110,8 +110,8 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
         if (isAlreadyMentor(currentUserId, request.getRequester().getId())) {
             throw new DataValidationException(
-                    "Ментор " + currentUserId + " уже является ментором пользователя " +
-                            request.getRequester().getId()
+                    "Ментор " + currentUserId + " уже является ментором пользователя "
+                            + request.getRequester().getId()
             );
         }
 
