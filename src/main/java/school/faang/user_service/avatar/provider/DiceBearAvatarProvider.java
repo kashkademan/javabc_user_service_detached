@@ -41,6 +41,7 @@ public class DiceBearAvatarProvider implements AvatarProvider {
 
     private static final String STYLE = "pixel-art";
     private static final String FORMAT = "svg";
+    private static final String API_URL = "https://api.dicebear.com/7.x/%s/%s?seed=%s";
 
     /**
      * Генерирует файл аватара на основе уникального ключа.
@@ -54,7 +55,7 @@ public class DiceBearAvatarProvider implements AvatarProvider {
     @Override
     public AvatarFile generate(String key) {
 
-        String url = String.format("https://api.dicebear.com/7.x/%s/%s?seed=%s", STYLE, FORMAT, key);
+        String url = String.format(API_URL, STYLE, FORMAT, key);
 
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();

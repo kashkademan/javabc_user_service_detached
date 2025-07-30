@@ -49,6 +49,13 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
+        user = userRepository.save(user);
+        setAvatarIfPossible(user);
+        log.info("User {} created", user.getId());
+        return userMapper.toUserDto(user);
+    }
+
+    private void setAvatarIfPossible(User user) {
         try {
             String avatarUrl = avatarService.generateAndUpload(user.getUsername()).getUrl();
             user.setAvatarUrl(avatarUrl);
@@ -56,10 +63,6 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             log.warn("Failed to generate avatar for user {}: {}", user.getId(), e.getMessage());
         }
-
-        user = userRepository.save(user);
-        log.info("User {} created", user.getId());
-        return userMapper.toUserDto(user);
     }
 
     @Override

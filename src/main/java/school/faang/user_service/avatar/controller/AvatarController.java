@@ -1,6 +1,7 @@
 package school.faang.user_service.avatar.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +27,7 @@ public class AvatarController {
     private final UserAvatarService avatarService;
 
     @PostMapping("/generate")
-    public AvatarDto generate(@RequestParam String username) {
-        return avatarService.generateAndUpload(username);
+    public ResponseEntity<AvatarDto> generate(@RequestParam String username) {
+        return ResponseEntity.ok(avatarService.generateAndUpload(username));
     }
 }
