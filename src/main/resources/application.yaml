@@ -67,3 +67,8 @@ user:
   password:
     min:
       length: 6
+
+skill:
+  count-recommendation:
+    min-length: 3
+
