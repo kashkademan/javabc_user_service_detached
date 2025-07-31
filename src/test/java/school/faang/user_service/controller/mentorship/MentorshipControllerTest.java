@@ -42,7 +42,8 @@ class MentorshipControllerTest {
             "testUser",
             "test@example.com",
             "+123456789",
-            "About me"
+            "About me",
+            null
     );
 
     @BeforeEach
