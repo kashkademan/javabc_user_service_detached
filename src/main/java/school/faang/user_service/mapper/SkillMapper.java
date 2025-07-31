@@ -1,24 +1,40 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.skill.CreateSkillDto;
-import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
+import school.faang.user_service.dto.skill.SkillCreateDto;
+import school.faang.user_service.dto.skill.SkillViewDto;
 import school.faang.user_service.entity.user.Skill;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
-/*
-
-${SkillMapper} — Маппер для преобразования между сущностями навыков и их dto.
-<p>
-TODO: Используется библиотека MapStruct для автоматической генерации кода преобразования:
- (toSkill) - Преобразует dto в сущность
- (toSkillDto) - Преобразует сущность в dto для передачи наружу.
-</p>*
-@author ${JasonRon}
-@since ${19.07.2025}*/
+/**
+ * Маппер для преобразования между сущностью Skill и соответствующими DTO.
+ * <p>
+ * Реализация генерируется автоматически с помощью MapStruct во время компиляции.
+ * Содержит следующие основные методы преобразования:
+ * <ul>
+ *   <li>{@code toSkill} - преобразует DTO в сущность (для сохранения в БД)</li>
+ *   <li>{@code toSkillDto} - преобразует сущность в DTO (для передачи клиенту)</li>
+ *   <li>{@code toSkillCandidateDto} - преобразует сущность в DTO предложенного навыка</li>
+ * </ul>
+ *
+ * @author JasonRon
+ * @apiNote Реализация маппера генерируется автоматически MapStruct
+ * @see Skill
+ * @see SkillViewDto
+ * @since 19.07.2025
+ */
 
 @Mapper(componentModel = "spring")
 public interface SkillMapper {
-    Skill toSkill(CreateSkillDto skillDto);
+    Skill toSkill(SkillCreateDto skillDto);
 
-    SkillDto toSkillDto(Skill skill);
+    SkillViewDto toSkillDto(Skill skill);
+
+    default SkillCandidateDto toSkillCandidateDto(Skill skill, Long userId,
+                                                  SkillOfferRepository offerRepository) {
+        SkillViewDto skillViewDto = toSkillDto(skill);
+        int offers = offerRepository.countAllOffersOfSkill(skill.getId(), userId);
+        return new SkillCandidateDto(skillViewDto, offers);
+    }
 }

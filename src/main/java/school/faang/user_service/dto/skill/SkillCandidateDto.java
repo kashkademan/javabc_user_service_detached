@@ -1,19 +1,28 @@
 package school.faang.user_service.dto.skill;
 
-/*
+import jakarta.validation.constraints.PositiveOrZero;
 
-${SkillCandidateDto} — неизменяемая структура данных (record), представляющая навык,
-предложенный пользователю другими пользователями.
-<p>
-TODO: Используется для отображения навыков, которые другие пользователи рекомендуют
- или подтверждают для текущего пользователя, а также количества таких предложений.
-</p>
-@param skill dto-объект навыка, который был предложен.
-@param offersAmount Количество пользователей, предложивших навык.
-@author ${JasonRon}
-@since ${19.07.2025}*/
+/**
+ * Неизменяемый DTO (Data Transfer Object), представляющий навык,
+ * предложенный пользователю другими участниками системы.
+ * Реализован как record.
+ * <p>
+ * Содержит информацию о рекомендуемом навыке и количестве предложений
+ * от разных пользователей. Используется для отображения в UI списка
+ * рекомендуемых пользователю навыков.
+ *
+ * @param skill DTO навыка, который был предложен (не может быть null)
+ * @param offersAmount количество уникальных предложений этого навыка
+ *                     (должно быть положительным числом)
+ * @author JasonRon
+ * @since 19.07.2025
+ * @see SkillViewDto
+ * @see SkillCreateDto
+ */
+
 public record SkillCandidateDto(
-        SkillDto skill,
+        SkillViewDto skill,
+        @PositiveOrZero
         int offersAmount
 ) {
 }
