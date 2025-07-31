@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * <p>Каждый обработчик возвращает объект ErrorResponse с HTTP-статусом, сообщением и отметкой времени.</p>
  *
  * @author agent
- * @since 05.07.2025
+ * @since 31.07.2025
  */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
