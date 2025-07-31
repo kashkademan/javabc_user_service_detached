@@ -38,6 +38,11 @@ public class SubscriptionController {
         return subscriptionService.getFollowers(followeeId, userDtoFilter);
     }
 
+    @GetMapping("/followers/{followeeId}/id")
+    public List<Long> getFollowerIds(@PathVariable("followeeId") long followeeId, @Valid UserDtoFilter userDtoFilter) {
+        return subscriptionService.getFollowerIds(followeeId, userDtoFilter);
+    }
+
     @GetMapping("/followers/{followerId}/count")
     public int getFollowerCount(@PathVariable("followerId") long followerId) {
         return subscriptionService.getFollowerCount(followerId);

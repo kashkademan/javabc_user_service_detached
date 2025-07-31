@@ -83,6 +83,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    public List<Long> getFollowerIds(long followeeId, UserDtoFilter userDtoFilter) {
+        return getFollowers(followeeId, userDtoFilter).stream()
+                .map(UserDto::getId)
+                .toList();
+    }
+
+    @Override
     public int getFollowerCount(long followeeId) {
         validateUserExistance(followeeId);
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
