@@ -1,4 +1,4 @@
-package school.faang.user_service.config.redis;
+package school.faang.user_service.config.context;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -95,5 +95,13 @@ public class RedisConfig {
         listenerContainer.addMessageListener(messageListenerAdapterRedisServiceListener, usersBanTopic);
 
         return listenerContainer;
+    }
+
+    @Value("${redis.channels.skill_acquired}")
+    private String skillAcquiredChannel;
+
+    @Bean
+    public ChannelTopic skillAcquiredTopic() {
+        return new ChannelTopic(skillAcquiredChannel);
     }
 }
