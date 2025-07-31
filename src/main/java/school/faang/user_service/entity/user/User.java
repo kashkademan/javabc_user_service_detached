@@ -35,6 +35,7 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -44,7 +45,6 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -66,6 +66,12 @@ public class User {
 
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
+
+    //Нужен только для тестового класса
+    public User(Long id, String username) {
+        this.id = id;
+        this.username = username;
+    }
 
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
@@ -162,7 +168,7 @@ public class User {
     private Premium premium;
 
     @OneToMany(mappedBy = "user")
-    private List<Education> education;
+    private List<Education> education = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Career> career;
