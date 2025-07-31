@@ -35,6 +35,9 @@ public class RedisConfig {
     @Value("${redis.channels.follower_event}")
     private String followerEventChannel;
 
+    @Value("${redis.channels.skill_acquired}")
+    private String skillAcquiredChannel;
+
     @Bean
     public JedisConnectionFactory redisConnectionFactory() {
         log.info(String.valueOf(port));
@@ -66,7 +69,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public ChannelTopic profilePicTopic() {
+    public ChannelTopic profilePicTopic()    {
         return new ChannelTopic(profilePicChannel);
     }
 
@@ -77,6 +80,11 @@ public class RedisConfig {
 
     @Value("${redis.channels.skill_acquired}")
     private String skillAcquiredChannel;
+
+    @Bean
+    public ChannelTopic skillAcquiredTopic() {
+        return new ChannelTopic(skillAcquiredChannel);
+    }
 
     @Bean
     public ChannelTopic skillAcquiredTopic() {
