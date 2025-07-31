@@ -33,6 +33,12 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
+     * библиотека для чтения env
+     */
+    implementation("io.github.cdimascio:dotenv-java:2.2.4")
+
+
+    /**
      * kafka
      */
     implementation("org.springframework.kafka:spring-kafka")
@@ -47,7 +53,7 @@ dependencies {
     /**
      * Amazon S3
      */
-    implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
+    implementation("software.amazon.awssdk:s3:2.25.18")
 
     /**
      * Utils & Logging

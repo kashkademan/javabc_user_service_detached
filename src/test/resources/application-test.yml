@@ -1,0 +1,7 @@
+cloud:
+  aws:
+    s3:
+      access-key: test-access-key
+      secret-key: test-secret-key
+      region: test-region
+      endpoint: http://localhost:9000

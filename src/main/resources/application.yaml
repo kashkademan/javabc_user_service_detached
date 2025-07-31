@@ -47,6 +47,15 @@ logging:
     school.faang.user_service.client.PaymentServiceClient: DEBUG
     feign: DEBUG
 
+cloud:
+  aws:
+    s3:
+      bucket: faang-user-avatars
+      region: ru-central1
+      endpoint: https://storage.yandexcloud.net
+      access-key: ${AWS_ACCESS_KEY:}
+      secret-key: ${AWS_SECRET_KEY:}
+
 project-service:
   host: localhost
   port: 8082

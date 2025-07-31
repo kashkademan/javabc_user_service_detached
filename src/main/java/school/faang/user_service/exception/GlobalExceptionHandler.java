@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  *     <li>Неавторизованного доступа (UnauthorizedException)</li>
  *     <li>Попыток повторного приобретения премиум-подписки (PremiumAlreadyExistsException)</li>
  *     <li>Неуспешных попыток оплаты (PaymentFailedException)</li>
+ *     <li>Ошибок генерации картинок</li>
  *     <li>И любых других необработанных исключений (Exception)</li>
  * </ul>
  * </p>
@@ -113,8 +114,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(AvatarGenerateException.class)
+    public ResponseEntity<ErrorResponse> handleHttpGenerateException(RuntimeException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                Instant.now().truncatedTo(ChronoUnit.SECONDS).toString()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(error);
+    }
+
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFound(ForbiddenException ex) {
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 ex.getMessage(),
@@ -124,7 +135,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFound(DataValidationException ex) {
+    public ResponseEntity<ErrorResponse> handleDataValidation(DataValidationException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
@@ -134,7 +145,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFound(HttpRequestMethodNotSupportedException ex) {
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.METHOD_NOT_ALLOWED.value(),
                 HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase(),
@@ -142,7 +153,7 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-  
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
         ex.printStackTrace();
@@ -163,6 +174,4 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
-
-    // TODO: Обработать новое исключение
 }
