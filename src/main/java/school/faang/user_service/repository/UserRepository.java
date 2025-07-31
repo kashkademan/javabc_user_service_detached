@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -27,4 +28,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Stream<User> findPremiumUsers();
 
     List<User> findByUsernameLike(String username);
+
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM users
+            WHERE id = :userId
+            FOR UPDATE
+            """)
+    Optional<User> findByIdForUpdate(Long userId);
 }

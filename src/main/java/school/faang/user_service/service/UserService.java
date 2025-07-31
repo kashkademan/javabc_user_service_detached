@@ -44,6 +44,10 @@ public class UserService {
                 new EntityNotFoundException("User with id = " + id + " does not exist"));
     }
 
+    private User getUserByIdForUpdate(Long userId) {
+        return userRepo.findByIdForUpdate(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with id = " + userId + " does not exist"));
+    }
 
     public List<Long> getFolowees(long userId) {
         return getUserById(userId).getFollowees().stream().map(User::getId).toList();
@@ -160,5 +164,15 @@ public class UserService {
 
     public boolean existsById(long userId) {
         return userRepo.existsById(userId);
+    }
+
+    @Transactional
+    public void userBan(Long userId) {
+        User user = getUserByIdForUpdate(userId);
+
+        user.setBanned(true);
+        log.info("_______________________User with id = {} is ban___________________________________________", userId);
+
+        userRepo.save(user);
     }
 }

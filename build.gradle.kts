@@ -129,7 +129,8 @@ tasks.jacocoTestReport {
                 "**/**Test.class",
                 "**/PostServiceApp.class",
                 "**/controller/LikeController.class",
-                "**/**Impl"
+                "**/**Impl",
+                "**.redis.**"
             )
         }
     }))
@@ -158,7 +159,8 @@ tasks.jacocoTestCoverageVerification {
                 "**.exception.**",
                 "**.subscription.**",
                 "**.goal.**",
-                "**.kafka.**"
+                "**.kafka.**",
+                "**.redis.**"
             )
             limit {
                 counter = "LINE"

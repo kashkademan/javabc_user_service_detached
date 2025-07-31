@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V008__add_personal_info_tables.sql
   - include:
       file: db/changelog/changeset/user_V009__add_column_locale.sql
+  - include:
+      file: db/changelog/changeset/user_V010__add_column_banned_to_user.sql

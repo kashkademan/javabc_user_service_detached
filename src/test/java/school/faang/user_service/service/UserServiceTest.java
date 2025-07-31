@@ -24,6 +24,7 @@ import school.faang.user_service.repository.UserRepository;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -236,6 +237,27 @@ class UserServiceTest {
                         && event.getOldSmallFileId().equals(oldSmallFileId)
                         && event.getChangedAt() != null
         ));
+    }
+
+    @Test
+    void userBanTest() {
+        Long userId = 1L;
+        User user = User.builder().id(userId).build();
+
+        when(userRepository.findByIdForUpdate(userId)).thenReturn(Optional.of(user));
+
+        userService.userBan(userId);
+
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void userBanTest_EntityNotFoundException() {
+        Long userId = -1L;
+
+        when(userRepository.findByIdForUpdate(userId)).thenThrow(EntityNotFoundException.class);
+
+        assertThrows(EntityNotFoundException.class, () -> userService.userBan(userId));
     }
 
     private UserFullDto createDto(String username, String email, String phone,
