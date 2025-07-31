@@ -13,6 +13,8 @@ import school.faang.user_service.dto.UserFullDto;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -28,5 +30,10 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable("userId") long id) {
         return userMapper.toDto(userService.getUserById(id));
+    }
+
+    @GetMapping("/{userId}/folowees")
+    public List<Long> getFolowees(@PathVariable("userId") long id) {
+        return userService.getFolowees(id);
     }
 }
