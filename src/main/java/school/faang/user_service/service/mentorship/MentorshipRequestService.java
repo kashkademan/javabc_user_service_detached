@@ -4,7 +4,6 @@ import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
-import school.faang.user_service.entity.mentorshp.MentorshipRequest;
 
 import java.util.List;
 
@@ -18,5 +17,4 @@ public interface MentorshipRequestService {
 
     void reject(long requestId, RejectionDto rejectionDto);
 
-    MentorshipRequestDto toMentorshipRequestDto(MentorshipRequest mentorshipRequest);
 }

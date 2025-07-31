@@ -16,7 +16,7 @@ public interface MentorshipRepository extends JpaRepository<Mentorship, Long> {
     Mentorship create(long mentorId, long menteeId);
 
     @Query(nativeQuery = true, value = """
-            SELECT * FROM mentorship WHERE mentor_id = ?
+            SELECT * FROM mentorship WHERE mentor_id = ?1 AND mentee_id = ?2
             """)
-    List<Mentorship> findMentorshipsByMentorId(long mentorId);
+    List<Mentorship> findMentorshipsByMentorAndMenteeIds(long mentorId, long menteeId);
 }

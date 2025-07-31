@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.RequestStatus;
 
+import java.time.LocalDateTime;
+
 public record MentorshipRequestDto(
         @NotNull(message = "ID не может быть null")
         Long id,
@@ -12,6 +14,8 @@ public record MentorshipRequestDto(
         String description,
         UserDto requester,
         UserDto receiver,
-        RequestStatus status
+        RequestStatus status,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

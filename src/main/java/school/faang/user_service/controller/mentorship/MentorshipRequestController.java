@@ -2,6 +2,7 @@ package school.faang.user_service.controller.mentorship;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MentorshipRequestController {
 
+    @Autowired
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping("/add")
