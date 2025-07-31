@@ -65,12 +65,16 @@ class MentorshipServiceImplTest {
                 "mentor_user",
                 "mentor@example.com",
                 "+123456789",
-                "About mentor");
+                "About mentor",
+                null
+        );
         menteeDto = new UserDto(menteeId,
                 "mentee_user",
                 "mentee@example.com",
                 "+987654321",
-                "About mentee");
+                "About mentee",
+                null
+        );
     }
 
     @Test

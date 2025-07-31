@@ -53,14 +53,16 @@ class GoalInvitationControllerTest {
                 "Myrzakhmet",
                 "example@example.com",
                 "+77477477474",
-                "Java Dev"
+                "Java Dev",
+                null
         );
         var invited = new UserDto(
                 2L,
                 "Dreamer",
                 "example2@example.com",
                 "+77377377373",
-                "Dreamer"
+                "Dreamer",
+                null
         );
         defResp = new GoalInvitationViewDto(1L, inviter, invited, RequestStatus.PENDING);
     }

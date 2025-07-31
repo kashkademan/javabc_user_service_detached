@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.user.UserCreateDto;
@@ -19,5 +20,6 @@ public interface UserMapper {
 
     User clone(User source);
 
+    @Mapping(source = "avatarUrl", target = "avatarUrl")
     UserDto toUserDto(User user);
 }
