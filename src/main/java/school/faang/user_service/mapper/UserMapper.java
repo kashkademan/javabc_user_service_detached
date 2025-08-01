@@ -3,10 +3,7 @@ package school.faang.user_service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.Person;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserPersonalDto;
-import school.faang.user_service.dto.UserTelegramDto;
+import school.faang.user_service.dto.*;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -45,4 +42,6 @@ public interface UserMapper {
                 .filter(s -> s != null && !s.isBlank())
                 .collect(Collectors.joining(", "));
     }
+    @Mapping(target = "pictureFileId", source = "userProfilePic.smallFileId")
+    UserFeedDto toUserFeedDto(User user);
 }

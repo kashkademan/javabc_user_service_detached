@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFeedDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.dto.UserTelegramDto;
 
@@ -20,4 +21,6 @@ public interface UserService {
     UserTelegramDto addUserTelegram(UserTelegramDto userTelegramDto);
     UserTelegramDto getUserTelegram(long userId);
     UserTelegramDto getUserByTelegram(String telegramUserName);
+
+    UserFeedDto getUserForFeed(Long userId);
 }

@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.dto.Person;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserPersonalDto;
-import school.faang.user_service.dto.UserTelegramDto;
+import school.faang.user_service.dto.*;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
@@ -205,5 +202,12 @@ public class UserServiceImpl implements UserService {
                 -> new EntityNotFoundException(String.format("User with telegram name [%s] not found", telegramUserName)));
 
         return userMapper.toUserTelegramDto(user);
+    }
+
+    @Override
+    public UserFeedDto getUserForFeed(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
+        return userMapper.toUserFeedDto(user);
     }
 }

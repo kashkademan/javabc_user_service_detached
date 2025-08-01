@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFeedDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.dto.UserTelegramDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -126,5 +127,10 @@ public class UserController {
     @GetMapping("/telegram/{telegramUserName}")
     public UserTelegramDto getUserByTelegram(@PathVariable String telegramUserName) {
         return userService.getUserByTelegram(telegramUserName);
+    }
+
+    @GetMapping("/{userId}/feed")
+    public UserFeedDto getUserForFeed(@PathVariable Long userId){
+        return userService.getUserForFeed(userId);
     }
 }
