@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toUserDto)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден: " + id));
 
-        profileViewActionService.registerProfileView(id);
+        // profileViewActionService.registerProfileView(id);
         return userDto;
     }
 

@@ -1,7 +1,11 @@
 package school.faang.user_service.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
@@ -18,6 +22,7 @@ public interface UserMapper {
 
     @Mapping(target = "preference", expression = "java(user.getContactPreference().getPreference().toString())")
     @Mapping(target = "contacts", source = "contacts")
+    @Mapping(target = "followers", source = "followers", qualifiedByName = "followersToIds")
     UserDto toUserDto(User user);
 
     @Mapping(target = "username", expression = "java(dto.getFirstName() + \" \" + dto.getLastName())")
@@ -33,4 +38,9 @@ public interface UserMapper {
     @Mapping(target = "yearFrom", ignore = true)
     @Mapping(target = "yearTo", ignore = true)
     Education toEducation(StudentCsvDto dto);
+
+    @Named("followersToIds")
+    default List<Long> followersToIds(List<User> followers) {
+        return followers == null ? List.of() : followers.stream().map(User::getId).collect(Collectors.toList());
+    }
 }

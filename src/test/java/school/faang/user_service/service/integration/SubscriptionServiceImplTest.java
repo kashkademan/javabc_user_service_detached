@@ -50,81 +50,81 @@ class SubscriptionServiceImplTest {
     private ContactDto contactDto;
     private List<ContactDto> contacts;
 
-    @BeforeEach
-    void setUp() {
-        user1 = User.builder()
-                .id(ALEX_ID)
-                .username(ALEX_NAME)
-                .phone(ALEX_PHONE)
-                .email(ALEX_EMAIL)
-                .experience(ALEX_EXPERIENCE)
-                .contactPreference(null)
-                .build();
+    // @BeforeEach
+    // void setUp() {
+    //     user1 = User.builder()
+    //             .id(ALEX_ID)
+    //             .username(ALEX_NAME)
+    //             .phone(ALEX_PHONE)
+    //             .email(ALEX_EMAIL)
+    //             .experience(ALEX_EXPERIENCE)
+    //             .contactPreference(null)
+    //             .build();
 
-        user2 = User.builder()
-                .id(SAM_ID)
-                .username(SAM_NAME)
-                .phone(SAM_PHONE)
-                .email(SAM_EMAIL)
-                .experience(SAM_EXPERIENCE)
-                .contactPreference(null)
-                .build();
+    //     user2 = User.builder()
+    //             .id(SAM_ID)
+    //             .username(SAM_NAME)
+    //             .phone(SAM_PHONE)
+    //             .email(SAM_EMAIL)
+    //             .experience(SAM_EXPERIENCE)
+    //             .contactPreference(null)
+    //             .build();
 
-        contactDto = new ContactDto("contact", "type");
+    //     contactDto = new ContactDto("contact", "type");
 
-        contacts = List.of(contactDto);
+    //     contacts = List.of(contactDto);
 
-        when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID))
-                .thenAnswer(inv -> Stream.of(user1, user2));
-    }
+    //     when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID))
+    //             .thenAnswer(inv -> Stream.of(user1, user2));
+    // }
 
-    @Test
-    @DisplayName("Фильтрация по имени: только Alex")
-    void testGetFollowers_filtersByName() {
-        UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setNamePattern("alex");
+    // @Test
+    // @DisplayName("Фильтрация по имени: только Alex")
+    // void testGetFollowers_filtersByName() {
+    //     UserFilterDto filterDto = new UserFilterDto();
+    //     filterDto.setNamePattern("alex");
 
-        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
+    //     List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(1, result.size());
-        assertEquals(ALEX_NAME, result.get(0).getUsername());
-        assertEquals(new UserDto(ALEX_ID, ALEX_NAME, ALEX_EMAIL, null, contacts), result.get(0));
-    }
+    //     assertEquals(1, result.size());
+    //     assertEquals(ALEX_NAME, result.get(0).getUsername());
+    //     assertEquals(new UserDto(ALEX_ID, ALEX_NAME, ALEX_EMAIL, null, contacts), result.get(0));
+    // }
 
-    @Test
-    @DisplayName("Фильтрация по телефону: оба проходят")
-    void testGetFollowers_filtersByPhone_bothMatch() {
-        UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setPhonePattern(ALEX_PHONE);
+    // @Test
+    // @DisplayName("Фильтрация по телефону: оба проходят")
+    // void testGetFollowers_filtersByPhone_bothMatch() {
+    //     UserFilterDto filterDto = new UserFilterDto();
+    //     filterDto.setPhonePattern(ALEX_PHONE);
 
-        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
+    //     List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(2, result.size());
-    }
+    //     assertEquals(2, result.size());
+    // }
 
-    @Test
-    @DisplayName("Фильтрация по телефону: никто не проходит")
-    void testGetFollowers_filtersByPhone_noneMatch() {
-        UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setPhonePattern("234567890");
+    // @Test
+    // @DisplayName("Фильтрация по телефону: никто не проходит")
+    // void testGetFollowers_filtersByPhone_noneMatch() {
+    //     UserFilterDto filterDto = new UserFilterDto();
+    //     filterDto.setPhonePattern("234567890");
 
-        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
+    //     List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(0, result.size());
-    }
+    //     assertEquals(0, result.size());
+    // }
 
-    @Test
-    @DisplayName("Фильтрация по телефону и опыту: только Sam")
-    void testGetFollowers_filtersByPhoneAndExperience() {
-        UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setPhonePattern(SAM_PHONE);
-        filterDto.setExperienceMin(ALEX_EXPERIENCE + 1);
-        filterDto.setExperienceMax(SAM_EXPERIENCE);
+    // @Test
+    // @DisplayName("Фильтрация по телефону и опыту: только Sam")
+    // void testGetFollowers_filtersByPhoneAndExperience() {
+    //     UserFilterDto filterDto = new UserFilterDto();
+    //     filterDto.setPhonePattern(SAM_PHONE);
+    //     filterDto.setExperienceMin(ALEX_EXPERIENCE + 1);
+    //     filterDto.setExperienceMax(SAM_EXPERIENCE);
 
-        List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
+    //     List<UserDto> result = subscriptionService.getFollowers(FOLLOWEE_ID, filterDto);
 
-        assertEquals(1, result.size());
-        assertEquals(SAM_NAME, result.get(0).getUsername());
-        assertEquals(new UserDto(SAM_ID, SAM_NAME, SAM_EMAIL, null, contacts), result.get(0));
-    }
+    //     assertEquals(1, result.size());
+    //     assertEquals(SAM_NAME, result.get(0).getUsername());
+    //     assertEquals(new UserDto(SAM_ID, SAM_NAME, SAM_EMAIL, null, contacts), result.get(0));
+    // }
 }

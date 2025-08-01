@@ -14,4 +14,5 @@ public class UserDto {
     private String email;
     private String preference;
     private List<ContactDto> contacts;
+    private List<Long> followers;
 }
