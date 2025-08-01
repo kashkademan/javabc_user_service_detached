@@ -28,6 +28,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,9 @@ public class MentorshipRequestServiceImplTest {
     @InjectMocks
     private MentorshipRequestServiceImpl mentorshipRequestService;
 
+
+    private final LocalDateTime createdAt = LocalDateTime.of(2025, Month.AUGUST, 1, 12, 0);
+    private final LocalDateTime updatedAt = createdAt.plusMonths(5);
     private final Long requestId = 1L;
     private final User userRequester = User.builder().id(1L).build();
     private final User userReceiver = User.builder().id(2L).build();
@@ -67,7 +71,7 @@ public class MentorshipRequestServiceImplTest {
     private final UserDto dtoUserReceiver = UserDto.builder().id(2L).build();
     private final MentorshipRequest mentorshipRequest = new MentorshipRequest(
             1L, "request to mentorship", userRequester, userReceiver, RequestStatus.ACCEPTED,
-            null, LocalDateTime.now().minusMonths(4), LocalDateTime.now().minusMonths(4)
+            null, createdAt.minusMonths(4), updatedAt.minusMonths(4)
     );
     private final RejectionDto rejectionDto = new RejectionDto("declined");
 
@@ -91,9 +95,9 @@ public class MentorshipRequestServiceImplTest {
         User user = mock(User.class);
         MentorshipRequest mentorshipRequest = new MentorshipRequest(
                 1L, "desc", userRequester, userReceiver, RequestStatus.PENDING, " ",
-                LocalDateTime.now().minusMonths(4), LocalDateTime.now());
+                createdAt.minusMonths(4), updatedAt);
         MentorshipRequestDto expectedDto = new MentorshipRequestDto(1L, "desc", dtoUserRequester,
-                dtoUserReceiver, RequestStatus.PENDING, LocalDateTime.now().minusMonths(4), LocalDateTime.now());
+                dtoUserReceiver, RequestStatus.PENDING, createdAt.minusMonths(4), updatedAt);
 
         when(userRepository.findById(userRequester.getId())).thenReturn(Optional.of(user));
         when(mentorshipRequestRepository.findLatestRequest(
@@ -114,13 +118,13 @@ public class MentorshipRequestServiceImplTest {
         );
         MentorshipRequest request1 = new MentorshipRequest(
                 1L, "Java mentoring", userRequester, userReceiver, RequestStatus.ACCEPTED,
-                null, LocalDateTime.now(), LocalDateTime.now());
+                null, createdAt, updatedAt);
 
         List<MentorshipRequest> entryListOfRequests = List.of(request1);
 
         MentorshipRequestDto requestDto1 = new MentorshipRequestDto(
                 1L, "Java mentoring", dtoUserRequester, dtoUserReceiver, RequestStatus.ACCEPTED,
-                LocalDateTime.now(), LocalDateTime.now());
+                createdAt, updatedAt);
 
         when(mentorshipRequestRepository.findMentorshipRequestsByFilters(
                 mentorshipRequestFilterDto.requesterId(), mentorshipRequestFilterDto.receiverId(),
@@ -164,7 +168,7 @@ public class MentorshipRequestServiceImplTest {
         User user = mock(User.class);
         MentorshipRequest mentorshipRequest = new MentorshipRequest(
                 1L, "desc", userRequester, userReceiver, RequestStatus.PENDING, " ",
-                LocalDateTime.now().minusMonths(1), LocalDateTime.now());
+                createdAt.minusMonths(1), updatedAt);
 
         when(userRepository.findById(userRequester.getId())).thenReturn(Optional.of(user));
         when(mentorshipRequestRepository.findLatestRequest(
