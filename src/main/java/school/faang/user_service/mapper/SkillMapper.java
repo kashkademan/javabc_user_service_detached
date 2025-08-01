@@ -27,13 +27,13 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 @Mapper(componentModel = "spring")
 public interface SkillMapper {
-    Skill toSkill(SkillCreateDto skillDto);
+    Skill toEntity(SkillCreateDto skillDto);
 
-    SkillViewDto toSkillDto(Skill skill);
+    SkillViewDto toViewDto(Skill skill);
 
     default SkillCandidateDto toSkillCandidateDto(Skill skill, Long userId,
                                                   SkillOfferRepository offerRepository) {
-        SkillViewDto skillViewDto = toSkillDto(skill);
+        SkillViewDto skillViewDto = toViewDto(skill);
         int offers = offerRepository.countAllOffersOfSkill(skill.getId(), userId);
         return new SkillCandidateDto(skillViewDto, offers);
     }

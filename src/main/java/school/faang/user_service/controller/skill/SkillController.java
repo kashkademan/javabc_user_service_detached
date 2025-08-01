@@ -27,7 +27,6 @@ public class SkillController {
     private final UserContext userContext;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SkillViewDto> create(
             @Valid
             @RequestBody

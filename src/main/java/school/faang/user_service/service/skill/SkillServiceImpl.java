@@ -48,16 +48,16 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public SkillViewDto create(SkillCreateDto dto) {
         checkSkillExistByName(dto);
-        Skill skill = skillMapper.toSkill(dto);
+        Skill skill = skillMapper.toEntity(dto);
         Skill savedSkill = skillRepository.save(skill);
-        return skillMapper.toSkillDto(savedSkill);
+        return skillMapper.toViewDto(savedSkill);
     }
 
     @Override
     public List<SkillViewDto> getByUserId(Long userId) {
         return skillRepository.findAllByUserId(userId)
                 .stream()
-                .map(skillMapper::toSkillDto)
+                .map(skillMapper::toViewDto)
                 .toList();
     }
 
