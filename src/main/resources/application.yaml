@@ -40,3 +40,8 @@ user:
   password:
     min:
       length: 6
+
+premium:
+  remover:
+    cron: "0 0 0 * * MON"
+    batch-size: 100
