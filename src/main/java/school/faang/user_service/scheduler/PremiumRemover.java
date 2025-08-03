@@ -18,6 +18,6 @@ public class PremiumRemover {
     @Scheduled(cron = "${app.scheduler.premium-remove.cron}")
     public void removePremium() {
         log.debug("Starting scheduled premium remove");
-       premiumService.removePremium(batchSize);
+        premiumService.removePremium(batchSize);
     }
 }

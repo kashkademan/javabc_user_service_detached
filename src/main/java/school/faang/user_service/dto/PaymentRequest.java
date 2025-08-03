@@ -6,4 +6,5 @@ import school.faang.user_service.enums.Currency;
 import java.math.BigDecimal;
 
 @Builder
-public record PaymentRequest(long paymentNumber, BigDecimal amount, Currency currency) {}
+public record PaymentRequest(long paymentNumber, BigDecimal amount, Currency currency) {
+}

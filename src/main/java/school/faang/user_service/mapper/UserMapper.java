@@ -17,7 +17,9 @@ import java.util.stream.Stream;
 public interface UserMapper {
     @Mapping(target = "preference", source = "contactPreference.preference")
     UserDto toUserDto(User user);
+
     User toUser(UserDto uSerDto);
+
     List<UserDto> mapListOfUsers(List<User> subscriptions);
 
     @Mapping(target = "username", expression = "java(person.getFirstName() + \" \" + person.getLastName())")

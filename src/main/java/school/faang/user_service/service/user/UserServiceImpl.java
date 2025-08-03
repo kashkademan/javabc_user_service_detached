@@ -6,13 +6,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.kafka.event.ProfileViewedEvent;
+import school.faang.user_service.config.kafka.producer.KafkaPostViewedProducer;
 import school.faang.user_service.dto.Person;
-import school.faang.user_service.dto.ProfileViewedEventDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserPersonalDto;
 import school.faang.user_service.dto.UserTelegramDto;
@@ -20,20 +20,19 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.validator.TelegramValidator;
-import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.util.PasswordGeneratorUtil;
+import school.faang.user_service.validator.TelegramValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,22 +44,30 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final CsvMapper csvMapper;
     private final UserPictureService pictureService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final UserContext userContext;
     private final TelegramValidator telegramValidator;
+    private final KafkaPostViewedProducer kafkaPostViewedProducer;
+    private final UserContext userContext;
 
     @Override
     public UserDto findUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(userId)));
-        kafkaTemplate.send("user.profile.viewed", "user.profile.viewed", getProfileViewEventDto(userId))
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Failed to send profile view event", ex);
-                    } else {
-                        log.info("Profile view event sent successfully: {}", result.getRecordMetadata());
-                    }
-                });
+        if (userContext.getUserId() > 0) {
+            User viewer = userRepository.findById(userContext.getUserId())
+                    .orElseThrow(() ->
+                            new EntityNotFoundException("Couldnt fetch user with ID %d from context"
+                                    .formatted(userContext.getUserId())));
+            ProfileViewedEvent profileViewedEvent = new ProfileViewedEvent(
+                    viewer.getUsername(),
+                    user.getUsername(),
+                    viewer.getId(),
+                    user.getId(),
+                    LocalDateTime.now()
+            );
+            kafkaPostViewedProducer.sendEvent(profileViewedEvent);
+        } else {
+            log.debug("Skipping creating kafka event at {}", LocalDateTime.now());
+        }
         return userMapper.toUserDto(user);
     }
 
@@ -218,13 +225,5 @@ public class UserServiceImpl implements UserService {
                 -> new EntityNotFoundException(String.format("User with telegram name [%s] not found", telegramUserName)));
 
         return userMapper.toUserTelegramDto(user);
-    }
-
-    private ProfileViewedEventDto getProfileViewEventDto(Long id) {
-        Long viewerId = userContext.getUserId();
-        User profileViewer = userRepository.findById(viewerId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id %d not found".formatted(viewerId)));
-        String viewerName = profileViewer.getUsername();
-        return new ProfileViewedEventDto(viewerName, viewerId, id);
     }
 }

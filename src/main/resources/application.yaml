@@ -30,6 +30,7 @@ spring:
           user_ban: user_ban
           goal_complete: goal_complete
           recommendation_event: recommendation_event
+          follower_event: follower_event
           goal_attached: goal_attached
           premium_bought: premium_bought
     kafka:
@@ -37,6 +38,12 @@ spring:
       group_id: event-listeners
       auto_offset: earliest
       concurrency: 3
+      topics:
+          - name: profile.viewed
+            partitions: 3
+            replication-factor: 1
+
+
 
   async:
     core_pool_size: 2

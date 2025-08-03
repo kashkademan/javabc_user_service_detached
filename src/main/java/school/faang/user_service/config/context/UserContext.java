@@ -22,4 +22,5 @@ public class UserContext {
     public void clear() {
         userIdHolder.remove();
     }
+
 }

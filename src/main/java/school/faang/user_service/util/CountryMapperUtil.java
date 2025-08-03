@@ -9,8 +9,7 @@ import java.util.Map;
 public class CountryMapperUtil {
     private final Map<String, String> COUNTRY_MAP = new HashMap<>();
 
-    static
-    {
+    static {
         COUNTRY_MAP.put("AFG", "Afghanistan");
         COUNTRY_MAP.put("ALB", "Albania");
         COUNTRY_MAP.put("DZA", "Algeria");

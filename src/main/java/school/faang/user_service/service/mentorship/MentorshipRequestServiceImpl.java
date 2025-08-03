@@ -46,7 +46,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
         Optional<MentorshipRequest> latestMentorshipRequestOpt = mentorshipRequestRepository
                 .findLatestRequest(requesterId, receiverId)
-                        .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(3)));
+                .filter(request -> request.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(3)));
 
         if (latestMentorshipRequestOpt.isPresent()) {
             throw new IllegalArgumentException("User %d can only create request once in 3 month".formatted(requesterId));

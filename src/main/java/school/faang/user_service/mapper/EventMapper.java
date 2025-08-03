@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
-    @Mapping(target = "ownerId" , source = "owner.id")
+    @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "relatedSkills", expression = "java(getSkillIds(event))")
     @Mapping(target = "eventType", source = "type")
     @Mapping(target = "eventStatus", source = "status")
