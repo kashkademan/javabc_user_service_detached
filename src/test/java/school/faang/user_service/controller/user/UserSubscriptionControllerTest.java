@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(UserSubscriptionController.class)
 public class UserSubscriptionControllerTest {
+    private static final long FOLLOWEE_ID = 123L;
+    private static final long FOLLOWER_ID = 321L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,56 +51,55 @@ public class UserSubscriptionControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @DisplayName("успешная подписка на пользователя по id")
     @Test
     public void testFollowUserSuccess() throws Exception {
-        long followeeId = 123L;
-
-        mockMvc.perform(post("/subscriptions/follow/{followeeId}", followeeId))
+        mockMvc.perform(post("/subscriptions/follow/{followeeId}", FOLLOWEE_ID))
                 .andExpect(status().isNoContent());
 
-        verify(service).followUser(followeeId);
+        verify(service).followUser(FOLLOWEE_ID);
     }
 
+    @DisplayName("успешная отписка от пользователя по id")
     @Test
     public void testUnfollowUserSuccess() throws Exception {
-        long followeeId = 123L;
-
-        mockMvc.perform(delete("/subscriptions/unfollow/{followeeId}", followeeId))
+        mockMvc.perform(delete("/subscriptions/unfollow/{followeeId}", FOLLOWEE_ID))
                 .andExpect(status().isNoContent());
 
-        verify(service).unfollowUser(followeeId);
+        verify(service).unfollowUser(FOLLOWEE_ID);
     }
 
+    @DisplayName("получение количества подписчиков у пользователя")
     @Test
     public void testGetFollowersCount() throws Exception {
-        long followeeId = 123L;
         CountResponse response = new CountResponse(10);
 
-        when(service.getFollowersCount(followeeId)).thenReturn(response);
+        when(service.getFollowersCount(FOLLOWEE_ID)).thenReturn(response);
 
         mockMvc.perform(get("/subscriptions/followers/count")
-                        .param("followeeId", String.valueOf(followeeId)))
+                        .param("followeeId", String.valueOf(FOLLOWEE_ID)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
-        verify(service).getFollowersCount(followeeId);
+        verify(service).getFollowersCount(FOLLOWEE_ID);
     }
 
+    @DisplayName("получение количества подписок у пользователя")
     @Test
     public void testGetFolloweesCount() throws Exception {
-        long followerId = 321L;
         CountResponse response = new CountResponse(7);
 
-        when(service.getFolloweesCount(followerId)).thenReturn(response);
+        when(service.getFolloweesCount(FOLLOWER_ID)).thenReturn(response);
 
         mockMvc.perform(get("/subscriptions/followees/count")
-                        .param("followerId", String.valueOf(followerId)))
+                        .param("followerId", String.valueOf(FOLLOWER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
-        verify(service).getFolloweesCount(followerId);
+        verify(service).getFolloweesCount(FOLLOWER_ID);
     }
 
+    @DisplayName("получение подписчиков пользователя")
     @Test
     public void testGetFollowers() throws Exception {
         UserDto userDto = new UserDto(null, null, null, null, null);
@@ -114,20 +116,20 @@ public class UserSubscriptionControllerTest {
         verify(service).getFollowers(eq(1L), any(UserFiltersDto.class));
     }
 
+    @DisplayName("получение юзеров на которых подписан пользователь")
     @Test
     public void testGetFollowees() throws Exception {
-        long followerId = 321L;
         UserDto userDto = new UserDto(null, null, null, null, null);
 
         List<UserDto> filteredFollowees = List.of(userDto);
 
-        when(service.getFollowees(eq(followerId), any(UserFiltersDto.class))).thenReturn(filteredFollowees);
+        when(service.getFollowees(eq(FOLLOWER_ID), any(UserFiltersDto.class))).thenReturn(filteredFollowees);
 
         mockMvc.perform(get("/subscriptions/followees")
-                        .param("followerId", String.valueOf(followerId)))
+                        .param("followerId", String.valueOf(FOLLOWER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(filteredFollowees)));
 
-        verify(service).getFollowees(eq(followerId), any(UserFiltersDto.class));
+        verify(service).getFollowees(eq(FOLLOWER_ID), any(UserFiltersDto.class));
     }
 }
