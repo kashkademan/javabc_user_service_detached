@@ -2,7 +2,11 @@ package school.faang.user_service.util;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ByteArrayMultipartFile implements MultipartFile {
     private final byte[] content;

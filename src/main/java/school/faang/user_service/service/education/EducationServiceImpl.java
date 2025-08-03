@@ -2,7 +2,6 @@ package school.faang.user_service.service.education;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EducationDto;
@@ -58,7 +57,7 @@ public class EducationServiceImpl implements EducationService {
         return educationRepository.findById(educationId)
                 .map(educationMapper::toDto)
                 .orElseThrow(() -> new
-                EntityNotFoundException(String.format(
+                        EntityNotFoundException(String.format(
                         "Education with id %d was not found", educationId)));
     }
 

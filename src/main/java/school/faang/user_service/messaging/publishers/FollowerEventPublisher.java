@@ -11,7 +11,7 @@ import school.faang.user_service.messaging.events.FollowerEvent;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FollowerEventPublisher implements MessagePublisher<FollowerEvent>{
+public class FollowerEventPublisher implements MessagePublisher<FollowerEvent> {
     private static final String REDIS_TOPIC_KEY = "follower_event";
 
     private final RedisProperties properties;

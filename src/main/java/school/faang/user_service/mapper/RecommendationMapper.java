@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.messaging.events.RecommendationReceivedEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.messaging.events.RecommendationReceivedEvent;
 
 import java.util.List;
 

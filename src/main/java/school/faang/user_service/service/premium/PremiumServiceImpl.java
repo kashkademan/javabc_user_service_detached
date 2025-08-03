@@ -21,6 +21,7 @@ import school.faang.user_service.messaging.publishers.PremiumBoughtEventPublishe
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.PremiumService;
 import school.faang.user_service.service.UserService;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,7 +74,7 @@ public class PremiumServiceImpl implements PremiumService {
         LocalDateTime now = LocalDateTime.now();
         List<Premium> expiredPremium = premiumRepository.findAllByEndDateBefore(now);
         Stream<List<Premium>> stream = IntStream.range(0, (expiredPremium.size() + batchSize - 1 / batchSize))
-                .mapToObj(i -> expiredPremium.subList(i * batchSize, Math.min((i + 1) * batchSize ,
+                .mapToObj(i -> expiredPremium.subList(i * batchSize, Math.min((i + 1) * batchSize,
                         expiredPremium.size())));
         List<List<Premium>> batches = stream.toList();
 

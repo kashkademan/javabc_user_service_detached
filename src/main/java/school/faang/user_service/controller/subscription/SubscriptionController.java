@@ -19,17 +19,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubscriptionController {
 
-  private final SubscriptionService subscriptionService;
+    private final SubscriptionService subscriptionService;
 
     @PostMapping("/{followerId}/follow/{followeeId}")
     public void followUser(@PathVariable("followerId") long followerId,
-                                           @PathVariable("followeeId") long followeeId) {
+                           @PathVariable("followeeId") long followeeId) {
         subscriptionService.followUser(followerId, followeeId);
     }
 
     @DeleteMapping("/{followerId}/unfollow/{followeeId}")
     public void unfollowUser(@PathVariable("followerId") long followerId,
-                                             @PathVariable("followeeId") long followeeId) {
+                             @PathVariable("followeeId") long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
