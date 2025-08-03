@@ -4,8 +4,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,20 +17,18 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.validator.TelegramValidator;
-import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserPictureService;
 import school.faang.user_service.service.UserService;
-
+import school.faang.user_service.util.CountryMapperUtil;
 import school.faang.user_service.util.PasswordGeneratorUtil;
+import school.faang.user_service.validator.TelegramValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +41,11 @@ public class UserServiceImpl implements UserService {
     private final CsvMapper csvMapper;
     private final UserPictureService pictureService;
     private final TelegramValidator telegramValidator;
+
+    @Override
+    public List<Long> getAllUsersIds() {
+        return new ArrayList<>(userRepository.findAll().stream().map(User::getId).toList());
+    }
 
     @Override
     public UserDto findUserById(Long userId) {

@@ -8,6 +8,7 @@ import school.faang.user_service.dto.UserTelegramDto;
 import java.util.List;
 
 public interface UserService {
+    List<Long> getAllUsersIds();
     UserDto findUserById(Long userId);
     UserDto updateUser(UserDto userDto);
     List<UserDto> getUsersByIds(List<Long> userIds);
