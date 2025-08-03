@@ -1,10 +1,10 @@
-package school.faang.user_service.config.kafka.producer;
+package school.faang.user_service.kafka.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.config.kafka.event.ProfileViewedEvent;
+import school.faang.user_service.kafka.event.ProfileViewedEvent;
 
 @Component
 @Slf4j

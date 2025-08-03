@@ -42,7 +42,9 @@ spring:
           - name: profile.viewed
             partitions: 3
             replication-factor: 1
-
+          - name: profile.viewed
+            partitions: 3
+            replication-factor: 1
 
 
   async:

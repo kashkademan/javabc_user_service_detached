@@ -1,4 +1,4 @@
-package school.faang.user_service.config.kafka.producer;
+package school.faang.user_service.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
