@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.mentorship;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/mentorship-requests")
 @RequiredArgsConstructor
+@Tag(name = "Менторские запросы", description = "Управление запросами на наставничество")
 public class MentorshipRequestController {
 
     private final MentorshipRequestService service;
 
     @PostMapping
+    @Operation(summary = "Создать запрос на наставничество",
+            description = "Создаёт новый запрос и возвращает его представление")
     public ResponseEntity<MentorshipRequestViewDto> addMentorshipRequest(
             @Valid @RequestBody MentorshipRequestCreateDto dto) {
         MentorshipRequestViewDto result = service.create(dto);
@@ -39,6 +44,8 @@ public class MentorshipRequestController {
     }
 
     @GetMapping
+    @Operation(summary = "Получить список запросов",
+            description = "Возвращает список запросов на наставничество по фильтрам")
     public ResponseEntity<List<MentorshipRequestViewDto>> getByFilters(
             MentorshipRequestFilterDto filter) {
         List<MentorshipRequestViewDto> requests = service.getByFilters(filter);
@@ -46,12 +53,15 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{requestId}/accept")
+    @Operation(summary = "Принять запрос", description = "Принимает запрос на наставничество по ID")
     public ResponseEntity<Void> accept(@PathVariable long requestId) {
         service.accept(requestId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{requestId}/reject")
+    @Operation(summary = "Отклонить запрос",
+            description = "Отклоняет запрос на наставничество с указанием причины")
     public ResponseEntity<Void> reject(
             @PathVariable long requestId,
             @Valid @RequestBody RejectionDto rejectionDto) {

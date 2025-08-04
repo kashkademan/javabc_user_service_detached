@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.goal;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,32 +30,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/goals")
 @RequiredArgsConstructor
+@Tag(name = "Цели", description = "Управление целями пользователя")
 public class GoalController {
     private final GoalService service;
 
     @PostMapping
     @RatingAction(ActionType.ADD_GOAL)
+    @Operation(summary = "Создать цель", description = "Создает новую цель и возвращает её DTO")
     public ResponseEntity<GoalDto> create(@Valid @RequestBody GoalCreateDto goalCreateDto) {
         return new ResponseEntity<>(service.create(goalCreateDto), HttpStatus.OK);
     }
 
     @PutMapping("/{goalId}")
+    @Operation(summary = "Обновить цель", description = "Обновляет цель по её идентификатору")
     public ResponseEntity<GoalDto> update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
         return new ResponseEntity<>(service.update(goalId, goalUpdateDto), HttpStatus.OK);
     }
 
     @GetMapping("/{goalId}")
+    @Operation(summary = "Получить цель по ID", description = "Возвращает цель по идентификатору")
     public ResponseEntity<GoalDto> getById(@PathVariable long goalId) {
         return new ResponseEntity<>(service.getById(goalId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{goalId}")
+    @Operation(summary = "Удалить цель", description = "Удаляет цель по идентификатору")
     public ResponseEntity<Void> delete(@PathVariable long goalId) {
         service.delete(goalId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Получить список целей", description = "Возвращает список целей по фильтрам")
     public ResponseEntity<List<GoalDto>> getList(@Valid @ModelAttribute GoalFilterDto goalFilterDto) {
         return new ResponseEntity<>(service.getByFilters(goalFilterDto), HttpStatus.OK);
     }
