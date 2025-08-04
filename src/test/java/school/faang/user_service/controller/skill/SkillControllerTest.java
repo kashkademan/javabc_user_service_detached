@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.skill;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerjava.api.exception.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,11 +11,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.webjars.NotFoundException;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillOfferDto;
 import school.faang.user_service.dto.skill.SkillViewDto;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.service.skill.SkillService;
 
 import java.util.List;
@@ -117,10 +118,10 @@ public class SkillControllerTest {
     @DisplayName("Проверка ошибки поиска навыков из-за отсутвия пользователя в базе данный")
     void testGetByUserId_WhenNoUserInDataBase() throws Exception {
         when(service.getByUserId(anyLong()))
-                .thenThrow(new NotFoundException("нет пользователя с таким Id в базе данных"));
+                .thenThrow(new EntityNotFoundException("нет пользователя с таким Id в базе данных"));
 
         mockMvc.perform(get("/skills/{userId}", userId))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -155,10 +156,10 @@ public class SkillControllerTest {
     @DisplayName("Проверка ошибки поиска рекомендованных навыков из-за отсутвия пользователя в базе данный")
     void testGetOfferedSkills_WhenNoUserInDataBase() throws Exception {
         when(service.getOfferedSkills())
-                .thenThrow(new NotFoundException("нет пользователя с таким Id в базе данных"));
+                .thenThrow(new EntityNotFoundException("нет пользователя с таким Id в базе данных"));
 
         mockMvc.perform(get("/skills/offered"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -172,10 +173,10 @@ public class SkillControllerTest {
     @Test
     @DisplayName("Проверка ошибки при добавлении навыка пользователю, потому что навык не найден")
     void testAcquireSkillFromOffers_WhenSkillNotFound() throws Exception {
-        doThrow(new NotFoundException("Добавляемый навык не найден"))
+        doThrow(new EntityNotFoundException("Добавляемый навык не найден"))
                 .when(service).acquireSkillFromOffers(skillId);
 
         mockMvc.perform(put("/skills/{skillId}", skillId))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }
