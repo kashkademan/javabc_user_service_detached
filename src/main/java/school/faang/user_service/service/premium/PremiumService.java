@@ -10,5 +10,7 @@ import java.util.concurrent.CompletableFuture;
 public interface PremiumService {
     PremiumDto buyPremium(long userid, long paymentNumber, PremiumPeriod premiumPeriod);
 
-    CompletableFuture<Void> removeExpiredPremiumAccess(List<Premium> premiums);
+    void removeAllExpiredPremiumAccesses();
+
+    CompletableFuture<Void> removeExpiredPremiumBatch(List<Premium> premiums);
 }

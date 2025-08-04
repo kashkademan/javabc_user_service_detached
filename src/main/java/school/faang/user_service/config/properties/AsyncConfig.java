@@ -3,17 +3,21 @@ package school.faang.user_service.config.properties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class AsyncConfig {
     @Value("${premium.scheduler.number-of-threads}")
     private int numberOfThreads;
 
-    @Bean(destroyMethod = "shutdown")
-    public ExecutorService fixedThreadPool() {
-        return Executors.newFixedThreadPool(numberOfThreads);
+    @Bean("fixedThreadPool")
+    public TaskExecutor fixedThreadPool() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(numberOfThreads);
+        executor.setMaxPoolSize(numberOfThreads);
+        executor.setThreadNamePrefix("premium-removal-");
+        executor.initialize();
+        return executor;
     }
 }
