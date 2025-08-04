@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillOfferDto;
 import school.faang.user_service.dto.skill.SkillViewDto;
@@ -28,6 +29,8 @@ public class SkillServiceImpl implements SkillService {
     private final SkillOfferRepository offerRepository;
     private final SkillServiceValidator validator;
 
+    private final UserContext context;
+
     @Override
     public SkillViewDto create(SkillCreateDto skillDto) {
         validator.validationByNameSkillInTheDataBase(skillDto.title());
@@ -40,18 +43,16 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public List<SkillViewDto> getByUserId(Long userId) {
         List<Skill> skillList = repository.findAllByUserId(userId);
-        validator.validateNotNull(skillList,
-                "there are no skills with such a user id: " + userId + " in the database");
+
         return skillList.stream()
                 .map(mapper::toViewDto)
                 .toList();
     }
 
     @Override
-    public List<SkillOfferDto> getOfferedSkills(Long userId) {
+    public List<SkillOfferDto> getOfferedSkills() {
+        Long userId = context.getUserId();
         List<Skill> skillList = repository.findSkillsOfferedToUser(userId);
-        validator.validateNotNull(skillList,
-                "there are no skills offered to user with such a user id: " + userId + " in the database");
         List<SkillOfferDto> skillCandidateDtoList = new ArrayList<>();
         for (Skill skill : skillList) {
             int offersAmount = offerRepository.countAllOffersOfSkill(skill.getId(), userId);
@@ -62,7 +63,8 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public void acquireSkillFromOffers(Long skillId, Long userId) {
+    public void acquireSkillFromOffers(Long skillId) {
+        Long userId = context.getUserId();
         validator.validationCountOfferOfSkill(skillId, userId, countOfSkillRecommendation);
         validator.validationSkillOfUser(skillId, userId);
         repository.assignSkillToUser(skillId, userId);

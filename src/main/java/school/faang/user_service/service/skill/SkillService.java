@@ -46,19 +46,17 @@ public interface SkillService {
      * Возвращает лист рекомендованных другими пользователями скилов пользователю по его ID
      * <p>
      *
-     * @param userId данные для поиска по ID
      * @return набор рекомендованных скилов пользователя в виде листа из {@link SkillOfferDto}
      */
 
-    List<SkillOfferDto> getOfferedSkills(Long userId);
+    List<SkillOfferDto> getOfferedSkills();
 
     /**
      * Добавление скила пользователю по ID скилла и ID пользователя
      * <p>
      *
      * @param skillId ID добавляемого скила
-     * @param userId  ID пользователя
      */
 
-    void acquireSkillFromOffers(Long skillId, Long userId);
+    void acquireSkillFromOffers(Long skillId);
 }
