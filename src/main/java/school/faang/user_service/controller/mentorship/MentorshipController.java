@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.mentorship;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,27 +26,34 @@ import java.util.List;
 @RestController
 @RequestMapping("/mentorships")
 @RequiredArgsConstructor
+@Tag(name = "Наставничество", description = "Управление связями наставничества между пользователями")
 public class MentorshipController {
 
     private final MentorshipService service;
 
     @PostMapping("/{mentorId}")
+    @Operation(summary = "Добавить наставничество", description = "Создаёт связь наставничества между пользователями")
     public ResponseEntity<Void> addMentorship(@PathVariable long mentorId, long menteeId) {
         service.addMentorship(mentorId, menteeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/mentees/{userId}")
+    @Operation(summary = "Получить подопечных",
+            description = "Возвращает список пользователей, которых обучает указанный пользователь")
     public ResponseEntity<List<UserDto>> getMentees(@PathVariable long userId) {
         return ResponseEntity.ok(service.getMentees(userId));
     }
 
     @GetMapping("/mentors/{userId}")
+    @Operation(summary = "Получить наставников",
+            description = "Возвращает список пользователей, являющихся наставниками указанного пользователя")
     public ResponseEntity<List<UserDto>> getMentors(@PathVariable long userId) {
         return ResponseEntity.ok(service.getMentors(userId));
     }
 
     @DeleteMapping("/{menteeId}")
+    @Operation(summary = "Удалить наставничество", description = "Удаляет связь наставничества между пользователями")
     public ResponseEntity<Void> deleteMentor(@PathVariable long menteeId, long mentorId) {
         service.deleteMentorship(menteeId, mentorId);
         return ResponseEntity.ok().build();

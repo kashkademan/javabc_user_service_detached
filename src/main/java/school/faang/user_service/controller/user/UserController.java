@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,29 +24,39 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "Пользователи", description = "Операции над пользователями")
 public class UserController {
     private final UserService service;
 
     @PostMapping
+    @Operation(summary = "Создать пользователя",
+            description = "Создаёт нового пользователя на основе переданных данных")
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto userDto) {
         var user = service.create(userDto);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@PathVariable long userId, @Valid @RequestBody UserUpdateDto userDto) {
+    @Operation(summary = "Обновить пользователя", description = "Обновляет данные пользователя по ID")
+    public ResponseEntity<UserDto> update(
+            @PathVariable long userId,
+            @Valid @RequestBody UserUpdateDto userDto) {
         var user = service.update(userId, userDto);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getById(@PathVariable long userId) {
+    @Operation(summary = "Получить пользователя", description = "Возвращает данные пользователя по ID")
+    public ResponseEntity<UserDto> getById(
+            @PathVariable long userId) {
         var user = service.getById(userId);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<UserDto>> getUsers(@Valid @ModelAttribute UserFilterDto filter) {
+    @Operation(summary = "Поиск пользователей", description = "Ищет пользователей по заданным фильтрам")
+    public ResponseEntity<List<UserDto>> getUsers(
+            @Valid @ModelAttribute UserFilterDto filter) {
         var users = service.getUsers(filter);
         return ResponseEntity.ok(users);
     }

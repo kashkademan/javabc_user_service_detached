@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.workschedule;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +36,14 @@ import school.faang.user_service.service.workschedule.WorkScheduleService;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/schedules")
+@Tag(name = "Рабочее расписание", description = "Управление рабочим расписанием пользователя")
 public class WorkScheduleController {
     private final WorkScheduleService service;
 
     @PostMapping
     @RatingAction(ActionType.ADD_WORKSCHEDULE)
+    @Operation(summary = "Добавить рабочее расписание",
+            description = "Создаёт новое расписание и возвращает его представление")
     public ResponseEntity<WorkScheduleViewDto> addWorkSchedule(
             @RequestBody @Valid WorkScheduleCreateDto workScheduleCreateDto) {
         WorkScheduleViewDto create = service.addWorkSchedule(workScheduleCreateDto);
@@ -46,6 +51,7 @@ public class WorkScheduleController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Обновить рабочее расписание", description = "Обновляет расписание по идентификатору")
     public ResponseEntity<WorkScheduleViewDto> updateWorkSchedule(
             @PathVariable long id,
             @RequestBody @Valid WorkScheduleUpdateDto dto) {
@@ -53,12 +59,14 @@ public class WorkScheduleController {
         return ResponseEntity.ok(update);
     }
 
+    @Operation(summary = "Получить расписание", description = "Возвращает расписание по идентификатору")
     @GetMapping("/{id}")
     public ResponseEntity<WorkScheduleViewDto> getWorkSchedule(@PathVariable long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить расписание", description = "Удаляет расписание по идентификатору")
     public ResponseEntity<Void> deleteWorkSchedule(@PathVariable long id) {
         service.deleteWorkSchedule(id);
         return ResponseEntity.noContent().build();

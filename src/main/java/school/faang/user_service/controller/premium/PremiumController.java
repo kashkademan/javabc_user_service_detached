@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.premium;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +40,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/premium")
 @RequiredArgsConstructor
+@Tag(name = "Премиум", description = "Управление премиум-подпиской пользователей")
 public class PremiumController {
 
     private final PremiumServiceImpl service;
@@ -45,12 +48,16 @@ public class PremiumController {
 
     @PostMapping("/buy")
     @RatingAction(ActionType.BUY_PREMIUM)
+    @Operation(summary = "Купить премиум",
+            description = "Позволяет пользователю приобрести премиум на указанное количество дней")
     public ResponseEntity<PremiumDto> buyPremium(@RequestParam int days) {
         PremiumDto premiumDto = service.buyPremium(context.getUserId(), days);
         return ResponseEntity.ok(premiumDto);
     }
 
     @GetMapping("/active-users")
+    @Operation(summary = "Получить пользователей с активным премиумом",
+            description = "Возвращает список пользователей, у которых активна премиум-подписка")
     public ResponseEntity<List<UserWithPremiumDto>> getUsersWithActivePremium() {
         List<UserWithPremiumDto> usersWithPremium = service.getUsersWithActivePremium();
         return ResponseEntity.ok(usersWithPremium);
