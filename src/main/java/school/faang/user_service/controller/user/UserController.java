@@ -35,7 +35,8 @@ public class UserController {
 
 
     @GetMapping("/{userId}")
-    public UserDto getById(@PathVariable("userId") long userId) {return userService.getById(userId);
+    public UserDto getById(@PathVariable("userId") long userId) {
+        return userService.getById(userId);
     }
 
     private void validateString(String value, String paramName) {
