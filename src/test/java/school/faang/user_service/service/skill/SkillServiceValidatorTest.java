@@ -31,11 +31,11 @@ public class SkillServiceValidatorTest {
     private SkillServiceValidator validator;
 
     private final int countOperations = 1;
-    long skillId = 1L;
-    long userId = 2L;
-    int countRecommendation = 3;
-    int returnCountRecommendation = 2;
-    String skillTitle = "title";
+    private long skillId = 1L;
+    private long userId = 2L;
+    private int countRecommendation = 3;
+    private int returnCountRecommendation = 2;
+    private String skillTitle = "title";
 
     @Test
     @DisplayName("Проверка возникновения ошибки при наличии навыка с указанным именем в базе данных ")

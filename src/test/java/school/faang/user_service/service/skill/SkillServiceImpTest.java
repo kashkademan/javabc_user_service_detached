@@ -44,10 +44,10 @@ public class SkillServiceImpTest {
     private UserContext context;
 
     private final int countOperations = 1;
-    long skillId = 1L;
-    long userId = 2L;
-    String title = "title";
-    int offersAmount = 3;
+    private long skillId = 1L;
+    private long userId = 2L;
+    private String title = "title";
+    private int offersAmount = 3;
 
     @Test
     @DisplayName("Проверка создания навыка с валидными данными")
