@@ -173,7 +173,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             if (receiver.getSkills().contains(skill)) {
                 boolean isAuthorAlreadyGuarantor = skill.getGuarantees().stream()
                         .anyMatch(guarantee -> guarantee.getGuarantor().equals(author) &&
-                                guarantee.getUser().equals(receiver));
+                                               guarantee.getUser().equals(receiver));
 
                 if (!isAuthorAlreadyGuarantor) {
                     UserSkillGuarantee newGuarantee = UserSkillGuarantee.builder()

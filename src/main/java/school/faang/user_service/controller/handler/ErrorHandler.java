@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.dto.ErrorResponseDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.FileProcessException;
 import school.faang.user_service.exception.S3FileIOException;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.UserServiceException;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

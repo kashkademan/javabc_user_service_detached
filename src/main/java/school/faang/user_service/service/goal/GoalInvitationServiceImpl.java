@@ -14,14 +14,12 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.UserServiceException;
 import school.faang.user_service.filter.invitation.InvitationFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
-import school.faang.user_service.messaging.events.GoalAttachedEvent;
 import school.faang.user_service.messaging.publishers.GoalAttachedMessagePublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalInvitationService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service

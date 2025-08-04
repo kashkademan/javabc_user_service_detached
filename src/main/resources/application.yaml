@@ -38,6 +38,14 @@ spring:
       group_id: event-listeners
       auto_offset: earliest
       concurrency: 3
+      topics:
+          - name: profile.viewed
+            partitions: 3
+            replication-factor: 1
+          - name: profile.viewed
+            partitions: 3
+            replication-factor: 1
+
 
   async:
     core_pool_size: 2
