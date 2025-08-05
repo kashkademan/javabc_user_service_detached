@@ -6,9 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * MinioConfig — описание класса.
+ * Конфигурационный класс для настройки клиента MinIO.
  * <p>
- * TODO: добавить описание назначения и поведения класса.
+ * Создает и настраивает бины для работы с объектным хранилищем MinIO.
+ * Параметры подключения берутся из конфигурации приложения
  * </p>
  *
  * @author Linempy
@@ -17,13 +18,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinioConfig {
 
-    @Value("${minio.endpoint")
+    @Value("${services.s3.endpoint}")
     private String endpoint;
 
-    @Value("${minio.access-key")
+    @Value("${services.s3.access-key}")
     private String accessKey;
 
-    @Value("${minio.secret-key")
+    @Value("${services.s3.secret-key}")
     private String secretKey;
 
     @Bean

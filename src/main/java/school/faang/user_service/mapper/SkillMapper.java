@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillCreateDto;
 import school.faang.user_service.dto.skill.SkillViewDto;
@@ -24,8 +25,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
  * @see SkillViewDto
  * @since 19.07.2025
  */
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper {
     Skill toEntity(SkillCreateDto skillDto);
 
