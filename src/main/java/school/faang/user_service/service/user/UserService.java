@@ -1,6 +1,7 @@
 package school.faang.user_service.service.user;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -61,6 +62,8 @@ public interface UserService extends UserDetailsService {
     UserDto getUser(long userId);
 
     List<UserDto> getUsersByIds(List<Long> userIds);
+
+    List<UserDto> addUsersToFile(MultipartFile file);
 }
 
 

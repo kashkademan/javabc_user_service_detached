@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.person.Person;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -19,6 +21,8 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
@@ -32,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final UserCsvService userCsvService;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -70,6 +75,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsersByIds(List<Long> userIds) {
         return userMapper.toUserDtos(userRepository.findAllById(userIds));
+    }
+
+    @Override
+    public List<UserDto> addUsersToFile(MultipartFile file) {
+        try {
+            InputStream fileStream = file.getInputStream();
+            List<Person> persons = userCsvService.readPersonsFromCsv(fileStream);
+            List<User> users = userCsvService.convertPersonsToUsers(persons);
+            users = userRepository.saveAll(users);
+            return users.parallelStream()
+                    .map(userMapper::toUserDto)
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException("Error while reading CSV", e);
+        }
     }
 
     @Override
