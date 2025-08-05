@@ -18,6 +18,7 @@ import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
+import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
@@ -41,6 +42,8 @@ class UserControllerTest {
     private UserContext context;
     @Autowired
     private ObjectMapper objMapper;
+    @MockBean
+    private MentorshipService mentorshipService;
 
     private static UserDto user;
 
