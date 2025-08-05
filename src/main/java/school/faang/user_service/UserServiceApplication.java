@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
 @ConfigurationPropertiesScan
+@SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
 public class UserServiceApplication {
 

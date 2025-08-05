@@ -11,6 +11,8 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.exception.GoalCompletedException;
+import school.faang.user_service.exception.RejectMentorshipRequestByDateException;
+import school.faang.user_service.exception.UserNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -48,5 +50,19 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleGoalCompletedException(GoalCompletedException e) {
         log.error(e.getMessage(), e);
         return new ErrorResponse("Goal already completed", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ExceptionHandler(RejectMentorshipRequestByDateException.class)
+    public ErrorResponse handleRejectMentorshipRequestByDateException(RejectMentorshipRequestByDateException e) {
+        log.error(e.getMessage(), e);
+        return new ErrorResponse("Request rejected by date expired", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ErrorResponse handleUserNotFoundException(UserNotFoundException e) {
+        log.error(e.getMessage(), e);
+        return new ErrorResponse("User not found", e.getMessage());
     }
 }

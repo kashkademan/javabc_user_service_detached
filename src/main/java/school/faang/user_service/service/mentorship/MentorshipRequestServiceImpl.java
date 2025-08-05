@@ -14,6 +14,11 @@ import school.faang.user_service.entity.mentorshp.Mentorship;
 import school.faang.user_service.entity.mentorshp.MentorshipRequest;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.MentorshipAcceptRejectException;
+import school.faang.user_service.exception.MentorshipRejectException;
+import school.faang.user_service.exception.RejectMentorshipRequestByDateException;
+import school.faang.user_service.exception.UserNotFoundException;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -38,22 +43,24 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
         if (requestDto == null) {
-            log.info("Request не найден");
+            log.info("Request not found");
             throw new IllegalArgumentException();
         }
         Long requesterId = getUserIdFromContext();
         Long receiverId = requestDto.mentorId();
         if (receiverId == null) {
-            log.info("Получатель не найден");
-            throw new IllegalArgumentException();
+            log.info("Receiver not found");
+            throw new UserNotFoundException(String.format("User with %d not found", receiverId));
         }
         if (requesterId.equals(receiverId)) {
-            log.info("Пользователь отправил запрос себе {}", requesterId);
-            throw new DataValidationException("Пользователь не может отправить запрос самому себе");
+            log.info("User send request himself {}", requesterId);
+            throw new DataValidationException("User cannot send request himself");
         }
         Optional<User> userById = userRepository.findById(userContext.getUserId());
         if (userById.isEmpty()) {
-            throw new DataValidationException("Пользователь не найден");
+            log.info("User is empty {}", userById);
+            throw new UserNotFoundException(
+                    String.format("User not found %s", userById));
         }
 
         mentorshipRequestRepository.findLatestRequest(requesterId, receiverId)
@@ -61,10 +68,10 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
                     if (lastRequest.getCreatedAt().plusMonths(
                             mentorshipProperties.monthsToSubtract()).isAfter(LocalDateTime.now())
                     ) {
-                        throw new DataValidationException(
-                                "Запрос на менторство не может быть чаще, чем раз в "
-                                        + mentorshipProperties.monthsToSubtract() + " месяцев."
-                        );
+                        throw new RejectMentorshipRequestByDateException(
+                                String.format("Mentorship request cannot be more, one time in %d months",
+                                        mentorshipProperties.monthsToSubtract()
+                                ));
                     }
                 });
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.create(
@@ -76,12 +83,14 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
         if (filter == null) {
-            throw new DataValidationException("Фильтр не может быть пустым");
+            throw new EntityNotFoundException("Filter cannot be empty");
         }
         List<MentorshipRequest> mentorshipRequestList = (List<MentorshipRequest>) mentorshipRequestRepository
                 .findMentorshipRequestsByFilters(filter.requesterId(), filter.receiverId(), filter.status());
         if (mentorshipRequestList.isEmpty()) {
-            throw new DataValidationException("Не найдено запросов с такими параметрами");
+            throw new EntityNotFoundException(
+                    String.format("Not found requests with parameters: %s", filter
+                    ));
         }
         return mentorshipRequestList.stream()
                 .map(mentorshipRequestMapper::toMentorshipRequestDto)
@@ -91,18 +100,18 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public void accept(long requestId) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow(
-                () -> new DataValidationException("Запрос не найден")
+                () -> new EntityNotFoundException("Request not found")
         );
         if (!mentorshipRequest.getReceiver().getId().equals(getUserIdFromContext())) {
-            throw new DataValidationException("Принять запрос на менторство может только тот, кому оно адресовано");
+            throw new MentorshipAcceptRejectException("Only addressed user can accept request");
         }
         List<Mentorship> assignedMentorships = mentorshipRepository.findMentorshipsByMentorAndMenteeIds(
                 getUserIdFromContext(), mentorshipRequest.getRequester().getId()
         );
         if (!assignedMentorships.isEmpty()) {
-            throw new DataValidationException(
-                    "Пользователь {} " + getUserIdFromContext() + " уже является вашим менти"
-            );
+            throw new MentorshipAcceptRejectException(String.format(
+                    "User %s is already your mentee", getUserIdFromContext()
+            ));
         }
 
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
@@ -116,10 +125,10 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     public void reject(long requestId, RejectionDto rejectionDto) {
         Optional<MentorshipRequest> mentorshipRequestById = mentorshipRequestRepository.findById(requestId);
         if (mentorshipRequestById.isEmpty()) {
-            throw new DataValidationException("Запрос не найден");
+            throw new MentorshipRejectException("Запрос не найден");
         }
         if (!mentorshipRequestById.get().getReceiver().getId().equals(getUserIdFromContext())) {
-            throw new DataValidationException("Отклонить запрос на менторство может только тот, кому оно адресовано");
+            throw new MentorshipRejectException("Отклонить запрос на менторство может только тот, кому оно адресовано");
         }
         mentorshipRequestById.get().setStatus(RequestStatus.REJECTED);
         mentorshipRequestById.get().setRejectionReason(rejectionDto.reason());
