@@ -30,6 +30,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     int deleteById(long userId, long eventId);
 
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            DELETE FROM event e
+            WHERE e.id IN (:eventIds)
+            """)
+    int deleteByIds(List<Long> eventIds);
+
     default Event getByIdOrThrow(long eventId) {
         return findById(eventId)
                 .orElseThrow(

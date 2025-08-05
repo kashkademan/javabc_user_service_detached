@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.EventCreateDto;
@@ -10,6 +11,7 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -20,6 +22,9 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -30,6 +35,8 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final UserContext userContext;
     private final FilterService<Event, EventFilterDto> filterService;
+    @Value("${event-bucket.count}")
+    private Integer eventBucketSize;
 
     @Override
     @Transactional
@@ -90,6 +97,37 @@ public class EventServiceImpl implements EventService {
 
         eventRepository.delete(event);
         log.info("Event deleted: {}", event.getId());
+    }
+
+    @Override
+    @Transactional
+    public void clearEvents() {
+        List<Event> events = eventRepository.findAll();
+
+        List<Long> pastEventsIds = events.stream()
+                .filter(event -> event.getStatus().equals(EventStatus.COMPLETED))
+                .map(event -> event.getId())
+                .toList();
+
+        int threadCount = (int) Math.ceil((double) pastEventsIds.size() / eventBucketSize);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
+        for (int i = 0; i < pastEventsIds.size(); i += eventBucketSize) {
+            List<Long> sublist = pastEventsIds.subList(i,
+                    Math.min(i + eventBucketSize, pastEventsIds.size()));
+            executorService.submit(() -> eventRepository.deleteByIds(sublist));
+        }
+
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(5, TimeUnit.MINUTES)) {
+                log.warn("Удаление событий не было произведено вовремя, ручная остановка потоков.");
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            log.error("Поток прервался во время удаления событий.");
+            executorService.shutdownNow();
+        }
     }
 
     public void validateOwnerSkills(Event event) {
