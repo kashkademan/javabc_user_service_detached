@@ -17,6 +17,7 @@ import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
@@ -26,13 +27,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Пользователи", description = "Операции над пользователями")
 public class UserController {
-    private final UserService service;
+    private final UserService userService;
+    private final MentorshipService mentorshipService;
 
     @PostMapping
     @Operation(summary = "Создать пользователя",
             description = "Создаёт нового пользователя на основе переданных данных")
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto userDto) {
-        var user = service.create(userDto);
+        var user = userService.create(userDto);
         return ResponseEntity.ok(user);
     }
 
@@ -41,7 +43,7 @@ public class UserController {
     public ResponseEntity<UserDto> update(
             @PathVariable long userId,
             @Valid @RequestBody UserUpdateDto userDto) {
-        var user = service.update(userId, userDto);
+        var user = userService.update(userId, userDto);
         return ResponseEntity.ok(user);
     }
 
@@ -49,7 +51,7 @@ public class UserController {
     @Operation(summary = "Получить пользователя", description = "Возвращает данные пользователя по ID")
     public ResponseEntity<UserDto> getById(
             @PathVariable long userId) {
-        var user = service.getById(userId);
+        var user = userService.getById(userId);
         return ResponseEntity.ok(user);
     }
 
@@ -57,7 +59,12 @@ public class UserController {
     @Operation(summary = "Поиск пользователей", description = "Ищет пользователей по заданным фильтрам")
     public ResponseEntity<List<UserDto>> getUsers(
             @Valid @ModelAttribute UserFilterDto filter) {
-        var users = service.getUsers(filter);
+        var users = userService.getUsers(filter);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/users/{menteeId}/mentor")
+    public ResponseEntity<UserDto> getMentor(@PathVariable long menteeId) {
+        return ResponseEntity.ok(mentorshipService.getMentor(menteeId));
     }
 }
