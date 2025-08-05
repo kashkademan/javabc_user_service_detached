@@ -17,6 +17,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PremiumServiceTest {
 
@@ -47,9 +48,9 @@ class PremiumServiceTest {
             Thread.currentThread().interrupt(); // ← важно!
             throw new RuntimeException(e);
         }
-        assert allBatches.get(0).size() == 2;
-        assert allBatches.get(1).size() == 2;
-        assert allBatches.get(2).size() == 1;
+        assertEquals(2, allBatches.get(0).size());
+        assertEquals(2, allBatches.get(1).size());
+        assertEquals(1, allBatches.get(2).size());
     }
 
     @Test
