@@ -6,24 +6,24 @@ import school.faang.user_service.entity.user.User;
 import java.util.stream.Stream;
 
 /**
- * UserExperienceFilter — описание класса.
+ * UserExperienceFilterTest — описание класса.
  * <p>
  * TODO: добавить описание назначения и поведения класса.
  * </p>*
  *
  * @author fuckmynameagain
- * @since 16.07.2025
+ * @since 23.07.2025
  */
-public class UserExperienceFilter implements UserFilter {
+public class UserExperienceFilterTest implements UserFilter {
     @Override
     public boolean isApplicable(UserFiltersDto filters) {
-        return filters.experienceMin() != null || filters.experienceMax() != null;
+        return true;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFiltersDto filters) {
-        int min = filters.experienceMin() != null ? filters.experienceMin() : Integer.MIN_VALUE;
-        int max = filters.experienceMax() != null ? filters.experienceMax() : Integer.MAX_VALUE;
-        return users.filter(user -> user.getExperience() >= min && user.getExperience() <= max);
+        int minExp = 2;
+        int maxExp = 4;
+        return users.filter(user -> user.getExperience() >= minExp && user.getExperience() <= maxExp);
     }
 }
