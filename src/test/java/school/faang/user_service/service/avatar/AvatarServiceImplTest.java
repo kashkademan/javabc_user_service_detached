@@ -79,12 +79,12 @@ public class AvatarServiceImplTest {
         avatarService.generateAndSaveAvatar();
 
         verify(storageService, times(1))
-                .upload(
-                        eq(DEFAULT_FILE_DATA),
-                        eq("test-bucket"),
-                        argThat(key -> key.startsWith("ava/user_1_")),
-                        eq(MediaType.IMAGE_PNG_VALUE)
-                );
+            .upload(
+                eq(DEFAULT_FILE_DATA),
+                eq("test-bucket"),
+                argThat(key -> key.startsWith("ava/user_1_")),
+                eq(MediaType.IMAGE_PNG_VALUE)
+            );
         verify(repository).save(user);
         assertNotNull(user.getAvatarKey());
     }
@@ -98,16 +98,16 @@ public class AvatarServiceImplTest {
                 DEFAULT_FILE_DATA, DEFAULT_CONTENT_TYPE, expectedFilename, DEFAULT_FILE_DATA.length
         );
 
+        doReturn(expectedDto)
+            .when(mapper)
+            .toDownloadDto(
+                    eq(DEFAULT_FILE_DATA),
+                    eq(DEFAULT_CONTENT_TYPE),
+                    eq(expectedFilename)
+            );
         mockUserContext(userContext, USER_ID_1);
         when(repository.getAvatarKeyByIdOrThrow(USER_ID_1)).thenReturn(objectKey);
         when(storageService.download(anyString(), eq(objectKey))).thenReturn(DEFAULT_FILE_DATA);
-        doReturn(expectedDto)
-                .when(mapper)
-                .toDownloadDto(
-                        eq(DEFAULT_FILE_DATA),
-                        eq(DEFAULT_CONTENT_TYPE),
-                        eq(expectedFilename)
-                );
 
         AvatarDownloadDto result = avatarService.downloadAvatar();
 
