@@ -36,6 +36,9 @@ payment-service:
   host: localhost
   port: 9080
 
+mentorship:
+  monthsToSubtract: 3
+
 user:
   password:
     min:

@@ -2,8 +2,10 @@ package school.faang.user_service.repository.mentorship;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import school.faang.user_service.entity.user.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.mentorshp.MentorshipRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MentorshipRequestRepository extends JpaRepository<MentorshipRequest, Long> {
@@ -22,4 +24,11 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
             LIMIT 1
             """)
     Optional<MentorshipRequest> findLatestRequest(long requesterId, long receiverId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT mr FORM mentorship_request WHERE
+            mr.requester_id = :requesterId AND
+            mr.receiver_id = :receiverId AND
+            mr.status = :status""")
+    List<MentorshipRequest> findMentorshipRequestsByFilters(Long requesterId, Long receiverId, RequestStatus status);
 }

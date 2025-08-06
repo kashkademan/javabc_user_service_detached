@@ -1,13 +1,22 @@
 package school.faang.user_service.repository.mentorship;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.EntityNotFoundException;
+import org.springframework.data.jpa.repository.Query;
+import school.faang.user_service.entity.mentorshp.Mentorship;
 
-public interface MentorshipRepository extends JpaRepository<User, Long> {
+import java.util.List;
 
-    default User getByIdOrThrow(long userId) {
-        return findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
-    }
+public interface MentorshipRepository extends JpaRepository<Mentorship, Long> {
+
+    @Query(nativeQuery = true, value = """
+            INSERT INTO mentorship (mentor_id, mentee_id, created_at, updated_at)
+            VALUES (?1, ?2, NOW(), NOW())
+            returning *
+            """)
+    Mentorship create(long mentorId, long menteeId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM mentorship WHERE mentor_id = ?1 AND mentee_id = ?2
+            """)
+    List<Mentorship> findMentorshipsByMentorAndMenteeIds(long mentorId, long menteeId);
 }
