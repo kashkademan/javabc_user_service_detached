@@ -8,8 +8,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.adapter.user.UserRepositoryAdapter;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.dto.entity.premium.PremiumPeriod;
@@ -22,9 +24,13 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.CheckException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.scheduler.premium.PremiumAccessBatch;
+import school.faang.user_service.scheduler.premium.PremiumListPartitioner;
 import school.faang.user_service.service.premium.impl.PremiumServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,6 +47,8 @@ public class PremiumServiceImplTest {
     private PaymentServiceClient paymentServiceClient;
     @Mock
     private PremiumMapper premiumMapper;
+    @Mock
+    private PremiumListPartitioner premiumListPartitioner;
     @Captor
     private ArgumentCaptor<Premium> premiumCaptor;
 
@@ -51,6 +59,7 @@ public class PremiumServiceImplTest {
     private PaymentResponse paymentSuccesResponse;
     private PaymentResponse paymentFailedResponse;
     private PremiumPeriod period;
+    private List<Premium> testExpiredPremiums;
 
     @BeforeEach
     public void setUp() {
@@ -63,6 +72,14 @@ public class PremiumServiceImplTest {
         paymentFailedResponse.setStatus(PaymentStatus.FAILED);
 
         period = PremiumPeriod.ONE_MONTH;
+
+        Premium expiredPremium1 = createExpiredPremium(1L, LocalDateTime.now().minusDays(5));
+        Premium expiredPremium2 = createExpiredPremium(2L, LocalDateTime.now().minusDays(10));
+        Premium expiredPremium3 = createExpiredPremium(3L, LocalDateTime.now().minusDays(1));
+
+        testExpiredPremiums = Arrays.asList(expiredPremium1, expiredPremium2, expiredPremium3);
+
+        ReflectionTestUtils.setField(premiumServiceImpl, "batchSize", 2);
     }
 
     @Test
@@ -116,5 +133,45 @@ public class PremiumServiceImplTest {
         verify(premiumRepository, times(1)).existsByUserIdAndEndDateGreaterThan(eq(USER_ID), any(LocalDateTime.class));
         verify(paymentServiceClient, times(1)).pay(any(PaymentRequest.class));
         assertEquals("Оплата не прошла!Повторите попытку!", exception.getMessage());
+    }
+
+    @Test
+    public void testRemoveAllExpiredPremiumAccesses_successful() {
+        when(premiumRepository.findAllByEndDateBefore(any(LocalDateTime.class)))
+                .thenReturn(testExpiredPremiums);
+
+        PremiumAccessBatch batch = new PremiumAccessBatch(testExpiredPremiums, 2);
+        when(premiumListPartitioner.partition(testExpiredPremiums, 2))
+                .thenReturn(Arrays.asList(batch));
+
+        premiumServiceImpl.removeAllExpiredPremiumAccesses();
+
+        verify(premiumRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(premiumListPartitioner, times(1)).partition(testExpiredPremiums, 2);
+    }
+
+    @Test
+    void testRemoveAllExpiredPremiumAccess_WhenRepositoryThrowsDataBatchException_ShouldPropagateException() {
+        String errorMessage = "Database connection failed";
+        DataAccessException expectedException = new DataAccessException(errorMessage) {
+        };
+        doThrow(expectedException).when(premiumRepository).deleteAll(testExpiredPremiums);
+
+        DataAccessException thrownException = assertThrows(
+                DataAccessException.class,
+                () -> premiumServiceImpl.removeExpiredPremiumBatch(testExpiredPremiums),
+                "Должно быть брошено DataAccessException"
+        );
+
+        assertEquals(errorMessage, thrownException.getMessage(),
+                "Сообщение об ошибке должно совпадать с ожидаемым");
+        verify(premiumRepository, times(1)).deleteAll(testExpiredPremiums);
+    }
+
+    private Premium createExpiredPremium(Long id, LocalDateTime endDate) {
+        Premium premium = new Premium();
+        premium.setId(id);
+        premium.setEndDate(endDate);
+        return premium;
     }
 }
