@@ -1,4 +1,4 @@
-package school.faang.user_service.service.file_storage;
+package school.faang.user_service.service.storage;
 
 import school.faang.user_service.exception.StorageException;
 

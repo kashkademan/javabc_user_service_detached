@@ -1,4 +1,4 @@
-package school.faang.user_service.service.file_storage;
+package school.faang.user_service.service.storage.minio;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
@@ -6,6 +6,7 @@ import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.exception.StorageException;
+import school.faang.user_service.service.storage.FileStorageService;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

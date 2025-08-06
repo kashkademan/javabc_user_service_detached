@@ -7,8 +7,8 @@ package school.faang.user_service.dto.avatar;
  *
  * @param content бинарное содержимое файла
  * @param contentType MIME-тип содержимого (например, "image/png")
- * @param fileName имя файла для сохранения
- * @param size размер файла в байтах (положительное число)
+ * @param filename имя файла для сохранения
+ * @param fileSize размер файла в байтах (положительное число)
  *
  * @author Linempy
  * @since 04.08.2025
@@ -16,7 +16,7 @@ package school.faang.user_service.dto.avatar;
 public record AvatarDownloadDto(
         byte[] content,
         String contentType,
-        String fileName,
-        Long size
+        String filename,
+        Integer fileSize
 ) {
 }

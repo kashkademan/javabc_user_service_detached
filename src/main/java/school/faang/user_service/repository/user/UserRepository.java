@@ -3,7 +3,6 @@ package school.faang.user_service.repository.user;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.AvatarNotFoundException;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     default String getAvatarKeyByIdOrThrow(Long userId) {
         return findAvatarKeyById(userId)
-                .orElseThrow(() -> new AvatarNotFoundException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         String.format("Аватар пользователя id=%d не был найден", userId))
                 );
     }

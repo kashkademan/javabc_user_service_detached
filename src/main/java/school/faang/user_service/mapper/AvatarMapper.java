@@ -17,6 +17,6 @@ import school.faang.user_service.dto.avatar.AvatarDownloadDto;
 public interface AvatarMapper {
 
     default AvatarDownloadDto toDownloadDto(byte[] content, String contentType, String fileName) {
-        return new AvatarDownloadDto(content, contentType, fileName, (long) content.length);
+        return new AvatarDownloadDto(content, contentType, fileName, content.length);
     }
 }

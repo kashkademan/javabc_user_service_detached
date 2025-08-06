@@ -9,9 +9,10 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * DiceBearAvatarService — описание класса.
+ * Сервис для генерации аватаров с использованием DiceBear API.
  * <p>
- * TODO: добавить описание назначения и поведения класса.
+ * Предоставляет функциональность для создания уникальных стилизованных аватаров
+ * на основе переданных параметров через интеграцию с внешним сервисом DiceBear.
  * </p>
  *
  * @author Linempy
@@ -45,5 +46,4 @@ public class DiceBearAvatarService {
                 .bodyToMono(byte[].class)
                 .block();
     }
-
 }

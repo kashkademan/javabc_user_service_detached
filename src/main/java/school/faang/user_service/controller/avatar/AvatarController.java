@@ -42,6 +42,6 @@ public class AvatarController {
     @PostMapping
     public ResponseEntity<AvatarDownloadDto> download() {
         AvatarDownloadDto result = service.downloadAvatar();
-        return ResponseEntity.ok().body(result);
+        return ResponseEntity.ok(result);
     }
 }
