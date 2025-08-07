@@ -50,7 +50,13 @@ user:
 app:
   goals:
     max-active-goals: 3
-    
+
 recommendation:
   repeat:
     limit: 6
+
+
+premium:
+  remover:
+    cron: "0 0 0 * * MON"
+    batch-size: 100
