@@ -38,10 +38,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     int deleteByIds(List<Long> eventIds);
 
-    @Query("""
-        SELECT e.id FROM Event e
-        WHERE e.status = :status
-    """)
+    @Query(nativeQuery = true, value = """
+            SELECT e.id FROM Event e
+            WHERE e.status = :status
+            """)
     List<Long> findEventByCompletedStatus(EventStatus status);
 
     default Event getByIdOrThrow(long eventId) {
