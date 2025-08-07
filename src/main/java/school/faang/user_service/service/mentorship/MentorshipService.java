@@ -60,4 +60,6 @@ public interface MentorshipService {
      *          </ul>
      */
     void deleteMentorship(long menteeId, long mentorId);
+
+    UserDto getMentor(long menteeId);
 }
