@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    private final Integer threadCount = 3;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
@@ -37,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final FilterService<Event, EventFilterDto> filterService;
     @Value("${event-bucket.count}")
     private Integer eventBucketSize;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Override
     @Transactional
@@ -102,15 +104,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void clearEvents() {
-        List<Event> events = eventRepository.findAll();
+        List<Long> pastEventsIds = eventRepository
+                .findEventByCompletedStatus(EventStatus.COMPLETED);
 
-        List<Long> pastEventsIds = events.stream()
-                .filter(event -> event.getStatus().equals(EventStatus.COMPLETED))
-                .map(event -> event.getId())
-                .toList();
-
-        int threadCount = (int) Math.ceil((double) pastEventsIds.size() / eventBucketSize);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        if (pastEventsIds.isEmpty()) {
+            return;
+        }
 
         for (int i = 0; i < pastEventsIds.size(); i += eventBucketSize) {
             List<Long> sublist = pastEventsIds.subList(i,

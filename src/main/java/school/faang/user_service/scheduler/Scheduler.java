@@ -11,7 +11,8 @@ public class Scheduler {
     private final EventService service;
 
     @Scheduled(cron = "${event.delete-scheduled.cron}")
-    private void clearEvents() {
+    public void clearEvents() {
+        System.out.println("вызов метода");
         service.clearEvents();
     }
 }

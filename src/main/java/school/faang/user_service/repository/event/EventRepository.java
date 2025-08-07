@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
@@ -36,6 +37,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE e.id IN (:eventIds)
             """)
     int deleteByIds(List<Long> eventIds);
+
+    @Query("""
+        SELECT e.id FROM Event e
+        WHERE e.status = :status
+    """)
+    List<Long> findEventByCompletedStatus(EventStatus status);
 
     default Event getByIdOrThrow(long eventId) {
         return findById(eventId)
