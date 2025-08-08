@@ -142,7 +142,7 @@ public class EventServiceImplTest {
                 })
                 .thenReturn(1);
 
-        assertThrows(EventCleanupException.class, () -> service.cleanupExpiredEvents());
+        assertDoesNotThrow(() -> service.cleanupExpiredEvents());
 
         verify(repository, times(4)).deleteByIds(anyList());
     }

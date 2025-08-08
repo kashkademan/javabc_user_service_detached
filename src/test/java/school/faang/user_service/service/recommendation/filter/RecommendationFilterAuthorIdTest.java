@@ -53,8 +53,6 @@ public class RecommendationFilterAuthorIdTest {
         List<Recommendation> resultList = result.toList();
         List<Recommendation> expectedList = expectedRecommendations.toList();
 
-        System.out.println(resultList);
-
         assertEquals(resultList, expectedList);
         assertEquals(2, resultList.size());
     }
@@ -76,8 +74,6 @@ public class RecommendationFilterAuthorIdTest {
     @Test
     @DisplayName("filter возвращает пустой результат для пустого списка рекомендаций")
     void testFilterReturnEmptyStreamWhenInputIsEmpty() {
-        Long authorId = 1L;
-
         Stream<Recommendation> recommendations = Stream.empty();
 
         RecommendationFilterDto filterDto = new RecommendationFilterDto("Привет", 3L, null);

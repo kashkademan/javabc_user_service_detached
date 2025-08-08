@@ -22,9 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Сервис для работы с событиями
  *
- * @see EventService
- *
  * @author Linempy
+ * @see EventService
  * @since 06.08.2025
  */
 @Slf4j
@@ -32,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    @Value("${async.queue-capacity}")
+    @Value("${event.cleanup.batch-size}")
     private int batchSize;
-    @Value("${async.cleanup-timeout-seconds}")
+    @Value("${event.cleanup.timeout-sec}")
     private long cleanupTimeoutSeconds;
     private final EventRepository repository;
     private final ThreadPoolTaskExecutor taskExecutor;
@@ -91,7 +90,11 @@ public class EventServiceImpl implements EventService {
                 futures.add(CompletableFuture.runAsync(
                         () -> processBatchDeletion(batch, counter),
                         taskExecutor
-                ));
+                ).exceptionally(e -> {
+                    log.error("Один из пакетов завершился с ошибкой", e);
+                    return null;
+                })
+                );
             } catch (TaskRejectedException e) {
                 processBatchDeletion(batch, counter);
             }
