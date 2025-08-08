@@ -38,6 +38,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen:6.2.5.Final")
 
     /**
      * Amazon S3

@@ -1,6 +1,7 @@
 package school.faang.user_service.repository.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.event.Event;
@@ -8,7 +9,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
 
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     @Query(nativeQuery = true, value = """
             SELECT e.* FROM event e
@@ -29,6 +30,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE e.id = :eventId AND e.user_id = :userId
             """)
     int deleteById(long userId, long eventId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            DELETE FROM event e
+            WHERE e.id IN :ids
+            """)
+    int deleteByIds(List<Long> ids);
+
+    @Query(nativeQuery = true, value = """
+            SELECT e.id FROM event e
+            WHERE e.endDate < CURRENT_TIMESTAMP
+            """)
+    List<Long> findExpiredEventIds();
 
     default Event getByIdOrThrow(long eventId) {
         return findById(eventId)
