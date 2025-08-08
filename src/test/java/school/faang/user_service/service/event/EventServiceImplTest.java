@@ -93,7 +93,6 @@ public class EventServiceImplTest {
     @DisplayName("Должен успешно обработать большое кол-во событий")
     void testCleanupEventsWhenLargeDatasetSuccessful() {
         int totalEvents = 10_000;
-        int expectedBatches = totalEvents / BATCH_SIZE;
         List<Long> massiveList = LongStream.rangeClosed(1, 10_000)
                 .boxed()
                 .collect(Collectors.toList());
@@ -104,9 +103,9 @@ public class EventServiceImplTest {
                     List<Long> batch = inv.getArgument(0);
                     return batch.size();
                 });
+        int expectedBatches = totalEvents / BATCH_SIZE;
 
         assertDoesNotThrow(() -> service.cleanupExpiredEvents());
-
         verify(repository, times(expectedBatches))
                 .deleteByIds(argThat(list -> list.size() == BATCH_SIZE));
         verify(repository, times(expectedBatches)).deleteByIds(anyList());
