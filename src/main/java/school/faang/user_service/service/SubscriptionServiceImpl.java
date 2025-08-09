@@ -68,4 +68,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public int getFollowingCount(long followerId) {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
+
+    @Override
+    public int getAllSubscriptions() {
+        return subscriptionRepository.getAllSubscriptions();
+    }
+
+    @Override
+    public List<Integer> getAuthorsOrderdBySubscribers() {
+        return subscriptionRepository.getAuthorsOrderdBySubscribers();
+    }
 }

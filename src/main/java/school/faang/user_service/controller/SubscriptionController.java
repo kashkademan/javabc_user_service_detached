@@ -60,4 +60,14 @@ public class SubscriptionController {
     public int getFollowingCount(@RequestParam long followerId) {
         return subscriptionService.getFollowingCount(followerId);
     }
+
+    @GetMapping("/count")
+    public int getAllSubscriptions() {
+        return subscriptionService.getAllSubscriptions();
+    }
+    
+    @GetMapping("/authors")
+    public List<Integer> getAuthorsOrderdBySubscribers() {
+        return subscriptionService.getAuthorsOrderdBySubscribers();
+    }
 }

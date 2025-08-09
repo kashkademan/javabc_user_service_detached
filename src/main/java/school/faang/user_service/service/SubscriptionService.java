@@ -18,4 +18,8 @@ public interface SubscriptionService {
     List<UserDto> getFollowing(long followerId, UserFilterDto userFilterDto);
 
     int getFollowingCount(long followerId);
+    
+    int getAllSubscriptions(); 
+
+    List<Integer> getAuthorsOrderdBySubscribers();
 }

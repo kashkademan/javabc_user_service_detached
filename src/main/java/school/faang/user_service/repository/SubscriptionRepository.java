@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import school.faang.user_service.entity.User;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface SubscriptionRepository extends CrudRepository<User, Long> {
@@ -39,4 +40,15 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
 
     @Query(nativeQuery = true, value = "select count(id) from subscription where follower_id = :followerId")
     int findFolloweesAmountByFollowerId(long followerId);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT followee_id) AS unique_followee_count FROM subscription")
+    int getAllSubscriptions();
+
+    @Query(nativeQuery = true, value = """
+        SELECT followee_id FROM subscription 
+                GROUP BY followee_id 
+                ORDER BY COUNT(follower_id) DESC 
+                        LIMIT 10 OFFSET 0
+        """)
+    List<Integer> getAuthorsOrderdBySubscribers();
 }
