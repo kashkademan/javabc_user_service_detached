@@ -1,6 +1,8 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
+
+// import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.entity.FolloweeSumProjection;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
@@ -69,5 +72,33 @@ public class SubscriptionController {
     @GetMapping("/authors")
     public List<Integer> getAuthorsOrderdBySubscribers() {
         return subscriptionService.getAuthorsOrderdBySubscribers();
+    }
+
+    // @GetMapping("/followeesPaged")
+    // public Page<FolloweeSumProjection> getFolloweesBySumOfFollowers(
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size) {
+    //     return subscriptionService.getFolloweesBySumOfFollowers(page, size);
+    // }
+
+    // @GetMapping("/followersPaged")
+    // public Page<Long> getDistinctFollowerIds(
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size) {
+    //     return subscriptionService.getDistinctFollowerIds(page, size);
+    // }
+
+    @GetMapping("/followeesPaged")
+    public List<FolloweeSumProjection> getFolloweesBySumOfFollowers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return subscriptionService.getFolloweesBySumOfFollowers(page, size);
+    }
+
+    @GetMapping("/followersPaged")
+    public List<Long> getDistinctFollowerIds(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return subscriptionService.getDistinctFollowerIds(page, size);
     }
 }

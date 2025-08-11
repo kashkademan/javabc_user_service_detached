@@ -3,6 +3,7 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -51,4 +52,5 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
                         LIMIT 10 OFFSET 0
         """)
     List<Integer> getAuthorsOrderdBySubscribers();
+
 }
