@@ -36,8 +36,6 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final UserContext userContext;
     private final FilterService<Event, EventFilterDto> filterService;
-    @Value("${event-bucket.count}")
-    private Integer eventBucketSize;
     private final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Override
@@ -103,30 +101,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void clearEvents() {
-        List<Long> pastEventsIds = eventRepository
-                .findEventByCompletedStatus(EventStatus.COMPLETED);
+    public List<Long> getPastEventsIds() {
+        return eventRepository.findEventByCompletedStatus(EventStatus.COMPLETED);
+    }
 
-        if (pastEventsIds.isEmpty()) {
-            return;
-        }
-
-        for (int i = 0; i < pastEventsIds.size(); i += eventBucketSize) {
-            List<Long> sublist = pastEventsIds.subList(i,
-                    Math.min(i + eventBucketSize, pastEventsIds.size()));
-            executorService.submit(() -> eventRepository.deleteByIds(sublist));
-        }
-
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(5, TimeUnit.MINUTES)) {
-                log.warn("Удаление событий не было произведено вовремя, ручная остановка потоков.");
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            log.error("Поток прервался во время удаления событий.");
-            executorService.shutdownNow();
-        }
+    @Override
+    @Transactional
+    public void clearEvents(List<Long> eventSubList) {
+        executorService.submit(() -> eventRepository.deleteByIds(eventSubList));
     }
 
     public void validateOwnerSkills(Event event) {

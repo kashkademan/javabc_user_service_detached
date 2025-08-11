@@ -81,9 +81,15 @@ public interface EventService {
     void delete(long eventId);
 
     /**
+     * Запускается из класса {@link school.faang.user_service.scheduler.Scheduler} раз в день
+     * Возвращает id прошедших событий
+     */
+    List<Long> getPastEventsIds();
+
+    /**
      * Запускается из класса {@link school.faang.user_service.scheduler.Scheduler} раз в день,
      * удаляет все события, у которых {@link school.faang.user_service.entity.event.EventStatus}
      * равен COMPLETED
      */
-    void clearEvents();
+    void clearEvents(List<Long> eventSubList);
 }
