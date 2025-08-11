@@ -18,6 +18,7 @@ import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
+import school.faang.user_service.publisher.EventPublisher;
 import school.faang.user_service.rating_service.rating_aspect.ActionType;
 import school.faang.user_service.rating_service.rating_aspect.RatingAction;
 import school.faang.user_service.service.event.EventService;
