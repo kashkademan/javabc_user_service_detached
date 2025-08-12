@@ -22,6 +22,7 @@ import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.service.event.EventService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -79,6 +80,7 @@ public class EventControllerTest {
                 startDate,
                 endDate,
                 EventType.WEBINAR,
+                new ArrayList<>(List.of(1L)),
                 "Location A",
                 EventStatus.PLANNED
         );

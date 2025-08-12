@@ -8,8 +8,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO для создания нового пользовательского события.
@@ -42,6 +45,8 @@ public class EventCreateDto {
 
     @NotNull(message = "Event type must be provided")
     private EventType type;
+
+    private List<Long> attendeesIds;
 
     @NotBlank(message = "Location must not be blank")
     private String location;

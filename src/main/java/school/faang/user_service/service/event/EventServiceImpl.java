@@ -16,7 +16,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
-import school.faang.user_service.publisher.EventPublisher;
+import school.faang.user_service.publisher.EventStartEventPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final UserContext userContext;
     private final FilterService<Event, EventFilterDto> filterService;
-    private final EventPublisher eventPublisher;
+    private final EventStartEventPublisher eventStartEventPublisher;
 
     @Override
     @Transactional
@@ -42,13 +42,20 @@ public class EventServiceImpl implements EventService {
         long userId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(userId);
         event.setOwner(owner);
+
+        List<User> attendees = eventDto.getAttendeesIds().stream()
+                .map(aLong -> userRepository.getByIdOrThrow(aLong))
+                .toList();
+        event.setAttendees(attendees);
+
         log.info("Create event request by userId: {}", userId);
 
         validateOwnerSkills(event);
 
         event = eventRepository.save(event);
         log.info("Event created: {}", event.getId());
-        eventPublisher.publish(new EventStartEvent());
+
+        eventStartEventPublisher.publish(new EventStartEvent());
         return eventMapper.toViewDto(event);
     }
 

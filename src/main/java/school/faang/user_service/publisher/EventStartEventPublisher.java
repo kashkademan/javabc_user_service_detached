@@ -10,7 +10,7 @@ import school.faang.user_service.dto.event.EventStartEvent;
 
 @Component
 @RequiredArgsConstructor
-public class EventPublisher {
+public class EventStartEventPublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
