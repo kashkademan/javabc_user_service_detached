@@ -11,6 +11,7 @@ import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.dto.event.EventStartEvent;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -22,17 +23,21 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    private final Integer threadCount = 3;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final UserContext userContext;
     private final FilterService<Event, EventFilterDto> filterService;
     private final EventStartEventPublisher eventStartEventPublisher;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Override
     @Transactional
@@ -96,6 +101,18 @@ public class EventServiceImpl implements EventService {
 
         eventRepository.delete(event);
         log.info("Event deleted: {}", event.getId());
+    }
+
+    @Override
+    @Transactional
+    public List<Long> getPastEventsIds() {
+        return eventRepository.findEventByCompletedStatus(EventStatus.COMPLETED);
+    }
+
+    @Override
+    @Transactional
+    public void clearEvents(List<Long> eventSubList) {
+        executorService.submit(() -> eventRepository.deleteByIds(eventSubList));
     }
 
     public void validateOwnerSkills(Event event) {

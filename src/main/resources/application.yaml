@@ -74,3 +74,9 @@ skill:
   count-recommendation:
     min-length: 3
 
+event:
+  delete-scheduled:
+    cron: "0 0 0 * * *"
+
+event-bucket:
+    count: 100
