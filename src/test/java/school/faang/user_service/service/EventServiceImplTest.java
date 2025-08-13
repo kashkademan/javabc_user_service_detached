@@ -22,7 +22,6 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
 import school.faang.user_service.service.filter.event.EventFilterServiceImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
