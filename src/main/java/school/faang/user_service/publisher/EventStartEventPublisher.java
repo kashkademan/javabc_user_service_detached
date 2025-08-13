@@ -11,7 +11,6 @@ import school.faang.user_service.dto.event.EventStartEvent;
 @RequiredArgsConstructor
 @Slf4j
 public class EventStartEventPublisher {
-
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Value("${spring.data.redis.channel.event}")
