@@ -43,11 +43,6 @@ public class EventServiceImpl implements EventService {
         User owner = userRepository.getByIdOrThrow(userId);
         event.setOwner(owner);
 
-        List<User> attendees = eventDto.getAttendeesIds().stream()
-                .map(aLong -> userRepository.getByIdOrThrow(aLong))
-                .toList();
-        event.setAttendees(attendees);
-
         log.info("Create event request by userId: {}", userId);
 
         validateOwnerSkills(event);
@@ -55,7 +50,7 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
         log.info("Event created: {}", event.getId());
 
-        eventStartEventPublisher.publish(new EventStartEvent());
+        eventStartEventPublisher.publish(new EventStartEvent(event.getTitle(), eventDto.getAttendeesIds()));
         return eventMapper.toViewDto(event);
     }
 

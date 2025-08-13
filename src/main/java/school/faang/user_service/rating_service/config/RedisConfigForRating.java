@@ -15,7 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * на основании настроек подключения к Redis.
  */
 @Configuration
-public class RedisConfig {
+public class RedisConfigForRating {
 
     /**
      * Создаёт и настраивает бин {@link StringRedisTemplate} для работы с Redis.
@@ -24,7 +24,7 @@ public class RedisConfig {
      * @return настроенный {@link StringRedisTemplate}
      */
     @Bean
-    public StringRedisTemplate redisTemplate(RedisConnectionFactory factory) {
+    public StringRedisTemplate redisTemplateForRating(RedisConnectionFactory factory) {
         return new StringRedisTemplate(factory);
     }
 }

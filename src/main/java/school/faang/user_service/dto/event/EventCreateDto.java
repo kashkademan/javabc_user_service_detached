@@ -8,10 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
-import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
