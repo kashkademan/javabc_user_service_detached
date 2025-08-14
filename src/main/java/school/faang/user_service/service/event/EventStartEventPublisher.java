@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.event.EventStartEvent;
 
 @Component
-public class EventStartEventPublisher implements MessagePublisher{
+public class EventStartEventPublisher implements MessagePublisher {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;

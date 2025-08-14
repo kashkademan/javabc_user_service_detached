@@ -6,4 +6,6 @@ public record EventStartEvent(
         long eventId,
         List<Long> participantsIds
 )
-{}
+{
+
+}
