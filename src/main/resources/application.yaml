@@ -72,3 +72,6 @@ skill:
   count-recommendation:
     min-length: 3
 
+telegram:
+  bot-username: "BotGetChatId"
+  bot-token: "8237783798:AAHRORzy1IaPVJwY6eNQgFhuTYTLLDiOslY"

@@ -66,6 +66,32 @@ public interface UserService {
      * @return список пользователей в виде List<{@link UserDto}>
      */
     List<UserDto> getUsers(UserFilterDto filter);
+
+    /**
+     * Связывает Telegram chatId с пользователем в системе.
+     * <p>
+     * Используется после того, как пользователь отправил команду /start боту.
+     * Бот получает chatId, а этот метод сохраняет его для указанного userId.
+     * </p>
+     *
+     * @param userId Идентификатор пользователя в системе
+     * @param chatId Идентификатор чата Telegram пользователя
+     */
+    void linkChatId(Long userId, Long chatId);
+
+    /**
+     * Генерирует персональную ссылку на Telegram-бота для привязки аккаунта.
+     * <p>
+     * Ссылка включает userId, который бот будет использовать для определения,
+     * к какому пользователю привязывать chatId.
+     * </p>
+     *
+     * @param userId Идентификатор пользователя в системе
+     * @return URL для перехода в Telegram и запуска бота
+     */
+    String generateTelegramLink(Long userId);
+
+
 }
 
 

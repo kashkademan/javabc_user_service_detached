@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -87,7 +87,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-
     @Override
     @Transactional
     public List<UserDto> getUsers(UserFilterDto filter) {
@@ -102,4 +101,15 @@ public class UserServiceImpl implements UserService {
         return users.map(userMapper::toUserDto)
                 .toList();
     }
+
+    public String generateTelegramLink(Long userId) {
+        return "https://t.me/BotGetChatId_evgeniy_bot?start=" + userId;
+    }
+
+    public void linkChatId(Long userId, Long chatId) {
+        User user = userRepository.getByIdOrThrow(userId);
+        user.setChatId(chatId);
+        userRepository.save(user);
+    }
+
 }
