@@ -98,6 +98,24 @@ public class MentorshipServiceImpl implements MentorshipService {
         }
     }
 
+    @Override
+    @Transactional
+    public UserDto getMentor(long menteeId) {
+        if (!userRepository.existsById(menteeId)) {
+            throw new DataValidationException("User not found");
+        }
+        User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
+        List<User> mentors = mentee.getMentors();
+
+        if (mentors.isEmpty()) {
+            throw new DataValidationException("No mentor found for this user");
+        }
+        if (mentors.size() > 1) {
+            throw new DataValidationException("Multiple mentors found — expected only one");
+        }
+
+        return userMapper.toUserDto(mentors.get(0));
+    }
 
     private void validateMentorship(long mentorId, long menteeId) {
         if (mentorId == menteeId) {

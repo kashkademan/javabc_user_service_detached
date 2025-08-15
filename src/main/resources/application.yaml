@@ -71,7 +71,14 @@ user:
 skill:
   count-recommendation:
     min-length: 3
-
+    
 telegram:
   bot-username: "BotGetChatId"
   bot-token: "someToken"
+
+event:
+  delete-scheduled:
+    cron: "0 0 0 * * *"
+
+event-bucket:
+  count: 100

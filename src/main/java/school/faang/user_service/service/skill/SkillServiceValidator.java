@@ -3,7 +3,6 @@ package school.faang.user_service.service.skill;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.user.Skill;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -16,12 +15,6 @@ import java.util.Optional;
 public class SkillServiceValidator {
     private final SkillRepository repository;
     private final SkillOfferRepository offerRepository;
-
-    public void validateNotNull(Object object, String string) {
-        if (object == null) {
-            throw new DataValidationException(string);
-        }
-    }
 
     public void validationByNameSkillInTheDataBase(String title) {
         if (repository.existsByTitle(title)) {
