@@ -74,7 +74,7 @@ skill:
     
 telegram:
   bot-username: "BotGetChatId"
-  bot-token: "SomethingToken12345"
+  bot-token: "8237783798:AAHRORzy1IaPVJwY6eNQgFhuTYTLLDiOslY"
 
 event:
   delete-scheduled:
