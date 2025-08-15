@@ -38,7 +38,8 @@ public class UserServiceTestData {
                 name,
                 "example@gmail.com",
                 UUID.randomUUID().toString(),
-                countryId
+                countryId,
+                "TELEGRAM"
         );
     }
 
