@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.service.user.UserSubscriptionService;
 
@@ -102,9 +102,9 @@ public class UserSubscriptionControllerTest {
     @DisplayName("получение подписчиков пользователя")
     @Test
     public void testGetFollowers() throws Exception {
-        UserDto userDto = new UserDto(null, null, null, null, null);
+        UserViewDto userViewDto = new UserViewDto(null, null, null, null, null, null);
 
-        List<UserDto> filteredFollowers = List.of(userDto);
+        List<UserViewDto> filteredFollowers = List.of(userViewDto);
 
         when(service.getFollowers(eq(1L), any(UserFiltersDto.class))).thenReturn(filteredFollowers);
 
@@ -119,9 +119,9 @@ public class UserSubscriptionControllerTest {
     @DisplayName("получение юзеров на которых подписан пользователь")
     @Test
     public void testGetFollowees() throws Exception {
-        UserDto userDto = new UserDto(null, null, null, null, null);
+        UserViewDto userViewDto = new UserViewDto(null, null, null, null, null, null);
 
-        List<UserDto> filteredFollowees = List.of(userDto);
+        List<UserViewDto> filteredFollowees = List.of(userViewDto);
 
         when(service.getFollowees(eq(FOLLOWER_ID), any(UserFiltersDto.class))).thenReturn(filteredFollowees);
 

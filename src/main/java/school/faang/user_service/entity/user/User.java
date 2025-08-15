@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -36,11 +37,11 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
 @Table(name = "users")
 public class User {
 
@@ -66,6 +67,7 @@ public class User {
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
@@ -89,47 +91,60 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
     private List<User> followers;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "followers")
     private List<User> followees;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "mentors", cascade = CascadeType.ALL)
     private List<User> mentees;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(name = "mentorship",
             joinColumns = @JoinColumn(name = "mentee_id"),
             inverseJoinColumns = @JoinColumn(name = "mentor_id"))
     private List<User> mentors;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "receiver")
     private List<MentorshipRequest> receivedMentorshipRequests;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "requester")
     private List<MentorshipRequest> sentMentorshipRequests;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "inviter")
     private List<GoalInvitation> sentGoalInvitations;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "invited")
     private List<GoalInvitation> receivedGoalInvitations;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "mentor")
     private List<Goal> setGoals;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
 
+    @ToString.Exclude
     @ManyToMany(mappedBy = "users")
     private List<Skill> skills;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(
             name = "user_event",
@@ -138,15 +153,19 @@ public class User {
     )
     private List<Event> participatedEvents;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "author")
     private List<Recommendation> recommendationsGiven;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "receiver")
     private List<Recommendation> recommendationsReceived;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Rating> ratings;
 
@@ -157,18 +176,23 @@ public class User {
     })
     private UserProfilePic userProfilePic;
 
+    @ToString.Exclude
     @OneToOne(mappedBy = "user")
     private ContactPreference contactPreference;
 
+    @ToString.Exclude
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Education> education;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Career> career;
 
+    @ToString.Exclude
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
 }

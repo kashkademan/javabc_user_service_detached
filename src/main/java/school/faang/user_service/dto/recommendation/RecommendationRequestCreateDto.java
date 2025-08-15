@@ -15,6 +15,7 @@ public record RecommendationRequestCreateDto(
         String message,
         @NonNull
         Long receiverId,
+        @NonNull
         List<Long> skillIds
 ) {
 

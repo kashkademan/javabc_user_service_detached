@@ -6,14 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
-import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,7 +22,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final UserRepository userRepository;
     private final UserMapper mapper;
     private final UserContext userContext;
     private final List<UserFilter> filters;
@@ -66,13 +64,13 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
-    public List<UserDto> getFollowers(long followeeId, UserFiltersDto userFiltersDto) {
+    public List<UserViewDto> getFollowers(long followeeId, UserFiltersDto userFiltersDto) {
         List<User> followers = subscriptionRepository.findByFolloweeId(followeeId).toList();
         return getFilterUserDto(followers, userFiltersDto);
     }
 
     @Override
-    public List<UserDto> getFollowees(long followerId, UserFiltersDto userFiltersDto) {
+    public List<UserViewDto> getFollowees(long followerId, UserFiltersDto userFiltersDto) {
         List<User> followees = subscriptionRepository.findByFollowerId(followerId).toList();
         return getFilterUserDto(followees, userFiltersDto);
     }
@@ -106,7 +104,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         log.info("Попытка {} - успех: followerId={}, followeeId={}", actionText, followerId, followeeId);
     }
 
-    private List<UserDto> getFilterUserDto(List<User> users, UserFiltersDto userFiltersDto) {
+    private List<UserViewDto> getFilterUserDto(List<User> users, UserFiltersDto userFiltersDto) {
         Stream<User> filteredUsers = users.stream();
 
         for (UserFilter userFilter : this.filters) {

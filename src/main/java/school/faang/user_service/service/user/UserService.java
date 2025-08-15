@@ -1,8 +1,8 @@
 package school.faang.user_service.service.user;
 
-import school.faang.user_service.dto.user.CreateUserDto;
-import school.faang.user_service.dto.user.UpdateUserDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserUpdateDto;
+import school.faang.user_service.dto.user.UserViewDto;
 
 /**
  * Сервис для управления пользователями.
@@ -21,10 +21,10 @@ public interface UserService {
      *         при нарушении выбрасывается {@code DataValidationException}.</li>
      * </ul>
      *
-     * @param userDto объект {@link CreateUserDto}, содержащий информацию для создания пользователя
-     * @return объект {@link UserDto}, представляющий созданного пользователя
+     * @param userDto объект {@link UserCreateDto}, содержащий информацию для создания пользователя
+     * @return объект {@link UserViewDto}, представляющий созданного пользователя
      */
-    UserDto create(CreateUserDto userDto);
+    UserViewDto create(UserCreateDto userDto);
 
     /**
      * Обновляет информацию о существующем пользователе.
@@ -40,10 +40,10 @@ public interface UserService {
      * </ul>
      *
      * @param userId идентификатор пользователя, чьи данные необходимо обновить
-     * @param userDto объект {@link UpdateUserDto}, содержащий обновлённые данные пользователя
-     * @return объект {@link UserDto}, представляющий обновлённого пользователя
+     * @param userDto объект {@link UserUpdateDto}, содержащий обновлённые данные пользователя
+     * @return объект {@link UserViewDto}, представляющий обновлённого пользователя
      */
-    UserDto update(long userId, UpdateUserDto userDto);
+    UserViewDto update(Long userId, UserUpdateDto userDto);
 
     /**
      * Возвращает информацию о пользователе по его идентификатору.
@@ -52,9 +52,9 @@ public interface UserService {
      * выбрасывается {@code EntityNotFoundException}.
      *
      * @param userId идентификатор пользователя
-     * @return объект {@link UserDto}, содержащий данные пользователя
+     * @return объект {@link UserViewDto}, содержащий данные пользователя
      */
-    UserDto getById(long userId);
+    UserViewDto getById(Long userId);
 }
 
 

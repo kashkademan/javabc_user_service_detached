@@ -67,3 +67,6 @@ services:
     bucketName: testbacket
     isMocked: false
 
+redis:
+  topic:
+    recommendation-request: "recommendation_request_topic"

@@ -61,18 +61,19 @@ public class RecommendationRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public RecommendationRequestViewDto getById(@PathVariable long requestId) {
+    public RecommendationRequestViewDto getById(@PathVariable Long requestId) {
         return service.getById(requestId);
     }
 
     @PostMapping("/{requestId}/accept")
-    public ResponseEntity<Void> accept(@PathVariable long requestId) {
+    public ResponseEntity<Void> accept(@PathVariable Long requestId) {
         service.accept(requestId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{requestId}/reject")
-    public ResponseEntity<Void> reject(@PathVariable long requestId, @RequestBody @Valid RejectionDto rejectionDto) {
+    public ResponseEntity<Void> reject(@PathVariable Long requestId,
+                                       @RequestBody @Valid RejectionDto rejectionDto) {
         service.reject(requestId, rejectionDto);
         return ResponseEntity.ok().build();
     }

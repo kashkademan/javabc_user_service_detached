@@ -15,7 +15,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestCreateD
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -24,6 +24,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
+import school.faang.user_service.publisher.RecommendationRequestedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -81,6 +82,9 @@ public class RecommendationRequestServiceImplTest {
     private UserContext userContext;
 
     @Mock
+    private RecommendationRequestedEventPublisher publisher;
+
+    @Mock
     private RecommendationRequestFilter messageFilter;
     @Mock
     private RecommendationRequestFilter receiverIdFilter;
@@ -108,6 +112,7 @@ public class RecommendationRequestServiceImplTest {
                 skillRequestRepository,
                 mapper,
                 filters,
+                publisher,
                 userContext
         );
     }
@@ -231,8 +236,8 @@ public class RecommendationRequestServiceImplTest {
         RecommendationRequestViewDto expectedDto = new RecommendationRequestViewDto(
                 requestId,
                 "Test",
-                new UserDto(1L, null, null, null, null),
-                new UserDto(2L, null, null, null, null),
+                new UserViewDto(1L, null, null, null, null, null),
+                new UserViewDto(2L, null, null, null, null, null),
                 RequestStatus.PENDING,
                 List.of(),
                 LocalDateTime.now()
