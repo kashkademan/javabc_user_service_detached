@@ -3,6 +3,7 @@ package school.faang.user_service.service.user;
 import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNotificationDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
 
 import java.util.List;
@@ -91,6 +92,7 @@ public interface UserService {
      */
     String generateTelegramLink(Long userId);
 
+    UserNotificationDto getContactInfo(long userId);
 
 }
 

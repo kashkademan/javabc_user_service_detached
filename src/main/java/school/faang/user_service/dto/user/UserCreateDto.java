@@ -21,6 +21,10 @@ public record UserCreateDto(
 
         @NotNull
         @Schema(description = "Идентификатор страны", example = "1")
-        Long countryId
+        Long countryId,
+
+        @NotBlank
+        @Schema(description = "Тип уведомления")
+        String contact
 ) {
 }

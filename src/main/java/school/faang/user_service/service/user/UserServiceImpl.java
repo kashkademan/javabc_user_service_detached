@@ -10,7 +10,10 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNotificationDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -49,10 +52,32 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
+        ContactPreference pref = ContactPreference.builder()
+                .user(user)
+                .preference(PreferredContact.fromString(userDto.contact()))
+                .build();
+
+        user.setContactPreference(pref);
+
         user = userRepository.save(user);
         setAvatarIfPossible(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public UserNotificationDto getContactInfo(long userId) {
+        var user = userRepository.getByIdOrThrow(userId);
+
+        PreferredContact contactPreference = user.getContactPreference().getPreference();
+
+        var info = user.getChatId();
+
+        UserNotificationDto dto = new UserNotificationDto();
+        dto.setPreferredContact(contactPreference);
+        dto.setChatId(info);
+
+        return dto;
     }
 
     private void setAvatarIfPossible(User user) {
