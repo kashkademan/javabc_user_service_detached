@@ -2,6 +2,7 @@ package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.config.property.RecommendationRequestProperty;
@@ -12,6 +13,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestFilterD
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.event.RecommendationRequestEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation_request.RecommendationRequestFilter;
@@ -39,6 +41,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final Set<RecommendationRequestFilter> recommendationRequestFilters;
     private final RecommendationRequestProperty property;
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -79,6 +83,13 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         }
 
         log.info("Recommendation request created: {}", recommendationRequest.getId());
+
+        RecommendationRequestEvent event = new RecommendationRequestEvent(
+                recommendationRequest.getRequester().getId(),
+                recommendationRequest.getReceiver().getId(),
+                recommendationRequest.getId()
+        );
+        kafkaTemplate.send("recommendation-request-topic", event);
 
         return recommendationRequestMapper.toRecommendationRequestDto(recommendationRequest);
     }

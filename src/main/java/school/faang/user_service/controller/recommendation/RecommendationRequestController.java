@@ -2,6 +2,9 @@ package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
@@ -14,10 +17,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
+    @PostMapping("/recommendation-requests")
+    public RecommendationRequestDto create(@RequestBody CreateRecommendationRequestDto recommendationDto) {
         validateString(recommendationDto.message(), "message");
         validateNotNull(recommendationDto.receiverId(), "receiverId");
         return recommendationRequestService.create(recommendationDto);

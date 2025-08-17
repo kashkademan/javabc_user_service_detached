@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.stubbing.Answer;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
@@ -87,6 +88,8 @@ class RecommendationRequestServiceImplTest {
 
     private RecommendationRequestProperty recommendationRequestProperty;
 
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
     private RecommendationRequestServiceImpl recommendationRequestService;
 
     @BeforeEach
@@ -111,7 +114,8 @@ class RecommendationRequestServiceImplTest {
                         recommendationRequestReceiverIdFilter,
                         recommendationRequestRequesterIdFilter,
                         recommendationRequestStatusFilter),
-                recommendationRequestProperty
+                recommendationRequestProperty,
+                kafkaTemplate
         );
     }
 
