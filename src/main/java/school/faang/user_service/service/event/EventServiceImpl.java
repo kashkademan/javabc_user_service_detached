@@ -53,16 +53,17 @@ public class EventServiceImpl implements EventService {
             log.info("Успешно удалено {} просроченных ивентов", totalDeleted);
 
         } catch (DataAccessException e) {
-            handleDatabaseError(e);
+            log.error("Ошибка базы данных во время удаления ивентов", e);
+            throw new EventCleanupException("Ошибка базы данных", e);
         } catch (Exception e) {
-            handleUnexpectedError(e);
+            log.error("Неожиданная ошибка во время удаления ивентов", e);
+            throw new EventCleanupException("Ошибка во время удаления ивентов", e);
         }
     }
 
     private int processAndCountDeletion(AtomicInteger counter, List<Long> ids) {
         List<CompletableFuture<Void>> futures = createBatchDeletionFutures(counter, ids);
         waitForCompletion(futures);
-
         return counter.get();
     }
 
@@ -74,9 +75,11 @@ public class EventServiceImpl implements EventService {
             log.error("Таймаут при удалении ивентов");
             throw new EventCleanupException("Таймаут операции");
         } catch (ExecutionException e) {
+            log.error("Удаление ивентов завершилось ошибкой");
             throw new EventCleanupException("Выполнение завершилось неудачей", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.error("Удаление ивентов было прервано");
             throw new EventCleanupException("Операция прервана", e);
         }
     }
@@ -85,43 +88,34 @@ public class EventServiceImpl implements EventService {
     private List<CompletableFuture<Void>> createBatchDeletionFutures(AtomicInteger counter, List<Long> passedEvents) {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-        for (List<Long> batch : Lists.partition(passedEvents, batchSize)) {
+        for (List<Long> ids : Lists.partition(passedEvents, batchSize)) {
             try {
-                futures.add(CompletableFuture.runAsync(
-                        () -> processBatchDeletion(batch, counter),
+                CompletableFuture<Void> future = CompletableFuture.runAsync(
+                        () -> processBatchDeletion(ids, counter),
                         taskExecutor
                 ).exceptionally(e -> {
                     log.error("Один из пакетов завершился с ошибкой", e);
                     return null;
-                })
-                );
+                });
+
+                futures.add(future);
             } catch (TaskRejectedException e) {
-                processBatchDeletion(batch, counter);
+                log.warn("Задача отменена, происходит выполнение в текущем потоке");
+                processBatchDeletion(ids, counter);
             }
         }
 
         return futures;
     }
 
-    private void processBatchDeletion(List<Long> batch, AtomicInteger counter) {
+    private void processBatchDeletion(List<Long> ids, AtomicInteger counter) {
         try {
-            int deletedCount = repository.deleteByIds(batch);
+            int deletedCount = repository.deleteByIds(ids);
             counter.addAndGet(deletedCount);
-            log.debug("Удалено {} events in batch", deletedCount);
+            log.debug("Удалено {}/{} ивентов из списка", deletedCount, ids.size());
         } catch (DataAccessException e) {
             log.error("Не удалось выполнить пакетное удаление", e);
-            throw new EventCleanupException("Не удалось выполнить пакетное удаление", e);
+            throw new EventCleanupException("Не удалось выполнить удаление списка ивентов", e);
         }
     }
-
-    private void handleDatabaseError(DataAccessException e) {
-        log.error("Ошибка базы данных во время удаления ивентов", e);
-        throw e;
-    }
-
-    private void handleUnexpectedError(Exception e) {
-        log.error("Неожиданная ошибка во время удаления ивентов", e);
-        throw new EventCleanupException("Ошибка во время удаления ивентов", e);
-    }
-
 }
