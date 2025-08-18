@@ -24,6 +24,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      channel:
+        mentorship-requested: mentorship_requested_channel
 
 server:
   port: 8080
