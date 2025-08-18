@@ -8,7 +8,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -50,8 +49,7 @@ public class RecommendationServiceTest {
     @Spy
     private RecommendationMapperImpl recommendationMapper;
 
-    @Value("${recommendation.repeat.limit}")
-    private int repeatRecommendationTimeLimit;
+    private final int repeatRecommendationTimeLimit = 6;
 
     private final RecommendationFilter authorFilter = new RecommendationAuthorFilterInstance();
     private final RecommendationFilter contentFilter = new RecommendationContentFilterInstance();
@@ -70,6 +68,7 @@ public class RecommendationServiceTest {
                 recommendationRepository,
                 recommendationMapper,
                 userContext,
+                6,
                 List.of(authorFilter, contentFilter, receiverFilter)
         );
     }
