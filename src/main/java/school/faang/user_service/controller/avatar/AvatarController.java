@@ -28,7 +28,7 @@ public class AvatarController {
      *
      * @return HTTP 204 No Content при успешной генерации
      */
-    @GetMapping
+    @PostMapping
     public ResponseEntity<Void> generateAvatar() {
         service.generateAndSaveAvatar();
         return ResponseEntity.noContent().build();
@@ -39,7 +39,7 @@ public class AvatarController {
      *
      * @return HTTP 200 OK с данными аватара в теле ответа
      */
-    @PostMapping
+    @GetMapping
     public ResponseEntity<AvatarDownloadDto> download() {
         AvatarDownloadDto result = service.downloadAvatar();
         return ResponseEntity.ok(result);

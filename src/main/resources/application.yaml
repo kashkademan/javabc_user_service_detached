@@ -53,3 +53,6 @@ services:
     bucketName: testbacket
     isMocked: false
 
+generate-ava:
+  dice:
+    base-url: https://api.dicebear.com/9.x

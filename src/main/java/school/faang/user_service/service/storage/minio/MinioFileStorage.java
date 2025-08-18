@@ -30,9 +30,7 @@ public class MinioFileStorage implements FileStorageService {
     @Override
     public void upload(byte[] fileBytes, String bucketName, String objectKey, String contentType)
             throws StorageException {
-        try {
-
-            InputStream fileStream = new ByteArrayInputStream(fileBytes);
+        try (InputStream fileStream = new ByteArrayInputStream(fileBytes)) {
             PutObjectArgs putObject = PutObjectArgs.builder()
                     .bucket(bucketName)
                     .object(objectKey)
