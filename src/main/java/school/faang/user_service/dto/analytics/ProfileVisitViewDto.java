@@ -1,18 +1,19 @@
-package school.faang.user_service.messaging.dto;
+package school.faang.user_service.dto.analytics;
 
 import java.time.LocalDateTime;
 
 /**
- * SearchAppearanceEvent — неизменяемая структура данных (record).
+ * ProfileVisitViewDto — неизменяемая структура данных (record).
  * <p>
  * TODO: описать предназначение record и его поля.
  * </p>
  *
- * @param visitorId описание первого поля
+ * @param id описание первого поля
  * @author Myrza
  * @since 19.08.2025
  */
-public record SearchAppearanceEvent(
+public record ProfileVisitViewDto(
+        Long id,
         Long visitorId,
         Long visitedId,
         LocalDateTime visitedAt

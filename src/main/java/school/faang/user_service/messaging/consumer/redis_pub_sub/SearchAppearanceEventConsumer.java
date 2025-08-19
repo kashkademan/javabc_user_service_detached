@@ -1,13 +1,15 @@
 package school.faang.user_service.messaging.consumer.redis_pub_sub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.mapper.analytics.ProfileVisitMapper;
 import school.faang.user_service.messaging.dto.SearchAppearanceEvent;
+import school.faang.user_service.service.analytics.ProfileVisitService;
 
 import java.nio.charset.StandardCharsets;
 
@@ -22,21 +24,20 @@ import java.nio.charset.StandardCharsets;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SearchAppearanceEventConsumer implements MessageListener {
     private final ObjectMapper objMapper;
-
-    public SearchAppearanceEventConsumer() {
-        objMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule());
-    }
+    private final ProfileVisitService service;
+    private final ProfileVisitMapper visitMapper;
 
     @Override
     public void onMessage(@NotNull Message message, byte[] pattern) {
         var topic = new String(pattern, StandardCharsets.UTF_8);
-        log.info("start consume message on topic: {}", topic);
         try {
-            var body = objMapper.readValue(message.getBody(), SearchAppearanceEvent.class);
-            log.info("body {}", body);
+            var event = objMapper.readValue(message.getBody(), SearchAppearanceEvent.class);
+            log.info("start consume message on topic: '{}' event: {}", topic, event);
+            var dto = visitMapper.toDto(event);
+            service.addVisit(dto);
         } catch (Exception e) {
             log.error("SearchAppearanceEventConsumer.onMessage topic: {}", topic, e);
         }

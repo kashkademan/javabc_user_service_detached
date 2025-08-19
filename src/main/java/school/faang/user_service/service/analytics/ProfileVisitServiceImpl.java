@@ -1,0 +1,47 @@
+package school.faang.user_service.service.analytics;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.analytics.ProfileVisitCreateDto;
+import school.faang.user_service.dto.analytics.ProfileVisitViewDto;
+import school.faang.user_service.mapper.analytics.ProfileVisitMapper;
+import school.faang.user_service.repository.analytic.ProfileVisitRepository;
+import school.faang.user_service.repository.user.UserRepository;
+
+import java.util.List;
+
+/**
+ * ProfileVisitServiceImpl — описание класса.
+ * <p>
+ * TODO: описать, какие обязанности у класса.
+ * </p>
+ *
+ * @author Myrza
+ * @since 19.08.2025
+ */
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class ProfileVisitServiceImpl implements ProfileVisitService {
+    private final ProfileVisitRepository visitRepo;
+    private final UserRepository userRepo;
+    private final ProfileVisitMapper mapper;
+
+    @Override
+    public void addVisit(ProfileVisitCreateDto visit) {
+        log.info("add visit {}", visit);
+        var visitor = userRepo.getByIdOrThrow(visit.visitorId());
+        var visited = userRepo.getByIdOrThrow(visit.visitedId());
+        var entity = mapper.toEntity(visit);
+        entity.setVisitor(visitor);
+        entity.setVisited(visited);
+        visitRepo.save(entity);
+    }
+
+    @Override
+    public List<ProfileVisitViewDto> getUserVisitors(Long visitedId, int limit, int offset) {
+        var visits = visitRepo.findAllByVisitedIdAndLimitAbdOffset(visitedId, limit, offset);
+        return mapper.toDtoList(visits);
+    }
+}

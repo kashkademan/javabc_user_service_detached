@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -24,9 +24,7 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
@@ -92,7 +90,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(long userId) {
         var currentUserId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);
-        var event = new SearchAppearanceEvent(userId, currentUserId, LocalDateTime.now());
+        var event = new SearchAppearanceEvent(currentUserId, userId, LocalDateTime.now());
         publishEvent(searchAppearanceEventPublisher, event);
         return userMapper.toUserDto(user);
     }

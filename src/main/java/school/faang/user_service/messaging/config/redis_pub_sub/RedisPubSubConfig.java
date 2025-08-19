@@ -1,5 +1,6 @@
 package school.faang.user_service.messaging.config.redis_pub_sub;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,9 @@ import school.faang.user_service.messaging.consumer.redis_pub_sub.SearchAppearan
  * @since 19.08.2025
  */
 @Configuration
+@RequiredArgsConstructor
 public class RedisPubSubConfig {
+    private final SearchAppearanceEventConsumer searchAppearanceEventConsumer;
     @Value("${kafka.topics.search-appearance}")
     private String searchAppearanceTopic;
 
@@ -33,7 +36,7 @@ public class RedisPubSubConfig {
     public RedisMessageListenerContainer redisSearchAppearanceEventContainer(RedisConnectionFactory connectionFactory) {
         var container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(new SearchAppearanceEventConsumer(), searchAppearanceTopic());
+        container.addMessageListener(searchAppearanceEventConsumer, searchAppearanceTopic());
         return container;
     }
 
