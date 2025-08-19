@@ -44,3 +44,15 @@ user:
 recommendation-request:
   cooldown:
     month: 6
+
+services:
+  s3:
+    endpoint: http://localhost:9000
+    access-key: user
+    secret-key: password
+    bucketName: testbacket
+    isMocked: false
+
+generate-ava:
+  dice:
+    base-url: https://api.dicebear.com/9.x

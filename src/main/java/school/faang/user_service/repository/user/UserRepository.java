@@ -6,6 +6,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -29,8 +30,25 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByEmailIgnoreCase(String email);
 
+    @Query(nativeQuery = true, value =
+            """
+            SELECT u.avatar_key FROM users u
+            WHERE u.id = :userId
+            """
+    )
+    Optional<String> findAvatarKeyById(Long userId);
+
+    default String getAvatarKeyByIdOrThrow(Long userId) {
+        return findAvatarKeyById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Аватар пользователя id=%d не был найден", userId))
+                );
+    }
+
     default User getByIdOrThrow(long userId) {
         return findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
+                .orElseThrow(
+                        () -> new EntityNotFoundException(String.format("Пользователь id=%d не был найден", userId))
+                );
     }
 }

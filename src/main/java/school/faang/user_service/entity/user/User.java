@@ -76,6 +76,9 @@ public class User {
     @Column(name = "experience")
     private Integer experience;
 
+    @Column(name = "avatar_key")
+    private String avatarKey;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
