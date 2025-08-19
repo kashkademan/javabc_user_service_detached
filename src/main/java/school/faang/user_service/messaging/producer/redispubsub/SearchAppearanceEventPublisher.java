@@ -1,4 +1,4 @@
-package school.faang.user_service.messaging.producer.redis_pub_sub;
+package school.faang.user_service.messaging.producer.redispubsub;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

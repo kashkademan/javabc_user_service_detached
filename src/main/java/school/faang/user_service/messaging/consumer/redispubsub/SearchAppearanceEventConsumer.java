@@ -1,4 +1,4 @@
-package school.faang.user_service.messaging.consumer.redis_pub_sub;
+package school.faang.user_service.messaging.consumer.redispubsub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

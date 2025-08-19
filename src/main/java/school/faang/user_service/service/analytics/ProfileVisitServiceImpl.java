@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.analytics.ProfileVisitCreateDto;
 import school.faang.user_service.dto.analytics.ProfileVisitViewDto;
 import school.faang.user_service.mapper.analytics.ProfileVisitMapper;
-import school.faang.user_service.repository.analytic.ProfileVisitRepository;
+import school.faang.user_service.repository.analytics.ProfileVisitRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
@@ -34,6 +34,7 @@ public class ProfileVisitServiceImpl implements ProfileVisitService {
         var visitor = userRepo.getByIdOrThrow(visit.visitorId());
         var visited = userRepo.getByIdOrThrow(visit.visitedId());
         var entity = mapper.toEntity(visit);
+        log.info("entity: {}", entity);
         entity.setVisitor(visitor);
         entity.setVisited(visited);
         visitRepo.save(entity);

@@ -1,4 +1,4 @@
-package school.faang.user_service.messaging.config.redis_pub_sub;
+package school.faang.user_service.messaging.config.redispubsub;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +9,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import school.faang.user_service.messaging.consumer.redis_pub_sub.SearchAppearanceEventConsumer;
+import school.faang.user_service.messaging.consumer.redispubsub.SearchAppearanceEventConsumer;
 
 /**
  * RedisConfig — описание класса.
