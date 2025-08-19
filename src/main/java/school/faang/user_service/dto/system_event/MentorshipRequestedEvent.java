@@ -1,6 +1,9 @@
 package school.faang.user_service.dto.system_event;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
-public record MentorshipRequestedEvent(Long requesterId, Long receiverId, LocalDateTime createdAt) {
+@Builder
+public record MentorshipRequestedEvent(Long receiverId, Long actorId, LocalDateTime createdAt) {
 }
