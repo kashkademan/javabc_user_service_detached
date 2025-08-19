@@ -45,6 +45,20 @@ recommendation-request:
   cooldown:
     month: 6
 
+schedule:
+  event-cleanup: "0 0 0 * * *"
+  timezone: "Europe/Moscow"
+
+async:
+  core-pool-size: 5
+  max-pool-size: 10
+  queue-capacity: 100
+
+event:
+  cleanup:
+    batch-size: 100
+    timeout-sec: 30
+
 services:
   s3:
     endpoint: http://localhost:9000
