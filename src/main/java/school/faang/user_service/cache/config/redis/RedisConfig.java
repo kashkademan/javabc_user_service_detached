@@ -36,7 +36,9 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, SearchAppearanceEvent> searchAppearanceEventRedisTemplate(RedisConnectionFactory factory) {
+    public RedisTemplate<String, SearchAppearanceEvent> searchAppearanceEventRedisTemplate(
+            RedisConnectionFactory factory
+    ) {
         RedisTemplate<String, SearchAppearanceEvent> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         var mapper = new ObjectMapper()
