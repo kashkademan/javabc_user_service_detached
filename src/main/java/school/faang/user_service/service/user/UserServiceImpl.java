@@ -16,12 +16,18 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messaging.dto.SearchAppearanceEvent;
+import school.faang.user_service.messaging.producer.EventPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -38,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
     private final FilterService<User, UserFilterDto> filterService;
     private final UserAvatarService avatarService;
+    private final EventPublisher<SearchAppearanceEvent> searchAppearanceEventPublisher;
 
     @Override
     @Transactional
@@ -83,10 +90,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long userId) {
+        var currentUserId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);
+        var event = new SearchAppearanceEvent(userId, currentUserId, LocalDateTime.now());
+        publishEvent(searchAppearanceEventPublisher, event);
         return userMapper.toUserDto(user);
     }
-
 
     @Override
     @Transactional
@@ -101,5 +110,17 @@ public class UserServiceImpl implements UserService {
         users = filterService.getFilteredList(users.toList(), filter).stream();
         return users.map(userMapper::toUserDto)
                 .toList();
+    }
+
+    private <E> void publishEvent(EventPublisher<E> publisher, E event) {
+        var executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                publisher.publish(event);
+            } catch (Exception e) {
+                log.error("ошибка публикации события {}", e.getMessage(), e);
+            }
+        });
+        executor.shutdown();
     }
 }

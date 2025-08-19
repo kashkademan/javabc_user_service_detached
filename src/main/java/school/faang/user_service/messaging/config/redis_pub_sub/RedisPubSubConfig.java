@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import school.faang.user_service.messaging.consumer.redis_pub_sub.SearchAppearanceEventConsumer;
 
 /**
  * RedisConfig — описание класса.
@@ -29,12 +30,10 @@ public class RedisPubSubConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
-                                                        MessageListenerAdapter messageListenerAdapter,
-                                                        ChannelTopic topic) {
+    public RedisMessageListenerContainer redisSearchAppearanceEventContainer(RedisConnectionFactory connectionFactory) {
         var container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(messageListenerAdapter, topic);
+        container.addMessageListener(new SearchAppearanceEventConsumer(), searchAppearanceTopic());
         return container;
     }
 
