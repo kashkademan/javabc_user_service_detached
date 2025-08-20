@@ -6,10 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import school.faang.user_service.dto.analytics.ProfileVisitCreateDto;
 import school.faang.user_service.dto.analytics.ProfileVisitViewDto;
 import school.faang.user_service.entity.analytics.ProfileVisit;
-import school.faang.user_service.mapper.analytics.ProfileVisitMapperImpl;
+import school.faang.user_service.mapper.analytics.ProfileVisitMapper;
 import school.faang.user_service.repository.analytics.ProfileVisitRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -18,6 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.service.analytics.ProfileVisitServiceTestData.buildUser;
@@ -30,7 +34,7 @@ class ProfileVisitServiceImplTest {
     @Mock
     private UserRepository userRepo;
     @Mock
-    private ProfileVisitMapperImpl mapper;
+    private ProfileVisitMapper mapper;
     @InjectMocks
     private ProfileVisitServiceImpl service;
 
@@ -67,14 +71,15 @@ class ProfileVisitServiceImplTest {
         visit2.setId(2L);
 
         List<ProfileVisit> visits = List.of(visit1, visit2);
+        Page<ProfileVisit> page = new PageImpl<>(visits);
 
         var dto1 = new ProfileVisitViewDto(1L, 10L, 2L, LocalDateTime.now());
         var dto2 = new ProfileVisitViewDto(2L, 11L, 2L, LocalDateTime.now());
 
         List<ProfileVisitViewDto> dtoList = List.of(dto1, dto2);
-
-        when(visitRepo.findAllByVisitedIdAndLimitAbdOffset(visitedId, limit, offset))
-                .thenReturn(visits);
+        var pageable = PageRequest.of(offset, limit);
+        when(visitRepo.findAllByVisitedIdOrderByVisitedAtDesc(eq(visitedId), eq(pageable)))
+                .thenReturn(page);
         when(mapper.toDtoList(visits)).thenReturn(dtoList);
 
         // when
@@ -83,7 +88,7 @@ class ProfileVisitServiceImplTest {
         // then
         assertThat(result).containsExactlyElementsOf(dtoList);
 
-        verify(visitRepo).findAllByVisitedIdAndLimitAbdOffset(visitedId, limit, offset);
+        verify(visitRepo).findAllByVisitedIdOrderByVisitedAtDesc(visitedId, pageable);
         verify(mapper).toDtoList(visits);
     }
 }

@@ -38,6 +38,7 @@ kafka:
   topics:
     user-actions: user-actions-topic
     search-appearance: search-appearance-topic
+    profile-visit: profile-visit-topic
 
 server:
   port: 8080

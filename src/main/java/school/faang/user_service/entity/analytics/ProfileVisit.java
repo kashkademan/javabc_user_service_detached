@@ -18,9 +18,17 @@ import school.faang.user_service.entity.user.User;
 import java.time.LocalDateTime;
 
 /**
- * ProfileVisit — описание класса.
+ * Сущность, представляющая факт посещения профиля пользователем.
  * <p>
- * TODO: описать, какие обязанности у класса.
+ * Отражает связь между двумя пользователями:
+ * <ul>
+ *   <li>{@link #visitor} — пользователь, который зашел на профиль</li>
+ *   <li>{@link #visited} — пользователь, чей профиль был посещён</li>
+ * </ul>
+ * Также хранится дата и время визита ({@link #visitedAt}).
+ * </p>
+ * <p>
+ * Таблица: {@code profile_visits}.
  * </p>
  *
  * @author Myrza

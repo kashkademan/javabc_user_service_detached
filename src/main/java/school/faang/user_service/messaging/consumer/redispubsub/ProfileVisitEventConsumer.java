@@ -7,14 +7,15 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.mapper.analytics.SearchAppearanceMapper;
+import school.faang.user_service.mapper.analytics.ProfileVisitMapper;
+import school.faang.user_service.messaging.dto.ProfileVisitEvent;
 import school.faang.user_service.messaging.dto.SearchAppearanceEvent;
-import school.faang.user_service.service.analytics.SearchAppearanceService;
+import school.faang.user_service.service.analytics.ProfileVisitService;
 
 import java.nio.charset.StandardCharsets;
 
 /**
- * Консьюмер для событий {@link SearchAppearanceEvent}, поступающих из Redis Pub/Sub.
+ * Консьюмер для событий {@link ProfileVisitEvent}, поступающих из Redis Pub/Sub.
  *
  * @author Myrza
  * @since 19.08.2025
@@ -22,10 +23,10 @@ import java.nio.charset.StandardCharsets;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class SearchAppearanceEventConsumer implements MessageListener {
+public class ProfileVisitEventConsumer implements MessageListener {
     private final ObjectMapper objMapper;
-    private final SearchAppearanceService service;
-    private final SearchAppearanceMapper mapper;
+    private final ProfileVisitService service;
+    private final ProfileVisitMapper mapper;
 
     /**
      * Обрабатывает входящее сообщение из Redis Pub/Sub.
@@ -37,12 +38,12 @@ public class SearchAppearanceEventConsumer implements MessageListener {
     public void onMessage(@NotNull Message message, byte[] pattern) {
         var topic = new String(pattern, StandardCharsets.UTF_8);
         try {
-            var event = objMapper.readValue(message.getBody(), SearchAppearanceEvent.class);
+            var event = objMapper.readValue(message.getBody(), ProfileVisitEvent.class);
             log.info("start consume message on topic: '{}' event: {}", topic, event);
             var dto = mapper.toDto(event);
-            service.addSearchAppearance(dto);
+            service.addVisit(dto);
         } catch (Exception e) {
-            log.error("SearchAppearanceEventConsumer.onMessage topic: {}", topic, e);
+            log.error("ProfileVisitEventConsumer.onMessage topic: {}", topic, e);
         }
     }
 }

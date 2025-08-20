@@ -2,6 +2,7 @@ package school.faang.user_service.service.analytics;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.analytics.ProfileVisitCreateDto;
 import school.faang.user_service.dto.analytics.ProfileVisitViewDto;
@@ -12,9 +13,13 @@ import school.faang.user_service.repository.user.UserRepository;
 import java.util.List;
 
 /**
- * ProfileVisitServiceImpl — описание класса.
+ * Реализация сервиса {@link ProfileVisitService} для работы с визитами профиля.
  * <p>
- * TODO: описать, какие обязанности у класса.
+ * Отвечает за:
+ * <ul>
+ *     <li>сохранение факта посещения профиля пользователем,</li>
+ *     <li>получение истории посетителей конкретного пользователя с пагинацией.</li>
+ * </ul>
  * </p>
  *
  * @author Myrza
@@ -41,8 +46,10 @@ public class ProfileVisitServiceImpl implements ProfileVisitService {
     }
 
     @Override
-    public List<ProfileVisitViewDto> getUserVisitors(Long visitedId, int limit, int offset) {
-        var visits = visitRepo.findAllByVisitedIdAndLimitAbdOffset(visitedId, limit, offset);
-        return mapper.toDtoList(visits);
+    public List<ProfileVisitViewDto> getUserVisitors(Long visitedId, int limit, int page) {
+        log.info("limit {} page {}", limit, page);
+        var pageable = PageRequest.of(page, limit);
+        var visits = visitRepo.findAllByVisitedIdOrderByVisitedAtDesc(visitedId, pageable);
+        return mapper.toDtoList(visits.getContent());
     }
 }

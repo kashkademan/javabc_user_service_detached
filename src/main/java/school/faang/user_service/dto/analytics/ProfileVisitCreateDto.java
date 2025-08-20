@@ -6,12 +6,15 @@ import lombok.NonNull;
 import java.time.LocalDateTime;
 
 /**
- * ProfileVisitDto — неизменяемая структура данных (record).
- * <p>
- * TODO: описать предназначение record и его поля.
- * </p>
+ * DTO для создания записи о посещении профиля.
  *
- * @param visitorId описание первого поля
+ * <p>Используется при сохранении информации о том, что один пользователь
+ * (searchedId) посетил профиль другого пользователя (visitedId)
+ * в определённый момент времени.</p>
+ *
+ * @param visitorId ID пользователя, который посетил чужой профиль
+ * @param visitedId ID пользователя, чей профиль был посещён
+ * @param visitedAt дата и время посещения
  * @author Myrza
  * @since 19.08.2025
  */

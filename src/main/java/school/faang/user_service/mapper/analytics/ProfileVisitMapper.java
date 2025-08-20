@@ -6,6 +6,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.analytics.ProfileVisitCreateDto;
 import school.faang.user_service.dto.analytics.ProfileVisitViewDto;
 import school.faang.user_service.entity.analytics.ProfileVisit;
+import school.faang.user_service.messaging.dto.ProfileVisitEvent;
 import school.faang.user_service.messaging.dto.SearchAppearanceEvent;
 
 import java.util.List;
@@ -14,10 +15,10 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 import static org.mapstruct.ReportingPolicy.IGNORE;
 
 /**
- * ProfileVisitMapper — описание интерфейса.
- * <p>
- * TODO: описать, какие обязанности реализует интерфейс.
- * </p>
+ * Маппер для преобразования между сущностями {@link ProfileVisit},
+ * DTO и событиями {@link SearchAppearanceEvent}.
+ *
+ * <p>Используется MapStruct для автоматической генерации кода преобразования.</p>
  *
  * @author Myrza
  * @since 19.08.2025
@@ -29,7 +30,7 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface ProfileVisitMapper {
-    ProfileVisitCreateDto toDto(SearchAppearanceEvent event);
+    ProfileVisitCreateDto toDto(ProfileVisitEvent event);
 
     ProfileVisitViewDto toDto(ProfileVisit entity);
 

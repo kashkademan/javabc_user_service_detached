@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
  * в определённый момент времени.
  * </p>
  *
- * @param searchedId ID пользователя, который увидел другого в поиске
- * @param searchedId ID пользователя, который появился в поисковой выдаче
- * @param searchedAt время события появления
+ * @param visitorId ID пользователя, который увидел другого в поиске
+ * @param visitedId ID пользователя, который появился в поисковой выдаче
+ * @param visitedAt время события появления
  * @author Myrza
  * @since 19.08.2025
  */
-public record SearchAppearanceEvent(
-        Long searcherId,
-        Long searchedId,
-        LocalDateTime searchedAt
+public record ProfileVisitEvent(
+        Long visitorId,
+        Long visitedId,
+        LocalDateTime visitedAt
 ) {
 }
