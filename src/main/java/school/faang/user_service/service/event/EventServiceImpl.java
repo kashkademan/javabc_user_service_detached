@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.EventStartEvent;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.dto.event.EventViewDto;
 import school.faang.user_service.entity.event.Event;
@@ -16,6 +17,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.publisher.EventStartEventPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
@@ -34,6 +36,7 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final UserContext userContext;
     private final FilterService<Event, EventFilterDto> filterService;
+    private final EventStartEventPublisher eventStartEventPublisher;
     private final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
     @Override
@@ -44,12 +47,15 @@ public class EventServiceImpl implements EventService {
         long userId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(userId);
         event.setOwner(owner);
+
         log.info("Create event request by userId: {}", userId);
 
         validateOwnerSkills(event);
 
         event = eventRepository.save(event);
         log.info("Event created: {}", event.getId());
+
+        eventStartEventPublisher.publish(new EventStartEvent(event.getTitle(), eventDto.getAttendeesIds()));
         return eventMapper.toViewDto(event);
     }
 

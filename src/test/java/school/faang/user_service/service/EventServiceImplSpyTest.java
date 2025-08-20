@@ -14,6 +14,7 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.publisher.EventStartEventPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
@@ -37,6 +38,8 @@ public class EventServiceImplSpyTest {
     private EventMapper eventMapper;
     @Mock
     private UserContext userContext;
+    @Mock
+    private EventStartEventPublisher eventStartEventPublisher;
 
     private EventServiceImpl eventService;
 
@@ -52,7 +55,8 @@ public class EventServiceImplSpyTest {
                 userRepository,
                 eventMapper,
                 userContext,
-                filterService
+                filterService,
+                eventStartEventPublisher
         );
     }
 
