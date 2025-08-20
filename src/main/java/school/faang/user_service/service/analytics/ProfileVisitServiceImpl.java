@@ -1,5 +1,6 @@
 package school.faang.user_service.service.analytics;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,7 @@ public class ProfileVisitServiceImpl implements ProfileVisitService {
     private final ProfileVisitMapper mapper;
 
     @Override
+    @Transactional
     public void addVisit(ProfileVisitCreateDto visit) {
         log.info("add visit {}", visit);
         var visitor = userRepo.getByIdOrThrow(visit.visitorId());

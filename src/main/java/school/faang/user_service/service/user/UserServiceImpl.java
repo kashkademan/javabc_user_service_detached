@@ -96,7 +96,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getByIdOrThrow(userId);
         var event = new ProfileVisitEvent(currentUserId, userId, LocalDateTime.now());
         publishEvent(profileVisitAppearanceEventPublisher, event);
-        log.info("after publish event");
         return userMapper.toUserDto(user);
     }
 
@@ -118,7 +117,6 @@ public class UserServiceImpl implements UserService {
         result.stream()
                 .map((user) -> new SearchAppearanceEvent(currentUserId, user.id(), now))
                 .forEach((event) -> publishEvent(searchAppearanceEventPublisher, event));
-        log.info("after publish event get users");
         return result;
     }
 
@@ -128,6 +126,5 @@ public class UserServiceImpl implements UserService {
                     log.error("Ошибка публикации события {}", ex.getMessage(), ex);
                     return null;
                 });
-        log.info("exit publish event");
     }
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.analytics;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -42,21 +43,21 @@ public class SearchAppearanceServiceImpl implements SearchAppearanceService {
     private final SearchAppearanceMapper mapper;
 
     @Override
-    public void addSearchAppearance(SearchAppearanceCreateDto visit) {
-        log.info("add searchAppearance {}", visit);
-        var searcher = userRepo.getByIdOrThrow(visit.searcherId());
-        var searched = userRepo.getByIdOrThrow(visit.searchedId());
-        var entity = mapper.toEntity(visit);
-        log.info("entity: {}", entity);
+    @Transactional
+    public void addSearchAppearance(SearchAppearanceCreateDto createDto) {
+        log.info("add searchAppearance {}", createDto);
+        var searcher = userRepo.getByIdOrThrow(createDto.searcherId());
+        var searched = userRepo.getByIdOrThrow(createDto.searchedId());
+        var entity = mapper.toEntity(createDto);
         entity.setSearcher(searcher);
         entity.setSearched(searched);
         searchAppearanceRepo.save(entity);
     }
 
     @Override
-    public List<SearchAppearanceViewDto> getUserSearchAppearance(Long visitedId, int limit, int page) {
+    public List<SearchAppearanceViewDto> getUserSearchAppearance(Long searchedId, int limit, int page) {
         var pageable = PageRequest.of(page, limit);
-        var result = searchAppearanceRepo.findAllBySearchedIdOrderBySearchedAtDesc(visitedId, pageable);
+        var result = searchAppearanceRepo.findAllBySearchedIdOrderBySearchedAtDesc(searchedId, pageable);
         return mapper.toDtoList(result.getContent());
     }
 }

@@ -22,7 +22,7 @@ import java.util.List;
  * @since 19.08.2025
  */
 public interface SearchAppearanceService {
-    void addSearchAppearance(SearchAppearanceCreateDto visit);
+    void addSearchAppearance(SearchAppearanceCreateDto createDto);
 
     List<SearchAppearanceViewDto> getUserSearchAppearance(Long searchedId, int limit, int page);
 }
