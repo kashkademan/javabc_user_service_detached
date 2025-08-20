@@ -37,7 +37,7 @@ public class ProfileVisitEventPublisher implements EventPublisher<ProfileVisitEv
 
     @Override
     public void publish(ProfileVisitEvent event) {
-        if (Objects.equals(event.visitorId(), event.visitedAt())) {
+        if (Objects.equals(event.visitorId(), event.visitedId())) {
             log.info("visit yourself");
             return;
         }
