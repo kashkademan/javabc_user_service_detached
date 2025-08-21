@@ -5,6 +5,7 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
 }
 
 group = "faang.school"
@@ -23,6 +24,7 @@ repositories {
 dependencies {
     /**
      * Spring boot starters
+     *
      */
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -31,6 +33,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+
+    // Другие зависимости вашего проекта
 
     /**
      * Database
@@ -74,6 +79,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation("org.mockito:mockito-core:5.1.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
+    testImplementation("org.mockito:mockito-inline:5.1.1")
+    testAnnotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
 }
 
 jsonSchema2Pojo {
@@ -83,15 +93,103 @@ jsonSchema2Pojo {
     setSourceType("jsonschema")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+jacoco {
+    toolVersion = "0.8.10"
 }
 
-val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+tasks.withType<Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**Impl*",
+                    "**/*MapperImpl*",
+                    "**/model/**",
+                    "**/enumeration/**"
+                )
+            }
+        })
+    )
+
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**Impl*",
+                    "**/*MapperImpl*",
+                    "**/model/**",
+                    "**/enumeration/**"
+                )
+            }
+        })
+    )
+
+    violationRules {
+        rule {
+            element = "PACKAGE"
+            includes = listOf(
+                "school.faang.user_service.service.goal.GoalInvitationServiceImpl"
+            )
+
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+        }
+    }
+}
+
+val test by tasks.getting(Test::class) {
+    testLogging.showStandardStreams = true
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+    }
+}
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
+
 kotlin {
     jvmToolchain(17)
 }
@@ -115,4 +213,27 @@ tasks.checkstyleTest {
     include("**/*.java")
 
     classpath = files()
+}
+tasks.withType<JavaCompile>().configureEach {
+    if (name.contains("Test", ignoreCase = true)) {
+        destinationDirectory.set(file("$buildDir/classes/java/test"))
+        options.compilerArgs.addAll(
+            listOf("-s", "$buildDir/generated/sources/annotationProcessor/java/test")
+        )
+    } else {
+        destinationDirectory.set(file("$buildDir/classes/java/main"))
+        options.compilerArgs.addAll(
+            listOf("-s", "$buildDir/generated/sources/annotationProcessor/java/main")
+        )
+    }
+}
+
+tasks.register<Test>("unitTest") {
+    description = "запускает только unit-тесты"
+    group = "verification"
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+    include("**/*Test.class")
+    exclude("**/*IntegrationTest.class")
 }
