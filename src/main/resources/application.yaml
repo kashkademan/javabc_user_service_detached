@@ -20,6 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      topic:
+        recommendation: "recommendation:requested"
 
 server:
   port: 8080
