@@ -78,9 +78,9 @@ dependencies {
     /**
      * JSON (убираем дубли)
      */
-    implementation("org.json:json:20220320") // оставляем эту
+    implementation("org.json:json:20220320")
     implementation("com.vaadin.external.google:android-json:0.0.20131108.vaadin1") {
-        exclude(group = "org.json", module = "json") // исключаем дубли
+        exclude(group = "org.json", module = "json")
     }
 
     /**

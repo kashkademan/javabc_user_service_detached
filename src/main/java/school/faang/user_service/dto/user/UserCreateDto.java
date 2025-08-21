@@ -24,7 +24,11 @@ public record UserCreateDto(
         Long countryId,
 
         @NotBlank
-        @Schema(description = "Тип уведомления")
+        @Schema(
+                description = "Тип уведомления",
+                example = "EMAIL",
+                allowableValues = {"EMAIL", "PHONE", "TELEGRAM"}
+        )
         String contact
 ) {
 }

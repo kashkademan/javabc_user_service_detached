@@ -17,8 +17,7 @@ import school.faang.user_service.service.user.UserService;
 @RequiredArgsConstructor
 public class TelegramBotChatId extends TelegramLongPollingBot {
 
-    private final UserService userService;
-    private final UserContext context;
+    private final StartCommand startCommand;
 
     @Value("${telegram.bot-username}")
     private String botUsername;
@@ -46,23 +45,8 @@ public class TelegramBotChatId extends TelegramLongPollingBot {
             String text = message.getText();
 
             if (text.startsWith("/start")) {
-                try {
-                    String userIdStr = text.replace("/start", "").trim();
-                    Long userId = Long.parseLong(userIdStr);
-
-                    userService.linkChatId(userId, chatId);
-
-                    SendMessage sendingMessage = new SendMessage();
-
-                    sendingMessage.setChatId(chatId);
-                    sendingMessage.setText("Ваш Telegram успешно привязан к аккаунту!");
-
-                    execute(sendingMessage);
-
-                } catch (TelegramApiException e) {
-
-                    log.error("Ошибка при сохранении chatId", e);
-                }
+                String payload = text.replace("/start", "").trim();
+                startCommand.handle(chatId, payload);
             }
         }
     }

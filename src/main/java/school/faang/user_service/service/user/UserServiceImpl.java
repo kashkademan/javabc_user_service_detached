@@ -17,6 +17,7 @@ import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
@@ -131,10 +132,11 @@ public class UserServiceImpl implements UserService {
         return "https://t.me/BotGetChatId_evgeniy_bot?start=" + userId;
     }
 
+    @Transactional
     public void linkChatId(Long userId, Long chatId) {
-        User user = userRepository.getByIdOrThrow(userId);
-        user.setChatId(chatId);
-        userRepository.save(user);
+        int updated = userRepository.updateChatId(userId, chatId);
+        if (updated == 0) {
+            throw new EntityNotFoundException(String.format("User %d not found", userId));
+        }
     }
-
 }

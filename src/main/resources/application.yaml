@@ -73,8 +73,8 @@ skill:
     min-length: 3
     
 telegram:
-  bot-username: "BotGetChatId"
-  bot-token: "8237783798:AAHRORzy1IaPVJwY6eNQgFhuTYTLLDiOslY"
+  bot-username: ${TELEGRAM_BOT_USERNAME}
+  bot-token: ${TELEGRAM_BOT_TOKEN}
 
 event:
   delete-scheduled:
