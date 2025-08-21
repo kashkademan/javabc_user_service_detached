@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -88,7 +89,9 @@ class RecommendationRequestServiceImplTest {
 
     private RecommendationRequestProperty recommendationRequestProperty;
 
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    private ObjectMapper objectMapper;
 
     private RecommendationRequestServiceImpl recommendationRequestService;
 
@@ -115,6 +118,7 @@ class RecommendationRequestServiceImplTest {
                         recommendationRequestRequesterIdFilter,
                         recommendationRequestStatusFilter),
                 recommendationRequestProperty,
+                objectMapper,
                 kafkaTemplate
         );
     }

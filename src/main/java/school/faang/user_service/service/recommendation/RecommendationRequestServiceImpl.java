@@ -1,5 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,8 +43,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final Set<RecommendationRequestFilter> recommendationRequestFilters;
     private final RecommendationRequestProperty property;
-
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -89,7 +91,13 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 recommendationRequest.getReceiver().getId(),
                 recommendationRequest.getId()
         );
-        kafkaTemplate.send("recommendation-request-topic", event);
+
+        try {
+            String jsonString = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send("recommendation-request-topic", jsonString);
+        } catch (JsonProcessingException e) {
+            log.error("Error serializing RecommendationRequestEvent to JSON: {}", e.getMessage());
+        }
 
         return recommendationRequestMapper.toRecommendationRequestDto(recommendationRequest);
     }
