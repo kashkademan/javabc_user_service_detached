@@ -11,6 +11,7 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.event.RecommendationRequestedEvent;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.RecommendationFilter;
 import school.faang.user_service.mapper.RecommendationMapper;
@@ -29,6 +30,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final UserContext userContext;
     private final Integer repeatRecommendationTimeLimit;
     private final List<RecommendationFilter> recommendationFilters;
+    private final RecommendationRequestedEventPublisher eventPublisher;
 
     @Autowired
     public RecommendationServiceImpl(RecommendationRepository recommendationRepository,
@@ -36,12 +38,15 @@ public class RecommendationServiceImpl implements RecommendationService {
                                      UserContext userContext,
                                      @Value("${recommendation.repeat.limit}")
                                      Integer repeatRecommendationTimeLimit,
-                                     List<RecommendationFilter> recommendationFilters) {
+                                     List<RecommendationFilter> recommendationFilters,
+                                     RecommendationRequestedEventPublisher eventPublisher
+    ) {
         this.recommendationRepository = recommendationRepository;
         this.recommendationMapper = recommendationMapper;
         this.userContext = userContext;
         this.repeatRecommendationTimeLimit = repeatRecommendationTimeLimit;
         this.recommendationFilters = recommendationFilters;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -50,14 +55,22 @@ public class RecommendationServiceImpl implements RecommendationService {
         authorMatchingReceiver(newRecommendationDto.receiverId(),
                 "Self recommending is forbidden, but nice try...");
         latestRecommendationCheck(newRecommendationDto);
+
         long authorId = userContext.getUserId();
         long receiverId = newRecommendationDto.receiverId();
         String content = newRecommendationDto.content();
-        long newRecommendationId = recommendationRepository.create(authorId,
-                receiverId, content);
-        return recommendationMapper.toRecommendationDto(recommendationRepository
-                .findById(newRecommendationId)
-                .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found")));
+
+        // 1. Создаём рекомендацию
+        long newRecommendationId = recommendationRepository.create(authorId, receiverId, content);
+
+        // 2. Отправляем событие в Redis
+        eventPublisher.publish(new RecommendationRequestedEvent(authorId, receiverId, newRecommendationId));
+
+        // 3. Возвращаем DTO
+        return recommendationMapper.toRecommendationDto(
+                recommendationRepository.findById(newRecommendationId)
+                        .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found"))
+        );
     }
 
     @Transactional
