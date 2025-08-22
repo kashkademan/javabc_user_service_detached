@@ -12,7 +12,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisPubSubConfig {
 
-    @Value("${spring.redis.topic.recommendation}")
+    @Value("${spring.data.redis.topic.recommendation}")
     private String recommendationTopicName;
 
     @Bean
