@@ -60,13 +60,10 @@ public class RecommendationServiceImpl implements RecommendationService {
         long receiverId = newRecommendationDto.receiverId();
         String content = newRecommendationDto.content();
 
-        // 1. Создаём рекомендацию
         long newRecommendationId = recommendationRepository.create(authorId, receiverId, content);
 
-        // 2. Отправляем событие в Redis
         eventPublisher.publish(new RecommendationRequestedEvent(authorId, receiverId, newRecommendationId));
 
-        // 3. Возвращаем DTO
         return recommendationMapper.toRecommendationDto(
                 recommendationRepository.findById(newRecommendationId)
                         .orElseThrow(() -> new EntityNotFoundException("Newly created recommendation not found"))
