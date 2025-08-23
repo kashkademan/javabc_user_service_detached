@@ -11,7 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
-import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -21,11 +23,10 @@ import static org.mockito.Mockito.when;
  * Тестирование {@link RecommendationRequestedEventPublisher} класса отправляющего ивент в топик Redis
  *
  * @author Linempy
- * @since 15.08.2025
+ * @since 22.08.2025
  */
-@DisplayName("Тестирование RecommendationRequestedEventPublisher")
 @ExtendWith(MockitoExtension.class)
-public class RecommendationRequestedEventPublisherTest {
+public class RecommendationEventPublisherTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -34,14 +35,14 @@ public class RecommendationRequestedEventPublisherTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private RecommendationRequestedEventPublisher publisher;
+    private RecommendationEventPublisher publisher;
 
     @BeforeEach
     void setUp() {
-        publisher = new RecommendationRequestedEventPublisher(redisTemplate, objectMapper);
+        publisher = new RecommendationEventPublisher(redisTemplate, objectMapper);
         ReflectionTestUtils.setField(
                 publisher,
-                "recommendationRequestTopic",
+                "recommendationTopic",
                 "test-topic"
         );
     }
@@ -49,7 +50,12 @@ public class RecommendationRequestedEventPublisherTest {
     @Test
     @DisplayName("Успешная преобразование в json и отправка в топик")
     public void publishSendsCorrectMessage() throws JsonProcessingException {
-        RecommendationRequestedEvent event = new RecommendationRequestedEvent(1L, 2L, 1L);
+        RecommendationEvent event = new RecommendationEvent(
+                1L,
+                2L,
+                1L,
+                LocalDateTime.now()
+        );
         String expectedJson = "{\"requesterId\":1,\"receiverId\":2, \"requestId\":1}";
 
         when(objectMapper.writeValueAsString(event)).thenReturn(expectedJson);
@@ -62,10 +68,16 @@ public class RecommendationRequestedEventPublisherTest {
     @Test
     @DisplayName("Ожидание ошибки конвертации в json")
     public void publishShouldThrowRuntimeExceptionOnSerializationError() throws JsonProcessingException {
-        RecommendationRequestedEvent event = new RecommendationRequestedEvent(1L, 2L, 1L);
+        RecommendationEvent event = new RecommendationEvent(
+                1L,
+                2L,
+                1L,
+                LocalDateTime.now()
+        );
         when(objectMapper.writeValueAsString(event))
                 .thenThrow(new JsonProcessingException("Error") {});
 
         assertThrows(RuntimeException.class, () -> publisher.publish(event));
     }
+
 }

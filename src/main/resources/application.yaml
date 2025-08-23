@@ -70,3 +70,4 @@ services:
 redis:
   topic:
     recommendation-request: "recommendation_request_topic"
+    recommendation: recommendation_topic
