@@ -8,17 +8,17 @@ import school.faang.user_service.dto.system_event.MentorshipRequestedEvent;
 @Component
 public class MentorshipRequestedEventPublisher {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> mentorshipRedisTemplate;
     private final String channel;
 
-    public MentorshipRequestedEventPublisher(RedisTemplate<String, Object> redisTemplate,
+    public MentorshipRequestedEventPublisher(RedisTemplate<String, Object> mentorshipRedisTemplate,
                                              @Value("${spring.data.redis.channel.mentorship-requested}")
                                              String channel) {
-        this.redisTemplate = redisTemplate;
+        this.mentorshipRedisTemplate = mentorshipRedisTemplate;
         this.channel = channel;
     }
 
     public void publish(MentorshipRequestedEvent mentorshipRequestDto) {
-        redisTemplate.convertAndSend(channel, mentorshipRequestDto);
+        mentorshipRedisTemplate.convertAndSend(channel, mentorshipRequestDto);
     }
 }
