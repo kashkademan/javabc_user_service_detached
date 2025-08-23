@@ -8,12 +8,16 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
-import school.faang.user_service.dto.user.UserFilterDto;
-import school.faang.user_service.dto.user.UserUpdateDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNotificationDto;
+import school.faang.user_service.dto.user.UserUpdateDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
@@ -49,10 +53,32 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
+        ContactPreference pref = ContactPreference.builder()
+                .user(user)
+                .preference(PreferredContact.fromString(userDto.contact()))
+                .build();
+
+        user.setContactPreference(pref);
+
         user = userRepository.save(user);
         setAvatarIfPossible(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public UserNotificationDto getContactInfo(long userId) {
+        var user = userRepository.getByIdOrThrow(userId);
+
+        PreferredContact contactPreference = user.getContactPreference().getPreference();
+
+        var info = user.getChatId();
+
+        UserNotificationDto dto = new UserNotificationDto();
+        dto.setPreferredContact(contactPreference);
+        dto.setChatId(info);
+
+        return dto;
     }
 
     private void setAvatarIfPossible(User user) {
@@ -87,7 +113,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-
     @Override
     @Transactional
     public List<UserDto> getUsers(UserFilterDto filter) {
@@ -101,5 +126,17 @@ public class UserServiceImpl implements UserService {
         users = filterService.getFilteredList(users.toList(), filter).stream();
         return users.map(userMapper::toUserDto)
                 .toList();
+    }
+
+    public String generateTelegramLink(Long userId) {
+        return "https://t.me/BotGetChatId_evgeniy_bot?start=" + userId;
+    }
+
+    @Transactional
+    public void linkChatId(Long userId, Long chatId) {
+        int updated = userRepository.updateChatId(userId, chatId);
+        if (updated == 0) {
+            throw new EntityNotFoundException(String.format("User %d not found", userId));
+        }
     }
 }
