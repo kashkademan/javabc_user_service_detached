@@ -26,6 +26,8 @@ spring:
       host: localhost
       channel:
         mentorship-requested: mentorship_requested_channel
+      topic:
+        recommendation: "recommendation:requested"
 
 server:
   port: 8080
