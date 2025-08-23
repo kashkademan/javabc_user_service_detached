@@ -9,7 +9,9 @@ import school.faang.user_service.event.RecommendationRequestedEvent;
 import school.faang.user_service.service.recommendation.RedisRecommendationRequestedEventPublisher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.mockito.Mockito.verify;
 
 class RedisRecommendationRequestedEventPublisherTest {
 
