@@ -38,19 +38,13 @@ class PremiumServiceTest {
 
         premiumService.removeExpiredPremiums();
 
-        ArgumentCaptor<List<Premium>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Premium>> captor = ArgumentCaptor.forClass((Class) List.class);
         verify(premiumRepository, times(3)).deleteAll(captor.capture());
 
         List<List<Premium>> allBatches = captor.getAllValues();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // ← важно!
-            throw new RuntimeException(e);
-        }
-        assertEquals(2, allBatches.get(0).size());
-        assertEquals(2, allBatches.get(1).size());
-        assertEquals(1, allBatches.get(2).size());
+
+        List<Integer> sizes = allBatches.stream().map(List::size).sorted().toList();
+        assertEquals(List.of(1, 2, 2), sizes);
     }
 
     @Test
