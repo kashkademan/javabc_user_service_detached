@@ -1,22 +1,27 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+
 import java.util.List;
 
-import static school.faang.user_service.entity.goal.GoalStatus.ACTIVE;
+import static school.faang.user_service.entity.goal.GoalStatus.COMPLETED;
 
+@Slf4j
 @RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
     private final GoalRepository goalRepository;
@@ -29,8 +34,8 @@ public class GoalServiceImpl implements GoalService {
         User user = userRepository.getByIdOrThrow(userContext.getUserId());
 
         if (!user.getMentees().containsAll(createGoalDto.userIds())
-                && createGoalDto.userIds().contains(createGoalDto.mentorId())) {
-            throw new DataValidationException("создать цель может либо ментор для своих менти, " +
+                || (createGoalDto.userIds().size() == 1 && !createGoalDto.userIds().contains(user.getId()))) {
+            throw new ForbiddenException("создать цель может либо ментор для своих менти, " +
                     "либо пользователь сам для себя");
         }
 
@@ -40,7 +45,11 @@ public class GoalServiceImpl implements GoalService {
 
         Goal goal = goalMapper.toGoal(createGoalDto);
         goal.setMentor(userRepository.getByIdOrThrow(createGoalDto.mentorId()));
-        goal.setUsers(userRepository.findAll());
+        goal.setUsers(userRepository.findAllById(createGoalDto.userIds()));
+
+        goalRepository.save(goal);
+
+        return goalMapper.toGoalDto(goal);
     }
 
 
@@ -55,6 +64,43 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public GoalDto update(long goalId, UpdateGoalDto updateGoalDto) {
-        return null;
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
+
+        if (goal.getStatus().equals(COMPLETED)) {
+            throw new DataValidationException("Цель Завершина");
+        }
+
+        if (!goal.getUsers().stream().map(User::getId).toList().contains(updateGoalDto.mentorId())) {
+            throw new ForbiddenException("обновить цель может либо ментор цели, либо участник цели");
+        }
+
+        goalMapper.update(updateGoalDto,goal);
+        goal = goalRepository.save(goal);
+        return goalMapper.toGoalDto(goal);
+    }
+
+    @Override
+    public void delete(long goalId) {
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
+        long userId = userContext.getUserId();
+        if (goal.getMentor().getId() != userId
+                && !goal.getUsers().stream().map(User::getId).toList().contains(userId)) {
+            throw new ForbiddenException("Удалить цель может либо ментор цели, либо участник цели");
+        }
+
+        goalRepository.deleteById(goalId);
+    }
+
+    @Override
+    public List<GoalDto> getByFilters(GoalFilterDto filters) {
+        if (filters.titleContains().isBlank()
+                && filters.descriptionContains().isBlank()
+                && filters.status() == null
+                && filters.mentorId() == null) {
+            log.warn("Значения поиска пусты!");
+        }
+
+        List<Goal> goals = goalRepository.findAll();
+        goals.stream().filter(filters.titleContains())
     }
 }
