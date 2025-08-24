@@ -22,6 +22,7 @@ import school.faang.user_service.filter.RecommendationFilter;
 import school.faang.user_service.filter.RecommendationReceiverFilterInstance;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.recommendation.RecommendationRequestedEventPublisher;
 import school.faang.user_service.service.recommendation.RecommendationServiceImpl;
 
 import java.time.LocalDateTime;
@@ -42,6 +43,8 @@ public class RecommendationServiceTest {
 
     private RecommendationServiceImpl recommendationService;
 
+    @Mock
+    private RecommendationRequestedEventPublisher eventPublisher;
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
@@ -69,7 +72,8 @@ public class RecommendationServiceTest {
                 recommendationMapper,
                 userContext,
                 6,
-                List.of(authorFilter, contentFilter, receiverFilter)
+                List.of(authorFilter, contentFilter, receiverFilter),
+                eventPublisher
         );
     }
 
