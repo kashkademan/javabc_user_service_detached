@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.goal;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +12,15 @@ import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.service.goal.GoalService;
 
 @RestController
-@RequestMapping("/api/v1/goal")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
 public class GoalController {
     private final GoalService goalService;
 
     @PutMapping("/{goalId}/complete")
-    public ResponseEntity<GoalDto> completeGoal(@PathVariable @Positive Long goalId,
-                                                @RequestParam @Positive Long userId
+    public ResponseEntity<GoalDto> completeGoal(@PathVariable Long goalId,
+                                                @RequestParam Long userId
     ) {
         GoalDto completedGoal = goalService.completeGoal(goalId, userId);
 
