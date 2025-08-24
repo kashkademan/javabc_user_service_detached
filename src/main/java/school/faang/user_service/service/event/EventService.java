@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,19 +14,14 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class EventService {
-    EventRepository eventRepository;
-    EventStartEventPublisher eventStartEventPublisher;
+    private EventRepository eventRepository;
+    private EventStartEventPublisher eventStartEventPublisher;
 
-    @Autowired
-    public EventService(EventRepository eventRepository, EventStartEventPublisher eventStartEventPublisher) {
-        this.eventRepository = eventRepository;
-        this.eventStartEventPublisher = eventStartEventPublisher;
-    }
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "${spring.task.scheduling.cron}")
     public void startEvent() {
-        System.out.println("Hello World!");
         List<Event> events = eventRepository.findAll();
 
         for (Event event : events) {

@@ -40,3 +40,12 @@ user:
   password:
     min:
       length: 6
+
+redis:
+  host: localhost
+  port: 6379
+
+
+task:
+  scheduling:
+    cron: "0 * * * * ?"
