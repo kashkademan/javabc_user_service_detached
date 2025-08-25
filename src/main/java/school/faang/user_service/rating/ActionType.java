@@ -6,7 +6,7 @@ package school.faang.user_service.rating;
  * @author Linempy
  * @since 23.08.2025
  */
-public enum EventType {
+public enum ActionType {
     POST_PUBLISHED,
     SUBPROJECT_CREATED
 }

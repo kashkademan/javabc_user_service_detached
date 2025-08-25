@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -17,40 +19,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
 
 /**
- * Сущность определяющая обычные очки за "не сложные" действия
  *
  * @author Linempy
- * @since 23.08.2025
+ * @since 25.08.2025
  */
 @Entity
-@EqualsAndHashCode
 @Setter
 @Getter
 @Builder
-@NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
-@Table(name = "default_score")
-public class DefaultScore {
+@NoArgsConstructor
+@Table(name = "user_actions")
+public class UserActions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "action_type", nullable = false)
+    @Column(name = "action_type")
     private ActionType actionType;
 
-    @Column(name = "base_points", nullable = false)
-    private int basePoints;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "points_earned")
+    private int pointsEarned;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
