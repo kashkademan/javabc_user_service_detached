@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
@@ -12,5 +13,6 @@ public interface GoalMapper {
 
     GoalDto toGoalDto(Goal goal);
 
-    void update(UpdateGoalDto dto, Goal entity);
+    void update(UpdateGoalDto dto, @MappingTarget Goal entity);
 }
+
