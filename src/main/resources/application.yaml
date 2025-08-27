@@ -70,3 +70,10 @@ services:
 redis:
   topic:
     recommendation-request: "recommendation_request_topic"
+
+retry:
+  config:
+    max-attempts: 3
+    initial-interval-ms: 1000
+    multiplier: 2.0
+    max-interval-ms: 10_000

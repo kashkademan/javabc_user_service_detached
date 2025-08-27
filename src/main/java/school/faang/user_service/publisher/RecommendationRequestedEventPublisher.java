@@ -1,13 +1,12 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
+import school.faang.user_service.exception.EventPublishingException;
 
 /**
  * Класс для отправки ивентов в топик с запросами рекомендаций
@@ -18,22 +17,28 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RecommendationRequestedEventPublisher {
+public class RecommendationRequestedEventPublisher implements EventPublisher<RecommendationRequestedEvent> {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
 
     @Value("${redis.topic.recommendation-request}")
     private String recommendationRequestTopic;
 
     public void publish(RecommendationRequestedEvent event) {
-        String json = null;
         try {
-            json = objectMapper.writeValueAsString(event);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            Long receiversCount = redisTemplate.convertAndSend(recommendationRequestTopic, event);
+
+            if (receiversCount != null && receiversCount > 0) {
+                log.info("Событие успешно отправлено в топик {}. Получателей: {}",
+                        recommendationRequestTopic, receiversCount);
+            } else {
+                log.warn("Событие отправлено в топик {}, но нет активных подписчиков",
+                        recommendationRequestTopic);
+            }
+        } catch (Exception e) {
+            log.error("Ошибка при отправке события в топик {}: {}",
+                    recommendationRequestTopic, event, e);
+            throw new EventPublishingException("Ошибка отправки ивента в Redis", e);
         }
-        log.info("Ивент отправлен в топик {}", recommendationRequestTopic);
-        redisTemplate.convertAndSend(recommendationRequestTopic, json);
     }
 }

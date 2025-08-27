@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class RecommendationRequestedEventPublisherTest {
 
     @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, RecommendationRequestedEvent> redisTemplate;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -38,7 +38,7 @@ public class RecommendationRequestedEventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        publisher = new RecommendationRequestedEventPublisher(redisTemplate, objectMapper);
+        publisher = new RecommendationRequestedEventPublisher(redisTemplate);
         ReflectionTestUtils.setField(
                 publisher,
                 "recommendationRequestTopic",

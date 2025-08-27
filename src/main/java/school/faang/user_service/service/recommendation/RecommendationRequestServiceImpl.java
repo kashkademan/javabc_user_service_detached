@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -18,7 +18,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
-import school.faang.user_service.publisher.RecommendationRequestedEventPublisher;
+import school.faang.user_service.publisher.SaveEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -32,6 +32,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
+    private static final String RECEIVER_ERROR_ACCEPT = "Данный пользователь не может принять запрос на рекомендацию";
+    private static final String RECEIVER_ERROR_REJECT = "Данный пользователь не может отклонить запрос";
+    private static final String STATUS_ERROR_ACCEPT = "Приняты могут быть только запросы со статусом 'PENDING'";
+    private static final String STATUS_ERROR_REJECT = "Отклонены могут быть только запросы со статусом 'PENDING'";
+
+
     @Value("${recommendation-request.cooldown.month}")
     private int cooldownMonth;
     private final RecommendationRequestRepository requestRepository;
@@ -39,7 +45,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final RecommendationRequestMapper mapper;
     private final List<RecommendationRequestFilter> filters;
-    private final RecommendationRequestedEventPublisher publisher;
+    private final SaveEventPublisher<RecommendationRequestedEvent> publisher;
     private final UserContext userContext;
 
     @Override
@@ -54,7 +60,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest request = buildAndSaveRecommendationRequest(createDto, requester, receiver);
 
         log.info("Запрос рекомендации успешно создан. ID: {}", request.getId());
-        publisher.publish(new RecommendationRequestedEvent(requesterId, receiver.getId(), request.getId()));
+        publisher.publishAfterCommit(new RecommendationRequestedEvent(
+                        requesterId,
+                        receiver.getId(),
+                        request.getId()
+                )
+        );
         return mapper.toViewDto(request);
     }
 
@@ -87,8 +98,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         processStatusChange(
                 id,
                 RequestStatus.ACCEPTED,
-                "Данный пользователь не может принять запрос на рекомендацию",
-                "Приняты могут быть только запросы со статусом 'PENDING'"
+                RECEIVER_ERROR_ACCEPT,
+                STATUS_ERROR_ACCEPT
         );
     }
 
@@ -98,8 +109,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest request = processStatusChange(
                 id,
                 RequestStatus.REJECTED,
-                "Данный пользователь не может отклонить запрос",
-                "Отклонены могут быть только запросы со статусом 'PENDING'"
+                RECEIVER_ERROR_REJECT,
+                STATUS_ERROR_REJECT
         );
         request.setRejectionReason(rejection.reason());
     }
