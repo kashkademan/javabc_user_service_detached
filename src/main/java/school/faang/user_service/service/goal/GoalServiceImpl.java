@@ -18,6 +18,7 @@ import school.faang.user_service.repository.user.UserRepository;
 
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static school.faang.user_service.entity.goal.GoalStatus.COMPLETED;
 
@@ -35,8 +36,8 @@ public class GoalServiceImpl implements GoalService {
 
         if (!user.getMentees().containsAll(createGoalDto.userIds())
                 || (createGoalDto.userIds().size() == 1 && !createGoalDto.userIds().contains(user.getId()))) {
-            throw new ForbiddenException("создать цель может либо ментор для своих менти, " +
-                    "либо пользователь сам для себя");
+            throw new ForbiddenException("создать цель может либо ментор для своих менти, "
+                    + "либо пользователь сам для себя");
         }
 
         if (!hasNoMoreThanTwoActiveGoals(user)) {
@@ -74,7 +75,7 @@ public class GoalServiceImpl implements GoalService {
             throw new ForbiddenException("обновить цель может либо ментор цели, либо участник цели");
         }
 
-        goalMapper.update(updateGoalDto,goal);
+        goalMapper.update(updateGoalDto, goal);
         goal = goalRepository.save(goal);
         return goalMapper.toGoalDto(goal);
     }
@@ -100,7 +101,27 @@ public class GoalServiceImpl implements GoalService {
             log.warn("Значения поиска пусты!");
         }
 
+
+        Predicate<Goal> predicate = str -> true;
+
+        if (!filters.titleContains().isBlank()) {
+            predicate = predicate.and(str -> str.equals(filters.titleContains()));
+        }
+
+        if (!filters.descriptionContains().isBlank()) {
+            predicate = predicate.and(str -> str.equals(filters.descriptionContains()));
+        }
+
+        if (filters.status() != null) {
+            predicate = predicate.and(str -> str.equals(filters.status()));
+        }
+
+        if (filters.mentorId() != null) {
+            predicate = predicate.and(str -> str.equals(filters.mentorId()));
+        }
+
         List<Goal> goals = goalRepository.findAll();
-        goals.stream().filter(filters.titleContains())
+
+        return goals.stream().filter(predicate).map(goalMapper::toGoalDto).toList();
     }
 }
