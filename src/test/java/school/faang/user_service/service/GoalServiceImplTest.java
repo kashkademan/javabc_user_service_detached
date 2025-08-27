@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import school.faang.avro.user.UserAddSkills;
 import school.faang.user_service.config.context.AuthUserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.FilterGoalDto;
@@ -24,7 +25,9 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
+import school.faang.user_service.kafka.producer.UserUpdateProducer;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.policy.goal.GoalCreatePolicy;
 import school.faang.user_service.policy.goal.GoalDeletePolicy;
 import school.faang.user_service.policy.goal.GoalUpdatePolicy;
@@ -63,12 +66,16 @@ public class GoalServiceImplTest {
 
     @Spy
     private GoalMapper goalMapperImpl = Mappers.getMapper(GoalMapper.class);
+    @Spy
+    private SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
     @Mock
     private AuthUserContext authUserContext;
     @Mock
     private GoalRepository goalRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserUpdateProducer userUpdateProducer;
     @Mock
     private SkillRepository skillRepository;
     @Mock
@@ -214,6 +221,7 @@ public class GoalServiceImplTest {
         List<Skill> skills = dto.skillIds().stream().map(skillId -> {
             Skill skill = new Skill();
             skill.setId(skillId);
+            skill.setTitle("title " + skillId);
             return skill;
         }).toList();
         when(goalRepository.getByIdOrThrow(GOAL_ID)).thenReturn(findedGoal);
@@ -222,11 +230,13 @@ public class GoalServiceImplTest {
 
         goalService.update(GOAL_ID, dto);
 
-        findedGoal.getSkillsToAchieve().forEach(skill -> {
-            findedGoal.getUsers().forEach(user -> {
+        findedGoal.getUsers().forEach(user -> {
+            findedGoal.getSkillsToAchieve().forEach(skill -> {
                 verify(skillRepository, times(1)).assignSkillToUser(skill.getId(), user.getId());
             });
         });
+        verify(userUpdateProducer, times(findedGoal.getUsers().size())).onUserAddSkills(any(UserAddSkills.class));
+        verify(skillMapper, times(skills.size())).toSkillFilterDtos(anyList());
     }
 
     @Test

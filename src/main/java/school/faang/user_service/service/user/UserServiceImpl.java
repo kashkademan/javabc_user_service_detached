@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.context.AuthUserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -16,6 +16,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.kafka.producer.UserUpdateProducer;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -35,7 +36,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
-    private final UserContext userContext;
+    private final AuthUserContext authUserContext;
+    private final UserUpdateProducer userUpdateProducer;
     private final GoalRepository goalRepository;
     private final EventRepository eventRepository;
     private final MentorshipRequestService mentorshipRequestService;
@@ -54,18 +56,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(long userId, UpdateUserDto userDto) {
-        long requesterId = userContext.getUserId();
+    public UserDto update(long requesterId, UpdateUserDto userDto) {
+        long userId = authUserContext.getUserId();
         if (userId != requesterId) {
             throw new ForbiddenException("User " + requesterId + " doesn't match profile owner!");
         }
         User user = userRepository.getByIdOrThrow(userId);
-        userMapper.update(userDto, user);
-        Country country = countryRepository.getByIdOrThrow(userDto.countryId());
+        user = updateUserFields(user, userDto);
+        log.info("User {} updated", user.getId());
+
+        userUpdateProducer.onUserUpdate(userMapper.toUserUpdate(user));
+
+        return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public UserDto updateProfile(UpdateUserDto userDto) {
+        long userId = authUserContext.getUserId();
+        User user = userRepository.getByIdOrThrow(userId);
+        user = updateUserFields(user, userDto);
+        log.info("Update me. User {} updated", user.getId());
+
+        userUpdateProducer.onUserUpdate(userMapper.toUserUpdate(user));
+
+        return userMapper.toUserDto(user);
+    }
+
+    private User updateUserFields(User user, UpdateUserDto dto) {
+        userMapper.update(dto, user);
+        Country country = countryRepository.getByIdOrThrow(dto.countryId());
         user.setCountry(country);
         user = userRepository.save(user);
-        log.info("User {} updated", user.getId());
-        return userMapper.toUserDto(user);
+        return user;
     }
 
     @Override

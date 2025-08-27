@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.avro.common.SkillFilter;
+import school.faang.avro.user.UserAddSkills;
 import school.faang.user_service.config.context.AuthUserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.FilterGoalDto;
@@ -18,7 +20,9 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
+import school.faang.user_service.kafka.producer.UserUpdateProducer;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.policy.goal.GoalCreatePolicy;
 import school.faang.user_service.policy.goal.GoalDeletePolicy;
 import school.faang.user_service.policy.goal.GoalUpdatePolicy;
@@ -41,6 +45,7 @@ public class GoalServiceImpl implements GoalService {
     private final AuthUserContext authUserContext;
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
+    private final SkillMapper skillMapper;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
@@ -48,6 +53,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalCreatePolicy goalCreatePolicy;
     private final GoalUpdatePolicy goalUpdatePolicy;
     private final GoalDeletePolicy goalDeletePolicy;
+    private final UserUpdateProducer userUpdateProducer;
 
     @Override
     @Transactional
@@ -120,15 +126,23 @@ public class GoalServiceImpl implements GoalService {
 
         goalMapper.update(goal, updateGoalDto);
 
+        Goal updatedGoal = goalRepository.save(goal);
+
         if (goal.getStatus() == GoalStatus.COMPLETED && goal.getSkillsToAchieve() != null && goal.getUsers() != null) {
-            for (Skill skill : goal.getSkillsToAchieve()) {
-                for (User user : goal.getUsers()) {
-                    skillRepository.assignSkillToUser(skill.getId(), user.getId());
-                }
-            }
+            goal.getUsers().forEach(user -> {
+                List<SkillFilter> skills = skillMapper.toSkillFilterDtos(goal.getSkillsToAchieve());
+
+                skills.forEach(skill -> skillRepository.assignSkillToUser(skill.getId(), user.getId()));
+
+                userUpdateProducer.onUserAddSkills(
+                        UserAddSkills.newBuilder()
+                                .setId(user.getId())
+                                .setSkills(skills)
+                                .build()
+                );
+            });
         }
 
-        Goal updatedGoal = goalRepository.save(goal);
         return goalMapper.toGoalDto(updatedGoal);
     }
 

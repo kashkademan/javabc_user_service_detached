@@ -2,6 +2,7 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import school.faang.avro.common.SkillFilter;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -38,4 +39,8 @@ public interface SkillMapper {
 
     @Mapping(target = "guarantors", source = "guarantors")
     SkillDto toSkillDtoWithGuarantors(Skill skill, List<UserDto> guarantors);
+
+    SkillFilter toSkillFilterDto(Skill skill);
+
+    List<SkillFilter> toSkillFilterDtos(List<Skill> skills);
 }
