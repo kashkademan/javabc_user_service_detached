@@ -1,7 +1,6 @@
 package school.faang.user_service.config.redis;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -10,21 +9,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
 
-    private final String host;
-    private final int port;
-
-    @Autowired
-    public RedisConfig(@Value("${spring.data.redis.port}") int port,
-                       @Value("${spring.data.redis.host}") String host) {
-        this.port = port;
-        this.host = host;
-    }
+    private final RedisConfigProperties redisProperties;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisProperties.getHost(),
+                redisProperties.getPort());
         return new JedisConnectionFactory(config);
     }
 
