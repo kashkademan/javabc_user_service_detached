@@ -33,6 +33,13 @@
         <property name="ignorePattern"
                   value="^package.*|^import.*|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
     </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="(?s)@(Data|Entity)\b.*?@(Data|Entity)(?!\1).*?\bclass\b"/>
+        <property name="message" value="Do not use @Data and @Entity together on the same class."/>
+        <property name="fileExtensions" value=".java"/>
+    </module>
+
     <module name="TreeWalker">
         <!-- Проверка SQL в нижнем регистре -->
         <module name="RegexpSinglelineJava">
@@ -40,15 +47,6 @@
             <property name="format" value="@Query.*select.*from"/>
             <property name="message"
                       value="SQL ключевые слова должны быть в верхнем регистре: используйте SELECT вместо select"/>
-            <property name="ignoreComments" value="true"/>
-        </module>
-
-        <!-- Проверка @Data и @Entity -->
-        <module name="RegexpSinglelineJava">
-            <property name="id" value="dataAndEntityCheck"/>
-            <property name="format" value="class.*\{[^}]*@Data[^}]*@Entity[^}]*\}"/>
-            <property name="message"
-                      value="Избегайте @Data с @Entity на одном классе"/>
             <property name="ignoreComments" value="true"/>
         </module>
         <module name="UnusedImports"/>
