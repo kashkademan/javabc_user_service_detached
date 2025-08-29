@@ -17,6 +17,5 @@ public class MentorshipReqDto {
     @NotBlank(message = "Description is required")
     @Size(min = 5, message = "Description must be at least 5 characters long")
     private String description;
-    private String status;
 
 }

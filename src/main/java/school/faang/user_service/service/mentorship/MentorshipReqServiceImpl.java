@@ -4,34 +4,31 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorship.RejectionDto;
-import school.faang.user_service.dto.mentorship.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipReqDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.event.MentorshipRequestedEvent;
-import school.faang.user_service.mapper.MentorshipReqMapper;
 import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MentorshipReqServiceImpl implements MentorshipRequestService {
+public class MentorshipReqServiceImpl implements MentorshipReqService {
 
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserRepository userRepository;
     private final MentorshipRequestedEventPublisher eventPublisher;
-    private final MentorshipReqMapper mapper;
 
     @Override
     @Transactional
-    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
+    public MentorshipReqDto requestMentorship(MentorshipReqDto dto) {
+        validateRequest(dto);
+
         User requester = getUserById(dto.getRequesterId());
         User receiver = getUserById(dto.getReceiverId());
 
@@ -58,19 +55,26 @@ public class MentorshipReqServiceImpl implements MentorshipRequestService {
         return dto;
     }
 
-    @Override
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
-        throw new UnsupportedOperationException("Фильтрация не реализована: нет метода выборки");
-    }
+    private void validateRequest(MentorshipReqDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Запрос на менторство не может быть null");
+        }
 
-    @Override
-    public void acceptRequest(long id) {
-        throw new UnsupportedOperationException("Нет метода findById — невозможно принять запрос");
-    }
+        if (dto.getRequesterId() <= 0) {
+            throw new IllegalArgumentException("ID отправителя (requesterId) должен быть больше 0, получен: " + dto.getRequesterId());
+        }
 
-    @Override
-    public void rejectRequest(long id, RejectionDto rejection) {
-        throw new UnsupportedOperationException("Нет метода findById — невозможно отклонить запрос");
+        if (dto.getReceiverId() <= 0) {
+            throw new IllegalArgumentException("ID получателя (receiverId) должен быть больше 0, получен: " + dto.getReceiverId());
+        }
+
+        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Описание не может быть пустым");
+        }
+
+        if (dto.getDescription().length() < 5) {
+            throw new IllegalArgumentException("Описание должно быть не менее 5 символов");
+        }
     }
 
     private User getUserById(long userId) {
