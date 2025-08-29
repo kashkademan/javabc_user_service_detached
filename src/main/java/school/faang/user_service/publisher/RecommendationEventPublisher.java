@@ -1,7 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +24,7 @@ public class RecommendationEventPublisher implements EventPublisher<Recommendati
     @Value("${redis.topic.recommendation}")
     private String recommendationTopic;
 
-    public void publish(RecommendationEvent event) {
+    public void publish(RecommendationEvent event) throws EventPublishingException {
         try {
             Long receiversCount = redisTemplate.convertAndSend(recommendationTopic, event);
 

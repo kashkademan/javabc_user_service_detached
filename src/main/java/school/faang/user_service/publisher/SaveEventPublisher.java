@@ -6,6 +6,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import school.faang.user_service.exception.EventPublishingException;
 
 /**
  * Универсальный компонент для безопасной публикации событий после коммита транзакции
@@ -33,7 +34,7 @@ public class SaveEventPublisher<E> {
                                 publisher.publish(event);
                                 return null;
                             });
-                        } catch (Exception e) {
+                        } catch (Exception | EventPublishingException e) {
                             log.error("Ошибка отправки ивента после повторной отправки: {}", event, e);
                         }
                     }

@@ -5,17 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
 import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.publisher.RecommendationEventPublisher;
+import school.faang.user_service.publisher.SaveEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
@@ -31,7 +31,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
     private final List<RecommendationFilter> filters;
-    private final RecommendationEventPublisher publisher;
+    private final SaveEventPublisher<RecommendationEvent> publisher;
 
     @Override
     @Transactional
@@ -53,12 +53,12 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         log.info("Рекомендация для пользователя {} создана", recommendationDto.receiverId());
 
-        publisher.publish(new RecommendationEvent(
-                        authorId,
-                        receiverId,
-                        savedRecommendation.getId(),
-                        savedRecommendation.getCreatedAt()
-                )
+        publisher.publishAfterCommit(new RecommendationEvent(
+                authorId,
+                receiverId,
+                savedRecommendation.getId(),
+                savedRecommendation.getCreatedAt()
+               )
         );
 
         return recommendationMapper.toViewDto(savedRecommendation);
