@@ -66,6 +66,15 @@ public interface UserService {
      * @return список пользователей в виде List<{@link UserDto}>
      */
     List<UserDto> getUsers(UserFilterDto filter);
+
+    /**
+     * Возвращает список пользователей по списку id пользователей
+     *
+     * @param usersId список id пользователей
+     * @return список пользователей в виде List{@link UserDto}
+     */
+    List<UserDto> getByIdUsers(List<Long> usersId);
+
 }
 
 

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.avatar.service.UserAvatarService;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -101,5 +101,10 @@ public class UserServiceImpl implements UserService {
         users = filterService.getFilteredList(users.toList(), filter).stream();
         return users.map(userMapper::toUserDto)
                 .toList();
+    }
+
+    @Override
+    public List<UserDto> getByIdUsers(List<Long> usersId) {
+        return usersId.stream().map(userId -> userMapper.toUserDto(userRepository.getByIdOrThrow(userId))).toList();
     }
 }

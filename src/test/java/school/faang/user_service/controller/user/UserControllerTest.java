@@ -2,6 +2,7 @@ package school.faang.user_service.controller.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -46,6 +48,15 @@ class UserControllerTest {
     private MentorshipService mentorshipService;
 
     private static UserDto user;
+    private long userId = 1L;
+    private String userName = "Bob";
+    private String email = "@mail";
+    private List<Long> userIds = List.of(userId);
+    private String phone = "88899212";
+    private String aboutMe = "Fine";
+    private String avatarUrl = "www/www";
+    private UserDto userDto = new UserDto(userId, userName, email, phone, aboutMe, avatarUrl);
+    private List<UserDto> userDtoList = List.of(userDto);
 
     @BeforeAll
     static void setUp() {
@@ -150,5 +161,22 @@ class UserControllerTest {
                         .params(params))
                 .andExpect(content().json(objMapper.writeValueAsString(users)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Успешное получение списка пользоватаелей, по списку id пользователей")
+    void getListUsersTest() throws Exception {
+        when(service.getByIdUsers(userIds)).thenReturn(userDtoList);
+
+        mockMvc.perform(get("/users")
+                        .param("userIds", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].email").value("@mail"))
+                .andExpect(jsonPath("$[0].username").value("Bob"))
+                .andExpect(jsonPath("$[0].phone").value("88899212"));
     }
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,9 +26,11 @@ import school.faang.user_service.service.filter.FilterService;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Import(TestS3Config.class)
@@ -51,6 +54,17 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl service;
+
+    private long userId = 1L;
+    private String userName = "Bob";
+    private String email = "@mail";
+    private List<Long> userIds = List.of(userId);
+    private String phone = "88899212";
+    private String aboutMe = "Fine";
+    private String avatarUrl = "www/www";
+    private UserDto userDto = new UserDto(userId, userName, email, phone, aboutMe, avatarUrl);
+    private List<UserDto> userDtoList = List.of(userDto);
+    private User user;
 
     @Test
     void create_success() {
@@ -125,5 +139,18 @@ class UserServiceImplTest {
 
         var actual = service.getUsers(filterDto);
         assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("Успешное получение списка пользователей по списку id пользователей")
+    void getByIdUsersTest() {
+        when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
+        when(userMapper.toUserDto(user)).thenReturn(userDto);
+
+        List<UserDto> resultList = service.getByIdUsers(userIds);
+
+        assertThat(resultList).usingRecursiveAssertion().isEqualTo(userDtoList);
+        verify(userRepository).getByIdOrThrow(userId);
+        verify(userMapper).toUserDto(user);
     }
 }

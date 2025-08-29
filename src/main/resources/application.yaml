@@ -53,8 +53,10 @@ cloud:
       bucket: faang-user-avatars
       region: ru-central1
       endpoint: https://storage.yandexcloud.net
-      access-key: ${AWS_ACCESS_KEY:}
-      secret-key: ${AWS_SECRET_KEY:}
+      access-key: asmndbh79asd
+      secret-key: asmndbh79asd
+
+
 
 project-service:
   host: localhost
