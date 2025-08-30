@@ -14,6 +14,7 @@ import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -48,6 +49,9 @@ public class MentorshipRequestServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     @InjectMocks
     private MentorshipRequestServiceImpl mentorshipRequestService;
