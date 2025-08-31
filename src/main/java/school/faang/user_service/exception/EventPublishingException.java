@@ -2,7 +2,11 @@ package school.faang.user_service.exception;
 
 
 public class EventPublishingException extends RuntimeException {
-    public EventPublishingException(String message, Exception e) {
+    public EventPublishingException(String message) {
         super(message);
+    }
+
+    public EventPublishingException(String message, Exception e) {
+        super(message, e);
     }
 }

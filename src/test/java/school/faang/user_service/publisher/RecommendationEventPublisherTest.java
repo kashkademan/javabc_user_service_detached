@@ -18,10 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -99,10 +98,11 @@ class RecommendationEventPublisherTest {
     @DisplayName("Ошибка в соединении с Redis")
     void testPublish_RedisException() {
         String errorMessage = "Ошибка в соединении с Redis";
-        RuntimeException redisException = new RuntimeException(errorMessage);
+        RuntimeException redisException = new EventPublishingException(errorMessage);
 
-        when(redisTemplate.convertAndSend(anyString(), any()))
-                .thenThrow(redisException);
+        doThrow(redisException)
+                .when(redisTemplate)
+                .convertAndSend(eq(testTopic), eq(testEvent));
 
         EventPublishingException exception = assertThrows(
                 EventPublishingException.class,
