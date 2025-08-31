@@ -53,7 +53,8 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
-        ContactPreference pref = ContactPreference.builder().user(user).preference(PreferredContact.fromString(userDto.contact())).build();
+        ContactPreference pref = ContactPreference
+                .builder().user(user).preference(PreferredContact.fromString(userDto.contact())).build();
 
         user.setContactPreference(pref);
 
