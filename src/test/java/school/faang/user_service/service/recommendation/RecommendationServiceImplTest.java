@@ -140,11 +140,11 @@ class RecommendationServiceImplTest {
         );
 
         assertEquals(expectedDto, actualDto);
+        verify(publisher).publishAfterCommit(event);
         verify(recommendationRepository).findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
         verify(recommendationRepository).create(authorId, receiverId, createDto.content());
         verify(recommendationRepository).findById(recommendation.getId());
         verify(recommendationMapper).toViewDto(recommendation);
-        verify(publisher).publishAfterCommit(event);
     }
 
     @Test
