@@ -76,7 +76,8 @@ class UserControllerTest {
                 "JohnDoe",
                 "johndoe@example.com",
                 "Mega_str0ng_passwd",
-                1L
+                1L,
+                "TELEGRAM"
         );
 
         when(service.create(eq(createDto))).thenReturn(user);

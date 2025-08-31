@@ -16,6 +16,7 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.publisher.EventStartEventPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
@@ -41,6 +42,8 @@ public class EventServiceImplTest {
     private EventRepository eventRepository;
     @Mock
     private EventMapper eventMapper;
+    @Mock
+    private EventStartEventPublisher eventStartEventPublisher;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -52,7 +55,8 @@ public class EventServiceImplTest {
                 userRepository,
                 eventMapper,
                 userContext,
-                eventFilterService);
+                eventFilterService,
+                eventStartEventPublisher);
     }
 
     @Test
@@ -128,6 +132,7 @@ public class EventServiceImplTest {
         when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
 
         EventCreateDto dto = new EventCreateDto();
+        dto.setAttendeesIds(List.of(1L));
         Event event = new Event();
         event.setRelatedSkills(List.of(skill));
         when(eventMapper.toEntity(dto)).thenReturn(event);
@@ -142,6 +147,8 @@ public class EventServiceImplTest {
         viewDto.setId(100L);
         viewDto.setTitle("Test");
         when(eventMapper.toViewDto(savedEvent)).thenReturn(viewDto);
+
+
 
         EventViewDto result = eventService.create(dto);
 

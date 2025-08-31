@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user.UserNotificationDto;
 import school.faang.user_service.dto.user.UserUpdateDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.UserService;
@@ -30,6 +31,11 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final MentorshipService mentorshipService;
+
+    @GetMapping("/{id}/contact-info")
+    public ResponseEntity<UserNotificationDto> getContactInfoById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getContactInfo(id));
+    }
 
     @PostMapping
     @Operation(summary = "Создать пользователя",

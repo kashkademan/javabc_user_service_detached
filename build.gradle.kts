@@ -30,13 +30,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("org.telegram:telegrambots:6.9.7.1")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
      * библиотека для чтения env
      */
     implementation("io.github.cdimascio:dotenv-java:2.2.4")
-
 
     /**
      * kafka
@@ -76,6 +76,14 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
 
     /**
+     * JSON (убираем дубли)
+     */
+    implementation("org.json:json:20220320")
+    implementation("com.vaadin.external.google:android-json:0.0.20131108.vaadin1") {
+        exclude(group = "org.json", module = "json")
+    }
+
+    /**
      * Test containers
      */
     implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
@@ -91,7 +99,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
-
 }
 
 jsonSchema2Pojo {

@@ -19,8 +19,10 @@ spring:
 
   data:
     redis:
-      host: localhost
       port: 6379
+      host: localhost
+      channel:
+          event: "event_channel"
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -73,10 +75,14 @@ user:
 skill:
   count-recommendation:
     min-length: 3
+    
+telegram:
+  bot-username: ${TELEGRAM_BOT_USERNAME}
+  bot-token: ${TELEGRAM_BOT_TOKEN}
 
 event:
   delete-scheduled:
     cron: "0 0 0 * * *"
 
 event-bucket:
-    count: 100
+  count: 100
