@@ -34,7 +34,7 @@ public class SaveEventPublisher<E> {
                                 publisher.publish(event);
                                 return null;
                             });
-                        } catch (Exception | EventPublishingException e) {
+                        } catch (EventPublishingException e) {
                             log.error("Ошибка отправки ивента после повторной отправки: {}", event, e);
                         }
                     }
