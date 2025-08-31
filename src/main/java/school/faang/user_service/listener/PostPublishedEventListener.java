@@ -24,6 +24,6 @@ public class PostPublishedEventListener extends AbstractMessageListener implemen
     @Override
     public void onMessage(Message message, byte[] pattern) {
         PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
-        Long
+
     }
 }
