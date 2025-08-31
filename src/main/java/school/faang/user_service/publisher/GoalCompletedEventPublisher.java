@@ -1,6 +1,7 @@
 package school.faang.user_service.publisher;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -10,20 +11,20 @@ import school.faang.user_service.events.GoalCompletedEvent;
 @Slf4j
 public class GoalCompletedEventPublisher {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> goalRedisTemplate;
     private final String goalCompletedChannel;
 
     public GoalCompletedEventPublisher(
-            RedisTemplate<String, Object> redisTemplate,
-            @Value("${spring.data.redis.channel.goal_completed}") String goalCompletedChannel
+            RedisTemplate<String, Object> goalRedisTemplate,
+            @Value("${spring.data.redis.channel.goal-completed}") String goalCompletedChannel
     ) {
-        this.redisTemplate = redisTemplate;
+        this.goalRedisTemplate = goalRedisTemplate;
         this.goalCompletedChannel = goalCompletedChannel;
     }
 
     public void publish(GoalCompletedEvent goalCompletedEvent) {
         try {
-            redisTemplate.convertAndSend(goalCompletedChannel, goalCompletedEvent);
+            goalRedisTemplate.convertAndSend(goalCompletedChannel, goalCompletedEvent);
             log.info("Published GoalCompletedEvent: userId={}, goalId={}",
                     goalCompletedEvent.userId(), goalCompletedEvent.goalId());
         } catch (Exception e) {
