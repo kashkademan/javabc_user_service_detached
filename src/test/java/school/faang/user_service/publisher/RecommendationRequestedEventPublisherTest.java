@@ -1,7 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +12,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Тестирование класса отправляющего ивент в топик Redis
@@ -30,15 +28,12 @@ public class RecommendationRequestedEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
-    @Mock
-    private ObjectMapper objectMapper;
-
     @InjectMocks
     private RecommendationRequestedEventPublisher publisher;
 
     @BeforeEach
     void setUp() {
-        publisher = new RecommendationRequestedEventPublisher(redisTemplate, objectMapper);
+        publisher = new RecommendationRequestedEventPublisher(redisTemplate);
         ReflectionTestUtils.setField(
                 publisher,
                 "recommendationRequestTopic",
@@ -47,24 +42,23 @@ public class RecommendationRequestedEventPublisherTest {
     }
 
     @Test
-    @DisplayName("Успешная преобразование в json и отправка в топик")
-    public void publishSendsCorrectMessage() throws JsonProcessingException {
+    @DisplayName("Успешная отправка события в топик")
+    public void publishSendsCorrectMessage() {
         RecommendationRequestedEvent event = new RecommendationRequestedEvent(1L, 2L, 1L);
-        String expectedJson = "{\"requesterId\":1,\"receiverId\":2, \"requestId\":1}";
-
-        when(objectMapper.writeValueAsString(event)).thenReturn(expectedJson);
 
         publisher.publish(event);
 
-        verify(redisTemplate).convertAndSend("test-topic", expectedJson);
+        verify(redisTemplate).convertAndSend("test-topic", event);
     }
 
     @Test
-    @DisplayName("Ожидание ошибки конвертации в json")
-    public void publishShouldThrowRuntimeExceptionOnSerializationError() throws JsonProcessingException {
+    @DisplayName("Ожидание ошибки при отправке в Redis")
+    public void publishShouldThrowRuntimeExceptionOnRedisError() {
         RecommendationRequestedEvent event = new RecommendationRequestedEvent(1L, 2L, 1L);
-        when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("Error") {});
+
+        doThrow(new RuntimeException("Redis error"))
+                .when(redisTemplate)
+                .convertAndSend("test-topic", event);
 
         assertThrows(RuntimeException.class, () -> publisher.publish(event));
     }

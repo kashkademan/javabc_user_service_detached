@@ -9,29 +9,38 @@ import java.util.List;
 
 public interface ProjectSubscriptionRepository extends JpaRepository<ProjectSubscription, Long> {
     @Query(nativeQuery = true, value = """
-            select exists (
-                select 1 from project_subscription 
-                where follower_id = :followerId 
-                and project_id = :projectId
+            SELECT EXISTS (
+                SELECT 1 FROM project_subscription
+                WHERE follower_id = :followerId
+                AND project_id = :projectId
             )
             """)
     boolean existsByFollowerIdAndProjectId(long followerId, long projectId);
 
     @Query(nativeQuery = true, value = """
-            insert into project_subscription  (follower_id, project_id) values (:followerId, :projectId)
+            INSERT INTO project_subscription  (follower_id, project_id)
+            VALUES (:followerId, :projectId)
             """)
     @Modifying
     void followProject(long followerId, long projectId);
 
     @Query(nativeQuery = true, value = """
-            delete from project_subscription where follower_id = :followerId and project_id = :projectId
+            DELETE FROM project_subscription
+            WHERE follower_id = :followerId
+                AND project_id = :projectId
             """)
     @Modifying
     void unfollowProject(long followerId, long projectId);
 
-    @Query(nativeQuery = true, value = "select count(id) from project_subscription where project_id = :projectId")
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(id) FROM project_subscription
+            WHERE project_id = :projectId
+            """)
     int findFollowersAmountByProjectId(long projectId);
 
-    @Query(nativeQuery = true, value = "select project_id from project_subscription where follower_id = :followerId")
+    @Query(nativeQuery = true, value = """
+            SELECT project_id FROM project_subscription
+            WHERE follower_id = :followerId
+            """)
     List<Long> getByFollowerId(long followerId);
 }
