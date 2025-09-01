@@ -44,7 +44,7 @@
         <!-- Проверка SQL в нижнем регистре -->
         <module name="RegexpSinglelineJava">
             <property name="id" value="sqlLowerCaseCheck"/>
-            <property name="format" value="@Query.*select.*from"/>
+            <property name="format" value="@Query.*(select|insert|update|delete|from|where|join|on|and|or|group by|order by|having).*from"/>
             <property name="message"
                       value="SQL ключевые слова должны быть в верхнем регистре: используйте SELECT вместо select"/>
             <property name="ignoreComments" value="true"/>
