@@ -55,17 +55,6 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl service;
 
-    private long userId = 1L;
-    private String userName = "Bob";
-    private String email = "@mail";
-    private List<Long> userIds = List.of(userId);
-    private String phone = "88899212";
-    private String aboutMe = "Fine";
-    private String avatarUrl = "www/www";
-    private UserDto userDto = new UserDto(userId, userName, email, phone, aboutMe, avatarUrl);
-    private List<UserDto> userDtoList = List.of(userDto);
-    private User user;
-
     @Test
     void create_success() {
         var country = UserServiceTestData.buildCountry(1L, "Kazakhstan");
@@ -144,13 +133,20 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Успешное получение списка пользователей по списку id пользователей")
     void getByIdUsersTest() {
-        when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
+        long userId = UserServiceTestData.createUser().getId();
+        User user = UserServiceTestData.createUser();
+        UserDto userDto = UserServiceTestData.createUserDto();
+        List<UserDto> userDtoList = List.of(userDto);
+        List<User> userList = List.of(user);
+        List<Long> userIds = List.of(userId);
+
+        when(userRepository.findAllByIdIn(userIds)).thenReturn(userList);
         when(userMapper.toUserDto(user)).thenReturn(userDto);
 
         List<UserDto> resultList = service.getByIdUsers(userIds);
 
         assertThat(resultList).usingRecursiveAssertion().isEqualTo(userDtoList);
-        verify(userRepository).getByIdOrThrow(userId);
+        verify(userRepository).findAllByIdIn(userIds);
         verify(userMapper).toUserDto(user);
     }
 }

@@ -54,7 +54,10 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
 
         ContactPreference pref = ContactPreference
-                .builder().user(user).preference(PreferredContact.fromString(userDto.contact())).build();
+                .builder()
+                .user(user)
+                .preference(PreferredContact.fromString(userDto.contact()))
+                .build();
 
         user.setContactPreference(pref);
 
@@ -140,6 +143,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getByIdUsers(List<Long> usersId) {
-        return usersId.stream().map(userId -> userMapper.toUserDto(userRepository.getByIdOrThrow(userId))).toList();
+        List<User > userList = userRepository.findAllByIdIn(usersId);
+        return userList.stream()
+                .map(userMapper::toUserDto).
+                toList();
     }
 }

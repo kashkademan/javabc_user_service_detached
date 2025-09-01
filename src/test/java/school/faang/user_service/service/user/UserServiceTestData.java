@@ -120,4 +120,26 @@ public class UserServiceTestData {
                         List.of(toViewDto(userWithPremium), toViewDto(userWithoutPremium)))
         );
     }
+
+    public static User createUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("Bob");
+        user.setEmail("@mail");
+        user.setPhone("88899212");
+        user.setAboutMe("Fine");
+        user.setAvatarUrl("www/www");
+        return user;
+    }
+
+    public static UserDto createUserDto() {
+        return new UserDto(
+                1L,
+                "Bob",
+                "@mail",
+                "88899212",
+                "Fine",
+                "www/www"
+        );
+    }
 }

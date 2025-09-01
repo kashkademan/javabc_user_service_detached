@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserCreateDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -73,10 +72,5 @@ public class UserController {
     @GetMapping("/users/{menteeId}/mentor")
     public ResponseEntity<UserDto> getMentor(@PathVariable long menteeId) {
         return ResponseEntity.ok(mentorshipService.getMentor(menteeId));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<UserDto>> getListUsers(@RequestParam List<Long> userIds) {
-        return ResponseEntity.ok(userService.getByIdUsers(userIds));
     }
 }
