@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.retry.support.RetryTemplate;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,17 +28,15 @@ public class RecommendationRequestedEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Mock
+    private RetryTemplate retryTemplate;
+
     @InjectMocks
     private RecommendationRequestedEventPublisher publisher;
 
     @BeforeEach
     void setUp() {
-        publisher = new RecommendationRequestedEventPublisher(redisTemplate);
-        ReflectionTestUtils.setField(
-                publisher,
-                "recommendationRequestTopic",
-                "test-topic"
-        );
+        publisher = new RecommendationRequestedEventPublisher(retryTemplate, redisTemplate, "test-topic");
     }
 
     @Test

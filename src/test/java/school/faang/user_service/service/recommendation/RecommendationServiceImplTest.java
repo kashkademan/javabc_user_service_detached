@@ -17,7 +17,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.publisher.SaveEventPublisher;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
@@ -60,7 +60,7 @@ class RecommendationServiceImplTest {
     private RecommendationMapper recommendationMapper;
 
     @Mock
-    private SaveEventPublisher<RecommendationEvent> publisher;
+    private RecommendationEventPublisher publisher;
 
     @InjectMocks
     private RecommendationServiceImpl recommendationServiceImpl;

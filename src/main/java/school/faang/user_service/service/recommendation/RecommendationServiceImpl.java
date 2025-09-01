@@ -15,7 +15,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.publisher.SaveEventPublisher;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
@@ -31,7 +31,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
     private final List<RecommendationFilter> filters;
-    private final SaveEventPublisher<RecommendationEvent> publisher;
+    private final RecommendationEventPublisher publisher;
 
     @Override
     @Transactional

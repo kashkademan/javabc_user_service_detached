@@ -2,8 +2,8 @@ package school.faang.user_service.publisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import school.faang.user_service.exception.EventPublishingException;
@@ -16,13 +16,33 @@ import school.faang.user_service.exception.EventPublishingException;
  * @author Linempy
  * @since 27.08.2025
  */
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class SaveEventPublisher<E> {
 
-    private final EventPublisher<E> publisher;
-    private final RetryTemplate retryTemplate;
+@Slf4j
+@RequiredArgsConstructor
+public abstract class AbstractEventPublisher<E> implements EventPublisher<E> {
+
+    protected final RetryTemplate retryTemplate;
+    protected final RedisTemplate<String, Object> redisTemplate;
+    protected final String topic;
+
+    @Override
+    public void publish(E event) {
+        try {
+            Long receiversCount = redisTemplate.convertAndSend(topic, event);
+
+            if (receiversCount != null && receiversCount > 0) {
+                log.info("Событие успешно отправлено в топик {}. Получателей: {}",
+                        topic, receiversCount);
+            } else {
+                log.warn("Событие отправлено в топик {}, но нет активных подписчиков",
+                        topic);
+            }
+        } catch (Exception e) {
+            log.error("Ошибка при отправке события в топик {}: {}",
+                    topic, event, e);
+            throw new EventPublishingException("Ошибка отправки ивента в Redis", e);
+        }
+    }
 
     public void publishAfterCommit(E event) {
         TransactionSynchronizationManager.registerSynchronization(
@@ -31,7 +51,7 @@ public class SaveEventPublisher<E> {
                     public void afterCommit() {
                         try {
                             retryTemplate.execute(context -> {
-                                publisher.publish(event);
+                                publish(event);
                                 return null;
                             });
                         } catch (EventPublishingException e) {
