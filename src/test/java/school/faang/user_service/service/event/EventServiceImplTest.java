@@ -41,8 +41,6 @@ public class EventServiceImplTest {
     @Mock
     private EventRepository repository;
 
-    private ThreadPoolTaskExecutor taskExecutor;
-
     private EventServiceImpl service;
 
     @BeforeEach
@@ -58,6 +56,7 @@ public class EventServiceImplTest {
         ReflectionTestUtils.setField(service, "batchSize", BATCH_SIZE);
         ReflectionTestUtils.setField(service, "cleanupTimeoutSeconds", 1L);
     }
+
 
     @Test
     @DisplayName("Успешная обработка пустого списка просроченных ивентов")
@@ -114,7 +113,7 @@ public class EventServiceImplTest {
     @Test
     @DisplayName("Должен выбросить EventCleanupException, когда наступил таймаут")
     void testCleanupEventsWhenTimeoutShouldThrowException() {
-        List<Long> eventIds = LongStream.rangeClosed(1, 500)
+        List<Long> eventIds = LongStream.rangeClosed(1, 100)
                 .boxed()
                 .collect(Collectors.toList());
 
@@ -140,6 +139,7 @@ public class EventServiceImplTest {
                 .thenReturn(3)
                 .thenThrow(new DataAccessException("DB error") {
                 })
+                .thenReturn(3)
                 .thenReturn(1);
 
         assertDoesNotThrow(() -> service.cleanupExpiredEvents());

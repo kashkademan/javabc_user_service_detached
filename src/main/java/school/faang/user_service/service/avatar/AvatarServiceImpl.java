@@ -89,7 +89,9 @@ public class AvatarServiceImpl implements AvatarService {
     private String generateAvatarKey(Long userId) {
         return String.format(
                 "ava/user_%d_%d.%s",
-                userId, System.currentTimeMillis(), CONTENT_TYPE
+                userId,
+                System.currentTimeMillis(),
+                CONTENT_TYPE
         );
     }
 }
