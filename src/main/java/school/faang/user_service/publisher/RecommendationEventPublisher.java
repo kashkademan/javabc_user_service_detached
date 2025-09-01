@@ -17,9 +17,16 @@ import school.faang.user_service.dto.recommendation.RecommendationEvent;
 @Component
 public class RecommendationEventPublisher extends AbstractEventPublisher<RecommendationEvent> {
 
+    @Value("${redis.topic.recommendation}")
+    private String topic;
+
     public RecommendationEventPublisher(RetryTemplate retryTemplate,
-                                        RedisTemplate<String, Object> redisTemplate,
-                                        @Value("${redis.topic.recommendation}") String topic) {
-        super(retryTemplate, redisTemplate, topic);
+                                        RedisTemplate<String, Object> redisTemplate) {
+        super(retryTemplate, redisTemplate);
+    }
+
+    @Override
+    protected String getTopic() {
+        return topic;
     }
 }

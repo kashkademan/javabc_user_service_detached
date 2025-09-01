@@ -23,10 +23,11 @@ public abstract class AbstractEventPublisher<E> implements EventPublisher<E> {
 
     protected final RetryTemplate retryTemplate;
     protected final RedisTemplate<String, Object> redisTemplate;
-    protected final String topic;
 
     @Override
     public void publish(E event) {
+        String topic = getTopic();
+
         try {
             Long receiversCount = redisTemplate.convertAndSend(topic, event);
 
@@ -61,4 +62,6 @@ public abstract class AbstractEventPublisher<E> implements EventPublisher<E> {
                 }
         );
     }
+
+    protected abstract String getTopic();
 }

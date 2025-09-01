@@ -10,9 +10,15 @@ import org.springframework.retry.support.RetryTemplate;
  * @since 01.09.2025
  */
 public class TestEventPublisher extends AbstractEventPublisher<RecommendationEventPublisher> {
+    String topic = "test-topic";
+
     public TestEventPublisher(RetryTemplate retryTemplate,
-                              RedisTemplate<String, Object> redisTemplate,
-                              String topic) {
-        super(retryTemplate, redisTemplate, topic);
+                              RedisTemplate<String, Object> redisTemplate) {
+        super(retryTemplate, redisTemplate);
+    }
+
+    @Override
+    protected String getTopic() {
+        return topic;
     }
 }

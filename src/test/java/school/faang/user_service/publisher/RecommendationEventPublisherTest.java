@@ -8,11 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.exception.EventPublishingException;
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.publisher.AbstractEventPublisherTestData.NAME_TOPIC;
 
 /**
  * Тестирование класс для публикации ивентов рекомендации
@@ -37,21 +37,24 @@ class RecommendationEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Mock
+    private RetryTemplate retryTemplate;
+
     @InjectMocks
     private RecommendationEventPublisher publisher;
 
-    private final String testTopic = "test-recommendation-topic";
     private RecommendationEvent testEvent;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(publisher, "recommendationTopic", testTopic);
+        publisher = new RecommendationEventPublisher(retryTemplate, redisTemplate);
+        ReflectionTestUtils.setField(publisher, "topic", NAME_TOPIC);
 
         testEvent = new RecommendationEvent(
                 1L,
                 2L,
                 100L,
-                LocalDateTime.now()
+                null
         );
     }
 
@@ -60,38 +63,38 @@ class RecommendationEventPublisherTest {
     void testPublish_Success() {
         Long expectedReceiversCount = 5L;
 
-        when(redisTemplate.convertAndSend(eq(testTopic), eq(testEvent)))
+        when(redisTemplate.convertAndSend(NAME_TOPIC, testEvent))
                 .thenReturn(expectedReceiversCount);
 
         assertDoesNotThrow(() -> publisher.publish(testEvent));
 
         verify(redisTemplate, times(1))
-                .convertAndSend(testTopic, testEvent);
+                .convertAndSend(NAME_TOPIC, testEvent);
         verifyNoMoreInteractions(redisTemplate);
     }
 
     @Test
     @DisplayName("Проверка на успешное выполнение, когда число 'подписчиков' топика 0")
     void testPublish_ZeroReceivers() {
-        when(redisTemplate.convertAndSend(eq(testTopic), eq(testEvent)))
+        when(redisTemplate.convertAndSend(eq(NAME_TOPIC), eq(testEvent)))
                 .thenReturn(0L);
 
         assertDoesNotThrow(() -> publisher.publish(testEvent));
 
         verify(redisTemplate, times(1))
-                .convertAndSend(testTopic, testEvent);
+                .convertAndSend(NAME_TOPIC, testEvent);
     }
 
     @Test
     @DisplayName("Проверка на успешное выполнение, когда число 'подписчиков' топика null")
     void testPublish_NullReceivers() {
-        when(redisTemplate.convertAndSend(eq(testTopic), eq(testEvent)))
+        when(redisTemplate.convertAndSend(eq(NAME_TOPIC), eq(testEvent)))
                 .thenReturn(null);
 
         assertDoesNotThrow(() -> publisher.publish(testEvent));
 
         verify(redisTemplate, times(1))
-                .convertAndSend(testTopic, testEvent);
+                .convertAndSend(NAME_TOPIC, testEvent);
     }
 
     @Test
@@ -102,7 +105,7 @@ class RecommendationEventPublisherTest {
 
         doThrow(redisException)
                 .when(redisTemplate)
-                .convertAndSend(eq(testTopic), eq(testEvent));
+                .convertAndSend(eq(NAME_TOPIC), eq(testEvent));
 
         EventPublishingException exception = assertThrows(
                 EventPublishingException.class,
@@ -113,28 +116,27 @@ class RecommendationEventPublisherTest {
         assertSame(redisException, exception.getCause());
 
         verify(redisTemplate, times(1))
-                .convertAndSend(testTopic, testEvent);
+                .convertAndSend(NAME_TOPIC, testEvent);
     }
 
     @Test
     @DisplayName("Переданный event является Null")
     void testPublish_WithNullEvent() {
-        when(redisTemplate.convertAndSend(eq(testTopic), isNull()))
+        when(redisTemplate.convertAndSend(eq(NAME_TOPIC), isNull()))
                 .thenReturn(0L);
 
         assertDoesNotThrow(() -> publisher.publish(null));
 
         verify(redisTemplate, times(1))
-                .convertAndSend(testTopic, null);
+                .convertAndSend(NAME_TOPIC, null);
     }
 
     @Test
     @DisplayName("Топик не был указан (пустая строка)")
     void testPublish_EmptyTopic() {
-        ReflectionTestUtils.setField(publisher, "recommendationTopic", "");
-
+        ReflectionTestUtils.setField(publisher, "topic", "");
         when(redisTemplate.convertAndSend(eq(""), eq(testEvent)))
-                .thenReturn(1L);
+                .thenReturn(null);
 
         assertDoesNotThrow(() -> publisher.publish(testEvent));
 
