@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -16,6 +17,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
@@ -56,6 +58,9 @@ class RecommendationServiceImplTest {
 
     @Spy
     private RecommendationMapper recommendationMapper;
+
+    @Mock
+    private RecommendationEventPublisher publisher;
 
     @InjectMocks
     private RecommendationServiceImpl recommendationServiceImpl;
@@ -127,9 +132,15 @@ class RecommendationServiceImplTest {
         when(recommendationMapper.toViewDto(recommendation)).thenReturn(expectedDto);
 
         RecommendationViewDto actualDto = recommendationServiceImpl.create(createDto);
+        RecommendationEvent event = new RecommendationEvent(
+                authorId,
+                receiverId,
+                10L,
+                null
+        );
 
         assertEquals(expectedDto, actualDto);
-
+        verify(publisher).publishAfterCommit(event);
         verify(recommendationRepository).findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
         verify(recommendationRepository).create(authorId, receiverId, createDto.content());
         verify(recommendationRepository).findById(recommendation.getId());

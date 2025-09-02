@@ -4,10 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 
@@ -28,17 +28,15 @@ public class RecommendationRequestedEventPublisherTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
-    @InjectMocks
+    @Mock
+    private RetryTemplate retryTemplate;
+
     private RecommendationRequestedEventPublisher publisher;
 
     @BeforeEach
     void setUp() {
-        publisher = new RecommendationRequestedEventPublisher(redisTemplate);
-        ReflectionTestUtils.setField(
-                publisher,
-                "recommendationRequestTopic",
-                "test-topic"
-        );
+        publisher = new RecommendationRequestedEventPublisher(retryTemplate, redisTemplate);
+        ReflectionTestUtils.setField(publisher, "topic", "test-topic");
     }
 
     @Test

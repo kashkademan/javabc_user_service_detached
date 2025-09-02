@@ -5,24 +5,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
 
 /**
- * Класс для отправки ивентов в топик с запросами рекомендаций
+ * Класс-отправитель ивента {@link RecommendationEvent} в сервис аналитики
  *
  * @author Linempy
- * @since 13.08.2025
+ * @since 20.08.2025
  */
 @Slf4j
 @Component
-public class RecommendationRequestedEventPublisher extends AbstractEventPublisher<RecommendationRequestedEvent> {
+public class RecommendationEventPublisher extends AbstractEventPublisher<RecommendationEvent> {
 
     @Value("${redis.topic.recommendation}")
     private String topic;
 
-
-    public RecommendationRequestedEventPublisher(RetryTemplate retryTemplate,
-                                                 RedisTemplate<String, Object> redisTemplate) {
+    public RecommendationEventPublisher(RetryTemplate retryTemplate,
+                                        RedisTemplate<String, Object> redisTemplate) {
         super(retryTemplate, redisTemplate);
     }
 
@@ -30,7 +29,4 @@ public class RecommendationRequestedEventPublisher extends AbstractEventPublishe
     protected String getTopic() {
         return topic;
     }
-
-
-
 }

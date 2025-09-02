@@ -5,15 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationViewDto;
+import school.faang.user_service.dto.recommendation.RecommendationEvent;
+import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationFilter;
 
@@ -25,36 +27,39 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RecommendationServiceImpl implements RecommendationService {
-    private final RecommendationRepository recommendationRepository;
+    private final RecommendationRepository repository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
     private final List<RecommendationFilter> filters;
+    private final RecommendationEventPublisher publisher;
 
     @Override
     @Transactional
     public RecommendationViewDto create(RecommendationCreateDto recommendationDto) {
-        LocalDateTime sixMonthAgo = LocalDateTime.now().minusMonths(6);
-
         Long authorId = userContext.getUserId();
         Long receiverId = recommendationDto.receiverId();
 
         validateAuthorIsNotReceiver(authorId, receiverId);
 
-        Optional<Recommendation> lastRecommendation = recommendationRepository
+        Optional<Recommendation> lastRecommendation = repository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
 
+        LocalDateTime sixMonthAgo = LocalDateTime.now().minusMonths(6);
         validateRecommendationFrequency(lastRecommendation, sixMonthAgo);
 
-        Long recommendationId = recommendationRepository.create(
-                authorId,
-                receiverId,
-                recommendationDto.content()
-        );
-
-        Recommendation savedRecommendation = recommendationRepository.findById(recommendationId)
+        Long recommendationId = repository.create(authorId, receiverId, recommendationDto.content());
+        Recommendation savedRecommendation = repository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Не удалось найти созданную рекомендацию"));
 
         log.info("Рекомендация для пользователя {} создана", recommendationDto.receiverId());
+
+        publisher.publishAfterCommit(new RecommendationEvent(
+                authorId,
+                receiverId,
+                savedRecommendation.getId(),
+                savedRecommendation.getCreatedAt()
+               )
+        );
 
         return recommendationMapper.toViewDto(savedRecommendation);
     }
@@ -66,12 +71,12 @@ public class RecommendationServiceImpl implements RecommendationService {
         Long receiverId = updateRecommendationDto.receiverId();
         Long authorId = updateRecommendationDto.authorId();
 
-        recommendationRepository.findById(recommendationId)
+        repository.findById(recommendationId)
                 .orElseThrow(() -> new EntityNotFoundException("Рекомендация не найдена"));
 
         validateAuthorIsCurrentUser(currentId, authorId);
 
-        Recommendation updatedRecommendation = recommendationRepository.update(authorId,
+        Recommendation updatedRecommendation = repository.update(authorId,
                 receiverId, updateRecommendationDto.content());
 
         log.info("Рекомендация для пользователя {} обновлена", receiverId);
@@ -82,13 +87,13 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Transactional
     public void delete(long recommendationId) {
         log.info("Рекомендация {} удалена", recommendationId);
-        recommendationRepository.deleteByIdAndAuthor_id(recommendationId, userContext.getUserId());
+        repository.deleteByIdAndAuthor_id(recommendationId, userContext.getUserId());
     }
 
     @Override
     @Transactional
     public List<RecommendationViewDto> getByFilters(RecommendationFilterDto filtersDto) {
-        var recommendations = recommendationRepository.findAll().stream();
+        var recommendations = repository.findAll().stream();
         for (RecommendationFilter filter : filters) {
             if (filter.isApplicable(filtersDto)) {
                 recommendations = filter.filter(recommendations, filtersDto);

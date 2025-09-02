@@ -14,7 +14,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -25,7 +24,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
-import school.faang.user_service.publisher.SaveEventPublisher;
+import school.faang.user_service.publisher.RecommendationRequestedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -83,7 +82,7 @@ public class RecommendationRequestServiceImplTest {
     private UserContext userContext;
 
     @Mock
-    private SaveEventPublisher<RecommendationRequestedEvent> publisher;
+    private RecommendationRequestedEventPublisher publisher;
 
     @Mock
     private RecommendationRequestFilter messageFilter;

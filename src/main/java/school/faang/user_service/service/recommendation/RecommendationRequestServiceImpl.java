@@ -18,7 +18,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
-import school.faang.user_service.publisher.SaveEventPublisher;
+import school.faang.user_service.publisher.RecommendationRequestedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -37,7 +37,6 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private static final String STATUS_ERROR_ACCEPT = "Приняты могут быть только запросы со статусом 'PENDING'";
     private static final String STATUS_ERROR_REJECT = "Отклонены могут быть только запросы со статусом 'PENDING'";
 
-
     @Value("${recommendation-request.cooldown.month}")
     private int cooldownMonth;
     private final RecommendationRequestRepository requestRepository;
@@ -45,7 +44,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final RecommendationRequestMapper mapper;
     private final List<RecommendationRequestFilter> filters;
-    private final SaveEventPublisher<RecommendationRequestedEvent> publisher;
+    private final RecommendationRequestedEventPublisher publisher;
     private final UserContext userContext;
 
     @Override
