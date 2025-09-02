@@ -13,12 +13,12 @@ import java.util.List;
 
 
 @Service
-public class EventService {
-    private EventRepository eventRepository;
-    private EventStartEventPublisher eventStartEventPublisher;
+public class StartEventService {
+    private final EventRepository eventRepository;
+    private final EventStartEventPublisher eventStartEventPublisher;
 
     @Autowired
-    public EventService(EventRepository eventRepository, EventStartEventPublisher eventStartEventPublisher) {
+    public StartEventService(EventRepository eventRepository, EventStartEventPublisher eventStartEventPublisher) {
         this.eventRepository = eventRepository;
         this.eventStartEventPublisher = eventStartEventPublisher;
     }

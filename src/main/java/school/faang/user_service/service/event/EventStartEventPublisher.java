@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -18,7 +19,6 @@ public class EventStartEventPublisher implements MessagePublisher {
         this.redisTemplate = redisTemplate;
         this.topic = topic;
     }
-
 
     public void publish(EventStartEvent event) {
         redisTemplate.convertAndSend(topic.getTopic(), event);
