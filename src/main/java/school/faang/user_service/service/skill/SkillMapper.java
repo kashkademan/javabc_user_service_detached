@@ -17,6 +17,7 @@ public class SkillMapper {
         return skill;
 
     }
+
     public SkillDto toSkillDto(Skill entity) {
         if (entity == null) {
             return null;

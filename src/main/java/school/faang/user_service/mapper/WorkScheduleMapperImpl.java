@@ -21,6 +21,7 @@ public class WorkScheduleMapperImpl {
 
         return workSchedule;
     }
+
     public WorkScheduleDto toDto(WorkSchedule entity) {
         if (entity == null) {
             return null;
