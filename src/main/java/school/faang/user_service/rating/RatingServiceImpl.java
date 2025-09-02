@@ -23,7 +23,7 @@ public class RatingServiceImpl implements RatingService {
     private final UserContext context;
 
 
-    public void do(ActionType type) {
+    public void get(ActionType type) {
 
     }
 

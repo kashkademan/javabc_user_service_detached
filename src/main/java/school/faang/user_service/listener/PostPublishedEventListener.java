@@ -25,5 +25,12 @@ public class PostPublishedEventListener extends AbstractMessageListener implemen
     public void onMessage(Message message, byte[] pattern) {
         PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
 
+
+        // тут сервис считает сколько баллов нужно дать ивенту
+
+        // тут сохраняем в кэш userId: new_score
+
+        // тут асинхронно сохраняем в бд
+
     }
 }
