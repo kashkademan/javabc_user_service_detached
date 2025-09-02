@@ -53,7 +53,8 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
-        ContactPreference pref = ContactPreference.builder()
+        ContactPreference pref = ContactPreference
+                .builder()
                 .user(user)
                 .preference(PreferredContact.fromString(userDto.contact()))
                 .build();
@@ -138,5 +139,13 @@ public class UserServiceImpl implements UserService {
         if (updated == 0) {
             throw new EntityNotFoundException(String.format("User %d not found", userId));
         }
+    }
+
+    @Override
+    public List<UserDto> getByIdUsers(List<Long> usersId) {
+        List<User> userList = userRepository.findAllByIdIn(usersId);
+        return userList.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 }
