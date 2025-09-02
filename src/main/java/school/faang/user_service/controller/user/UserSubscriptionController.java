@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.service.user.UserSubscriptionService;
 
@@ -48,14 +48,14 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<List<UserDto>> getFollowers(@RequestParam Long followeeId,
-                                                      @ModelAttribute UserFiltersDto filters) {
+    public ResponseEntity<List<UserViewDto>> getFollowers(@RequestParam Long followeeId,
+                                                          @ModelAttribute UserFiltersDto filters) {
         return ResponseEntity.ok(service.getFollowers(followeeId, filters));
     }
 
     @GetMapping("/followees")
-    public ResponseEntity<List<UserDto>> getFollowees(@RequestParam Long followerId,
-                                                      @ModelAttribute UserFiltersDto filters) {
+    public ResponseEntity<List<UserViewDto>> getFollowees(@RequestParam Long followerId,
+                                                          @ModelAttribute UserFiltersDto filters) {
         return ResponseEntity.ok(service.getFollowees(followerId, filters));
     }
 }

@@ -13,7 +13,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestCreateD
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 
@@ -89,7 +89,7 @@ public class RecommendationRequestControllerTest {
                 new RecommendationRequestViewDto(
                         1L,
                         "Test1",
-                        new UserDto(1L, null, null, null, null),
+                        new UserViewDto(1L, null, null, null, null, null),
                         null,
                         RequestStatus.PENDING,
                         null,
@@ -118,9 +118,11 @@ public class RecommendationRequestControllerTest {
     @DisplayName("/POST /recommendation-requests -> 201 Created")
     public void testCreateSuccessful() throws Exception {
         RecommendationRequestCreateDto createDto = new RecommendationRequestCreateDto(
-                "Сообщение", 1L, null
+                "Сообщение", 1L, List.of()
         );
-        UserDto receiver = new UserDto(createDto.receiverId(), null, null, null, null);
+        UserViewDto receiver = new UserViewDto(
+                createDto.receiverId(), null, null, null, null, null
+        );
         RecommendationRequestViewDto viewDto = new RecommendationRequestViewDto(
                 1L, createDto.message(), null, receiver, RequestStatus.PENDING, null, null
         );

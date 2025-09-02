@@ -2,7 +2,7 @@ package school.faang.user_service.dto.skill;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserViewDto;
 
 import java.util.List;
 /**
@@ -25,6 +25,6 @@ public record SkillViewDto(
         Long id,
         @NotNull
         String title,
-        List<UserDto> guarantors
+        List<UserViewDto> guarantors
 ) {
 }

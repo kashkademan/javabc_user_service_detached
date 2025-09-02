@@ -33,7 +33,22 @@
         <property name="ignorePattern"
                   value="^package.*|^import.*|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
     </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="(?s)@(Data|Entity)\b.*?@(Data|Entity)(?!\1).*?\bclass\b"/>
+        <property name="message" value="Do not use @Data and @Entity together on the same class."/>
+        <property name="fileExtensions" value=".java"/>
+    </module>
+
     <module name="TreeWalker">
+        <!-- Проверка SQL в нижнем регистре -->
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="sqlLowerCaseCheck"/>
+            <property name="format" value="@Query.*(select|insert|update|delete|from|where|join|on|and|or|group by|order by|having).*from"/>
+            <property name="message"
+                      value="SQL ключевые слова должны быть в верхнем регистре: используйте SELECT вместо select"/>
+            <property name="ignoreComments" value="true"/>
+        </module>
         <module name="UnusedImports"/>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">

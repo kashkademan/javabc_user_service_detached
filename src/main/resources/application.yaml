@@ -67,6 +67,17 @@ services:
     bucketName: testbacket
     isMocked: false
 
+redis:
+  topic:
+    recommendation-request: "recommendation_request_topic"
+
+retry:
+  config:
+    max-attempts: 3
+    initial-interval-ms: 1000
+    multiplier: 2.0
+    max-interval-ms: 10_000
+    
 generate-ava:
   dice:
     base-url: https://api.dicebear.com/9.x

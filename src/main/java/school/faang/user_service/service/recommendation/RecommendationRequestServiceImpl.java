@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.RecommendationRequestCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestViewDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -17,6 +18,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
+import school.faang.user_service.publisher.SaveEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -30,6 +32,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
+    private static final String RECEIVER_ERROR_ACCEPT = "Данный пользователь не может принять запрос на рекомендацию";
+    private static final String RECEIVER_ERROR_REJECT = "Данный пользователь не может отклонить запрос";
+    private static final String STATUS_ERROR_ACCEPT = "Приняты могут быть только запросы со статусом 'PENDING'";
+    private static final String STATUS_ERROR_REJECT = "Отклонены могут быть только запросы со статусом 'PENDING'";
+
+
     @Value("${recommendation-request.cooldown.month}")
     private int cooldownMonth;
     private final RecommendationRequestRepository requestRepository;
@@ -37,6 +45,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final RecommendationRequestMapper mapper;
     private final List<RecommendationRequestFilter> filters;
+    private final SaveEventPublisher<RecommendationRequestedEvent> publisher;
     private final UserContext userContext;
 
     @Override
@@ -50,7 +59,13 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
         RecommendationRequest request = buildAndSaveRecommendationRequest(createDto, requester, receiver);
 
-        log.info("Recommendation request created successfully. ID: {}", request.getId());
+        log.info("Запрос рекомендации успешно создан. ID: {}", request.getId());
+        publisher.publishAfterCommit(new RecommendationRequestedEvent(
+                        requesterId,
+                        receiver.getId(),
+                        request.getId()
+                )
+        );
         return mapper.toViewDto(request);
     }
 
@@ -65,56 +80,57 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
             }
         }
 
-        log.debug("Recommendation request filtering was successful");
+        log.debug("Успешно получен список отфильтрованных запросов на рекомендацию");
         return filteredRequests
                 .map(mapper::toViewDto)
                 .toList();
     }
 
     @Override
-    public RecommendationRequestViewDto getById(long id) {
+    public RecommendationRequestViewDto getById(Long id) {
         RecommendationRequest foundRequest = requestRepository.getByIdOrThrow(id);
         return mapper.toViewDto(foundRequest);
     }
 
     @Override
     @Transactional
-    public void accept(long id) {
+    public void accept(Long id) {
         processStatusChange(
                 id,
                 RequestStatus.ACCEPTED,
-                "This user can't accepted request",
-                "Only pending requests can be accepted"
+                RECEIVER_ERROR_ACCEPT,
+                STATUS_ERROR_ACCEPT
         );
     }
 
     @Override
     @Transactional
-    public void reject(long id, RejectionDto rejection) {
+    public void reject(Long id, RejectionDto rejection) {
         RecommendationRequest request = processStatusChange(
                 id,
                 RequestStatus.REJECTED,
-                "This user can't rejected request",
-                "Only pending requests can be rejected"
+                RECEIVER_ERROR_REJECT,
+                STATUS_ERROR_REJECT
         );
         request.setRejectionReason(rejection.reason());
     }
 
     private RecommendationRequest processStatusChange(
-            long id,
+            Long id,
             RequestStatus newStatus,
             String receiverError,
             String statusError
     ) {
         RecommendationRequest request = requestRepository.getByIdOrThrow(id);
-        long currentUserId = userContext.getUserId();
+        Long currentUserId = userContext.getUserId();
 
         validateUserIsReceiver(request, currentUserId, receiverError);
         validateRequestIsPending(request, statusError);
 
         request.setStatus(newStatus);
         requestRepository.save(request);
-        log.debug("Request {} successfully {} by user {}", id, newStatus.getName(), currentUserId);
+        log.debug("Запрос id={} успешно обработан(статус:{}) для пользователя id={}",
+                id, newStatus.getName(), currentUserId);
 
         return request;
     }
@@ -139,19 +155,19 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         return request;
     }
 
-    private void validate(long requesterId, RecommendationRequestCreateDto dto) {
+    private void validate(Long requesterId, RecommendationRequestCreateDto dto) {
         validateNoSelfRecommendation(requesterId, dto.receiverId());
         validateCooldownPeriod(requesterId, dto.receiverId());
     }
 
-    private void validateNoSelfRecommendation(long requesterId, long receiverId) {
-        if (requesterId == receiverId) {
-            log.warn("Self-recommendation attempt by user {}", requesterId);
-            throw new ForbiddenException("The user cannot send a request to himself");
+    private void validateNoSelfRecommendation(Long requesterId, Long receiverId) {
+        if (requesterId.equals(receiverId)) {
+            log.warn("Попытка отправить запрос на рекомендацию самому себе {}", requesterId);
+            throw new ForbiddenException("Пользователь не может сам себе отправить запрос на рекомендацию");
         }
     }
 
-    private void validateCooldownPeriod(long requesterId, long receiverId) {
+    private void validateCooldownPeriod(Long requesterId, Long receiverId) {
         boolean hasRecentRequest = requestRepository
                 .existsByRequesterIdAndReceiverIdAndCreatedAtAfter(
                         requesterId,
@@ -160,18 +176,18 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 );
 
         if (hasRecentRequest) {
-            log.error("Frequency limit violated for user {}", requesterId);
-            throw new ForbiddenException("A recommendation request has"
-                    + " already been sent to this user during the previous " + cooldownMonth + " months");
+            log.error("Превышен лимит отправки запросов на рекомендацию id={}", requesterId);
+            throw new ForbiddenException("Запрос на рекомендацию уже был отправлен данному пользователю"
+                    + "ранее " + cooldownMonth + " месяцев");
         }
     }
 
-
     private void validateUserIsReceiver(RecommendationRequest request,
-                                        long currentUserId,
+                                        Long currentUserId,
                                         String errorMessage) {
-        if (currentUserId != request.getReceiver().getId()) {
-            log.error("The user (id: {}) is not request (id: {}) receiver (id:{})",
+        if (!currentUserId.equals(request.getReceiver().getId())) {
+            log.error("Валидация получателя не пройдена: текущий пользователь (id={})"
+                            + " не является получателем запроса id={} (получатель id={})",
                     currentUserId, request.getId(), request.getReceiver().getId());
             throw new ForbiddenException(errorMessage);
         }
@@ -180,7 +196,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private void validateRequestIsPending(RecommendationRequest request,
                                           String errorMessage) {
         if (request.getStatus() != (RequestStatus.PENDING)) {
-            log.warn("Invalid request (id:{}) state: Current status is {}",
+            log.warn("Попытка изменить не-PENDING запрос. ID запроса: {}, текущий статус: '{}'",
                     request.getId(), request.getStatus());
             throw new ForbiddenException(errorMessage);
         }

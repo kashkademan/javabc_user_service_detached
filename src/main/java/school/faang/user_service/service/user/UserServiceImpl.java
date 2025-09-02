@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.CreateUserDto;
-import school.faang.user_service.dto.user.UpdateUserDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserCreateDto;
+import school.faang.user_service.dto.user.UserUpdateDto;
+import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -29,36 +30,50 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
 
     @Override
-    public UserDto create(CreateUserDto userDto) {
-        if (userDto.password().length() < minPasswordLength) {
-            throw new DataValidationException("Password should be more than " + minPasswordLength + " symbols!");
-        }
+    @Transactional
+    public UserViewDto create(UserCreateDto userDto) {
+        validateUserPassword(userDto);
         User user = userMapper.toUser(userDto);
+
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
         user = userRepository.save(user);
-        log.info("User {} created", user.getId());
+        log.info("Пользователь id={} создан", user.getId());
         return userMapper.toUserDto(user);
     }
 
     @Override
-    public UserDto update(long userId, UpdateUserDto userDto) {
-        long requesterId = userContext.getUserId();
-        if (userId != requesterId) {
-            throw new ForbiddenException("User " + requesterId + " doesn't match profile owner!");
-        }
+    @Transactional
+    public UserViewDto update(Long userId, UserUpdateDto userDto) {
+        Long requesterId = userContext.getUserId();
+        validateUserProfileOwner(userId, requesterId);
+
         User user = userRepository.getByIdOrThrow(userId);
         userMapper.update(userDto, user);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
         user = userRepository.save(user);
-        log.info("User {} updated", user.getId());
+        log.info("Пользователь id={} обновлен", user.getId());
         return userMapper.toUserDto(user);
     }
 
     @Override
-    public UserDto getById(long userId) {
+    public UserViewDto getById(Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
+    }
+
+    private void validateUserPassword(UserCreateDto userDto) {
+        if (userDto.password().length() < minPasswordLength) {
+            throw new DataValidationException("Пароль не может быть более чем " + minPasswordLength + " символов!");
+        }
+    }
+
+    private void validateUserProfileOwner(Long userId, Long requesterId) {
+        if (!userId.equals(requesterId)) {
+            throw new ForbiddenException("Пользователь " + requesterId + " не соответствует владельцу профиля!");
+        }
     }
 }
