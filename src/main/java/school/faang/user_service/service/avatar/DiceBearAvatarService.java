@@ -1,5 +1,6 @@
 package school.faang.user_service.service.avatar;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,12 +26,18 @@ public class DiceBearAvatarService {
     private final Random random = new Random();
 
     private static final List<String> STYLES = List.of(
-            "adventurer", "avataaars", "big-ears", "bottts", "croodles", "micah", "pixel-art"
+            "adventurer",
+            "avataaars",
+            "big-ears",
+            "bottts",
+            "croodles",
+            "micah",
+            "pixel-art"
     );
 
-    public DiceBearAvatarService() {
+    public DiceBearAvatarService(@Value("${generate-ava.dice.base-url}") String baseUrl) {
         this.webClient = WebClient.builder()
-                .baseUrl("https://api.dicebear.com/9.x")
+                .baseUrl(baseUrl)
                 .build();
     }
 
