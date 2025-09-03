@@ -12,13 +12,9 @@ import school.faang.user_service.entity.contact.PreferredContact;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserNotificationDto {
-
     @NotBlank
     private PreferredContact preferredContact;
-
     private String email;
-
     private String phone;
-
     private Long chatId;
 }

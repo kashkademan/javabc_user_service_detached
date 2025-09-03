@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,12 +28,14 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "Пользователи", description = "Операции над пользователями")
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final MentorshipService mentorshipService;
 
     @GetMapping("/{id}/contact-info")
     public ResponseEntity<UserNotificationDto> getContactInfoById(@PathVariable Long id) {
+        log.info(userService.getContactInfo(id).toString());
         return ResponseEntity.ok(userService.getContactInfo(id));
     }
 
