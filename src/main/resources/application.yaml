@@ -78,8 +78,8 @@ skill:
     min-length: 3
     
 telegram:
-  bot-username: TestBot
-  bot-token: 8215965974:AAEizkfNRSGEZvQIeuvfSZypacKNz2InDCI
+  bot-username: "someBot"
+  bot-token: "someToken"
 
 event:
   delete-scheduled:

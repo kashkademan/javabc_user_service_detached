@@ -2,6 +2,7 @@ package school.faang.user_service.publisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.retry.annotation.Backoff;
@@ -23,6 +24,6 @@ public class FollowerEventPublisher {
     @Async
     @Retryable(retryFor = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void publish(FollowerEvent event) {
-        kafkaTemplate.send(topicName, event);
+        kafkaTemplate.send(topicName, String.valueOf(event.getFolloweeId()), event);
     }
 }
