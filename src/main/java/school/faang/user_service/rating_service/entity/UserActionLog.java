@@ -1,4 +1,4 @@
-package school.faang.user_service.rating;
+package school.faang.user_service.rating_service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,36 +21,34 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Сущность определяющая обычные очки за "не сложные" действия
+ * Сущность для логирования выполненных действий пользователями
  *
  * @author Linempy
- * @since 23.08.2025
+ * @since 25.08.2025
  */
 @Entity
-@EqualsAndHashCode
 @Setter
 @Getter
 @Builder
-@NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
-@Table(name = "default_score")
-public class DefaultScore {
+@NoArgsConstructor
+@Table(name = "user_action_log")
+public class UserActionLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "action_type", nullable = false)
+    @Column(name = "action_type")
     private ActionType actionType;
 
-    @Column(name = "base_points", nullable = false)
-    private int basePoints;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "points_earned")
+    private int pointsEarned;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

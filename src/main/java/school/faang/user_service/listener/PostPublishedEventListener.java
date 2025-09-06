@@ -6,6 +6,10 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.post.PostPublishedEvent;
+import school.faang.user_service.rating_service.service.leaderboard.LeaderboardService;
+import school.faang.user_service.rating_service.service.score.ScoreService;
+
+import java.io.IOException;
 
 /**
  * Класс-слушатель (подписчик) ивентов публикации поста
@@ -17,13 +21,29 @@ import school.faang.user_service.dto.post.PostPublishedEvent;
 @Component
 public class PostPublishedEventListener extends AbstractMessageListener implements MessageListener {
 
-    public PostPublishedEventListener(ObjectMapper objectMapper) {
+    private final ScoreService scoreService;
+    private final LeaderboardService leaderboardService;
+
+    public PostPublishedEventListener(ObjectMapper objectMapper,
+                                      ScoreService scoreService,
+                                      LeaderboardService leaderboardService) {
         super(objectMapper);
+        this.scoreService = scoreService;
+        this.leaderboardService = leaderboardService;
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
+        try {
+            PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
+
+            int earnedScore = scoreService.getScore(event);
+
+            leaderboardService.incrementOrCreateUserScore(event.authorId(), earnedScore);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
         // тут сервис считает сколько баллов нужно дать ивенту
