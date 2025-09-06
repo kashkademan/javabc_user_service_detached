@@ -37,18 +37,18 @@ class AvatarControllerTest {
     private UserContext userContext;
 
     @Test
-    @DisplayName("GET /avatars - должен возвращать 204 No Content при успешной генерации аватара")
+    @DisplayName("POST /avatars - должен возвращать 204 No Content при успешной генерации аватара")
     void testGenerateAvatarShouldReturnNoContent() throws Exception {
         doNothing().when(avatarService).generateAndSaveAvatar();
 
-        mockMvc.perform(get("/avatars"))
+        mockMvc.perform(post("/avatars"))
                 .andExpect(status().isNoContent());
 
         verify(avatarService).generateAndSaveAvatar();
     }
 
     @Test
-    @DisplayName("POST /avatars - должен возвращать данные аватара")
+    @DisplayName("GET /avatars - должен возвращать данные аватара")
     void testDownloadAvatar_ShouldReturnAvatarData() throws Exception {
         AvatarDownloadDto mockDto = new AvatarDownloadDto(
                 new byte[]{1, 2, 3},
@@ -59,7 +59,7 @@ class AvatarControllerTest {
 
         when(avatarService.downloadAvatar()).thenReturn(mockDto);
 
-        mockMvc.perform(post("/avatars"))
+        mockMvc.perform(get("/avatars"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.contentType").value("image/png"))
                 .andExpect(jsonPath("$.filename").value("avatar.png"))

@@ -1,11 +1,9 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent;
 
@@ -17,23 +15,22 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestedEvent
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class RecommendationRequestedEventPublisher {
+public class RecommendationRequestedEventPublisher extends AbstractEventPublisher<RecommendationRequestedEvent> {
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
+    @Value("${redis.topic.recommendation}")
+    private String topic;
 
-    @Value("${redis.topic.recommendation-request}")
-    private String recommendationRequestTopic;
 
-    public void publish(RecommendationRequestedEvent event) {
-        String json = null;
-        try {
-            json = objectMapper.writeValueAsString(event);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        log.info("Ивент отправлен в топик {}", recommendationRequestTopic);
-        redisTemplate.convertAndSend(recommendationRequestTopic, json);
+    public RecommendationRequestedEventPublisher(RetryTemplate retryTemplate,
+                                                 RedisTemplate<String, Object> redisTemplate) {
+        super(retryTemplate, redisTemplate);
     }
+
+    @Override
+    protected String getTopic() {
+        return topic;
+    }
+
+
+
 }

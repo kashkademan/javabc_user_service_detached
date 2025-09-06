@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
 import school.faang.user_service.dto.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.RecommendationCreateDto;
-import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.dto.recommendation.RecommendationUpdateDto;
+import school.faang.user_service.dto.recommendation.RecommendationViewDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -53,12 +53,12 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         log.info("Рекомендация для пользователя {} создана", recommendationDto.receiverId());
 
-        publisher.publish(new RecommendationEvent(
-                        authorId,
-                        receiverId,
-                        savedRecommendation.getId(),
-                        savedRecommendation.getCreatedAt()
-                )
+        publisher.publishAfterCommit(new RecommendationEvent(
+                authorId,
+                receiverId,
+                savedRecommendation.getId(),
+                savedRecommendation.getCreatedAt()
+               )
         );
 
         return recommendationMapper.toViewDto(savedRecommendation);

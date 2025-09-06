@@ -1,8 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,26 +14,18 @@ import school.faang.user_service.dto.recommendation.RecommendationEvent;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class RecommendationEventPublisher {
-
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
+public class RecommendationEventPublisher extends AbstractEventPublisher<RecommendationEvent> {
 
     @Value("${redis.topic.recommendation}")
-    private String recommendationTopic;
+    private String topic;
 
-    public void publish(RecommendationEvent event) {
-        String message = null;
-        try {
-            message = objectMapper.writeValueAsString(event);
-        } catch (JsonProcessingException e) {
-            log.warn("Ивент рекомендации (id={}) не смог смаппиться в JSON", event.recommendationId());
-            throw new RuntimeException(e);
-        }
-
-        redisTemplate.convertAndSend(recommendationTopic, message);
-        log.info("Отправил ивент рекомендации");
+    public RecommendationEventPublisher(RetryTemplate retryTemplate,
+                                        RedisTemplate<String, Object> redisTemplate) {
+        super(retryTemplate, redisTemplate);
     }
 
+    @Override
+    protected String getTopic() {
+        return topic;
+    }
 }

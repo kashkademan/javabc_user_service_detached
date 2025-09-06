@@ -72,9 +72,3 @@ services:
 redis:
   topic:
     recommendation-request: "recommendation_request_topic"
-    recommendation: recommendation_topic
-
-app:
-  redis:
-    keys:
-      leaderboard: global_leaderboard;
