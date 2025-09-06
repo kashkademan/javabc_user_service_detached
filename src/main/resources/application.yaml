@@ -40,6 +40,7 @@ kafka:
   topics:
     user-actions: user-actions-topic
     follower: follower-event-topic
+  host: "localhost:9092"
 
 server:
   port: 8080
