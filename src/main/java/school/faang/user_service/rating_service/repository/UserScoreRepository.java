@@ -22,7 +22,8 @@ public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
             INSERT INTO user_score (user_id, score)
             VALUES (:userId, :score)
             """)
-    void save(@Param("userId") Long userId, @Param("score") int score);
+    void save(@Param("userId") Long userId,
+              @Param("score") Double score);
 
 
     @Modifying
@@ -32,13 +33,23 @@ public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
             WHERE user_id = :userId
             """)
     void setIncrement(@Param("userId") Long userId,
-                      @Param("increment") int increment);
+                      @Param("increment") Double increment);
 
     @Query(nativeQuery = true, value = """
             SELECT score FROM user_score
             WHERE user_id = :userId
             """)
-    Integer findScoreByUserId(Long userId);
+    Double findScoreByUserId(Long userId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            INSERT INTO user_score (user_id, score)
+            VALUES (:userId, :earnedScore)
+            ON CONFLICT (user_id)
+            DO UPDATE SET score = user_score.score + :earnedScore
+            """)
+    void upsertScore(@Param("userId") Long userId,
+                     @Param("earnedScore") Double score);
 }
 
 

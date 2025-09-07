@@ -37,20 +37,10 @@ public class PostPublishedEventListener extends AbstractMessageListener implemen
         try {
             PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
 
-            int earnedScore = scoreService.getScore(event);
-
-            leaderboardService.incrementOrCreateUserScore(event.authorId(), earnedScore);
-
+            Double earnedScore = scoreService.getScore(event);
+            leaderboardService.processUserScore(event, earnedScore);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-        // тут сервис считает сколько баллов нужно дать ивенту
-
-        // тут сохраняем в кэш userId: new_score
-
-        // тут асинхронно сохраняем в бд
-
     }
 }

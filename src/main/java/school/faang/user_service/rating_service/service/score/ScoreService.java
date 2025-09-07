@@ -12,5 +12,5 @@ import school.faang.user_service.dto.ScorableEvent;
  * @since 05.09.2025
  */
 public interface ScoreService {
-    int getScore(ScorableEvent event);
+    Double getScore(ScorableEvent event);
 }

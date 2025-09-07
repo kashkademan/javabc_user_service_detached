@@ -51,11 +51,6 @@ schedule:
   event-cleanup: "0 0 0 * * *"
   timezone: "Europe/Moscow"
 
-async:
-  core-pool-size: 5
-  max-pool-size: 10
-  queue-capacity: 100
-
 event:
   cleanup:
     batch-size: 100
@@ -72,3 +67,33 @@ services:
 redis:
   topic:
     recommendation-request: "recommendation_request_topic"
+    recommendation: "recommendation_topic"
+    post-published: "post_published_topic"
+    subproject-create: "subproject_create_topic"
+  keys:
+    leaderboard: global_leaderboard;
+
+retry:
+  config:
+    max-attempts: 3
+    initial-interval-ms: 1000
+    multiplier: 2.0
+    max-interval-ms: 10_000
+
+generate-ava:
+  dice:
+    base-url: https://api.dicebear.com/9.x
+
+app:
+  async:
+    postgres:
+      core-pool-size: 5
+      max-pool-size: 10
+      queue-capacity: 100
+    task-executor:
+      core-pool-size: 5
+      max-pool-size: 10
+      queue-capacity: 100
+
+
+

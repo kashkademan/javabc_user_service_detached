@@ -44,11 +44,11 @@ public class UserActionLog {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "action_type")
+    @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
-    @Column(name = "points_earned")
-    private int pointsEarned;
+    @Column(name = "points_earned", nullable = false)
+    private Double pointsEarned;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

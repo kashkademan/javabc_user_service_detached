@@ -45,7 +45,7 @@ public class DefaultScore {
     private ActionType actionType;
 
     @Column(name = "base_points", nullable = false)
-    private int basePoints;
+    private Double basePoints;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

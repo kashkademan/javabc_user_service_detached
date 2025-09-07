@@ -24,5 +24,5 @@ public interface UserActionLogRepository extends JpaRepository<UserActionLog, Lo
             """)
     void save(@Param("userId") Long userId,
               @Param("actionType") String  type,
-              @Param("pointsEarned") Integer pointsEarned);
+              @Param("pointsEarned") Double pointsEarned);
 }

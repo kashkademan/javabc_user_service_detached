@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -40,11 +39,11 @@ public class UserScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "user_id")
+    @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
     @Column(name = "score", nullable = false)
-    private Integer score;
+    private Double score;
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)

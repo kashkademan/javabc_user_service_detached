@@ -2,6 +2,7 @@ package school.faang.user_service.rating_service.service.leaderboard.postgres;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.ScorableEvent;
@@ -25,24 +26,23 @@ public class PostgresService {
     private final UserScoreRepository scoreRepository;
 
     @Transactional
-    public void createUserScoreAsync(ScorableEvent event, int score) {
+    @Async("postgresTaskExecutor")
+    public void upsertUserScore(ScorableEvent event, Double score) {
         saveUserActionLog(event, score);
 
-        scoreRepository.save(event.getUserId(), score);
-        log.info("Баллы пользователя id={} были сохранены", event.getUserId());
-    }
+        scoreRepository.upsertScore(event.getUserId(), score);
 
-    @Transactional
-    public void incrementUserScoreAsync(ScorableEvent event, int increment) {
-        saveUserActionLog(event, increment);
-
-        scoreRepository.setIncrement(event.getUserId(), increment);
         log.info("Баллы пользователя id={} были обновлены", event.getUserId());
     }
 
-    private void saveUserActionLog(ScorableEvent event, int score) {
+    public Double getUserScore(Long userId) {
+        return scoreRepository.findScoreByUserId(userId);
+    }
+
+    private void saveUserActionLog(ScorableEvent event, Double score) {
         logRepository.save(event.getUserId(), event.getActionType().name(), score);
         log.info("Действие пользователя id={} было сохранено", event.getUserId());
     }
+
 
 }
