@@ -72,6 +72,9 @@ redis:
     subproject-create: "subproject_create_topic"
   keys:
     leaderboard: global_leaderboard;
+  warmup:
+    top-users-limit: 10000
+    top-users-offset: 0
 
 retry:
   config:
@@ -89,7 +92,7 @@ app:
     postgres:
       core-pool-size: 5
       max-pool-size: 10
-      queue-capacity: 100
+      queue-capacity: 10_000
     task-executor:
       core-pool-size: 5
       max-pool-size: 10

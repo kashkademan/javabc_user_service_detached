@@ -1,6 +1,6 @@
 package school.faang.user_service.dto.post;
 
-import school.faang.user_service.dto.ScorableEvent;
+import school.faang.user_service.rating_service.dto.ScorableEvent;
 import school.faang.user_service.rating_service.entity.ActionType;
 
 /**

@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.rating_service.dto;
 
 import school.faang.user_service.rating_service.entity.ActionType;
 

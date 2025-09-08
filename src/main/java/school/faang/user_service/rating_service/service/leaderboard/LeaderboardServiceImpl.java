@@ -1,9 +1,10 @@
 package school.faang.user_service.rating_service.service.leaderboard;
 
+import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.ScorableEvent;
+import school.faang.user_service.rating_service.dto.ScorableEvent;
 import school.faang.user_service.rating_service.service.leaderboard.postgres.PostgresService;
 import school.faang.user_service.rating_service.service.leaderboard.redis.RedisService;
 
@@ -24,11 +25,11 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     public void processUserScore(ScorableEvent event, Double earnedScore) {
         try {
             redisService.incrementOrCreateUserScore(event.getUserId(), earnedScore);
+            postgresService.upsertUserScore(event, earnedScore);
 
+        } catch (RedisConnectionException e) {
+            log.error("Redis упал! Попытка сохранить данные в Postgres", e);
             postgresService.upsertUserScore(event, earnedScore);
-        } catch (Exception e) {
-            postgresService.upsertUserScore(event, earnedScore);
-            log.warn("Redis ошибка, сохраняем в Postgres: {}", e.getMessage());
         }
     }
 }

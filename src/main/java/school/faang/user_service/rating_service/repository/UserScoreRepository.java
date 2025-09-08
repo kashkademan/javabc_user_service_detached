@@ -1,10 +1,15 @@
 package school.faang.user_service.rating_service.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import school.faang.user_service.rating_service.dto.UserScoreProjection;
 import school.faang.user_service.rating_service.entity.UserScore;
+
+import java.util.List;
 
 /**
  * UserScoreRepository — описание класса.
@@ -41,6 +46,12 @@ public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
             """)
     Double findScoreByUserId(Long userId);
 
+    @Query(nativeQuery = true, value = """
+            SELECT user_id, score FROM user_score
+            WHERE user_id IN :userIds
+            """)
+    List<UserScoreProjection> findScoreByUserIds(@Param("userIds") List<Long> userIds);
+
     @Modifying
     @Query(nativeQuery = true, value = """
             INSERT INTO user_score (user_id, score)
@@ -50,17 +61,16 @@ public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
             """)
     void upsertScore(@Param("userId") Long userId,
                      @Param("earnedScore") Double score);
+
+    @Query(nativeQuery = true,
+            value = """
+                    SELECT
+                        us.user_id as userId,
+                        us.score as score
+                    FROM user_score us
+                    ORDER BY score DESC
+                    """,
+            countQuery = "SELECT COUNT(*) FROM user_score"
+    )
+    Page<UserScoreProjection> findTopScores(Pageable pageable);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
