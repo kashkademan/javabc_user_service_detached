@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,7 +25,6 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -32,6 +32,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "event")
+@Builder
 public class Event {
 
     @Id
@@ -57,7 +58,7 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
-    private List<User> attendees = new ArrayList<>();
+    private List<User> attendees;
 
     @OneToMany(mappedBy = "event")
     private List<Rating> ratings;

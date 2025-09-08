@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,6 +48,14 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
+    @PutMapping("/profile")
+    public UserDto update(
+            @RequestBody
+            UpdateUserDto dto
+    ) {
+        return userService.updateProfile(dto);
+    }
+
     @Operation(
             summary = "Search user by ID",
             description = "Allows you to get a user by their ID"
@@ -66,6 +75,7 @@ public class UserController {
     }
 
     @Operation(
+
             summary = "Load data from csv file",
             description = "Allows you to download user data from a csv file"
     )
@@ -80,5 +90,12 @@ public class UserController {
         }
         List<UserDto> users = userService.addUsersToFile(file);
         return ResponseEntity.ok("File processed successfully. Number of records: " + users.size());
+
+    @Operation(
+            summary = "Deactivate user by ID",
+            description = "Allows you to deactivate user by their ID"
+    )
+    public UserDto deactivateUserById(long userId) {
+        return userService.deactivateUserById(userId);
     }
 }

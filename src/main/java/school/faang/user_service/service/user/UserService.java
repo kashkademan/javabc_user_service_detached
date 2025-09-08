@@ -49,6 +49,8 @@ public interface UserService extends UserDetailsService {
      */
     UserDto update(long userId, UpdateUserDto userDto);
 
+    UserDto updateProfile(UpdateUserDto userDto);
+
     /**
      * Возвращает информацию о пользователе по его идентификатору.
      * <p>
@@ -62,6 +64,8 @@ public interface UserService extends UserDetailsService {
     UserDto getUser(long userId);
 
     List<UserDto> getUsersByIds(List<Long> userIds);
+
+    UserDto deactivateUserById(Long userId);
 
     List<UserDto> addUsersToFile(MultipartFile file);
 }
