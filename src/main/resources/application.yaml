@@ -26,6 +26,7 @@ spring:
       host: localhost
       channel:
         mentorship-requested: mentorship_requested_channel
+        goal-completed: goal_completed_channel
       topic:
         recommendation: "recommendation:requested"
 

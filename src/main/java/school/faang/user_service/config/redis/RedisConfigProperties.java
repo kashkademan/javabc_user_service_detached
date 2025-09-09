@@ -26,6 +26,9 @@ public class RedisConfigProperties {
     public static class Channel {
         @NotBlank
         private String mentorshipRequested;
+
+        @NotBlank
+        private String goalCompleted;
     }
 }
 
