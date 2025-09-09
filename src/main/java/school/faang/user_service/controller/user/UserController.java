@@ -35,7 +35,7 @@ public class UserController {
 
     @GetMapping("/{id}/contact-info")
     public ResponseEntity<UserNotificationDto> getContactInfoById(@PathVariable Long id) {
-        log.info(userService.getContactInfo(id).toString());
+        log.info("Получение контактных данных пользователя с id = {}", id);
         return ResponseEntity.ok(userService.getContactInfo(id));
     }
 
