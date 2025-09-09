@@ -3,29 +3,46 @@ package school.faang.user_service.service.goal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.publish.GoalCompletedEventDto;
 import school.faang.user_service.dto.request.CreateGoalRequestDto;
 import school.faang.user_service.dto.request.FilterGroupRequest;
 import school.faang.user_service.dto.request.FilterRequest;
 import school.faang.user_service.dto.request.SearchRequest;
 import school.faang.user_service.dto.response.CreateGoalResponseDto;
 import school.faang.user_service.dto.response.GoalDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.GoalAlreadyCompletedException;
+import school.faang.user_service.exception.GoalNotAssignedToUserException;
+import school.faang.user_service.exception.GoalNotFoundException;
+import school.faang.user_service.exception.UserNotFoundException;
+import school.faang.user_service.publisher.GoalCompletedEventPublisher;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.genericSpecification.GenericSpecification;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.impl.GoalServiceImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -45,9 +62,7 @@ import static school.faang.user_service.testConstants.TestConstants.INVALID_GOAL
 import static school.faang.user_service.testConstants.TestConstants.MAX_ACTIVE_GOALS;
 import static school.faang.user_service.testConstants.TestConstants.PARENT_GOAL_ID;
 import static school.faang.user_service.testConstants.TestConstants.SKILL_IDS;
-import static school.faang.user_service.testConstants.TestConstants.VALID_USER_ID;
 import static school.faang.user_service.testConstants.TestConstants.USER_IDS;
-import static school.faang.user_service.testConstants.TestConstants.VALID_GOAL_ID;
 import static school.faang.user_service.testConstants.TestConstants.VALID_SKILLS_EXCEPTION_MESSAGE;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +76,19 @@ public class GoalServiceImplTest {
     @Mock
     SkillRepository skillRepository;
     @Mock
+    UserRepository userRepository;
+    @Mock
+    GoalCompletedEventPublisher goalCompletedEventPublisher;
+    @Mock
+    SkillService skillService;
+    @Mock
     GoalMapper goalMapper;
+    @Captor
+    private ArgumentCaptor<GoalCompletedEventDto> eventCaptor;
+
+    private static final Long VALID_USER_ID = 1L;
+    private static final Long VALID_GOAL_ID = 1L;
+    private static final String TEST_GOAL_TITLE = "Test Goal";
 
     private GenericSpecification<Goal> goalGenericSpecification;
     private CreateGoalResponseDto createGoalResponseDto;
@@ -249,4 +276,158 @@ public class GoalServiceImplTest {
         verifyNoMoreInteractions(goalRepository, goalMapper);
     }
 
+    @Test
+    public void testCompleteUserGoal_whenValidGoalIdAndUserId_thenSuccess() {
+        Long userId = VALID_USER_ID;
+        Long goalId = VALID_GOAL_ID;
+
+        User user = new User();
+        user.setId(userId);
+
+        Goal goal = new Goal();
+        goal.setId(goalId);
+        goal.setTitle(TEST_GOAL_TITLE);
+        goal.setStatus(GoalStatus.ACTIVE);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+        when(goalRepository.existsByIdAndUsers_Id(goalId, userId)).thenReturn(true);
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
+
+        goalService.completeUserGoal(userId, goalId);
+
+        verify(goalRepository).save(argThat(savedGoal ->
+                savedGoal.getStatus() == GoalStatus.COMPLETED &&
+                        savedGoal.getId().equals(goalId)
+        ));
+
+        verify(skillService).updateSkills(user, goalId);
+
+        verify(goalCompletedEventPublisher).publish(eventCaptor.capture());
+
+        GoalCompletedEventDto capturedEvent = eventCaptor.getValue();
+        assertEquals(userId, capturedEvent.userId());
+        assertEquals(goalId, capturedEvent.goalId());
+        assertNotNull(capturedEvent.timestamp());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(goalRepository, times(1)).findById(goalId);
+        verify(goalRepository, times(1)).existsByIdAndUsers_Id(goalId, userId);
+        verify(goalRepository, times(1)).save(any(Goal.class));
+        verify(skillService, times(1)).updateSkills(user, goalId);
+        verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEventDto.class));
+    }
+
+    @Test
+    public void testCompleteUserGoal_whenUserNotFound_thenThrowsUserNotFoundException() {
+        Long userId = VALID_USER_ID;
+        Long goalId = VALID_GOAL_ID;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+            goalService.completeUserGoal(userId, goalId);
+        });
+
+        assertTrue(exception.getMessage().contains(userId.toString()));
+
+        verify(userRepository, times(1)).findById(userId);
+
+        verifyNoInteractions(goalRepository);
+        verifyNoInteractions(skillService);
+        verifyNoInteractions(goalCompletedEventPublisher);
+    }
+
+    @Test
+    public void testCompleteUserGoal_whenGoalNotFound_thenThrowsGoalNotFoundException() {
+        Long userId = VALID_USER_ID;
+        Long goalId = VALID_GOAL_ID;
+
+        User user = new User();
+        user.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        GoalNotFoundException exception = assertThrows(GoalNotFoundException.class, () -> {
+            goalService.completeUserGoal(userId, goalId);
+        });
+
+        assertTrue(exception.getMessage().contains(goalId.toString()));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(goalRepository, times(1)).findById(goalId);
+
+        verify(goalRepository, never()).existsByIdAndUsers_Id(any(Long.class), any(Long.class));
+        verifyNoInteractions(skillService);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verifyNoInteractions(goalCompletedEventPublisher);
+    }
+
+    @Test
+    public void testCompleteUserGoal_whenGoalNotAssignedToUser_thenThrowsGoalNotAssignedToUserException() {
+        Long userId = VALID_USER_ID;
+        Long goalId = VALID_GOAL_ID;
+
+        User user = new User();
+        user.setId(userId);
+
+        Goal goal = new Goal();
+        goal.setId(goalId);
+        goal.setTitle(TEST_GOAL_TITLE);
+        goal.setStatus(GoalStatus.ACTIVE);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+        when(goalRepository.existsByIdAndUsers_Id(goalId, userId)).thenReturn(false);
+
+        GoalNotAssignedToUserException exception = assertThrows(GoalNotAssignedToUserException.class, () -> {
+            goalService.completeUserGoal(userId, goalId);
+        });
+
+        String message = exception.getMessage();
+        assertTrue(message.contains(goalId.toString()));
+        assertTrue(message.contains(userId.toString()));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(goalRepository, times(1)).findById(goalId);
+        verify(goalRepository, times(1)).existsByIdAndUsers_Id(goalId, userId);
+
+        verifyNoInteractions(skillService);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verifyNoInteractions(goalCompletedEventPublisher);
+    }
+
+    @Test
+    public void testCompleteUserGoal_whenGoalAlreadyCompleted_thenThrowsGoalAlreadyCompletedException() {
+        Long userId = VALID_USER_ID;
+        Long goalId = VALID_GOAL_ID;
+
+        User user = new User();
+        user.setId(userId);
+
+        Goal goal = new Goal();
+        goal.setId(goalId);
+        goal.setTitle(TEST_GOAL_TITLE);
+        goal.setStatus(GoalStatus.COMPLETED);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+
+        GoalAlreadyCompletedException exception = assertThrows(GoalAlreadyCompletedException.class, () -> {
+            goalService.completeUserGoal(userId, goalId);
+        });
+
+        String message = exception.getMessage();
+        assertTrue(message.contains(goalId.toString()) || message.contains(TEST_GOAL_TITLE));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(goalRepository, times(1)).findById(goalId);
+
+        verify(goalRepository, never()).existsByIdAndUsers_Id(any(Long.class), any(Long.class));
+
+        verifyNoInteractions(skillService);
+        verify(goalRepository, never()).save(any(Goal.class));
+        verifyNoInteractions(goalCompletedEventPublisher);
+    }
 }

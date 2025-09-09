@@ -1,8 +1,11 @@
 package school.faang.user_service.dto.user;
 
+import school.faang.user_service.entity.contact.PreferredContact;
+
 public record UserDto(
-    Long id,
-    String username,
-    String email
+        Long id,
+        String username,
+        String email,
+        PreferredContact preference
 ) {
 }

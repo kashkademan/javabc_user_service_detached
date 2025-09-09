@@ -9,7 +9,7 @@ import school.faang.user_service.entity.Skill;
 import java.util.List;
 import java.util.Optional;
 
-public interface SkillRepository extends JpaRepository<Skill, Long> {
+public interface SkillRepository extends JpaRepository<Skill, Long>, SkillRepositoryCustom {
 
     boolean existsByTitle(String title);
 

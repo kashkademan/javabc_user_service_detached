@@ -2,6 +2,7 @@ package school.faang.user_service.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.publish.RecommendationEventDto;
@@ -36,6 +37,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final SkillRequestRepository skillRequestRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
+    @Qualifier("recommendationEventPublisher")
     private final MessagePublisher recommendationPublisher;
 
     @Override

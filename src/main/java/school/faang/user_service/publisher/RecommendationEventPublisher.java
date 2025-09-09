@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.publish.RecommendationEventDto;
 
 @Component
+@Primary
 @RequiredArgsConstructor
 public class RecommendationEventPublisher implements MessagePublisher<RecommendationEventDto> {
     @Value("${spring.data.redis.channel.recommendation-channel}")

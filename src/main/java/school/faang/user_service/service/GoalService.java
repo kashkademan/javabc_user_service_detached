@@ -17,4 +17,5 @@ public interface GoalService {
 
     List<GoalDto> search(SearchRequest request);
 
+    void completeUserGoal(Long userId, Long goalId);
 }
