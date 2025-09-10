@@ -23,6 +23,7 @@ spring:
       host: localhost
       channel:
           event: "event_channel"
+          goal: "goal_channel"
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -55,8 +56,8 @@ cloud:
       bucket: faang-user-avatars
       region: ru-central1
       endpoint: https://storage.yandexcloud.net
-      access-key: ${AWS_ACCESS_KEY:}
-      secret-key: ${AWS_SECRET_KEY:}
+      access-key: YCAJEjOnrEnDD1dd6k0Urz0uV
+      secret-key: YCPlcNXzXhdJze02_59Z60QlrExzj8Q2p37ZM6gO
 
 project-service:
   host: localhost
@@ -75,8 +76,8 @@ skill:
     min-length: 3
     
 telegram:
-  bot-username: ${TELEGRAM_BOT_USERNAME}
-  bot-token: ${TELEGRAM_BOT_TOKEN}
+  bot-username: BotGetChatId
+  bot-token: 8237783798:AAHRORzy1IaPVJwY6eNQgFhuTYTLLDiOslY
 
 event:
   delete-scheduled:

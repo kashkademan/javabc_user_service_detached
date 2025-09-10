@@ -52,14 +52,12 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
-
-        ContactPreference pref = ContactPreference.builder()
+        ContactPreference pref = ContactPreference
+                .builder()
                 .user(user)
                 .preference(PreferredContact.fromString(userDto.contact()))
                 .build();
-
         user.setContactPreference(pref);
-
         user = userRepository.save(user);
         setAvatarIfPossible(user);
         log.info("User {} created", user.getId());
@@ -73,9 +71,11 @@ public class UserServiceImpl implements UserService {
         PreferredContact contactPreference = user.getContactPreference().getPreference();
 
         var info = user.getChatId();
+        var mail = user.getEmail();
 
         UserNotificationDto dto = new UserNotificationDto();
         dto.setPreferredContact(contactPreference);
+        dto.setEmail(mail);
         dto.setChatId(info);
 
         return dto;
