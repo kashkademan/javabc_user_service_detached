@@ -53,12 +53,12 @@ public class GoalServiceImpl implements GoalService {
             goal.setParent(parent);
         }
 
-        boolean userIsMentor = true;
+        boolean userIsMentor = false;
         if (goalCreateDto.mentorId() != null) {
             userIsMentor = (currentUserId == goalCreateDto.mentorId());
-//            if (!userIsMentor) {
-//                throw new ForbiddenException(USER_HAS_NO_ACCESS);
-//            }
+            if (!userIsMentor) {
+                throw new ForbiddenException(USER_HAS_NO_ACCESS);
+            }
             User mentor = userRepository.getByIdOrThrow(goalCreateDto.mentorId());
             goal.setMentor(mentor);
         }
