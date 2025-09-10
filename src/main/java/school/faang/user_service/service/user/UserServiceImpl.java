@@ -20,6 +20,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
     private final FilterService<User, UserFilterDto> filterService;
     private final UserAvatarService avatarService;
+    private final ContactPreferenceRepository contactRepository;
 
     @Override
     @Transactional

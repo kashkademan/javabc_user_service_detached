@@ -39,6 +39,8 @@ spring:
 kafka:
   topics:
     user-actions: user-actions-topic
+    follower: follower-event-topic
+  host: "localhost:9092"
 
 server:
   port: 8080
@@ -77,8 +79,8 @@ skill:
     min-length: 3
     
 telegram:
-  bot-username: ${TELEGRAM_BOT_USERNAME}
-  bot-token: ${TELEGRAM_BOT_TOKEN}
+  bot-username: "someBot"
+  bot-token: "someToken"
 
 event:
   delete-scheduled:
