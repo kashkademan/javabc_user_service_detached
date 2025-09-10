@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.FollowerEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
+    private final FollowerEventPublisher followerEventPublisher;
 
     @Override
     @Transactional
@@ -35,6 +38,9 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("user {} subscribed to user {}", followerId, followeeId);
+
+        FollowerEvent followerEvent = new FollowerEvent(followerId, followeeId);
+        followerEventPublisher.publish(followerEvent);
     }
 
     @Override

@@ -20,6 +20,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.contact.ContactPreferenceRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
     private final FilterService<User, UserFilterDto> filterService;
     private final UserAvatarService avatarService;
+    private final ContactPreferenceRepository contactRepository;
 
     @Override
     @Transactional
@@ -52,6 +54,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
         ContactPreference pref = ContactPreference
                 .builder()
                 .user(user)
@@ -138,5 +141,13 @@ public class UserServiceImpl implements UserService {
         if (updated == 0) {
             throw new EntityNotFoundException(String.format("User %d not found", userId));
         }
+    }
+
+    @Override
+    public List<UserDto> getByIdUsers(List<Long> usersId) {
+        List<User> userList = userRepository.findAllByIdIn(usersId);
+        return userList.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 }

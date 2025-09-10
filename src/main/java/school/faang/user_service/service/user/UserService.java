@@ -94,6 +94,15 @@ public interface UserService {
 
     UserNotificationDto getContactInfo(long userId);
 
+
+    /**
+     * Возвращает список пользователей по списку id пользователей
+     *
+     * @param usersId список id пользователей
+     * @return список пользователей в виде List{@link UserDto}
+     */
+    List<UserDto> getByIdUsers(List<Long> usersId);
+
 }
 
 

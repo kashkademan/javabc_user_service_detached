@@ -19,7 +19,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("followers")
+@RequestMapping("/followers")
 @Tag(name = "Подписки", description = "Операции подписки/отписки между пользователями")
 public class UserSubscriptionController {
     private final UserSubscriptionService subscriptionService;

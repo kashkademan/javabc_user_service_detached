@@ -22,7 +22,7 @@ public class KafkaRatingEventPublisher implements RatingEventPublisher {
      * Kafka-шаблон для сериализации и отправки сообщений с ключом типа {@code String}
      * и значением типа {@link UserActionEvent}.
      */
-    private final KafkaTemplate<String, UserActionEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
      * Название Kafka-топика, в который отправляются события.
