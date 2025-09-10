@@ -56,8 +56,6 @@ cloud:
       bucket: faang-user-avatars
       region: ru-central1
       endpoint: https://storage.yandexcloud.net
-      access-key:
-      secret-key:
 
 project-service:
   host: localhost
