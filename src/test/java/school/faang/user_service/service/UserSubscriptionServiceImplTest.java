@@ -11,6 +11,7 @@ import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
 
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +32,9 @@ public class UserSubscriptionServiceImplTest {
 
     @Spy
     private UserMapperImpl userMapper;
+
+    @Mock
+    private FollowerEventPublisher eventPublisher;
 
     @InjectMocks
     private UserSubscriptionServiceImpl subscriptionService;
@@ -46,6 +52,7 @@ public class UserSubscriptionServiceImplTest {
 
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
                 .thenReturn(false);
+        doNothing().when(eventPublisher).publish(any());
 
         subscriptionService.followUser(followerId, followeeId);
         verify(subscriptionRepository).followUser(followerId, followeeId);

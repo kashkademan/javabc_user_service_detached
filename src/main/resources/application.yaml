@@ -40,6 +40,8 @@ spring:
 kafka:
   topics:
     user-actions: user-actions-topic
+    follower: follower-event-topic
+  host: "localhost:9092"
 
 server:
   port: 8080
@@ -56,8 +58,10 @@ cloud:
       bucket: faang-user-avatars
       region: ru-central1
       endpoint: https://storage.yandexcloud.net
-      access-key: ${AWS_ACCESS_KEY:}
-      secret-key: ${AWS_SECRET_KEY:}
+      access-key: ${AWS_ACCESS_KEY:asmndbh79asd}
+      secret-key: ${AWS_SECRET_KEY:asmndbh79asd}
+
+
 
 project-service:
   host: localhost
@@ -76,8 +80,9 @@ skill:
     min-length: 3
     
 telegram:
-  bot-username: BotGetChatId
-  bot-token: 8237783798:AAHRORzy1IaPVJwY6eNQgFhuTYTLLDiOslY
+  bot-username: "someBot"
+  bot-token: "someToken"
+
 
 event:
   delete-scheduled:
