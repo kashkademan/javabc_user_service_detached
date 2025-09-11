@@ -7,7 +7,7 @@ import school.faang.user_service.dto.project.SubProjectCreatedEvent;
 import static school.faang.user_service.rating_service.entity.ActionLevel.EASY;
 
 /**
- * Перечисление для определения кол-во баллов
+ * Перечисление для определения действий, за которые начисляются баллы
  *
  * @author Linempy
  * @since 23.08.2025

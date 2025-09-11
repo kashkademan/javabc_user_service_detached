@@ -16,10 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * WarmUpCacheService — описание класса.
- * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>
+ * Сервис для заполнения ("разогрева") Redis данными из PostgreSQL.
+ * Используется в случае, когда Redis хранит данные только in-memory
  *
  * @author Linempy
  * @since 08.09.2025
@@ -47,7 +45,6 @@ public class WarmUpCacheService {
             redisService.clearLeaderboard();
 
             Page<UserScoreProjection> topUsersPage = postgresService.getTopScores(topUsersLimit, offset);
-
             Map<Long, Double> topUsers = topUsersPage.getContent().stream()
                     .collect(Collectors.toMap(
                             UserScoreProjection::getUserId,

@@ -1,10 +1,7 @@
 package school.faang.user_service.rating_service.entity;
 
 /**
- * ActionLevel — описание класса.
- * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>
+ * Перечисление с уровнем сложности действия
  *
  * @author Linempy
  * @since 05.09.2025

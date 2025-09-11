@@ -7,10 +7,7 @@ import org.springframework.data.repository.query.Param;
 import school.faang.user_service.rating_service.entity.UserActionLog;
 
 /**
- * RatingRepository — описание интерфейса.
- * <p>
- * TODO: описать, какие обязанности реализует интерфейс.
- * </p>
+ * Интерфейс для SQL-запросов для сущности {@link UserActionLog}
  *
  * @author Linempy
  * @since 29.08.2025

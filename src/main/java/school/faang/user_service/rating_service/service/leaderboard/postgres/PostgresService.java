@@ -8,20 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.rating_service.dto.ScorableEvent;
 import school.faang.user_service.rating_service.dto.UserScoreProjection;
+import school.faang.user_service.rating_service.entity.ScorableEvent;
 import school.faang.user_service.rating_service.repository.UserActionLogRepository;
 import school.faang.user_service.rating_service.repository.UserScoreRepository;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import school.faang.user_service.rating_service.service.leaderboard.LeaderboardService;
 
 /**
- * PostgresService — описание класса.
- * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>
+ * Сервис для обращения в Postgres. Используется в {@link LeaderboardService}
  *
  * @author Linempy
  * @since 05.09.2025
@@ -43,28 +37,16 @@ public class PostgresService {
 
     public Page<UserScoreProjection> getTopScores(int limit, int offset) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        Page<UserScoreProjection> result = scoreRepository.findTopScores(pageable);
-        log.info("{}", result.getContent());
-        return result;
-
+        return scoreRepository.findTopScores(pageable);
     }
 
     public Double getUserScore(Long userId) {
         return scoreRepository.findScoreByUserId(userId);
     }
 
-    public Map<Long, Double> getUsersScore(List<Long> userIds) {
-        return scoreRepository.findScoreByUserIds(userIds).stream()
-                .collect(Collectors.toMap(
-                        UserScoreProjection::getUserId,
-                        UserScoreProjection::getScore
-                ));
-    }
-
     private void saveUserActionLog(ScorableEvent event, Double score) {
         logRepository.save(event.getUserId(), event.getActionType().name(), score);
         log.info("Действие пользователя id={} было сохранено", event.getUserId());
     }
-
 
 }

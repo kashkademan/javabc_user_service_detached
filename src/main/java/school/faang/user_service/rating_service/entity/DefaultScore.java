@@ -21,7 +21,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Сущность определяющая обычные очки за "не сложные" действия
+ * Сущность определяющая баллы за действия пользователя
  *
  * @author Linempy
  * @since 23.08.2025

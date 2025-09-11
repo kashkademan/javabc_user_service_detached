@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.post.PostPublishedEvent;
 import school.faang.user_service.rating_service.service.leaderboard.LeaderboardService;
-import school.faang.user_service.rating_service.service.score.ScoreService;
+import school.faang.user_service.rating_service.service.score.ScoreForActionService;
 
 import java.io.IOException;
 
@@ -21,11 +21,11 @@ import java.io.IOException;
 @Component
 public class PostPublishedEventListener extends AbstractMessageListener implements MessageListener {
 
-    private final ScoreService scoreService;
+    private final ScoreForActionService scoreService;
     private final LeaderboardService leaderboardService;
 
     public PostPublishedEventListener(ObjectMapper objectMapper,
-                                      ScoreService scoreService,
+                                      ScoreForActionService scoreService,
                                       LeaderboardService leaderboardService) {
         super(objectMapper);
         this.scoreService = scoreService;
@@ -38,7 +38,7 @@ public class PostPublishedEventListener extends AbstractMessageListener implemen
             PostPublishedEvent event = objectMapper.readValue(message.getBody(), PostPublishedEvent.class);
 
             Double earnedScore = scoreService.getScore(event);
-            leaderboardService.processUserScore(event, earnedScore);
+            leaderboardService.processUpdateUserScore(event, earnedScore);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

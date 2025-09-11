@@ -12,10 +12,7 @@ import school.faang.user_service.rating_service.entity.UserScore;
 import java.util.List;
 
 /**
- * UserScoreRepository — описание класса.
- * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>
+ * Интерфейс для SQL-запросов связанных с сущностью {@link UserScore}
  *
  * @author Linempy
  * @since 05.09.2025

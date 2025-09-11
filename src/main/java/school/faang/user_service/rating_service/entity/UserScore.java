@@ -18,10 +18,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * UserScore — описание класса.
- * <p>
- * TODO: добавить описание назначения и поведения класса.
- * </p>
+ * Сущность для ассоциации ID пользователя с его баллами
  *
  * @author Linempy
  * @since 05.09.2025
