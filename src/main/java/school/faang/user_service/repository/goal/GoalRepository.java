@@ -86,5 +86,5 @@ public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificat
 
     List<Goal> findAllByParentId(Long id);
 
-    boolean existsByIdAndUsers_Id(Long goalId, Long userId);
+    boolean existsByIdAndUsersId(Long goalId, Long userId);
 }

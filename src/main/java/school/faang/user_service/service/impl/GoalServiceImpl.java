@@ -111,12 +111,12 @@ public class GoalServiceImpl implements GoalService {
 
     private void validateUserGoal(User user, Goal goal) {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
-            log.warn("Attempt to complete already completed goal '{}' (ID: {}) by user with ID {}",
+            log.info("Attempt to complete already completed goal '{}' (ID: {}) by user with ID {}",
                     goal.getTitle(), goal.getId(), user.getId());
 
             throw new GoalAlreadyCompletedException(goal.getId(), goal.getTitle());
         }
-        if (!goalRepository.existsByIdAndUsers_Id(goal.getId(), user.getId())) {
+        if (!goalRepository.existsByIdAndUsersId(goal.getId(), user.getId())) {
             log.warn("User with ID {} attempted to complete goal with ID {} which is not assigned to them",
                     user.getId(), goal.getId());
 

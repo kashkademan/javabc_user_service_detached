@@ -33,7 +33,7 @@ public class GoalCompletedEventPublisher implements MessagePublisher<GoalComplet
 
         try {
             redisTemplate.convertAndSend(topic.getTopic(), goalCompletedEventDto);
-            log.debug("Successfully published event to topic {}: {}", topic.getTopic(), goalCompletedEventDto);
+            log.info("Successfully published event to topic {}: {}", topic.getTopic(), goalCompletedEventDto);
         } catch (SerializationException | DataAccessException e) {
             log.error("Failed to publish event to topic {}. Event: {}", topic.getTopic(), goalCompletedEventDto, e);
             throw new EventPublishException(

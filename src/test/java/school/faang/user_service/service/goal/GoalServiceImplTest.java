@@ -291,7 +291,7 @@ public class GoalServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
-        when(goalRepository.existsByIdAndUsers_Id(goalId, userId)).thenReturn(true);
+        when(goalRepository.existsByIdAndUsersId(goalId, userId)).thenReturn(true);
         when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
         goalService.completeUserGoal(userId, goalId);
@@ -312,7 +312,7 @@ public class GoalServiceImplTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(goalRepository, times(1)).findById(goalId);
-        verify(goalRepository, times(1)).existsByIdAndUsers_Id(goalId, userId);
+        verify(goalRepository, times(1)).existsByIdAndUsersId(goalId, userId);
         verify(goalRepository, times(1)).save(any(Goal.class));
         verify(skillService, times(1)).updateSkills(user, goalId);
         verify(goalCompletedEventPublisher, times(1)).publish(any(GoalCompletedEventDto.class));
@@ -358,7 +358,7 @@ public class GoalServiceImplTest {
         verify(userRepository, times(1)).findById(userId);
         verify(goalRepository, times(1)).findById(goalId);
 
-        verify(goalRepository, never()).existsByIdAndUsers_Id(any(Long.class), any(Long.class));
+        verify(goalRepository, never()).existsByIdAndUsersId(any(Long.class), any(Long.class));
         verifyNoInteractions(skillService);
         verify(goalRepository, never()).save(any(Goal.class));
         verifyNoInteractions(goalCompletedEventPublisher);
@@ -379,7 +379,7 @@ public class GoalServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
-        when(goalRepository.existsByIdAndUsers_Id(goalId, userId)).thenReturn(false);
+        when(goalRepository.existsByIdAndUsersId(goalId, userId)).thenReturn(false);
 
         GoalNotAssignedToUserException exception = assertThrows(GoalNotAssignedToUserException.class, () -> {
             goalService.completeUserGoal(userId, goalId);
@@ -391,7 +391,7 @@ public class GoalServiceImplTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(goalRepository, times(1)).findById(goalId);
-        verify(goalRepository, times(1)).existsByIdAndUsers_Id(goalId, userId);
+        verify(goalRepository, times(1)).existsByIdAndUsersId(goalId, userId);
 
         verifyNoInteractions(skillService);
         verify(goalRepository, never()).save(any(Goal.class));
@@ -424,7 +424,7 @@ public class GoalServiceImplTest {
         verify(userRepository, times(1)).findById(userId);
         verify(goalRepository, times(1)).findById(goalId);
 
-        verify(goalRepository, never()).existsByIdAndUsers_Id(any(Long.class), any(Long.class));
+        verify(goalRepository, never()).existsByIdAndUsersId(any(Long.class), any(Long.class));
 
         verifyNoInteractions(skillService);
         verify(goalRepository, never()).save(any(Goal.class));
