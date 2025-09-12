@@ -1,6 +1,7 @@
 package school.faang.user_service.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -10,12 +11,12 @@ import school.faang.user_service.service.event.EventStartEventPublisher;
 import school.faang.user_service.service.event.MessagePublisher;
 
 @Configuration
+@ConfigurationProperties(prefix = "redis")
+@Data
 public class RedisConfig {
-    @Value("${redis.host}")
-    String host;
+    private String host;
 
-    @Value("${redis.port}")
-    int port;
+    private int port;
 
     @Bean
     MessagePublisher redisPublisher() {
