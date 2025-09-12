@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import school.faang.user_service.rating_service.dto.UserScoreProjection;
+import school.faang.user_service.rating_service.dto.user.UserScoreProjection;
 import school.faang.user_service.rating_service.entity.UserScore;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Интерфейс для SQL-запросов связанных с сущностью {@link UserScore}
@@ -18,15 +19,6 @@ import java.util.List;
  * @since 05.09.2025
  */
 public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
-
-    @Modifying
-    @Query(nativeQuery = true, value = """
-            INSERT INTO user_score (user_id, score)
-            VALUES (:userId, :score)
-            """)
-    void save(@Param("userId") Long userId,
-              @Param("score") Double score);
-
 
     @Modifying
     @Query(nativeQuery = true, value = """
@@ -41,7 +33,11 @@ public interface UserScoreRepository extends JpaRepository<UserScore, Long> {
             SELECT score FROM user_score
             WHERE user_id = :userId
             """)
-    Double findScoreByUserId(Long userId);
+    Optional<Double> findScoreByUserId(Long userId);
+
+    default Double getScoreByUserId(Long userId) {
+        return findScoreByUserId(userId).orElse(0.0);
+    }
 
     @Query(nativeQuery = true, value = """
             SELECT user_id, score FROM user_score

@@ -1,5 +1,6 @@
 package school.faang.user_service.rating_service.service;
 
+import io.lettuce.core.RedisConnectionException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.rating_service.dto.UserScoreProjection;
+import school.faang.user_service.rating_service.dto.user.UserScoreProjection;
 import school.faang.user_service.rating_service.service.leaderboard.postgres.PostgresService;
 import school.faang.user_service.rating_service.service.leaderboard.redis.RedisService;
 
@@ -42,17 +43,16 @@ public class WarmUpCacheService {
         log.info("Начало заполнение Redis данными из Postgres...");
 
         try {
-            redisService.clearLeaderboard();
-
             Page<UserScoreProjection> topUsersPage = postgresService.getTopScores(topUsersLimit, offset);
             Map<Long, Double> topUsers = topUsersPage.getContent().stream()
                     .collect(Collectors.toMap(
                             UserScoreProjection::getUserId,
                             UserScoreProjection::getScore
                     ));
-            redisService.loadScores(topUsers);
-        } catch (Exception e) {
-            log.error("Ошибка при заполнении Redis: {}", e.getMessage());
+
+            redisService.replaceLeaderboard(topUsers);
+        } catch (RedisConnectionException e) {
+            log.error("Ошибка подключения к Redis: {}", e.getMessage(), e);
         }
     }
 

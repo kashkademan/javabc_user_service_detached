@@ -14,6 +14,7 @@ spring:
         format_sql: true
 
   liquibase:
+    enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   data:
@@ -71,7 +72,7 @@ redis:
     post-published: "post_published_topic"
     subproject-create: "subproject_create_topic"
   keys:
-    leaderboard: global_leaderboard;
+    leaderboard: global_leaderboard
   warmup:
     top-users-limit: 10000
     top-users-offset: 0

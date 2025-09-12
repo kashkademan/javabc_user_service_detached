@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.rating_service.entity.ScorableEvent;
-import school.faang.user_service.rating_service.entity.DefaultScore;
-import school.faang.user_service.rating_service.repository.DefaultScoreRepository;
+import school.faang.user_service.rating_service.entity.EventScore;
+import school.faang.user_service.rating_service.repository.EventScoreRepository;
 
 /**
  * Сервис для получения кол-ва баллов за выполненное действие пользователем.
@@ -18,10 +18,10 @@ import school.faang.user_service.rating_service.repository.DefaultScoreRepositor
 @Service
 @RequiredArgsConstructor
 public class ScoreForActionServiceImpl implements ScoreForActionService {
-    private final DefaultScoreRepository defaultScoreRepository;
+    private final EventScoreRepository eventScoreRepository;
 
     public Double getScore(ScorableEvent event) {
-        DefaultScore score = defaultScoreRepository.findByActionType(event.getActionType());
+        EventScore score = eventScoreRepository.findByActionTypeOrThrows(event.getActionType());
 
         if (!score.getIsActive()) {
             log.debug("Правило {} является не активным и пропускается", event.getActionType());
@@ -36,7 +36,7 @@ public class ScoreForActionServiceImpl implements ScoreForActionService {
         // TODO: заглушка
     }
 
-    private Double calculateFinalScore(ScorableEvent event, DefaultScore score) {
+    private Double calculateFinalScore(ScorableEvent event, EventScore score) {
         // TODO: заглушка
         Double basePoints = score.getBasePoints();
         return applyModifiers(event, basePoints);

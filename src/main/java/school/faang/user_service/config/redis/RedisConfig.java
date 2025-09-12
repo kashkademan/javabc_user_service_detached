@@ -18,8 +18,8 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import school.faang.user_service.listener.PostPublishedEventListener;
-import school.faang.user_service.listener.SubProjectCreatedEventListener;
+import school.faang.user_service.rating_service.listener.PostPublishedEventListener;
+import school.faang.user_service.rating_service.listener.SubProjectCreatedEventListener;
 
 /**
  * Конфигурация для подключения Redis'а
@@ -87,11 +87,7 @@ public class RedisConfig {
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
 
         template.setValueSerializer(serializer);
-        template.setValueSerializer(serializer);
 
-        template.setValueSerializer(serializer);
-
-        template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         template.afterPropertiesSet();
         return template;

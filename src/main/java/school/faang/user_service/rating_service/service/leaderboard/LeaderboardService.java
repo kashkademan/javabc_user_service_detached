@@ -1,6 +1,6 @@
 package school.faang.user_service.rating_service.service.leaderboard;
 
-import school.faang.user_service.rating_service.dto.UserScoreViewDto;
+import school.faang.user_service.rating_service.dto.user.UserScoreViewDto;
 import school.faang.user_service.rating_service.entity.ScorableEvent;
 
 import java.util.List;

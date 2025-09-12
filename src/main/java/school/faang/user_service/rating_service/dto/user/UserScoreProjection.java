@@ -1,4 +1,4 @@
-package school.faang.user_service.rating_service.dto;
+package school.faang.user_service.rating_service.dto.user;
 
 import school.faang.user_service.rating_service.entity.UserScore;
 

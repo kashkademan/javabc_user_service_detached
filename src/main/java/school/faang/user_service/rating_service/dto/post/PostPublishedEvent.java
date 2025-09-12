@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.post;
+package school.faang.user_service.rating_service.dto.post;
 
 import school.faang.user_service.rating_service.entity.ScorableEvent;
 import school.faang.user_service.rating_service.entity.ActionType;

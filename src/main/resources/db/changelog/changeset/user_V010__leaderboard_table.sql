@@ -1,4 +1,4 @@
-CREATE TABLE default_score (
+CREATE TABLE IF NOT EXISTS event_score (
     id           BIGSERIAL PRIMARY KEY,
     action_type  varchar(255) NOT NULL UNIQUE,
     base_points  double PRECISION NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE default_score (
 );
 
 
-CREATE TABLE user_action_log (
+CREATE TABLE IF NOT EXISTS user_action_log (
     id           BIGSERIAL PRIMARY KEY,
     user_id      bigint       NOT NULL,
     action_type  varchar(255) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE user_action_log (
 );
 
 
-CREATE TABLE user_score (
+CREATE TABLE IF NOT EXISTS user_score (
     id BIGSERIAL PRIMARY KEY,
     user_id bigint NOT NULL UNIQUE,
     score double PRECISION NOT NULL,

@@ -2,8 +2,8 @@ package school.faang.user_service.rating_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.rating_service.dto.UserScoreViewDto;
-import school.faang.user_service.rating_service.dto.UserScoreProjection;
+import school.faang.user_service.rating_service.dto.user.UserScoreViewDto;
+import school.faang.user_service.rating_service.dto.user.UserScoreProjection;
 
 /**
  * Маппер для преобразования проекции в DTO

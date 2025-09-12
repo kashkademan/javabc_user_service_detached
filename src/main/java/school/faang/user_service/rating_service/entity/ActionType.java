@@ -1,8 +1,8 @@
 package school.faang.user_service.rating_service.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import school.faang.user_service.dto.post.PostPublishedEvent;
-import school.faang.user_service.dto.project.SubProjectCreatedEvent;
+import school.faang.user_service.rating_service.dto.post.PostPublishedEvent;
+import school.faang.user_service.rating_service.dto.project.SubProjectCreatedEvent;
 
 import static school.faang.user_service.rating_service.entity.ActionLevel.EASY;
 

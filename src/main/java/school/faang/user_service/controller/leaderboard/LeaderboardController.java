@@ -1,4 +1,4 @@
-package school.faang.user_service.rating_service.controller.leaderboard;
+package school.faang.user_service.controller.leaderboard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.rating_service.dto.UserScoreViewDto;
+import school.faang.user_service.rating_service.dto.user.UserScoreViewDto;
 import school.faang.user_service.rating_service.service.leaderboard.LeaderboardService;
-import school.faang.user_service.rating_service.service.leaderboard.postgres.PostgresService;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ import java.util.List;
 @RequestMapping("/leaderboard")
 public class LeaderboardController {
 
-    private final PostgresService postgresService;
     private final LeaderboardService leaderboardService;
 
     @GetMapping("/top")

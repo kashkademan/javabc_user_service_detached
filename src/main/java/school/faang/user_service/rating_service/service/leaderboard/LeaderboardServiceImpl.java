@@ -4,8 +4,10 @@ import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.rating_service.dto.UserScoreViewDto;
+import school.faang.user_service.rating_service.dto.user.UserScoreViewDto;
 import school.faang.user_service.rating_service.entity.ScorableEvent;
 import school.faang.user_service.rating_service.mapper.UserScoreMapper;
 import school.faang.user_service.rating_service.service.leaderboard.postgres.PostgresService;
@@ -29,6 +31,14 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final RedisService redisService;
     private final UserScoreMapper mapper;
 
+    @Retryable(
+            retryFor = RedisConnectionException.class,
+            maxAttemptsExpression = "${retry.config.max-attempts}",
+            backoff = @Backoff(
+                    delayExpression = "${retry.config.initial-interval-ms}",
+                    multiplierExpression = "${retry.config.multiplier}"
+            )
+    )
     public void processUpdateUserScore(ScorableEvent event, Double earnedScore) {
         try {
             redisService.incrementOrCreateUserScore(event.getUserId(), earnedScore);
@@ -41,6 +51,10 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     }
 
     public List<UserScoreViewDto> getTopScores(Integer size, Integer page) {
+        if (isInvalidParamsPagination(size, page)) {
+            return List.of();
+        }
+
         Set<ZSetOperations.TypedTuple<Object>> topUsers = redisService.getTopUsers(page, size);
         return topUsers.stream()
                 .map(tuple -> mapper.getDtoByFields((Long) tuple.getValue(), tuple.getScore()))
@@ -50,5 +64,9 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     public UserScoreViewDto getUserScore(Long userId) {
         Double score = redisService.getScoreByUserId(userId);
         return mapper.getDtoByFields(userId, score);
+    }
+
+    private boolean isInvalidParamsPagination(Integer size, Integer page) {
+        return page == null || size == null || page < 0 || size <= 0;
     }
 }

@@ -31,6 +31,11 @@ public class RedisService {
 
     private final PostgresService postgresService;
 
+    public void replaceLeaderboard(Map<Long, Double> topUsers) {
+        clearLeaderboard();
+        loadScores(topUsers);
+    }
+
     public RedisService(@Qualifier("zsetRedisTemplate") RedisTemplate<String, Object> redisZset,
                         PostgresService postgresService) {
         this.redisZset = redisZset;

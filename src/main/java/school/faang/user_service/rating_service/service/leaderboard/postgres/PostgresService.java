@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.rating_service.dto.UserScoreProjection;
+import school.faang.user_service.rating_service.dto.user.UserScoreProjection;
 import school.faang.user_service.rating_service.entity.ScorableEvent;
 import school.faang.user_service.rating_service.repository.UserActionLogRepository;
 import school.faang.user_service.rating_service.repository.UserScoreRepository;
@@ -41,7 +41,7 @@ public class PostgresService {
     }
 
     public Double getUserScore(Long userId) {
-        return scoreRepository.findScoreByUserId(userId);
+        return scoreRepository.getScoreByUserId(userId);
     }
 
     private void saveUserActionLog(ScorableEvent event, Double score) {

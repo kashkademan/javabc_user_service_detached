@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "default_score")
-public class DefaultScore {
+public class EventScore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
