@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.goal.GoalCompleteEvent;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -45,6 +46,13 @@ public class GoalController {
     @Operation(summary = "Обновить цель", description = "Обновляет цель по её идентификатору")
     public ResponseEntity<GoalDto> update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto goalUpdateDto) {
         return new ResponseEntity<>(service.update(goalId, goalUpdateDto), HttpStatus.OK);
+    }
+
+    @PutMapping("/{goalId}/complete")
+    @Operation(summary = "Изменить статус", description = "Меняет статус задачи")
+    public ResponseEntity<GoalCompleteEvent> complete(@PathVariable Long goalId) {
+        service.completeGoal(goalId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{goalId}")

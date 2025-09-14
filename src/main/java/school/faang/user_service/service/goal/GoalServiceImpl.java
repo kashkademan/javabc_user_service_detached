@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.goal.GoalCompleteEvent;
 import school.faang.user_service.dto.goal.GoalCreateDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -15,6 +18,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.publisher.GoalEventCompletePublisher;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
@@ -39,6 +43,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalMapper goalMapper;
     private final UserContext userContext;
     private final FilterService<Goal, GoalFilterDto> filterService;
+    private final GoalEventCompletePublisher publisher;
 
     @Override
     @Transactional
@@ -121,6 +126,33 @@ public class GoalServiceImpl implements GoalService {
         goalMapper.update(goalUpdateDto, goal);
         goal = goalRepository.save(goal);
         return goalMapper.toGoalDto(goal);
+
+    }
+
+    @Override
+    @Transactional
+    public void completeGoal(long goalId) {
+        long currentUserId = userContext.getUserId();
+
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
+
+        if (!isUserGoalParticipant(currentUserId, goal)) {
+            throw new ForbiddenException(USER_HAS_NO_ACCESS);
+        }
+
+        if (GoalStatus.COMPLETED.equals(goal.getStatus())) {
+            throw new IllegalStateException(GOAL_COMPLETED);
+        }
+
+        goal.setStatus(GoalStatus.COMPLETED);
+        goalRepository.save(goal);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                publisher.publish(new GoalCompleteEvent(goalId, currentUserId));
+            }
+        });
     }
 
     @Override

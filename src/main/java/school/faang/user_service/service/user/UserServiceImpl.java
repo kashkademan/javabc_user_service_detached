@@ -60,9 +60,7 @@ public class UserServiceImpl implements UserService {
                 .user(user)
                 .preference(PreferredContact.fromString(userDto.contact()))
                 .build();
-
         user.setContactPreference(pref);
-
         user = userRepository.save(user);
         setAvatarIfPossible(user);
         log.info("User {} created", user.getId());
@@ -76,9 +74,11 @@ public class UserServiceImpl implements UserService {
         PreferredContact contactPreference = user.getContactPreference().getPreference();
 
         var info = user.getChatId();
+        var mail = user.getEmail();
 
         UserNotificationDto dto = new UserNotificationDto();
         dto.setPreferredContact(contactPreference);
+        dto.setEmail(mail);
         dto.setChatId(info);
 
         return dto;

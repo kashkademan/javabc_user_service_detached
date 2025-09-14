@@ -23,6 +23,7 @@ spring:
       host: localhost
       channel:
           event: "event_channel"
+          goal: "goal_channel"
 
   kafka:
     bootstrap-servers: localhost:9092
@@ -81,6 +82,7 @@ skill:
 telegram:
   bot-username: "someBot"
   bot-token: "someToken"
+
 
 event:
   delete-scheduled:

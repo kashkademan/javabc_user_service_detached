@@ -34,6 +34,8 @@ public interface GoalService {
      */
     GoalDto update(long goalId, GoalUpdateDto goalUpdateDto);
 
+
+
     /**
      * Получает цель по её идентификатору.
      *
@@ -48,6 +50,13 @@ public interface GoalService {
      * @param goalId идентификатор цели
      */
     void delete(long goalId);
+
+    /**
+     * Меняет статус цели по её идентификатору.
+     *
+     * @param goalId идентификатор цели
+     */
+    void completeGoal(long goalId);
 
     /**
      * Возвращает список целей, соответствующих указанным фильтрам.
