@@ -16,7 +16,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 /**
- * Тестирование класса отправляющего ивент в топик Redis
+ * Тестирование {@link RecommendationRequestedEventPublisher} класса отправляющего ивент в топик Redis
  *
  * @author Linempy
  * @since 15.08.2025

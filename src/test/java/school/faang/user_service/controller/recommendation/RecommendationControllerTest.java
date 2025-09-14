@@ -48,6 +48,7 @@ public class RecommendationControllerTest {
 
     @MockBean
     private RecommendationService recommendationService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
