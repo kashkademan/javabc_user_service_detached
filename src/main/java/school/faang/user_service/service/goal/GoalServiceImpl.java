@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCompleteEvent;
 import school.faang.user_service.dto.goal.GoalCreateDto;
@@ -145,7 +147,12 @@ public class GoalServiceImpl implements GoalService {
         goal.setStatus(GoalStatus.COMPLETED);
         goalRepository.save(goal);
 
-        publisher.publish(new GoalCompleteEvent(goalId, currentUserId));
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                publisher.publish(new GoalCompleteEvent(goalId, currentUserId));
+            }
+        });
     }
 
     @Override
