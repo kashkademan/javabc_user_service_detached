@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
@@ -195,4 +196,52 @@ class SkillServiceImplTest {
         verify(skillMapper, never()).toSkillDto(any());
     }
 
+    @Test
+    public void testUpdateSkills_whenValidUserAndGoalId_thenSuccess() {
+        long userId = 1L;
+        long goalId = 100L;
+
+        User user = new User();
+        user.setId(userId);
+
+        Skill skill1 = new Skill();
+        skill1.setId(1L);
+        skill1.setTitle("Java");
+
+        Skill skill2 = new Skill();
+        skill2.setId(2L);
+        skill2.setTitle("Spring Boot");
+
+        Skill skill3 = new Skill();
+        skill3.setId(3L);
+        skill3.setTitle("PostgreSQL");
+
+        List<Skill> skillsFromGoal = List.of(skill1, skill2, skill3);
+        List<Long> expectedSkillIds = List.of(1L, 2L, 3L);
+
+        when(skillRepository.findSkillsByGoalId(goalId)).thenReturn(skillsFromGoal);
+
+        skillService.updateSkills(user, goalId);
+
+        verify(skillRepository, times(1)).findSkillsByGoalId(goalId);
+        verify(skillRepository, times(1)).assignSkillsToUser(expectedSkillIds, userId);
+    }
+
+    @Test
+    public void testUpdateSkills_whenNoSkillsForGoal_thenNothingAssigned() {
+        long userId = 1L;
+        long goalId = 100L;
+
+        User user = new User();
+        user.setId(userId);
+
+        List<Skill> emptySkillsFromGoal = List.of();
+
+        when(skillRepository.findSkillsByGoalId(goalId)).thenReturn(emptySkillsFromGoal);
+
+        skillService.updateSkills(user, goalId);
+
+        verify(skillRepository, times(1)).findSkillsByGoalId(goalId);
+        verify(skillRepository, never()).assignSkillsToUser(any(), anyLong());
+    }
 }

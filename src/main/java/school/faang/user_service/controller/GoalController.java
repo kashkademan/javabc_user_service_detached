@@ -2,6 +2,7 @@ package school.faang.user_service.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import school.faang.user_service.dto.request.CreateGoalRequestDto;
 import school.faang.user_service.dto.request.SearchRequest;
 import school.faang.user_service.dto.response.CreateGoalResponseDto;
 import school.faang.user_service.dto.response.GoalDto;
+import school.faang.user_service.service.GoalService;
 import school.faang.user_service.service.impl.GoalServiceImpl;
 
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.List;
 public class GoalController {
 
     private final GoalServiceImpl goalService;
+    private final GoalService goalServiceInterface;
 
     @GetMapping("/health")
     @Operation(summary = "Health check", description = "Allows you to check health")
@@ -59,4 +62,12 @@ public class GoalController {
         return ResponseEntity.ok(goalService.search(request));
     }
 
+    @PostMapping("/{goalId}/complete/user/{userId}")
+    @Operation(summary = "Complete a user's goal",
+            description = "Marks the specified goal as completed for the given user")
+    public ResponseEntity<String> completeUserGoal(@PathVariable @Positive Long userId,
+                                                   @PathVariable @Positive Long goalId) {
+        goalServiceInterface.completeUserGoal(userId, goalId);
+        return ResponseEntity.ok("Goal completed successfully");
+    }
 }

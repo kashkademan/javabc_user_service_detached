@@ -58,4 +58,16 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     @Query("SELECT COUNT(s) FROM Skill s WHERE s.id IN :skillIds")
     Long getExistingSkillCountByIds(@Param("skillIds") List<Long> skillIds);
 
+    @Modifying
+    @Query(nativeQuery = true, value = """
+                INSERT INTO user_skill (skill_id, user_id) 
+                SELECT s.id, :userId FROM skill s 
+                WHERE s.id IN :skillIds
+                AND NOT EXISTS (
+                    SELECT 1 FROM user_skill us 
+                    WHERE us.skill_id = s.id AND us.user_id = :userId
+                )
+            """)
+    void assignSkillsToUser(@Param("skillIds") List<Long> skillIds,
+                            @Param("userId") Long userId);
 }

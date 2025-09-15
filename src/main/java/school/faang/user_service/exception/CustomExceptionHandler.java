@@ -61,4 +61,50 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 "Unexpected error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(EventPublishException.class)
+    public ResponseEntity<String> handleEventPublishException(EventPublishException e, WebRequest request) {
+        log.error("Failed to publish goal completion event: {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                "Failed to complete goal due to event publish error: " + e.getMessage(),
+                HttpStatus.SERVICE_UNAVAILABLE
+        );
+    }
+
+    @ExceptionHandler(GoalNotFoundException.class)
+    public ResponseEntity<String> handleGoalNotFoundException(
+            GoalNotFoundException e, WebRequest request) {
+        log.warn("Goal not found: {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                "Goal not found: " + e.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(GoalNotAssignedToUserException.class)
+    public ResponseEntity<String> handleGoalNotAssignedToUserException(
+            GoalNotAssignedToUserException e, WebRequest request) {
+        log.warn("Goal not assigned to user: {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                "Goal not assigned to user: " + e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(GoalAlreadyCompletedException.class)
+    public ResponseEntity<String> handleGoalAlreadyCompletedException(
+            GoalAlreadyCompletedException e, WebRequest request) {
+        log.warn("Goal already completed: {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    public ResponseEntity<String> handleDataValidationException(
+            DataValidationException e, WebRequest request) {
+        log.warn("Data validation error: {}", e.getMessage(), e);
+        return new ResponseEntity<>("Validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

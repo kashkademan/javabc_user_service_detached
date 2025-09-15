@@ -1,11 +1,13 @@
 package school.faang.user_service.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class SkillServiceImpl implements SkillService {
@@ -92,5 +95,30 @@ public class SkillServiceImpl implements SkillService {
     @Transactional(readOnly = true)
     public List<Skill> getSkillListBySkillIds(List<Long> ids) {
         return skillRepository.findAllById(ids);
+    }
+
+    @Override
+    public void updateSkills(User user, long goalId) {
+        log.info("Updating skills for user with ID {} from goal with ID {}", user.getId(), goalId);
+
+        List<Skill> skillsFromGoal = skillRepository.findSkillsByGoalId(goalId);
+        log.info("Found {} skills for goal with ID {}", skillsFromGoal.size(), goalId);
+
+        assignSkillsToUser(user, skillsFromGoal);
+        log.info("Successfully updated {} skills for user with ID {}", skillsFromGoal.size(), user.getId());
+    }
+
+    private void assignSkillsToUser(User user, List<Skill> skills) {
+        if (skills.isEmpty()) {
+            log.debug("No skills to assign to user with ID {}", user.getId());
+            return;
+        }
+
+        List<Long> skillIds = skills.stream()
+                .map(Skill::getId)
+                .toList();
+        log.debug("Assigning {} skills to user with ID {} using batch operation", skillIds.size(), user.getId());
+
+        skillRepository.assignSkillsToUser(skillIds, user.getId());
     }
 }
