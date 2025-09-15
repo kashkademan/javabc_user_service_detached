@@ -97,7 +97,6 @@ public class SkillServiceImpl implements SkillService {
         return skillRepository.findAllById(ids);
     }
 
-    @Transactional
     @Override
     public void updateSkills(User user, long goalId) {
         log.info("Updating skills for user with ID {} from goal with ID {}", user.getId(), goalId);
@@ -120,6 +119,6 @@ public class SkillServiceImpl implements SkillService {
                 .toList();
         log.debug("Assigning {} skills to user with ID {} using batch operation", skillIds.size(), user.getId());
 
-        skillRepository.assignSkillsToUserBatch(skillIds, user.getId());
+        skillRepository.assignSkillsToUser(skillIds, user.getId());
     }
 }

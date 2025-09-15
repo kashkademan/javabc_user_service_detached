@@ -224,7 +224,7 @@ class SkillServiceImplTest {
         skillService.updateSkills(user, goalId);
 
         verify(skillRepository, times(1)).findSkillsByGoalId(goalId);
-        verify(skillRepository, times(1)).assignSkillsToUserBatch(expectedSkillIds, userId);
+        verify(skillRepository, times(1)).assignSkillsToUser(expectedSkillIds, userId);
     }
 
     @Test
@@ -242,6 +242,6 @@ class SkillServiceImplTest {
         skillService.updateSkills(user, goalId);
 
         verify(skillRepository, times(1)).findSkillsByGoalId(goalId);
-        verify(skillRepository, never()).assignSkillsToUserBatch(any(), anyLong());
+        verify(skillRepository, never()).assignSkillsToUser(any(), anyLong());
     }
 }
