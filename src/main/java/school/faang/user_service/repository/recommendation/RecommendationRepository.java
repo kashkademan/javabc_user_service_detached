@@ -12,12 +12,12 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     @Query(nativeQuery = true, value = """
             INSERT INTO recommendation (author_id, receiver_id, content)
-            VALUES (?1, ?2, ?3) returning id
+            VALUES (?1, ?2, ?3) RETURNING id
             """)
     Long create(long authorId, long receiverId, String content);
 
     @Query(nativeQuery = true, value = """
-            UPDATE recommendation SET content = :content, updated_at = now()
+            UPDATE recommendation SET content = :content, updated_at = NOW()
             WHERE author_id = :authorId AND receiver_id = :receiverId
             """)
     @Modifying

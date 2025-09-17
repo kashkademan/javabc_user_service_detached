@@ -10,7 +10,7 @@ import java.util.List;
 public interface SkillOfferRepository extends JpaRepository<SkillOffer, Long> {
 
     @Query(nativeQuery = true, value = """
-            INSERT INTO skill_offer (skill_id, recommendation_id) VALUES (?1, ?2) returning *
+            INSERT INTO skill_offer (skill_id, recommendation_id) VALUES (?1, ?2) RETURNING *
             """)
     SkillOffer create(long skillId, long recommendationId);
 

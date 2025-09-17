@@ -14,7 +14,7 @@ public interface EventParticipationRepository extends JpaRepository<User, Long> 
     void register(long eventId, long userId);
 
     @Modifying
-    @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId and user_id = :userId")
+    @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId AND user_id = :userId")
     void unregister(long eventId, long userId);
 
     @Query(nativeQuery = true, value = """
