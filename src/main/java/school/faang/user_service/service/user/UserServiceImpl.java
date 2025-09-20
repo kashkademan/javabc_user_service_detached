@@ -114,16 +114,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
-        UserDto userDto = UserDto.builder()
-                .id(userId)
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .followersIds(new ArrayList<>())
-                .build();
-        List<Long> followersIds = user.getFollowers().stream()
-                .map(User::getId)
-                .toList();
-        userDto.followersIds().addAll(followersIds);
+        UserDto userDto = userMapper.toUserDto(user);
         return userDto;
     }
 

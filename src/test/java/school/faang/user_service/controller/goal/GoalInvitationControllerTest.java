@@ -52,6 +52,7 @@ class GoalInvitationControllerTest {
                 1L,
                 "Myrzakhmet",
                 "example@example.com",
+                List.of(1L),
                 "+77477477474",
                 "Java Dev",
                 null
@@ -60,6 +61,7 @@ class GoalInvitationControllerTest {
                 2L,
                 "Dreamer",
                 "example2@example.com",
+                List.of(1L),
                 "+77377377373",
                 "Dreamer",
                 null

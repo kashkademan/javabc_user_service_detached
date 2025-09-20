@@ -100,8 +100,8 @@ class EventParticipationServiceImplTest {
         User user2 = mock(User.class);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user1, user2));
 
-        UserDto dto1 = new UserDto(1L, "user1", "user1@example.com", "+1234567890", "About user 1", null);
-        UserDto dto2 = new UserDto(2L, "user2", "user2@example.com", "+0987654321", "About user 2", null);
+        UserDto dto1 = new UserDto(1L, "user1", "user1@example.com", List.of(1L), "+1234567890", "About user 1", null);
+        UserDto dto2 = new UserDto(2L, "user2", "user2@example.com", List.of(1L), "+0987654321", "About user 2", null);
 
         when(userMapper.toUserDto(user1)).thenReturn(dto1);
         when(userMapper.toUserDto(user2)).thenReturn(dto2);

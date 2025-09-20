@@ -53,6 +53,7 @@ class UserControllerTest {
                 1L,
                 "JohnDoe",
                 "johndoe@example.com",
+                List.of(1L),
                 "1234567890",
                 "About John Doe",
                 null
@@ -119,6 +120,7 @@ class UserControllerTest {
                 3L,
                 "MichaelJohnson",
                 "michaeljohnson@example.com",
+                List.of(1L),
                 "1112223333",
                 "About Michael Johnson",
                 null
@@ -127,6 +129,7 @@ class UserControllerTest {
                 2L,
                 "JaneSmith",
                 "janesmith@example.com",
+                List.of(1L),
                 "0987654321",
                 "About Jane Smith",
                 null

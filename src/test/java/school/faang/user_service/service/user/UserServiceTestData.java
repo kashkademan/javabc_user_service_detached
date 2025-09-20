@@ -23,10 +23,11 @@ public class UserServiceTestData {
         var id = user.getId();
         var username = user.getUsername();
         var email = user.getEmail();
+        var followersIds = List.of(1L);
         var phone = user.getPhone();
         var aboutMe = user.getAboutMe();
 
-        return new UserDto(id, username, email, phone, aboutMe, null);
+        return new UserDto(id, username, email, followersIds, phone, aboutMe, null);
     }
 
     public static Country buildCountry(long id, String name) {
@@ -50,6 +51,7 @@ public class UserServiceTestData {
         user.email("example@email.com");
         user.password(UUID.randomUUID().toString());
         user.country(country);
+        user.followers(new ArrayList<>(List.of(User.builder().id(1L).build())));
         user.phone("87477477474");
         user.aboutMe("About " + name);
         return user.build();
@@ -137,6 +139,7 @@ public class UserServiceTestData {
                 1L,
                 "Bob",
                 "@mail",
+                List.of(1L),
                 "88899212",
                 "Fine",
                 "www/www"

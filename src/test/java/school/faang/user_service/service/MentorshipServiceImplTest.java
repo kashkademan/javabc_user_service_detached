@@ -64,6 +64,7 @@ class MentorshipServiceImplTest {
                 mentorId,
                 "mentor_user",
                 "mentor@example.com",
+                List.of(1L),
                 "+123456789",
                 "About mentor",
                 null
@@ -71,6 +72,7 @@ class MentorshipServiceImplTest {
         menteeDto = new UserDto(menteeId,
                 "mentee_user",
                 "mentee@example.com",
+                List.of(1L),
                 "+987654321",
                 "About mentee",
                 null

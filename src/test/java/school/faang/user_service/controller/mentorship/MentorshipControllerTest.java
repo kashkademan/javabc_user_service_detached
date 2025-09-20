@@ -41,6 +41,7 @@ class MentorshipControllerTest {
             1L,
             "testUser",
             "test@example.com",
+            List.of(1L),
             "+123456789",
             "About me",
             null

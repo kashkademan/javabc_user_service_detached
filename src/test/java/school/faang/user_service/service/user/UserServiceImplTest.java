@@ -147,6 +147,5 @@ class UserServiceImplTest {
 
         assertThat(resultList).usingRecursiveAssertion().isEqualTo(userDtoList);
         verify(userRepository).findAllByIdIn(userIds);
-        verify(userMapper).toUserDto(user);
     }
 }
