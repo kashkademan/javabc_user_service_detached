@@ -26,6 +26,7 @@ import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -113,7 +114,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
-        return userMapper.toUserDto(user);
+        UserDto userDto = UserDto.builder()
+                .id(userId)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .followersIds(new ArrayList<>())
+                .build();
+        List<Long> followersIds = user.getFollowers().stream()
+                .map(User::getId)
+                .toList();
+        userDto.followersIds().addAll(followersIds);
+        return userDto;
     }
 
     @Override

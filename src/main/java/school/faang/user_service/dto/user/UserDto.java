@@ -1,8 +1,12 @@
 package school.faang.user_service.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+
+import java.util.List;
 
 @Schema(description = "DTO с информацией о пользователе")
+@Builder
 public record UserDto(
 
         @Schema(description = "Идентификатор пользователя", example = "123")
@@ -13,6 +17,9 @@ public record UserDto(
 
         @Schema(description = "Электронная почта пользователя", example = "john@example.com")
         String email,
+
+        @Schema(description = "id подписчиков пользователя", example = "1, 2, 3")
+        List<Long> followersIds,
 
         @Schema(description = "Номер телефона пользователя", example = "+77771234567")
         String phone,
