@@ -26,7 +26,6 @@ import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.filter.FilterService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
