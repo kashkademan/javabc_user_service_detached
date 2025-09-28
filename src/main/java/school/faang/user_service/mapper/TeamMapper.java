@@ -14,7 +14,7 @@ public interface TeamMapper {
 
     @Named("mapAvatarUrl")
     default String mapAvatarUrl(Team team) {
-        return team.getAvatarKey() != null ?
-                "/api/teams/" + team.getId() + "/avatar" : null;
+        return team.getAvatarKey() != null
+                ? "/api/teams/" + team.getId() + "/avatar" : null;
     }
 }

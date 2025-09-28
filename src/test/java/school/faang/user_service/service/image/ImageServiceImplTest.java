@@ -92,8 +92,10 @@ class ImageServiceImplTest {
 
     @Test
     @DisplayName("Should throw FileSizeLimitExceededException when file is too large")
-    void uploadTeamAvatar_FileTooLarge() throws ServerException, InsufficientDataException, ErrorResponseException,
-            IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    void uploadTeamAvatar_FileTooLarge() throws
+            ServerException, InsufficientDataException, ErrorResponseException,
+            IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
         byte[] largeFileBytes = new byte[6 * 1024 * 1024];
         MultipartFile file = new MockMultipartFile(
                 "avatar",
@@ -111,8 +113,10 @@ class ImageServiceImplTest {
 
     @Test
     @DisplayName("Should throw InvalidFileFormatException for unsupported file type")
-    void uploadTeamAvatar_UnsupportedFileType() throws ServerException, InsufficientDataException, ErrorResponseException,
-            IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    void uploadTeamAvatar_UnsupportedFileType() throws
+            ServerException, InsufficientDataException, ErrorResponseException,
+            IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
         MultipartFile file = new MockMultipartFile(
                 "avatar",
                 "test.txt",
@@ -129,8 +133,10 @@ class ImageServiceImplTest {
 
     @Test
     @DisplayName("Should throw InvalidFileFormatException for corrupted image")
-    void uploadTeamAvatar_CorruptedImage() throws ServerException, InsufficientDataException, ErrorResponseException,
-            IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    void uploadTeamAvatar_CorruptedImage() throws
+            ServerException, InsufficientDataException, ErrorResponseException,
+            IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
         MultipartFile file = new MockMultipartFile(
                 "avatar",
                 "corrupted.jpg",

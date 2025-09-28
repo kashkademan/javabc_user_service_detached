@@ -63,7 +63,12 @@ public class TeamServiceImpl implements TeamService {
     private void checkManagerRights(Team team) {
         Long currentUserId = userContext.getUserId();
         if (!team.getManager().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Only team manager can modify avatar. Current user: " + currentUserId + ", team manager: " + team.getManager().getId());
+            throw new ForbiddenException(
+                    "Only team manager can modify avatar. Current user: "
+                            + currentUserId
+                            + ", team manager: "
+                            + team.getManager().getId()
+            );
         }
     }
 }
