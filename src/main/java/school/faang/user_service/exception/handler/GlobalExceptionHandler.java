@@ -345,18 +345,4 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception ex) {
-        ex.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Ошибка: " + ex.getClass().getSimpleName() + " — " + ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<String> handleInvalidFormat(InvalidFormatException ex) {
-        ex.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Ошибка преобразования JSON: " + ex.getValue() + " → " + ex.getTargetType().getSimpleName());
-    }
 }
