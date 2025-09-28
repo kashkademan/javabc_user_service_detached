@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.team.TeamDto;
 import school.faang.user_service.entity.team.Team;
-
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.FileUploadException;

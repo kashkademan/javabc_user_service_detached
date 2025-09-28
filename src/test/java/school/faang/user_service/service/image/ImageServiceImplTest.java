@@ -36,7 +36,6 @@ import java.security.NoSuchAlgorithmException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -78,16 +77,13 @@ class ImageServiceImplTest {
                 imageBytes
         );
 
-        doNothing().when(minioClient).putObject(any(PutObjectArgs.class));
-
         String result = imageService.uploadTeamAvatar(file, TEAM_ID);
 
         assertThat(result).isNotNull();
         assertThat(result).startsWith("team-" + TEAM_ID + "-avatar-");
         assertThat(result).endsWith(".jpg");
 
-        ArgumentCaptor<PutObjectArgs> captor = ArgumentCaptor.forClass(PutObjectArgs.class);
-        verify(minioClient).putObject(captor.capture());
+        verify(minioClient).putObject(any(PutObjectArgs.class));
     }
 
     @Test
@@ -174,12 +170,8 @@ class ImageServiceImplTest {
     @Test
     @DisplayName("Should successfully delete team avatar")
     void deleteTeamAvatar_Success() throws Exception {
-        doNothing().when(minioClient).removeObject(any(RemoveObjectArgs.class));
-
         imageService.deleteTeamAvatar(AVATAR_KEY);
-
-        ArgumentCaptor<RemoveObjectArgs> captor = ArgumentCaptor.forClass(RemoveObjectArgs.class);
-        verify(minioClient).removeObject(captor.capture());
+        verify(minioClient).removeObject(any(RemoveObjectArgs.class));
     }
 
     @Test
@@ -228,7 +220,6 @@ class ImageServiceImplTest {
                 image.setRGB(x, y, 0xFFFFFF);
             }
         }
-
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
         return baos.toByteArray();
