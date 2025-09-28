@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "minio")
+@ConfigurationProperties(prefix = "services.minio")
 public class MinioConfig {
     private String endpoint;
     private String accessKey;
