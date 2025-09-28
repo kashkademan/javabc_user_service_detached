@@ -44,9 +44,8 @@ public class MentorshipRequestService {
     private final MentorshipRepository mentorshipRepository;
     private final MentorshipRequestedEvent event;
 
-
-
     private  final MentorshipRedisConfig mentorshipRedisConfig;
+
     private final ChannelTopic mentorshipTopic() {
         return new ChannelTopic("MENTORSHIP_REQUESTS");
     }
@@ -87,14 +86,13 @@ public class MentorshipRequestService {
                 });
 
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.createRequest(
-                requesterId, receiverId, requestDto.description());
+        requesterId, receiverId, requestDto.description());
         event.setReceiverId(requesterId);
         event.setMentorId(receiverId);
         event.setDateTime(LocalDateTime.now());
         String eventMessage ="""
-               %s
-               %s
-               """.formatted(event.getMentorId(), event.getReceiverId());
+        %s and %s
+        """.formatted(event.getMentorId(), event.getReceiverId());
 
         log.info(eventMessage);
         return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
