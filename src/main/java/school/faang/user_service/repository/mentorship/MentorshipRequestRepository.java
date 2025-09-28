@@ -25,7 +25,6 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
             """)
     Optional<MentorshipRequest> findLatestRequest(long requesterId, long receiverId);
 
-
     @Query(nativeQuery = true, value = """
             SELECT mr FORM mentorship_request WHERE
             mr.requester_id = :requesterId AND
