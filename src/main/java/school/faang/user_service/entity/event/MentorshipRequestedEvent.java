@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MentorshipRequestedEvent {
 
-        private Long receiverId;
-        private Long mentorId;
-        private LocalDateTime dateTime;
-    }
+    private Long receiverId;
+    private Long mentorId;
+    private LocalDateTime dateTime;
+}
 
 

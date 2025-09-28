@@ -85,16 +85,11 @@ public class MentorshipRequestService {
                     }
                 });
 
-        MentorshipRequest mentorshipRequest = mentorshipRequestRepository.createRequest(
+                MentorshipRequest mentorshipRequest = mentorshipRequestRepository.createRequest(
         requesterId, receiverId, requestDto.description());
         event.setReceiverId(requesterId);
         event.setMentorId(receiverId);
         event.setDateTime(LocalDateTime.now());
-        String eventMessage ="""
-        %s and %s
-        """.formatted(event.getMentorId(), event.getReceiverId());
-
-        log.info(eventMessage);
         return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
     }
 
