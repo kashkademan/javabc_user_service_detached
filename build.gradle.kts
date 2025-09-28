@@ -6,7 +6,6 @@ plugins {
     kotlin("jvm")
     checkstyle
 }
-
 group = "faang.school"
 version = "1.0"
 
