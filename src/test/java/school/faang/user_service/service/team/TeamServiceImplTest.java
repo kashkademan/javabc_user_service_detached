@@ -130,7 +130,7 @@ class TeamServiceImplTest {
 
     @Test
     @DisplayName("Should throw FileUploadException when image service throws IOException")
-    void uploadAvatar_ImageServiceThrowsIOException() throws IOException {
+    void uploadAvatar_ImageServiceThrowsIoException() throws IOException {
         when(teamRepository.getByIdOrThrow(TEAM_ID)).thenReturn(team);
         when(userContext.getUserId()).thenReturn(MANAGER_ID);
         when(imageService.uploadTeamAvatar(file, TEAM_ID))
