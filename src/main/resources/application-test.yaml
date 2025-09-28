@@ -1,0 +1,17 @@
+user:
+  password:
+    min:
+      length: 6
+
+logging:
+  level:
+    root: WARN
+    school.faang.user_service.service.goal: INFO 
+
+skill:
+  minimal:
+    offers: 3
+   
+app:
+  goals:
+    max-active-goals: 3
