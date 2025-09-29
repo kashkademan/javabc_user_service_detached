@@ -53,7 +53,9 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public void deleteMentorship(Long mentorId, Long menteeId) {
         Long userId = userContext.getUserId();
-        if (!userId.equals(mentorId) && !userId.equals(menteeId)) throw new ForbiddenException("Недостаточно прав");
+        if (!userId.equals(mentorId) && !userId.equals(menteeId)) {
+            throw new ForbiddenException("Недостаточно прав");
+        }
 
         checkDuplicateMentorship(menteeId, mentorId);
 
