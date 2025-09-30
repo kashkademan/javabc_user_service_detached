@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.mentorship_service_test;
+package school.faang.user_service.service.mentorship.mentorship_test;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
