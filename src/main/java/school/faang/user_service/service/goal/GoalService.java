@@ -23,7 +23,8 @@ public interface GoalService {
      *     <li>Если {@code mentorId} не указан:
      *     размер {@code userIds} должен быть равен 1 и этот идентификатор обязан совпадать с id текущего пользователя;
      *     иначе выбрасываются {@code DataValidationException} либо {@code ForbiddenException}.</li>
-     *     <li>Список {@code userIds} должен содержать только уникальные значения; иначе {@code DataValidationException}.</li>
+     *     <li>Список {@code userIds} должен содержать только уникальные значения;
+     *     иначе {@code DataValidationException}.</li>
      *     <li>Для каждого пользователя из {@code userIds} количество активных целей должно быть меньше 2;
      *     при нарушении выбрасывается {@code DataValidationException}.</li>
      *     <li>Если переданы {@code skillIds}:
@@ -44,4 +45,34 @@ public interface GoalService {
      * @return {@link GoalDto} с данными созданной цели
      */
     GoalDto create(CreateGoalDto createGoalDto);
+
+    /**
+     * Удаляет цель по идентификатору с учётом ролей и состава участников.
+     * <p>
+     * Правила и побочные эффекты:
+     * <ul>
+     *     <li>Если цель является родительской (имеет подцели) — выбрасывается {@code ForbiddenException}.</li>
+     *     <li>Если у цели нет ментора:
+     *         <ul>
+     *             <li>Удалить может только участник цели; иначе {@code ForbiddenException}.</li>
+     *             <li>Если в цели один участник — цель удаляется целиком ({@code deleteById}).</li>
+     *             <li>Если участников больше одного — из цели удаляется только текущий пользователь
+     *             ({@code deleteUserFromGoal}).</li>
+     *         </ul>
+     *     </li>
+     *     <li>Если у цели есть ментор:
+     *         <ul>
+     *             <li>Удалить может только ментор; при несовпадении идентификаторов — {@code ForbiddenException}.</li>
+     *             <li>Цель удаляется целиком ({@code deleteById}).</li>
+     *         </ul>
+     *     </li>
+     *     <li>Если у удаляемой цели присутствуют навыки, для каждого навыка удаляются гарантии
+     *     ({@code userSkillGuaranteeRepository.deleteBySkillId}).</li>
+     * </ul>
+     *
+     * @param goalId идентификатор цели для удаления
+     * @throws school.faang.user_service.exception.EntityNotFoundException если цель не найдена
+     * @throws school.faang.user_service.exception.ForbiddenException при нарушении правил доступа/удаления
+     */
+    void delete(long goalId);
 }

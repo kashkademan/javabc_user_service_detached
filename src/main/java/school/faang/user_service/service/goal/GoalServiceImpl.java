@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -92,25 +93,74 @@ public class GoalServiceImpl implements GoalService {
             goal.setMentor(mentor);
             goal.getUsers().addAll(users);
 
-            List<UserSkillGuarantee> guarantees = goal.getSkillsToAchieve()
-                    .stream()
-                    .flatMap(s -> users.stream()
-                            .map(u -> {
-                                UserSkillGuarantee userSkillGuarantee = new UserSkillGuarantee();
-                                userSkillGuarantee.setUser(u);
-                                userSkillGuarantee.setGuarantor(mentor);
-                                userSkillGuarantee.setSkill(s);
-                                return userSkillGuarantee;
-                            })
-                    )
-                    .toList();
+            if (! ObjectUtils.isEmpty(goal.getSkillsToAchieve())) {
+                List<UserSkillGuarantee> guarantees = goal.getSkillsToAchieve()
+                        .stream()
+                        .flatMap(s -> users.stream()
+                                .map(u -> {
+                                    UserSkillGuarantee userSkillGuarantee = new UserSkillGuarantee();
+                                    userSkillGuarantee.setUser(u);
+                                    userSkillGuarantee.setGuarantor(mentor);
+                                    userSkillGuarantee.setSkill(s);
+                                    return userSkillGuarantee;
+                                })
+                        )
+                        .toList();
 
-            userSkillGuaranteeRepository.saveAll(guarantees);
+                userSkillGuaranteeRepository.saveAll(guarantees);
+            }
         }
 
         goalRepository.save(goal);
         log.info("Goal entity saved: {}", goal);
         return goalMapper.toGoalDto(goal);
+    }
+
+    @Override
+    @Transactional
+    public void delete(long goalId) {
+        Long requesterId = userContext.getUserId();
+        Goal goalToDelete = goalRepository.getByIdOrThrow(goalId);
+        User mentor = goalToDelete.getMentor();
+        List<User> users = goalToDelete.getUsers();
+        List<Skill> skills = goalToDelete.getSkillsToAchieve();
+
+        if (goalRepository.findByParent(goalId).findAny().isPresent()) {
+            throw new ForbiddenException(
+                    "Goal %s is parent and cannot be delete".formatted(goalId)
+            );
+        }
+
+        if (ObjectUtils.isEmpty(mentor)) {
+            boolean belongsToGoal = users.stream()
+                    .anyMatch(u -> Objects.equals(u.getId(), requesterId));
+
+            if (!belongsToGoal) {
+                throw new ForbiddenException(
+                        "User %s cannot delete goal %s".formatted(requesterId, goalId)
+                );
+            }
+
+            if (users.size() > 1) {
+                goalRepository.deleteUserFromGoal(requesterId, goalId);
+            } else {
+                goalRepository.deleteById(goalId);
+            }
+            log.info("User {} deleted from goal {}", requesterId, goalId);
+        } else {
+            if (!Objects.equals(mentor.getId(), requesterId)) {
+                throw new ForbiddenException(
+                        "MentorId %s and requesterId %s are different".formatted(mentor.getId(), requesterId)
+                );
+            }
+
+            goalRepository.deleteById(goalId);
+            log.info("Mentor {} deleted goal {}", requesterId, goalId);
+        }
+
+        if (!skills.isEmpty()) {
+            skills.forEach(s -> userSkillGuaranteeRepository.deleteBySkillId(s.getId()));
+        }
     }
 
     private void validateCreateGoalRequest(CreateGoalDto createGoalDto, Long requesterId) {

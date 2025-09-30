@@ -37,6 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -534,6 +536,161 @@ class GoalServiceImplTest {
                 () -> goalService.create(createGoalDto)
         );
     }
+
+    @Test
+    void delete_shouldThrowException_whenGoalIsParent() {
+        final long goalId = 1L;
+        final long requesterId = 10L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .users(List.of(User.builder().id(requesterId).build()))
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.of(Goal.builder().id(2L).build()));
+
+        TestUtils.assertThrowsWithMessage(
+                ForbiddenException.class,
+                "Goal %s is parent and cannot be delete".formatted(goalId),
+                () -> goalService.delete(goalId)
+        );
+    }
+
+    @Test
+    void delete_shouldThrowException_whenRequesterIsNotParticipant_andNoMentor() {
+        final long goalId = 2L;
+        final long requesterId = 20L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .users(List.of(User.builder().id(999L).build()))
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.empty());
+
+        TestUtils.assertThrowsWithMessage(
+                ForbiddenException.class,
+                "User %s cannot delete goal %s".formatted(requesterId, goalId),
+                () -> goalService.delete(goalId)
+        );
+    }
+
+    @Test
+    void delete_shouldThrowException_whenRequesterIsNotMentor() {
+        final long goalId = 3L;
+        final long requesterId = 30L;
+        final long mentorId = 300L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .mentor(User.builder().id(mentorId).build())
+                .users(List.of(User.builder().id(1L).build(), User.builder().id(2L).build()))
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.empty());
+
+        TestUtils.assertThrowsWithMessage(
+                ForbiddenException.class,
+                "MentorId %s and requesterId %s are different".formatted(mentorId, requesterId),
+                () -> goalService.delete(goalId)
+        );
+    }
+
+    @Test
+    void delete_shouldDeleteById_whenNoMentor_andSingleParticipant() {
+        final long goalId = 4L;
+        final long requesterId = 40L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .users(List.of(User.builder().id(requesterId).build()))
+                .skillsToAchieve(List.of())
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.empty());
+
+        goalService.delete(goalId);
+
+        verify(goalRepository).deleteById(goalId);
+        verifyNoInteractions(userSkillGuaranteeRepository);
+    }
+
+    @Test
+    void delete_shouldRemoveUserFromGoal_whenNoMentor_andMultipleParticipants() {
+        final long goalId = 5L;
+        final long requesterId = 50L;
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .users(List.of(
+                        User.builder().id(requesterId).build(),
+                        User.builder().id(501L).build()
+                ))
+                .skillsToAchieve(List.of())
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.empty());
+
+        goalService.delete(goalId);
+
+        verify(goalRepository).deleteUserFromGoal(requesterId, goalId);
+        verify(goalRepository, never()).deleteById(anyLong());
+        verifyNoInteractions(userSkillGuaranteeRepository);
+    }
+
+    @Test
+    void delete_shouldDeleteByIdAndGuarantees_whenMentor_andSkillsPresent() {
+        final long goalId = 6L;
+        final long requesterMentorId = 60L;
+
+        Skill skill1 = Skill.builder().id(1L).build();
+        Skill skill2 = Skill.builder().id(2L).build();
+
+        Goal goal = Goal.builder()
+                .id(goalId)
+                .mentor(User.builder().id(requesterMentorId).build())
+                .users(List.of(User.builder().id(601L).build()))
+                .skillsToAchieve(List.of(skill1, skill2))
+                .build();
+
+        when(userContext.getUserId()).thenReturn(requesterMentorId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(goalRepository.findByParent(goalId)).thenReturn(Stream.empty());
+
+        goalService.delete(goalId);
+
+        verify(goalRepository).deleteById(goalId);
+        verify(userSkillGuaranteeRepository).deleteBySkillId(1L);
+        verify(userSkillGuaranteeRepository).deleteBySkillId(2L);
+    }
+
+    @Test
+    void delete_shouldPropagateEntityNotFound_whenGoalDoesNotExist() {
+        final long goalId = 7L;
+        final long requesterId = 70L;
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenThrow(
+                new EntityNotFoundException("Goal %d not found".formatted(goalId))
+        );
+
+        TestUtils.assertThrowsWithMessage(
+                EntityNotFoundException.class,
+                "Goal %d not found".formatted(goalId),
+                () -> goalService.delete(goalId)
+        );
+    }
+
 
     private static class GoalMapperImplSpy implements GoalMapper {
 
