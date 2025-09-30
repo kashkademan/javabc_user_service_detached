@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.MentorshipServiceTest;
+package school.faang.user_service.service.mentorship.mentorship_service_test;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,6 @@ public class MentorshipServiceImplTest {
     void addMentorshipTest() {
         long mentorId = 1L;
         long menteeId = 2L;
-        long currentUserId = 1L;
 
         User mentor = new User();
         mentor.setId(mentorId);
@@ -48,6 +47,8 @@ public class MentorshipServiceImplTest {
         User mentee = new User();
         mentee.setId(menteeId);
         mentee.setMentors(new ArrayList<>());
+
+        long currentUserId = 1L;
 
         when(userContext.getUserId()).thenReturn(currentUserId);
         when(mentorshipRepository.getByIdOrThrow(mentorId)).thenReturn(mentor);
@@ -70,7 +71,6 @@ public class MentorshipServiceImplTest {
         User mentor = new User();
         mentor.setId(userId);
 
-        List<User> mentees = new ArrayList<>();
         User mentee1 = new User();
         mentee1.setId(2L);
         mentee1.setUsername("mentee1");
@@ -78,6 +78,8 @@ public class MentorshipServiceImplTest {
         User mentee2 = new User();
         mentee2.setId(3L);
         mentee2.setUsername("mentee2");
+
+        List<User> mentees = new ArrayList<>();
 
         mentees.add(mentee1);
         mentees.add(mentee2);
@@ -119,8 +121,6 @@ public class MentorshipServiceImplTest {
         User mentee = new User();
         mentee.setId(userId);
 
-        List<User> mentors = new ArrayList<>();
-
         User mentor1 = new User();
         mentor1.setId(2L);
         mentor1.setUsername("mentor1");
@@ -128,6 +128,8 @@ public class MentorshipServiceImplTest {
         User mentor2 = new User();
         mentor2.setId(3L);
         mentor2.setUsername("mentor2");
+
+        List<User> mentors = new ArrayList<>();
 
         mentors.add(mentor1);
         mentors.add(mentor2);
@@ -166,7 +168,6 @@ public class MentorshipServiceImplTest {
     void deleteMentorshipTest() {
         long mentorId = 1L;
         long menteeId = 2L;
-        long currentUserId = 1L;
 
         User mentor = new User();
         mentor.setId(mentorId);
@@ -178,6 +179,8 @@ public class MentorshipServiceImplTest {
 
         mentor.getMentees().add(mentee);
         mentee.getMentors().add(mentor);
+
+        long currentUserId = 1L;
 
         when(userContext.getUserId()).thenReturn(currentUserId);
         when(mentorshipRepository.getByIdOrThrow(mentorId)).thenReturn(mentor);
