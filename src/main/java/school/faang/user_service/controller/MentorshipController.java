@@ -19,30 +19,30 @@ import school.faang.user_service.service.mentorship.MentorshipService;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "api/mentorship", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1/mentorship", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/add")
+    @PostMapping
     public void addMentorship(@RequestBody @Valid MentorshipDtoRequest mentorshipDto) {
-        mentorshipService.addMentorship(mentorshipDto.getMentorId(), mentorshipDto.getMenteeId());
+        mentorshipService.addMentorship(mentorshipDto.mentorId(), mentorshipDto.menteeId());
     }
 
-    @GetMapping("/mentees/{userId}")
+    @GetMapping("/{userId}/mentees")
     public List<UserDto> getMentees(@PathVariable Long userId) {
         return mentorshipService.getMentees(userId);
     }
 
-    @GetMapping("/mentors/{userId}")
+    @GetMapping("/{userId}/mentors")
     public List<UserDto> getMentors(@PathVariable Long userId) {
         return mentorshipService.getMentors(userId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/remove")
-    public void deleteMentorship(@RequestBody @Valid MentorshipDtoRequest mentorshipDto) {
-        mentorshipService.deleteMentorship(mentorshipDto.getMentorId(), mentorshipDto.getMenteeId());
+    @DeleteMapping
+    public void deleteMentorship(@Valid MentorshipDtoRequest mentorshipDto) {
+        mentorshipService.deleteMentorship(mentorshipDto.mentorId(), mentorshipDto.menteeId());
     }
 }

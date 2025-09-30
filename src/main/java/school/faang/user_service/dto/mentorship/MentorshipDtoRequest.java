@@ -1,12 +1,12 @@
 package school.faang.user_service.dto.mentorship;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 
-@Getter
-public class MentorshipDtoRequest {
+
+public record MentorshipDtoRequest (
     @NotNull
-    private Long mentorId;
+    Long mentorId,
     @NotNull
-    private Long menteeId;
-}
+    Long menteeId
+) {}
+
