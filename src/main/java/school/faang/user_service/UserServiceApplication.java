@@ -45,7 +45,7 @@ public class UserServiceApplication implements CommandLineRunner {
 
         try {
             followUser(1L, 1L);
-           log.error("Ошибка: подписка на себя прошла");
+            log.error("Ошибка: подписка на себя прошла");
         } catch (DataValidationException e) {
             log.info("Тест пройден: " + e.getMessage());
         }

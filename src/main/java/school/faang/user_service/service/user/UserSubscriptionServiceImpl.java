@@ -98,8 +98,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         }
 
         filteredStream = filteredStream.filter(user ->
-                user.getExperience() >= filters.experienceMin() &&
-                        user.getExperience() <= filters.experienceMax());
+                user.getExperience() >= filters.experienceMin()
+                        && user.getExperience() <= filters.experienceMax());
 
         return filteredStream;
     }

@@ -16,7 +16,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserSubscriptionService;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/subscriptions")
