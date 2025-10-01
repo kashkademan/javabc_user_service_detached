@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
-@Slf4j
 @Component
+@Slf4j
 public class MentorshipServiceValidation {
     public boolean validationCurrentUser(long currentUserId, long mentorId, long menteeId) {
         if (currentUserId != menteeId && currentUserId != mentorId) {
