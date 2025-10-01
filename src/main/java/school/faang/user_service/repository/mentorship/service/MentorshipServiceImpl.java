@@ -3,15 +3,15 @@ package school.faang.user_service.repository.mentorship.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,18 +24,15 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MentorshipRepository mentorshipRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    @Autowired
+    private final MentorshipServiceValidation validation;
 
     @Override
     public void addMentorship(@NotNull long mentorId, @NotNull long menteeId) {
         long currentUserId = userContext.getUserId();
-        if (currentUserId != menteeId && currentUserId != mentorId) {
-            log.info("You can only manage your own mentorship relations");
-            throw new ForbiddenException("You can only manage your own mentorship relations");
-        }
-        if (menteeId == mentorId) {
-            log.info("User cannot be mentor for themselves");
-            throw new DataValidationException("User cannot be mentor for themselves");
-        }
+
+        validation.validationCurrentUser(currentUserId, mentorId, menteeId);
+        validation.validationIds(mentorId, menteeId);
 
         User mentor = mentorshipRepository.getByIdOrThrow(mentorId);
         User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
@@ -44,6 +41,7 @@ public class MentorshipServiceImpl implements MentorshipService {
             log.info("Mentor {} is already mentor for mentee {}", mentorId, menteeId);
             return;
         }
+
         mentor.getMentees().add(mentee);
         mentee.getMentors().add(mentor);
 
@@ -85,14 +83,10 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public void deleteMentorship(long menteeId, long mentorId) {
         long currentUserId = userContext.getUserId();
-        if (currentUserId != menteeId && currentUserId != mentorId) {
-            log.info("You can only manage your own mentorship relations");
-            throw new ForbiddenException("You can only manage your own mentorship relations");
-        }
-        if (menteeId == mentorId) {
-            log.info("The user cannot delete himself");
-            throw new DataValidationException("The user cannot delete himself");
-        }
+
+        validation.validationCurrentUser(currentUserId, mentorId, menteeId);
+        validation.validationIds(mentorId, menteeId);
+
         User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
         User mentor = mentorshipRepository.getByIdOrThrow(mentorId);
 

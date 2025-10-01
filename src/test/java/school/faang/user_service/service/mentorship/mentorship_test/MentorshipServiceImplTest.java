@@ -11,6 +11,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.repository.mentorship.service.MentorshipServiceImpl;
+import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,9 @@ public class MentorshipServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private MentorshipServiceValidation validation;
 
     @Test
     void addMentorshipTest() {
@@ -185,6 +189,8 @@ public class MentorshipServiceImplTest {
         when(userContext.getUserId()).thenReturn(currentUserId);
         when(mentorshipRepository.getByIdOrThrow(mentorId)).thenReturn(mentor);
         when(mentorshipRepository.getByIdOrThrow(menteeId)).thenReturn(mentee);
+        when(validation.validationCurrentUser(currentUserId, mentorId, menteeId)).thenReturn(true);
+        when(validation.validationIds(mentorId, menteeId)).thenReturn(true);
 
         mentorshipService.deleteMentorship(menteeId, mentorId);
 
