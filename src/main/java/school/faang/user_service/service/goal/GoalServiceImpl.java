@@ -8,6 +8,7 @@ import org.springframework.util.ObjectUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 @Service
@@ -161,6 +163,38 @@ public class GoalServiceImpl implements GoalService {
         if (!skills.isEmpty()) {
             skills.forEach(s -> userSkillGuaranteeRepository.deleteBySkillId(s.getId()));
         }
+    }
+
+    @Override
+    public List<GoalDto> getByFilters(GoalFilterDto filters) {
+        Long requesterId = userContext.getUserId();
+        userRepository.findById(requesterId).orElseThrow(
+                () -> new EntityNotFoundException("User %s not found".formatted(requesterId))
+        );
+
+        Predicate<Goal> predicate = goal -> true;
+
+        if (filters.titleContains() != null) {
+            predicate = predicate.and(goal -> goal.getTitle().contains(filters.titleContains()));
+        }
+
+        if (filters.descriptionContains() != null) {
+            predicate = predicate.and(goal -> goal.getDescription().contains(filters.descriptionContains()));
+        }
+
+        if (filters.status() != null) {
+            predicate = predicate.and(goal -> goal.getStatus().equals(filters.status()));
+        }
+
+        if (filters.mentorId() != null) {
+            predicate = predicate.and(goal -> Objects.nonNull(goal.getMentor()));
+            predicate = predicate.and(goal -> goal.getMentor().getId().equals(filters.mentorId()));
+        }
+
+        return goalRepository.findAll()
+                .stream()
+                .filter(predicate).map(goalMapper::toGoalDto)
+                .toList();
     }
 
     private void validateCreateGoalRequest(CreateGoalDto createGoalDto, Long requesterId) {

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -691,6 +693,376 @@ class GoalServiceImplTest {
         );
     }
 
+    @Test
+    void getByFilters_shouldReturnAllGoals_whenNoFiltersProvided() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Description 1")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Goal 2")
+                .description("Description 2")
+                .status(GoalStatus.COMPLETED)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto(null, null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByTitleContains() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Java Learning")
+                .description("Learn Java")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Python Learning")
+                .description("Learn Python")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto("Java", null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(1, result.size());
+        assertEquals("Java Learning", result.get(0).title());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByDescriptionContains() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Learn programming basics")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Goal 2")
+                .description("Learn database design")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto(null, "programming", null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(1, result.size());
+        assertEquals("Learn programming basics", result.get(0).description());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByStatus() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Description 1")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Goal 2")
+                .description("Description 2")
+                .status(GoalStatus.COMPLETED)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto(null, null, GoalStatus.ACTIVE, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(1, result.size());
+        assertEquals(GoalStatus.ACTIVE, result.get(0).status());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByMentorId() {
+        Long requesterId = 1L;
+        Long mentorId = 2L;
+        User user = User.builder().id(requesterId).build();
+        User mentor = User.builder().id(mentorId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Description 1")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Goal 2")
+                .description("Description 2")
+                .status(GoalStatus.ACTIVE)
+                .mentor(null)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto(null, null, null, mentorId);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(1, result.size());
+        assertEquals(mentorId, result.get(0).mentorId());
+    }
+
+    @Test
+    void getByFilters_shouldApplyMultipleFilters() {
+        Long requesterId = 1L;
+        Long mentorId = 2L;
+        User user = User.builder().id(requesterId).build();
+        User mentor = User.builder().id(mentorId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Java Learning")
+                .description("Learn Java programming")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Python Learning")
+                .description("Learn Python programming")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        Goal goal3 = Goal.builder()
+                .id(3L)
+                .title("Java Advanced")
+                .description("Advanced Java concepts")
+                .status(GoalStatus.COMPLETED)
+                .mentor(mentor)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2, goal3);
+        GoalFilterDto filters = new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(1, result.size());
+        assertEquals("Java Learning", result.get(0).title());
+        assertEquals(GoalStatus.ACTIVE, result.get(0).status());
+        assertEquals(mentorId, result.get(0).mentorId());
+    }
+
+    @Test
+    void getByFilters_shouldReturnEmptyList_whenNoMatchesFound() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Description 1")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        List<Goal> allGoals = List.of(goal1);
+        GoalFilterDto filters = new GoalFilterDto("NonExistent", null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getByFilters_shouldHandlePartialMatches() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Java Programming Course")
+                .description("Learn Java")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("JavaScript Course")
+                .description("Learn JavaScript")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto("Java", null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(2, result.size());
+        assertEquals("Java Programming Course", result.get(0).title());
+    }
+
+    @Test
+    void getByFilters_shouldHandleCaseSensitiveMatches() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Java Learning")
+                .description("Learn Java")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("python learning")
+                .description("Learn Python")
+                .status(GoalStatus.ACTIVE)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto("java", null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByMentorId_whenMentorIsNull() {
+        Long requesterId = 1L;
+        Long mentorId = 2L;
+        User user = User.builder().id(requesterId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Goal 1")
+                .description("Description 1")
+                .status(GoalStatus.ACTIVE)
+                .mentor(null)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Goal 2")
+                .description("Description 2")
+                .status(GoalStatus.ACTIVE)
+                .mentor(null)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2);
+        GoalFilterDto filters = new GoalFilterDto(null, null, null, mentorId);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getByFilters_shouldThrowException_whenUserNotFound() {
+        Long requesterId = 1L;
+        GoalFilterDto filters = new GoalFilterDto(null, null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> goalService.getByFilters(filters));
+
+        assertEquals("User 1 not found", exception.getMessage());
+    }
+
+    @Test
+    void getByFilters_shouldHandleEmptyGoalList() {
+        Long requesterId = 1L;
+        User user = User.builder().id(requesterId).build();
+        List<Goal> emptyGoals = List.of();
+        GoalFilterDto filters = new GoalFilterDto(null, null, null, null);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(emptyGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getByFilters_shouldFilterByAllFields() {
+        Long requesterId = 1L;
+        Long mentorId = 2L;
+        User user = User.builder().id(requesterId).build();
+        User mentor = User.builder().id(mentorId).build();
+        Goal goal1 = Goal.builder()
+                .id(1L)
+                .title("Java Learning")
+                .description("Learn Java programming")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        Goal goal2 = Goal.builder()
+                .id(2L)
+                .title("Java Advanced")
+                .description("Advanced Java programming")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        Goal goal3 = Goal.builder()
+                .id(3L)
+                .title("Python Learning")
+                .description("Learn Python programming")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .build();
+        List<Goal> allGoals = List.of(goal1, goal2, goal3);
+        GoalFilterDto filters = new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
+        when(goalRepository.findAll()).thenReturn(allGoals);
+
+        List<GoalDto> result = goalService.getByFilters(filters);
+
+        assertEquals(2, result.size());
+        assertEquals("Java Learning", result.get(0).title());
+        assertEquals("Java Advanced", result.get(1).title());
+    }
 
     private static class GoalMapperImplSpy implements GoalMapper {
 

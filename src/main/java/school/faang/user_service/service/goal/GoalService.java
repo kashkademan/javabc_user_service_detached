@@ -2,6 +2,9 @@ package school.faang.user_service.service.goal;
 
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+
+import java.util.List;
 
 /**
  * Сервис для управления целями.
@@ -75,4 +78,51 @@ public interface GoalService {
      * @throws school.faang.user_service.exception.ForbiddenException при нарушении правил доступа/удаления
      */
     void delete(long goalId);
+
+    /**
+     * Получает список целей с применением фильтров.
+     * <p>
+     * Метод выполняет фильтрацию целей по заданным критериям и возвращает результат в виде DTO.
+     * Фильтрация происходит в памяти после получения всех целей из репозитория.
+     * <p>
+     * Поддерживаемые фильтры:
+     * <ul>
+     *     <li>{@code titleContains} - поиск по частичному совпадению в названии цели (регистрозависимый)</li>
+     *     <li>{@code descriptionContains} - поиск по частичному совпадению в описании цели (регистрозависимый)</li>
+     *     <li>{@code status} - точное совпадение статуса цели</li>
+     *     <li>{@code mentorId} - фильтрация по идентификатору ментора цели</li>
+     * </ul>
+     * <p>
+     * Правила фильтрации:
+     * <ul>
+     *     <li>Если фильтр равен {@code null}, он игнорируется</li>
+     *     <li>Все фильтры применяются одновременно (логическое И)</li>
+     *     <li>Поиск по тексту чувствителен к регистру</li>
+     *     <li>Для {@code mentorId} проверяется точное совпадение с ментором цели</li>
+     *     <li>Если у цели нет ментора, она не пройдет фильтр по {@code mentorId}</li>
+     * </ul>
+     * <p>
+     * Валидация и побочные эффекты:
+     * <ul>
+     *     <li>Текущий пользователь должен существовать в системе; иначе {@code EntityNotFoundException}</li>
+     *     <li>Метод получает все цели из репозитория и применяет фильтры в памяти</li>
+     *     <li>Результат преобразуется в DTO с помощью маппера</li>
+     * </ul>
+     * <p>
+     * Примеры использования:
+     * <pre>{@code
+     * // Поиск всех активных целей
+     * GoalFilterDto filters = new GoalFilterDto(null, null, GoalStatus.ACTIVE, null);
+     * List<GoalDto> activeGoals = goalService.getByFilters(filters);
+     * 
+     * // Поиск целей с "Java" в названии и ментором с ID 123
+     * GoalFilterDto filters = new GoalFilterDto("Java", null, null, 123L);
+     * List<GoalDto> javaGoals = goalService.getByFilters(filters);
+     * }</pre>
+     *
+     * @param filters объект с критериями фильтрации
+     * @return список целей, соответствующих заданным фильтрам
+     * @throws school.faang.user_service.exception.EntityNotFoundException если текущий пользователь не найден в системе
+     */
+    List<GoalDto> getByFilters(GoalFilterDto filters);
 }
