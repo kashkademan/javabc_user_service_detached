@@ -18,8 +18,11 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Slf4j
 public class CareerServiceImpl implements CareerService {
+
     private final UserRepository userRepository;
+
     private final CareerRepository careerRepository;
+
     private final CareerMapper careerMapper;
 
     @Override
@@ -32,7 +35,7 @@ public class CareerServiceImpl implements CareerService {
         career.setUser(user);
         careerRepository.save(career);
         log.info("Career successfully added!");
-        return careerMapper.toDTO(career);
+        return careerMapper.toDto(career);
     }
 
     @Override
@@ -48,10 +51,11 @@ public class CareerServiceImpl implements CareerService {
         career.setUser(newCareer.getUser());
         careerRepository.save(career);
         log.info("Career successfully updated!");
-        return careerMapper.toDTO(career);
+        return careerMapper.toDto(career);
     }
+
     @Override
-    public CareerDto getById(long careerId){
-        return careerMapper.toDTO(careerRepository.getByIdOrThrow(careerId));
+    public CareerDto getById(long careerId) {
+        return careerMapper.toDto(careerRepository.getByIdOrThrow(careerId));
     }
 }

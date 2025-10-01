@@ -6,7 +6,9 @@ import school.faang.user_service.entity.user.Career;
 
 @Mapper(componentModel = "spring")
 public interface CareerMapper {
+
     Career toEntity(CareerDto careerDto);
-    CareerDto toDTO(Career career);
+
+    CareerDto toDto(Career career);
 
 }

@@ -12,7 +12,9 @@ import java.time.LocalDate;
 @Controller
 @RequiredArgsConstructor
 public class CareerController {
+
     private CareerService careerService;
+
     private UserContext userContext;
 
     public CareerDto addCareer(long id, CareerDto careerDto) {
@@ -30,7 +32,8 @@ public class CareerController {
         validateNotNull(careerDto.getFrom(), careerDto.getCompany(), careerDto.getPosition());
         return careerService.updateCareer(userId, careerId, careerDto);
     }
-    public CareerDto getById(long careerId){
+
+    public CareerDto getById(long careerId) {
         return careerService.getById(careerId);
     }
 }
