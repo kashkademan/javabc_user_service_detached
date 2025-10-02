@@ -1,9 +1,11 @@
 package school.faang.user_service.dto.event;
 
-import lombok.Getter;
+import jakarta.validation.constraints.NotNull;
 
-@Getter
-public class EventRequestDto {
-    public Long eventId;
-    public Long userId;
+public record EventRequestDto(
+        @NotNull
+        Long eventId,
+        @NotNull
+        Long userId
+) {
 }

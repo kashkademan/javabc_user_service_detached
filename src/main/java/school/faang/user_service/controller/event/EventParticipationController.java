@@ -35,7 +35,7 @@ public class EventParticipationController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
     public void registerParticipant(@RequestBody EventRequestDto eventRequestDto) {
-        eventParticipationService.registerParticipant(eventRequestDto.getEventId(), eventRequestDto.getUserId());
+        eventParticipationService.registerParticipant(eventRequestDto.eventId(), eventRequestDto.userId());
     }
 
     @GetMapping("/count-users/{eventId}")
@@ -45,6 +45,6 @@ public class EventParticipationController {
 
     @PutMapping()
     public void unregisterParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
-        eventParticipationService.unregisteredParticipation(eventRequestDto.getEventId(), eventRequestDto.getUserId());
+        eventParticipationService.unregisteredParticipation(eventRequestDto.eventId(), eventRequestDto.userId());
     }
 }
