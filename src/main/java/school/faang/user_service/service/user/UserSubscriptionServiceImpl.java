@@ -1,7 +1,7 @@
 package school.faang.user_service.service.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.CountResponse;
@@ -9,13 +9,15 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Этот сервис обрабатывает операции подписки, такие как подписывание и отмена подписки на пользователей,
@@ -26,20 +28,15 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
+    public static final String FOLLOWERS = "follower(s)";
+    public static final String FOLLOWEES = "followee(s)";
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    @Autowired
-    public UserSubscriptionServiceImpl(SubscriptionRepository subscriptionRepository,
-                                       UserRepository userRepository,
-                                       UserMapper userMapper) {
-        this.subscriptionRepository = subscriptionRepository;
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
+    private final List<UserFilter> userFilters;
 
     @Override
     @Transactional
@@ -60,13 +57,6 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         log.info("User with ID {} no longer follows user with ID {}", followerId, followeeId);
     }
 
-    private void validateExistingFollowing(long followerId, long followeeId) {
-        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(String.format("User with ID %d is not following user with ID %d",
-                followerId, followeeId));
-        }
-    }
-
     @Override
     public CountResponse getFollowersCount(long followeeId) {
         int followersCount = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
@@ -84,25 +74,38 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     @Transactional
     public List<UserDto> getFollowers(long followeeId, UserFiltersDto userFiltersDto) {
-        return subscriptionRepository.findByFolloweeId(followeeId)
-            .filter(user -> userMatchesFilters(user, userFiltersDto))
-            .map(userMapper::toUserDto)
-            .peek(p -> {
-                log.info("User name found in followers: {}", p.username());
-            })
-            .collect(Collectors.toList());
+        return getUsersByUserId(followeeId, userFiltersDto, subscriptionRepository::findByFolloweeId, FOLLOWERS);
     }
 
     @Override
     @Transactional
     public List<UserDto> getFollowees(long followerId, UserFiltersDto userFiltersDto) {
-        return subscriptionRepository.findByFollowerId(followerId)
-            .filter(user -> userMatchesFilters(user, userFiltersDto))
+        return getUsersByUserId(followerId, userFiltersDto, subscriptionRepository::findByFollowerId, FOLLOWEES);
+    }
+
+    private List<UserDto> getUsersByUserId(long userId,
+                                           UserFiltersDto userFiltersDto,
+                                           Function<Long, Stream<User>> findUsersFunction,
+                                           String usersType) {
+        Stream<User> usersStream = findUsersFunction.apply(userId);
+
+        for (UserFilter filter : userFilters) {
+            if (filter.isApplicable(userFiltersDto)) {
+                usersStream = filter.apply(usersStream, userFiltersDto);
+            }
+        }
+
+        return usersStream
             .map(userMapper::toUserDto)
-            .peek(p -> {
-                log.info("User name found in followees: {}", p.username());
-            })
+            .peek(userDto -> log.info("User name found in {}: {}", usersType, userDto.username()))
             .collect(Collectors.toList());
+    }
+
+    private void validateExistingFollowing(long followerId, long followeeId) {
+        if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
+            throw new DataValidationException(String.format("User with ID %d is not following user with ID %d",
+                    followerId, followeeId));
+        }
     }
 
     private void validateUserExists(long userId, String userType) {
@@ -112,8 +115,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     private void validateExistence(long followerId, long followeeId) {
-        validateUserExists(followerId, "Follower");
-        validateUserExists(followeeId, "Followee");
+        validateUserExists(followerId, FOLLOWERS);
+        validateUserExists(followeeId, FOLLOWEES);
     }
 
     private void validateSelfSubscription(long followerId, long followeeId) {
@@ -126,23 +129,5 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("You are already following this user.");
         }
-    }
-
-    private boolean userMatchesFilters(User user, UserFiltersDto filter) {
-        return matchesNamePattern(user, filter)
-            && matchesPhonePattern(user, filter)
-            && matchesExperienceRange(user, filter);
-    }
-
-    private boolean matchesNamePattern(User user, UserFiltersDto filter) {
-        return Objects.isNull(filter.getNamePattern()) || user.getUsername().contains(filter.getNamePattern());
-    }
-
-    private boolean matchesPhonePattern(User user, UserFiltersDto filter) {
-        return Objects.isNull(filter.getPhonePattern()) || user.getPhone().contains(filter.getPhonePattern());
-    }
-
-    private boolean matchesExperienceRange(User user, UserFiltersDto filter) {
-        return user.getExperience() >= filter.getExperienceMin() && user.getExperience() <= filter.getExperienceMax();
     }
 }
