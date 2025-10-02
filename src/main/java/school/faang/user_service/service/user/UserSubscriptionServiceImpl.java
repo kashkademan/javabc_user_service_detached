@@ -25,44 +25,44 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     @Override
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            log.warn("Пользователь {} попытался подписаться на самого себя", followerId);
-            throw new DataValidationException("Пользователь не может подписаться на самого себя");
+            log.warn("The user {} tried to subscribe to himself", followerId);
+            throw new DataValidationException("The user cannot subscribe to himself");
         }
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("Пользователь {} уже подписан на пользователя {}", followerId, followeeId);
-            throw new DataValidationException("Вы уже подписаны на данного пользователя");
+            log.warn("The user {} is already subscribed to the user {}", followerId, followeeId);
+            throw new DataValidationException("You have already subscribed to this user");
         }
 
         subscriptionRepository.followUser(followerId, followeeId);
-        log.info("Пользователь {} успешно подписался на пользователя {}",
+        log.info("The user {} successfully subscribed to the user {}",
                 followerId, followeeId);
     }
 
     @Override
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            log.warn("Пользователь {} попытался отписаться от самого себя", followerId);
-            throw new DataValidationException("Пользователь не может отписаться от самого себя");
+            log.warn("The user {} tried to unsubscribe from himself", followerId);
+            throw new DataValidationException("The user can't unsubscribe from himself");
         }
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("Пользователь {} не подписан на пользователя {}", followerId, followeeId);
-            throw new DataValidationException("Пользователь не подписан на данного пользователя");
+            log.warn("The user {} is not subscribed to the user {}", followerId, followeeId);
+            throw new DataValidationException("The user is not subscribed to this user");
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
-        log.info("Пользователь {} успешно отписался от пользователя {}", followerId, followeeId);
+        log.info("The user {} has successfully unsubscribed from the user {}", followerId, followeeId);
     }
 
     @Override
     public CountResponse getFollowersCount(long followeeId) {
         long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
-        log.debug("Количество подписчиков пользователя {}: {}", followeeId, count);
+        log.debug("Number of subscribers of the user {}: {}", followeeId, count);
         return new CountResponse(count);
     }
 
     @Override
     public CountResponse getFolloweesCount(long followerId) {
         long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
-        log.debug("Количество подписок пользователя {}: {}", followerId, count);
+        log.debug("Number of user subscriptions {}: {}", followerId, count);
         return new CountResponse(count);
     }
 

@@ -30,10 +30,10 @@ public class UserSubscriptionController {
         long followerId = userContext.getUserId();
 
         if (followerId == followeeId) {
-            throw new DataValidationException("Нельзя подписаться на самого себя");
+            throw new DataValidationException("You can't subscribe to yourself");
         }
 
-        log.info("Пользователь {} подписывается на {}", followerId, followeeId);
+        log.info("The user {} подписывается на {}", followerId, followeeId);
         userSubscriptionService.followUser(followerId, followeeId);
     }
 
@@ -42,35 +42,35 @@ public class UserSubscriptionController {
         long followerId = userContext.getUserId();
 
         if (followerId == followeeId) {
-            throw new DataValidationException("Нельзя отписаться от самого себя");
+            throw new DataValidationException("You can't unsubscribe from yourself");
         }
 
-        log.info("Пользователь {} отписывается от {}", followerId, followeeId);
+        log.info("The user {} unsubscribes from {}", followerId, followeeId);
         userSubscriptionService.unfollowUser(followerId, followeeId);
     }
 
     @GetMapping("/{followeeId}/followers/count")
     public CountResponse getFollowersCount(@PathVariable long followeeId) {
-        log.debug("Запрос количества подписчиков для пользователя: {}", followeeId);
+        log.debug("Requesting the number of subscribers for a user: {}", followeeId);
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
     @GetMapping("/{followerId}/followees/count")
     public CountResponse getFolloweesCount(@PathVariable long followerId) {
-        log.debug("Запрос количества подписок для пользователя: {}", followerId);
+        log.debug("Requesting the number of subscriptions for a user: {}", followerId);
         return userSubscriptionService.getFolloweesCount(followerId);
     }
 
     @GetMapping("/{followeeId}/followers")
     public List<UserDto> getFollowers(@PathVariable long followeeId) {
-        log.debug("Запрос списка подписчиков для пользователя: {}", followeeId);
+        log.debug("Requesting a list of subscribers for a user: {}", followeeId);
         return userSubscriptionService.getFollowers(followeeId,
                 new UserFiltersDto(null, null, 0, Integer.MAX_VALUE));
     }
 
     @GetMapping("/{followerId}/followees")
     public List<UserDto> getFollowees(@PathVariable long followerId) {
-        log.debug("Запрос списка подписок для пользователя: {}", followerId);
+        log.debug("Requesting a list of subscriptions for a user: {}", followerId);
         return userSubscriptionService.getFollowees(followerId,
                 new UserFiltersDto(null, null, 0, Integer.MAX_VALUE));
     }
