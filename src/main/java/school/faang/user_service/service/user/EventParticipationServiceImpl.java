@@ -27,16 +27,15 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     private final UserContext userContext;
 
     @Override
-    public List<UserDto> getAllParticipantsByEventId(long eventId) {
+    public List<UserDto> getAllParticipantsByEventId(Long eventId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
                 .map(userMapper::toUserDto)
                 .toList();
     }
 
-
     @Override
     @Transactional
-    public void registerParticipant(long eventId, long userId) {
+    public void registerParticipant(Long eventId, Long userId) {
        if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
             throw new EntityNotFoundException("Вы уже зарегистрированны на событие!");
         }
@@ -44,26 +43,25 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     }
 
     @Override
-    public CountResponse countParticipantsByEventId(long eventId) {
+    public CountResponse countParticipantsByEventId(Long eventId) {
         return new CountResponse(eventParticipationRepository.countParticipants(eventId));
     }
 
     @Override
-    @Transactional
-    public void unregisteredParticipation(long eventId, long userId) {
+    public void unregisteredParticipation(Long eventId, Long userId) {
         if (!isAttendeesUser(eventId, userId) && checkUser(userId)) {
             throw new EntityNotFoundException("Вы не состоите в событии!");
         }
         eventParticipationRepository.unregister(eventId, userId);
     }
 
-    private boolean isAttendeesUser(long eventId, long userId) {
+    private boolean isAttendeesUser(Long eventId, Long userId) {
         return eventRepository.getByIdOrThrow(eventId).getAttendees().stream()
                 .map(User::getId)
-                .anyMatch(idUser -> idUser == userId);
+                .anyMatch(idUser -> idUser.equals(userId));
     }
 
-    private boolean checkUser(long userId) {
+    private boolean checkUser(Long userId) {
         if (userContext.getUserId() != userId) {
             log.warn("{} - Пытается редактировать или удалить чужие данные", userContext.getUserId());
             throw new ForbiddenException("Вы не можете редактировать или удалять чужие данные!");

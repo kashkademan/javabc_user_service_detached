@@ -19,7 +19,7 @@ public interface EventParticipationService {
      * @param eventId ID события
      * @param userId ID пользователя
      */
-    void registerParticipant(long eventId, long userId);
+    void registerParticipant(Long eventId, Long userId);
 
     /**
      * Отписывает пользователя от события
@@ -28,19 +28,19 @@ public interface EventParticipationService {
      * @param userId ID пользователя
      */
 
-    void unregisteredParticipation(long eventId, long userId);
+    void unregisteredParticipation(Long eventId, Long userId);
 
     /**
      * Получения количества участников события
      *
      * @param eventId ID события
      */
-    CountResponse countParticipantsByEventId(long eventId);
+    CountResponse countParticipantsByEventId(Long eventId);
 
     /**
      * Получения списка участников события
      *
      * @param eventId ID события
      */
-    List<UserDto> getAllParticipantsByEventId(long eventId);
+    List<UserDto> getAllParticipantsByEventId(Long eventId);
 }
