@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
@@ -28,11 +27,13 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public void addMentorship(Long mentorId, Long menteeId) {
         checkDuplicateMentorship(mentorId, menteeId);
-        User mentor = mentorshipRepository.getByIdOrThrow(mentorId);
-        User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
 
-        mentor.getMentees().add(mentee);
-        mentee.getMentors().add(mentor);
+        if (mentorshipRepository.existsMentorship(mentorId, menteeId)) {
+            log.warn("Связь между mentor {} и mentee {} уже существует", mentorId, menteeId);
+            throw new DataValidationException("Связь уже существует");
+        }
+
+        mentorshipRepository.addMentorshipNative(mentorId, menteeId);
     }
 
     @Override
@@ -52,18 +53,14 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Transactional
     @Override
     public void deleteMentorship(Long mentorId, Long menteeId) {
-        Long userId = userContext.getUserId();
-        if (!userId.equals(mentorId) && !userId.equals(menteeId)) {
+        Long currentUserId = userContext.getUserId();
+        if (!currentUserId.equals(menteeId) && !currentUserId.equals(mentorId)) {
             throw new ForbiddenException("Недостаточно прав");
         }
 
         checkDuplicateMentorship(menteeId, mentorId);
 
-        User mentor = mentorshipRepository.getByIdOrThrow(mentorId);
-        User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
-
-        mentor.getMentees().remove(mentee);
-        mentee.getMentors().remove(mentor);
+        mentorshipRepository.deleteMentorshipNative(mentorId, menteeId);
     }
 
     private void checkDuplicateMentorship(Long menteeId, Long mentorId) {

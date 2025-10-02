@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import school.faang.user_service.dto.mentorship.MentorshipDtoRequest;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
@@ -41,8 +42,8 @@ public class MentorshipController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping
-    public void deleteMentorship(@Valid MentorshipDtoRequest mentorshipDto) {
-        mentorshipService.deleteMentorship(mentorshipDto.mentorId(), mentorshipDto.menteeId());
+    @DeleteMapping("/{userId}")
+    public void deleteMentorship(@PathVariable Long userId, @RequestParam Long mentorId) {
+        mentorshipService.deleteMentorship(mentorId, userId);
     }
 }
