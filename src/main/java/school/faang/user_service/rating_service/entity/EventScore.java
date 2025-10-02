@@ -33,7 +33,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "default_score")
+@Table(name = "event_score")
 public class EventScore {
 
     @Id

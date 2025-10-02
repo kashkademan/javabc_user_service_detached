@@ -17,6 +17,8 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -63,6 +65,14 @@ public class UserServiceImpl implements UserService {
     public UserViewDto getById(Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserViewDto> getByIds(List<Long> userIds) {
+        List<User> user = userRepository.findAllById(userIds);
+        return user.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     private void validateUserPassword(UserCreateDto userDto) {

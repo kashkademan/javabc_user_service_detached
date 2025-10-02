@@ -18,7 +18,6 @@ import java.util.List;
  * @author Linempy
  * @since 08.09.2025
  */
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/leaderboard")

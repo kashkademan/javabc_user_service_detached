@@ -18,4 +18,6 @@ public interface UserSubscriptionService {
     List<UserViewDto> getFollowers(long followeeId, UserFiltersDto filters);
 
     List<UserViewDto> getFollowees(long followerId, UserFiltersDto filters);
+
+    List<Long> getFollowerIds(Long followee);
 }

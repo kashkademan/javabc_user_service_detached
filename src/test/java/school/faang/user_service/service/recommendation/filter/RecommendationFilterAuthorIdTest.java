@@ -9,6 +9,7 @@ import school.faang.user_service.entity.user.User;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,7 +42,7 @@ public class RecommendationFilterAuthorIdTest {
     void testFilterReturnOnlyAuthorId() {
         Long authorId = 1L;
 
-        RecommendationFilterDto filterDto = new RecommendationFilterDto("Привет", authorId, null);
+        RecommendationFilterDto filterDto = new RecommendationFilterDto(null, authorId, null);
 
         Stream<Recommendation> result = recommendationFilter.filter(createTestRecommendations(authorId), filterDto);
 
@@ -51,9 +52,12 @@ public class RecommendationFilterAuthorIdTest {
         );
 
         List<Recommendation> resultList = result.toList();
-        List<Recommendation> expectedList = expectedRecommendations.toList();
 
-        assertEquals(resultList, expectedList);
+        assertThat(resultList)
+                .hasSize(2)
+                .allSatisfy(rec -> {
+                    assertThat(rec.getAuthor().getId()).isEqualTo(authorId);
+                });
         assertEquals(2, resultList.size());
     }
 
@@ -94,6 +98,7 @@ public class RecommendationFilterAuthorIdTest {
     private Recommendation createRecommendation(Long authorId) {
         return Recommendation.builder()
                 .author(User.builder().id(authorId).build())
+                .content("Привет")
                 .build();
     }
 }
