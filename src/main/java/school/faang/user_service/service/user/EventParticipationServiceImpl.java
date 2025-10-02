@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class EventParticipationServiceImpl implements EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final EventRepository eventRepository;
@@ -31,9 +33,11 @@ public class EventParticipationServiceImpl implements EventParticipationService 
                 .toList();
     }
 
+
     @Override
+    @Transactional
     public void registerParticipant(long eventId, long userId) {
-        if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
+       if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
             throw new EntityNotFoundException("Вы уже зарегистрированны на событие!");
         }
         eventParticipationRepository.register(eventId, userId);
@@ -45,6 +49,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     }
 
     @Override
+    @Transactional
     public void unregisteredParticipation(long eventId, long userId) {
         if (!isAttendeesUser(eventId, userId) && checkUser(userId)) {
             throw new EntityNotFoundException("Вы не состоите в событии!");
