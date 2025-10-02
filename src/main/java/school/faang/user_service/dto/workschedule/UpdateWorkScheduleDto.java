@@ -8,4 +8,5 @@ public record UpdateWorkScheduleDto(
         LocalTime startLunch,
         LocalTime endLunch,
         String timezone
-) {}
+) {
+}
