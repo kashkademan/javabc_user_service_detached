@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public  class CountResponse {
+public class CountResponse {
     private Long count;
 }

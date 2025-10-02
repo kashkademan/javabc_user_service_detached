@@ -1,9 +1,9 @@
 package school.faang.user_service.service.user;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
@@ -36,7 +36,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     @Override
     @Transactional
     public void registerParticipant(Long eventId, Long userId) {
-       if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
+        if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
             throw new EntityNotFoundException("Вы уже зарегистрированны на событие!");
         }
         eventParticipationRepository.register(eventId, userId);
