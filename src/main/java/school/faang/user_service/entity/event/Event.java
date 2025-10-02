@@ -52,7 +52,7 @@ public class Event {
     @Column(name = "end_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime endDate;
 
-    @Column(name = "location", length = 128)
+    @Column(name = "location", length = 128, nullable = false)
     private String location;
 
     @Column(name = "max_attendees")
