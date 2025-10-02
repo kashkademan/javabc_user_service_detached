@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventRequestDto;
@@ -28,13 +27,13 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @GetMapping("/{eventId}")
-    public @ResponseBody List<UserDto> getAllParticipantsByEventId(@PathVariable Long eventId) {
+    public List<UserDto> getAllParticipantsByEventId(@PathVariable Long eventId) {
         return eventParticipationService.getAllParticipantsByEventId(eventId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping()
-    public void registerParticipant(@RequestBody EventRequestDto eventRequestDto) {
+    @PostMapping
+    public void registerParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
         eventParticipationService.registerParticipant(eventRequestDto.eventId(), eventRequestDto.userId());
     }
 
@@ -43,7 +42,7 @@ public class EventParticipationController {
         return eventParticipationService.countParticipantsByEventId(eventId);
     }
 
-    @PutMapping()
+    @PutMapping
     public void unregisterParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
         eventParticipationService.unregisteredParticipation(eventRequestDto.eventId(), eventRequestDto.userId());
     }

@@ -49,6 +49,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     }
 
     @Override
+    @Transactional
     public void unregisteredParticipation(Long eventId, Long userId) {
         if (!isAttendeesUser(eventId, userId) && checkUser(userId)) {
             log.warn("Пользователь не состоит в событии");
