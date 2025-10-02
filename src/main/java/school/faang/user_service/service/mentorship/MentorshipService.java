@@ -43,7 +43,8 @@ public interface MentorshipService {
      *
      * @param menteeId the identifier of the mentee
      * @param mentorId the identifier of the mentor
-     * @throws school.faang.user_service.exception.ForbiddenException if the current user is not a participant in the mentorship
+     * @throws school.faang.user_service.exception.ForbiddenException
+     * if the current user is not a participant in the mentorship
      */
     void deleteMentorship(long menteeId, long mentorId);
 }
