@@ -6,6 +6,7 @@ import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleValidator;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
@@ -30,6 +31,30 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         WorkSchedule savedWorkSchedule = workScheduleRepository.save(workSchedule);
 
         return workScheduleMapper.toWorkScheduleDto(savedWorkSchedule);
+    }
+
+    @Override
+    public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleDto workScheduleDto) {
+        workScheduleValidator.validate(workScheduleDto);
+
+        WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
+        if (!(userId == workSchedule.getId())) {
+            throw new ForbiddenException("Вы пытаетесь обновить чужие данные");
+        }
+
+        User user = workSchedule.getUser();
+        WorkSchedule savedWorkSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
+        savedWorkSchedule.setUser(user);
+        workScheduleRepository.save(savedWorkSchedule);
+
+        return workScheduleMapper.toWorkScheduleDto(savedWorkSchedule);
+    }
+
+    @Override
+    public WorkScheduleDto getById(long workScheduleId) {
+        WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
+
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
 }
