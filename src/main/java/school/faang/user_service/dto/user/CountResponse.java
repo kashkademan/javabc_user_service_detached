@@ -1,3 +1,4 @@
 package school.faang.user_service.dto.user;
 
-public record CountResponse (Long count) {}
+public record CountResponse(Long count) {
+}
