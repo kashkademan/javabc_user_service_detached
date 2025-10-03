@@ -12,5 +12,5 @@ public class CreateMentorshipRequest {
     private Long mentorId;
 
     @NotNull(message = "Mentee ID if required")
-    private Long MenteeId;
+    private Long menteeId;
 }
