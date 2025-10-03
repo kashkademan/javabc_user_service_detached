@@ -48,15 +48,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
-    @Mock private GoalRepository goalRepository;
-    @Mock private UserRepository userRepository;
-    @Spy private GoalMapper goalMapper = new GoalMapperImplSpy();
-    @Mock private UserContext userContext;
-    @Mock private SkillRepository skillRepository;
-    @Mock private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
-    @InjectMocks private GoalService goalService;
-    @Captor private ArgumentCaptor<Goal> goalCaptor;
-    @Captor private ArgumentCaptor<List<UserSkillGuarantee>> guaranteesCaptor;
+    @Mock
+    private GoalRepository goalRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Spy
+    private GoalMapper goalMapper = new GoalMapperImplSpy();
+    @Mock
+    private UserContext userContext;
+    @Mock
+    private SkillRepository skillRepository;
+    @Mock
+    private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    @InjectMocks
+    private GoalService goalService;
+    @Captor
+    private ArgumentCaptor<Goal> goalCaptor;
+    @Captor
+    private ArgumentCaptor<List<UserSkillGuarantee>> guaranteesCaptor;
 
     @ParameterizedTest
     @MethodSource("invalidDeadlines")
@@ -256,7 +265,8 @@ class GoalServiceTest {
 
         when(userContext.getUserId()).thenReturn(requesterMentorId);
         when(goalRepository.countActiveGoalsPerUser(missingUserId)).thenReturn(0);
-        when(userRepository.findById(requesterMentorId)).thenReturn(Optional.of(User.builder().id(requesterMentorId).build()));
+        when(userRepository.findById(requesterMentorId))
+                .thenReturn(Optional.of(User.builder().id(requesterMentorId).build()));
         when(userRepository.findById(missingUserId)).thenReturn(Optional.empty());
 
         TestUtils.assertThrowsWithMessage(
@@ -432,7 +442,8 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterMentorId);
         when(goalRepository.countActiveGoalsPerUser(userId1)).thenReturn(0);
         when(goalRepository.countActiveGoalsPerUser(userId2)).thenReturn(0);
-        when(userRepository.findById(requesterMentorId)).thenReturn(Optional.of(User.builder().id(requesterMentorId).build()));
+        when(userRepository.findById(requesterMentorId))
+                .thenReturn(Optional.of(User.builder().id(requesterMentorId).build()));
         when(userRepository.findById(userId1)).thenReturn(Optional.of(User.builder().id(userId1).build()));
         when(userRepository.findById(userId2)).thenReturn(Optional.of(User.builder().id(userId2).build()));
         when(skillRepository.findById(skillId1)).thenReturn(Optional.of(Skill.builder().id(skillId1).build()));
@@ -664,7 +675,9 @@ class GoalServiceTest {
         final long requesterId = 70L;
 
         when(userContext.getUserId()).thenReturn(requesterId);
-        when(goalRepository.getByIdOrThrow(goalId)).thenThrow(new EntityNotFoundException("Goal %d not found".formatted(goalId)));
+        when(goalRepository.getByIdOrThrow(goalId)).thenThrow(
+                new EntityNotFoundException("Goal %d not found".formatted(goalId))
+        );
 
         TestUtils.assertThrowsWithMessage(
                 EntityNotFoundException.class,
@@ -747,7 +760,8 @@ class GoalServiceTest {
                 .status(GoalStatus.ACTIVE)
                 .build();
         List<Goal> allGoals = List.of(goal1, goal2);
-        GoalFilterDto filters = new GoalFilterDto(null, "programming", null, null);
+        GoalFilterDto filters =
+                new GoalFilterDto(null, "programming", null, null);
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
@@ -776,7 +790,8 @@ class GoalServiceTest {
                 .status(GoalStatus.COMPLETED)
                 .build();
         List<Goal> allGoals = List.of(goal1, goal2);
-        GoalFilterDto filters = new GoalFilterDto(null, null, GoalStatus.ACTIVE, null);
+        GoalFilterDto filters =
+                new GoalFilterDto(null, null, GoalStatus.ACTIVE, null);
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
@@ -849,7 +864,8 @@ class GoalServiceTest {
                 .mentor(mentor)
                 .build();
         List<Goal> allGoals = List.of(goal1, goal2, goal3);
-        GoalFilterDto filters = new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
+        GoalFilterDto filters =
+                new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
@@ -874,7 +890,8 @@ class GoalServiceTest {
                 .status(GoalStatus.ACTIVE)
                 .build();
         List<Goal> allGoals = List.of(goal1);
-        GoalFilterDto filters = new GoalFilterDto("NonExistent", null, null, null);
+        GoalFilterDto filters =
+                new GoalFilterDto("NonExistent", null, null, null);
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
@@ -1032,7 +1049,8 @@ class GoalServiceTest {
                 .mentor(mentor)
                 .build();
         List<Goal> allGoals = List.of(goal1, goal2, goal3);
-        GoalFilterDto filters = new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
+        GoalFilterDto filters =
+                new GoalFilterDto("Java", "programming", GoalStatus.ACTIVE, mentorId);
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.findById(requesterId)).thenReturn(java.util.Optional.of(user));
@@ -1059,7 +1077,8 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", LocalDateTime.now().plusDays(2), null, GoalStatus.COMPLETED);
+        UpdateGoalDto dto =
+                new UpdateGoalDto("t", "d", LocalDateTime.now().plusDays(2), null, GoalStatus.COMPLETED);
 
         TestUtils.assertThrowsWithMessage(
                 DataValidationException.class,
@@ -1086,16 +1105,18 @@ class GoalServiceTest {
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
         LocalDateTime newDeadline = LocalDateTime.now().plusDays(5);
-        UpdateGoalDto dto = new UpdateGoalDto("new title","new desc", newDeadline, null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto =
+                new UpdateGoalDto("new title", "new desc", newDeadline, null, GoalStatus.ACTIVE);
 
         GoalDto result = goalService.update(goalId, dto);
+        assertNotNull(result);
 
         assertEquals("new title", existing.getTitle());
         assertEquals("new desc", existing.getDescription());
         assertEquals(newDeadline, existing.getDeadline());
         assertEquals(GoalStatus.ACTIVE, existing.getStatus());
 
-        assertNotNull(result);
+
         assertEquals("new title", result.title());
         assertEquals("new desc", result.description());
         assertEquals(newDeadline, result.deadline());
@@ -1118,7 +1139,10 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto("t",
+                "d",
+                LocalDateTime.now().plusDays(2),
+                null, GoalStatus.ACTIVE);
 
         TestUtils.assertThrowsWithMessage(
                 ForbiddenException.class,
@@ -1141,7 +1165,10 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto("t",
+                "d",
+                LocalDateTime.now().plusDays(2),
+                null, GoalStatus.ACTIVE);
 
         TestUtils.assertThrowsWithMessage(
                 DataValidationException.class,
@@ -1165,7 +1192,8 @@ class GoalServiceTest {
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
         LocalDateTime invalidDeadline = LocalDateTime.now().plusHours(12);
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", invalidDeadline, null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto =
+                new UpdateGoalDto("t", "d", invalidDeadline, null, GoalStatus.ACTIVE);
 
         TestUtils.assertThrowsWithMessage(
                 DataValidationException.class,
@@ -1189,7 +1217,9 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterMentorId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto(
+                "t", "d", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE
+        );
 
         TestUtils.assertThrowsWithMessage(
                 ForbiddenException.class,
@@ -1213,7 +1243,9 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterMentorId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("t","d", LocalDateTime.now().plusDays(2), 111L, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto(
+                "t", "d", LocalDateTime.now().plusDays(2), 111L, GoalStatus.ACTIVE
+        );
 
         TestUtils.assertThrowsWithMessage(
                 ForbiddenException.class,
@@ -1241,16 +1273,18 @@ class GoalServiceTest {
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
         LocalDateTime newDeadline = LocalDateTime.now().plusDays(6);
-        UpdateGoalDto dto = new UpdateGoalDto("new t","new d", newDeadline, requesterMentorId, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto(
+                "new t", "new d", newDeadline, requesterMentorId, GoalStatus.ACTIVE
+        );
 
         GoalDto result = goalService.update(goalId, dto);
+        assertNotNull(result);
 
         assertEquals("new t", existing.getTitle());
         assertEquals("new d", existing.getDescription());
         assertEquals(newDeadline, existing.getDeadline());
         assertEquals(GoalStatus.ACTIVE, existing.getStatus());
 
-        assertNotNull(result);
         assertEquals("new t", result.title());
         assertEquals("new d", result.description());
         assertEquals(newDeadline, result.deadline());
@@ -1278,7 +1312,9 @@ class GoalServiceTest {
         when(userContext.getUserId()).thenReturn(requesterId);
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(existing);
 
-        UpdateGoalDto dto = new UpdateGoalDto("new","new", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE);
+        UpdateGoalDto dto = new UpdateGoalDto(
+                "new", "new", LocalDateTime.now().plusDays(2), null, GoalStatus.ACTIVE
+        );
 
         goalService.update(goalId, dto);
 
@@ -1324,21 +1360,21 @@ class GoalServiceTest {
 
         @Override
         public void update(UpdateGoalDto dto, Goal entity) {
-            if ( dto == null ) {
+            if (dto == null) {
                 return;
             }
 
-            if ( dto.title() != null ) {
-                entity.setTitle( dto.title() );
+            if (dto.title() != null) {
+                entity.setTitle(dto.title());
             }
-            if ( dto.description() != null ) {
-                entity.setDescription( dto.description() );
+            if (dto.description() != null) {
+                entity.setDescription(dto.description());
             }
-            if ( dto.status() != null ) {
-                entity.setStatus( dto.status() );
+            if (dto.status() != null) {
+                entity.setStatus(dto.status());
             }
-            if ( dto.deadline() != null ) {
-                entity.setDeadline( dto.deadline() );
+            if (dto.deadline() != null) {
+                entity.setDeadline(dto.deadline());
             }
         }
     }
