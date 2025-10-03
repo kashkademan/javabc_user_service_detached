@@ -1,7 +1,9 @@
 package school.faang.user_service.dto.workschedule;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 
+@Component
 public class UpdateWorkScheduleValidator {
     public void validate(UpdateWorkScheduleDto dto) {
         if (!dto.startTime().isBefore(dto.startLunch())) {

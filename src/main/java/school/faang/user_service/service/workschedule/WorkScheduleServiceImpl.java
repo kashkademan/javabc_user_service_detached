@@ -1,6 +1,7 @@
 package school.faang.user_service.service.workschedule;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleValidator;
@@ -14,6 +15,7 @@ import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkScheduleServiceImpl implements WorkScheduleService {
@@ -33,9 +35,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         workSchedule.setUser(user);
 
-        WorkSchedule savedWorkSchedule = workScheduleRepository.save(workSchedule);
+        workScheduleRepository.save(workSchedule);
+        log.info("WorkSchedule for {} added", workSchedule.getUser());
 
-        return workScheduleMapper.toWorkScheduleDto(savedWorkSchedule);
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
     @Override
@@ -50,6 +53,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
             updatedWorkSchedule.setUser(workSchedule.getUser());
 
             workScheduleRepository.save(updatedWorkSchedule);
+        log.info("WorkSchedule for {} updated", workSchedule.getUser());
 
         return updateWorkScheduleMapper.toUpdateWorkScheduleDto(updatedWorkSchedule);
     }
