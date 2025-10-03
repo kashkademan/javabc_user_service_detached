@@ -3,7 +3,6 @@ package school.faang.user_service.repository.mentorship.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
@@ -24,7 +23,6 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MentorshipRepository mentorshipRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
-    @Autowired
     private final MentorshipServiceValidation validation;
 
     @Override
