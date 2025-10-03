@@ -26,7 +26,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto) {
         if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
                 || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
-                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTIme())){
+                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
             throw new DataValidationException(
                     "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
         }
@@ -42,7 +42,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleDto workScheduleDto) {
         if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
                 || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
-                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTIme())){
+                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
             throw new DataValidationException(
                     "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
         }

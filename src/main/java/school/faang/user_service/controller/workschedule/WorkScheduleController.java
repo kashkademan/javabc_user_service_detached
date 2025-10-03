@@ -20,7 +20,7 @@ public class WorkScheduleController {
     public WorkScheduleDto addWorkSchedule(WorkScheduleDto workScheduleDto) {
         validateNullOrEmpty(workScheduleDto.id().toString(), "Id");
         validateNullOrEmpty(workScheduleDto.startTime().toString(), "StartTime");
-        validateNullOrEmpty(workScheduleDto.endTIme().toString(), "EndTIme");
+        validateNullOrEmpty(workScheduleDto.endTime().toString(), "EndTIme");
         validateNullOrEmpty(workScheduleDto.startLunch().toString(), "StartLunch");
         validateNullOrEmpty(workScheduleDto.endLunch().toString(), "EndLunch");
         validateNullOrEmpty(workScheduleDto.timezone(), "Timezone");
@@ -30,7 +30,7 @@ public class WorkScheduleController {
     public WorkScheduleDto updateWorkSchedule(@NotBlank long workScheduleId, WorkScheduleDto workScheduleDto) {
         validateNullOrEmpty(workScheduleDto.id().toString(), "Id");
         validateNullOrEmpty(workScheduleDto.startTime().toString(), "StartTime");
-        validateNullOrEmpty(workScheduleDto.endTIme().toString(), "EndTIme");
+        validateNullOrEmpty(workScheduleDto.endTime().toString(), "EndTIme");
         validateNullOrEmpty(workScheduleDto.startLunch().toString(), "StartLunch");
         validateNullOrEmpty(workScheduleDto.endLunch().toString(), "EndLunch");
         validateNullOrEmpty(workScheduleDto.timezone(), "Timezone");
