@@ -3,6 +3,7 @@ package school.faang.user_service.controller.workschedule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.service.workschedule.WorkScheduleService;
 
@@ -16,8 +17,8 @@ public class WorkScheduleController {
         return workScheduleService.addWorkSchedule(userContext.getUserId(), workScheduleDto);
     }
 
-    public WorkScheduleDto updateWorkSchedule(long workScheduleId, WorkScheduleDto workScheduleDto) {
-        return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, workScheduleDto);
+    public UpdateWorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
+        return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, updateWorkScheduleDto);
     }
 
     public WorkScheduleDto getById(long workScheduleId) {
