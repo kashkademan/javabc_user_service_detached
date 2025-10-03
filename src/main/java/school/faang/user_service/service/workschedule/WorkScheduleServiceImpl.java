@@ -46,7 +46,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         updateWorkScheduleValidator.validate(updateWorkScheduleDto);
 
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
-        if (userId == workSchedule.getId()) {
+        if (userId != workSchedule.getId()) {
             throw new ForbiddenException("Вы пытаетесь обновить чужие данные");
         }
             WorkSchedule updatedWorkSchedule = updateWorkScheduleMapper.toWorkSchedule(updateWorkScheduleDto);
