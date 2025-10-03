@@ -40,3 +40,6 @@ user:
   password:
     min:
       length: 6
+  skill:
+    recommendation:
+          min: 3
