@@ -3,19 +3,15 @@ package school.faang.user_service.dto.goal;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import school.faang.user_service.entity.goal.GoalStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-public record CreateGoalDto(@NotBlank String title,
+public record UpdateGoalDto(@NotBlank String title,
                             @NotBlank String description,
                             @Nullable @JsonFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime deadline,
                             @Nullable @PositiveOrZero Long mentorId,
-                            @NotNull @NotEmpty List<@PositiveOrZero Long> userIds,
-                            @Nullable List<@PositiveOrZero Long> skillIds,
-                            @Nullable @PositiveOrZero Long parentGoalId
+                            @Nullable GoalStatus status
 ) {
 }
