@@ -15,7 +15,6 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.goal.FilterGoal;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.SkillRepository;
-import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -34,9 +33,7 @@ import static school.faang.user_service.entity.goal.GoalStatus.COMPLETED;
 public class GoalService {
     private static final int MAX_GOALS_FOR_ONE_USER = 2;
     private final GoalRepository goalRepository;
-    private final UserRepository userRepository;
     private final SkillRepository skillRepository;
-    //private final GoalMapper goalMapper;
     private final UserContext userContext;
     private final List<FilterGoal> filterGoals;
 
