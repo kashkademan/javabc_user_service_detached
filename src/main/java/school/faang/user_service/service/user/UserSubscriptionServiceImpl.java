@@ -8,6 +8,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
@@ -21,6 +22,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
+
+    private final List<UserFilter> userFilters;
 
     @Override
     public void followUser(long followerId, long followeeId) {
@@ -70,8 +73,14 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     public List<UserDto> getFollowers(long followeeId, UserFiltersDto filters) {
         Stream<User> followersStream = subscriptionRepository.findByFolloweeId(followeeId);
 
-        return applyFilters(followersStream, filters)
-                .map(userMapper::toUserDto)
+        Stream<User> filteredStream = followersStream;
+        for (UserFilter userFilter : userFilters) {
+            if (userFilter.isApplicable(filters)) {
+                filteredStream = userFilter.apply(filteredStream, filters);
+            }
+        }
+
+        return filteredStream.map(userMapper::toUserDto)
                 .toList();
     }
 
@@ -79,28 +88,14 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     public List<UserDto> getFollowees(long followerId, UserFiltersDto filters) {
         Stream<User> followeesStream = subscriptionRepository.findByFollowerId(followerId);
 
-        return applyFilters(followeesStream, filters)
-                .map(userMapper::toUserDto)
+        Stream<User> filteredStream = followeesStream;
+        for (UserFilter userFilter : userFilters) {
+            if (userFilter.isApplicable(filters)) {
+                filteredStream = userFilter.apply(filteredStream, filters);
+            }
+        }
+
+        return filteredStream.map(userMapper::toUserDto)
                 .toList();
-    }
-
-    private Stream<User> applyFilters(Stream<User> usersStream, UserFiltersDto filters) {
-        Stream<User> filteredStream = usersStream;
-
-        if (filters.namePattern() != null && !filters.namePattern().isBlank()) {
-            filteredStream = filteredStream.filter(user ->
-                    user.getUsername().toLowerCase().contains(filters.namePattern().toLowerCase()));
-        }
-
-        if (filters.phonePattern() != null && !filters.phonePattern().isBlank()) {
-            filteredStream = filteredStream.filter(user ->
-                    user.getPhone() != null && user.getPhone().contains(filters.phonePattern()));
-        }
-
-        filteredStream = filteredStream.filter(user ->
-                user.getExperience() >= filters.experienceMin()
-                        && user.getExperience() <= filters.experienceMax());
-
-        return filteredStream;
     }
 }
