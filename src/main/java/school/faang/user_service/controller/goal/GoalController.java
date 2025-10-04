@@ -14,6 +14,7 @@ import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.facade.GoalMapping;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -24,15 +25,16 @@ import java.util.List;
 public class GoalController {
 
     private final GoalService goalService;
+    private final GoalMapping goalMapping;
 
     @PostMapping
     GoalDto create(@Valid @RequestBody CreateGoalDto createGoalDto) {
-        return goalService.create(createGoalDto);
+        return goalMapping.mappingForCreate(createGoalDto);
     }
 
     @PatchMapping("/{goalId}")
     GoalDto update(@PathVariable long goalId, @Valid @RequestBody UpdateGoalDto updateGoalDto) {
-        return goalService.update(goalId, updateGoalDto);
+        return goalMapping.mappingForUpdate(goalId, updateGoalDto);
     }
 
     @DeleteMapping("/{goalId}")
@@ -42,6 +44,6 @@ public class GoalController {
 
     @GetMapping()
     List<GoalDto> getByFilters(@Valid @RequestBody GoalFilterDto filters) {
-        return goalService.getByFilters(filters);
+        return goalMapping.mappingForFilters(filters);
     }
 }
