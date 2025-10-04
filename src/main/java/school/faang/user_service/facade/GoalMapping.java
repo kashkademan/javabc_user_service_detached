@@ -55,7 +55,7 @@ public class GoalMapping {
             User mentor = userRepository.getByIdOrThrow(updateGoalDto.mentorId());
             goal.setMentor(mentor);
         }
-        return goalMapper.toGoalDto(goalService.update(goal, goalStatus, oldMentorId));
+        return goalMapper.toGoalDto(goalService.update(goal, goalStatus, oldMentorId, updateGoalDto.deadline()));
     }
 
     public List<GoalDto> mappingForFilters(GoalFilterDto filters) {

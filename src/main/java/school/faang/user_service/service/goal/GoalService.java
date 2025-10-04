@@ -49,11 +49,7 @@ public class GoalService {
             }
         });
 
-        LocalDateTime dataNow = LocalDateTime.now();
-        if (dataNow.isAfter(goal.getDeadline())) {
-            throw new DataValidationException(String.format("the deadline {} cannot be earlier than "
-                    + "the current date {}", goal.getDeadline(), dataNow));
-        }
+        checkDealLineGoals(goal.getDeadline());
 
         goal.setSkillsToAchieve(skillList);
         goal.setStatus(ACTIVE);
@@ -65,9 +61,14 @@ public class GoalService {
     }
 
     @Transactional
-    public Goal update(Goal goal, GoalStatus goalStatus, Long mentorId) {
+    public Goal update(Goal goal, GoalStatus goalStatus, Long mentorId, LocalDateTime dateTime) {
 
         isParticipantInTheGoal(mentorId, goal);
+
+        if (Objects.nonNull(dateTime)) {
+            checkDealLineGoals(dateTime);
+            goal.setDeadline(dateTime);
+        }
 
         checkGoalStatus(goal, goalStatus);
 
@@ -114,6 +115,14 @@ public class GoalService {
             throw new ForbiddenException(String.format("The user with ID - {} is not a mentor or participant "
                             + "of the Goal. Goal title - {}, goal id - {}",
                     userId, goal.getTitle(), goal.getId()));
+        }
+    }
+
+    private void checkDealLineGoals(LocalDateTime goalDateTime) {
+        LocalDateTime dataNow = LocalDateTime.now();
+        if (dataNow.isAfter(goalDateTime)) {
+            throw new DataValidationException(String.format("the deadline {} cannot be earlier than "
+                    + "the current date {}", goalDateTime, dataNow));
         }
     }
 
