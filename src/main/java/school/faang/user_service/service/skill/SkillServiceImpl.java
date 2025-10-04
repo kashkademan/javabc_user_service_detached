@@ -34,7 +34,7 @@ public class SkillServiceImpl implements SkillService {
     private final UserRepository userRepository;
 
     @Autowired
-    public SkillServiceImpl(@Value("${user.skill.recommendation.min") int minSkillRecommendationsCount,
+    public SkillServiceImpl(@Value("${user.skill.recommendation.min}") int minSkillRecommendationsCount,
                             SkillRepository skillRepository,
                             SkillMapper skillMapper,
                             SkillOfferRepository skillOfferRepository,

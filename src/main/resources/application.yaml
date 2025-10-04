@@ -42,4 +42,4 @@ user:
       length: 6
   skill:
     recommendation:
-          min: 3
+      min: 3
