@@ -37,8 +37,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     @Transactional
     public void registerParticipant(Long eventId, Long userId) {
         if (isAttendeesUser(eventId, userId) && checkUser(userId)) {
-            log.warn("Повторная регистрация пользователя на событие");
-            throw new EntityNotFoundException("Вы уже зарегистрированны на событие!");
+            throw new EntityNotFoundException("Вы уже зарегистрированны на данное событие!");
         }
         eventParticipationRepository.register(eventId, userId);
     }
@@ -52,8 +51,7 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     @Transactional
     public void unregisteredParticipation(Long eventId, Long userId) {
         if (!isAttendeesUser(eventId, userId) && checkUser(userId)) {
-            log.warn("Пользователь не состоит в событии");
-            throw new EntityNotFoundException("Вы не состоите в событии!");
+            throw new EntityNotFoundException("Вы не состоите в днанном событии, чтобы отписываться от него");
         }
         eventParticipationRepository.unregister(eventId, userId);
     }
