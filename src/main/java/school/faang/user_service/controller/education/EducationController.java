@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.education;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.EducationDto;
@@ -8,21 +9,21 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.education.EducationService;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class EducationController {
-
-    EducationService educationService;
-    UserContext userContext;
+    private final EducationService educationService;
+    private final UserContext userContext;
 
     public EducationDto addEducation(EducationDto educationDto) {
-
         validateEducation(educationDto);
+
         return educationService.addEducation(userContext.getUserId(), educationDto);
     }
 
     public EducationDto updateEducation(long educationId, EducationDto educationDto) {
-
         validateEducation(educationDto);
+
         return educationService.updateEducation(userContext.getUserId(),
                 educationId,
                 educationDto);
@@ -33,9 +34,11 @@ public class EducationController {
     }
 
     private void validateEducation(EducationDto educationDto) {
-        if (educationDto.getYearFrom() != null
-                && !educationDto.getInstitution().isBlank()) {
-            throw new DataValidationException("Отсутствуют год поступления или учебное заведение");
+        if (educationDto.yearFrom() == null
+                && educationDto.institution().isBlank()) {
+            String message = "Отсутствуют год поступления или учебное заведение";
+            log.error(message);
+            throw new DataValidationException(message);
         }
     }
 }
