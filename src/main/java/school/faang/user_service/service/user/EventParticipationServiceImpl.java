@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -19,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-@Transactional(readOnly = true)
 public class EventParticipationServiceImpl implements EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final EventRepository eventRepository;
@@ -43,8 +42,8 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     }
 
     @Override
-    public CountResponse countParticipantsByEventId(Long eventId) {
-        return new CountResponse(eventParticipationRepository.countParticipants(eventId));
+    public CountResponseDto countParticipantsByEventId(Long eventId) {
+        return new CountResponseDto(eventParticipationRepository.countParticipants(eventId));
     }
 
     @Override

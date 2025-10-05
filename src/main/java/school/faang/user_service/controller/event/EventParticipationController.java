@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventRequestDto;
-import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.EventParticipationService;
 
@@ -21,7 +21,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(value = "api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
@@ -37,8 +37,8 @@ public class EventParticipationController {
         eventParticipationService.registerParticipant(eventRequestDto.eventId(), eventRequestDto.userId());
     }
 
-    @GetMapping("/count-users/{eventId}")
-    public CountResponse countParticipantsByEventId(@PathVariable Long eventId) {
+    @GetMapping("/events/{eventId}/participants/count")
+    public CountResponseDto countParticipantsByEventId(@PathVariable Long eventId) {
         return eventParticipationService.countParticipantsByEventId(eventId);
     }
 

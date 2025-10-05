@@ -1,6 +1,6 @@
 package school.faang.user_service.service.user;
 
-import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface EventParticipationService {
      *
      * @param eventId ID события
      */
-    CountResponse countParticipantsByEventId(Long eventId);
+    CountResponseDto countParticipantsByEventId(Long eventId);
 
     /**
      * Получения списка участников события
