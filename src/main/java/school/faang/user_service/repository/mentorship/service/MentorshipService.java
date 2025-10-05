@@ -1,10 +1,10 @@
 package school.faang.user_service.repository.mentorship.service;
 
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.repository.mentorship.dto.MentorshipDto;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public interface MentorshipService {
      * @throws DataValidationException если {@code mentorId} равен {@code menteeId}
      * @throws ForbiddenException      если {@code currentUserId} не равен {@code menteeId} или {@code mentorId}
      */
-    void addMentorship(@NotNull long mentorId, @NotNull long menteeId);
+    MentorshipDto addMentorship(long mentorId, long menteeId);
 
     /**
      * <p>
@@ -47,7 +47,7 @@ public interface MentorshipService {
      * @return - список DTO менти, может быть пустым, но не null
      */
 
-    List<UserDto> getMentees(@NotNull long userId);
+    List<UserDto> getMentees(long userId);
 
     /**
      * <p>
@@ -61,7 +61,7 @@ public interface MentorshipService {
      * @return - список DTO менторов, может быть пустым, но не null
      */
 
-    List<UserDto> getMentors(@NotNull long userId);
+    List<UserDto> getMentors(long userId);
 
     /**
      * <p>
@@ -79,5 +79,5 @@ public interface MentorshipService {
      * @throws DataValidationException если {@code mentorId} равен {@code menteeId}
      */
 
-    void deleteMentorship(@NotNull long menteeId, @NotNull long mentorId);
+    void deleteMentorship(long menteeId, long mentorId);
 }

@@ -1,6 +1,5 @@
 package school.faang.user_service.repository.mentorship.service;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,8 +9,10 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.repository.mentorship.dto.MentorshipDto;
 import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MentorshipServiceValidation validation;
 
     @Override
-    public void addMentorship(@NotNull long mentorId, @NotNull long menteeId) {
+    public MentorshipDto addMentorship(long mentorId, long menteeId) {
         long currentUserId = userContext.getUserId();
 
         validation.validationCurrentUser(currentUserId, mentorId, menteeId);
@@ -37,7 +38,6 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         if (mentee.getMentors().contains(mentor)) {
             log.info("Mentor {} is already mentor for mentee {}", mentorId, menteeId);
-            return;
         }
 
         mentor.getMentees().add(mentee);
@@ -46,10 +46,11 @@ public class MentorshipServiceImpl implements MentorshipService {
         mentorshipRepository.save(mentee);
         mentorshipRepository.save(mentor);
         log.info("Mentor: {} added to mentee: {}", mentorId, menteeId);
+        return createMentorshipDto(mentorId, menteeId);
     }
 
     @Override
-    public List<UserDto> getMentees(@NotNull long userId) {
+    public List<UserDto> getMentees(long userId) {
         User mentor = mentorshipRepository.getByIdOrThrow(userId);
 
         List<User> menteeList = new ArrayList<>(mentor.getMentees());
@@ -98,5 +99,13 @@ public class MentorshipServiceImpl implements MentorshipService {
         } else {
             log.info("Mentorship not found between mentor {} and mentee {}", mentorId, menteeId);
         }
+    }
+
+    private MentorshipDto createMentorshipDto(long mentorId, long menteeId) {
+        return MentorshipDto.builder()
+                .mentorId(mentorId)
+                .menteeId(menteeId)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }
