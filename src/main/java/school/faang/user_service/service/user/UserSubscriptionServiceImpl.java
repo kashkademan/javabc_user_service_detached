@@ -73,14 +73,13 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     public List<UserDto> getFollowers(long followeeId, UserFiltersDto filters) {
         Stream<User> followersStream = subscriptionRepository.findByFolloweeId(followeeId);
 
-        Stream<User> filteredStream = followersStream;
         for (UserFilter userFilter : userFilters) {
             if (userFilter.isApplicable(filters)) {
-                filteredStream = userFilter.apply(filteredStream, filters);
+                followersStream = userFilter.apply(followersStream, filters);
             }
         }
 
-        return filteredStream.map(userMapper::toUserDto)
+        return followersStream.map(userMapper::toUserDto)
                 .toList();
     }
 
@@ -88,14 +87,13 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     public List<UserDto> getFollowees(long followerId, UserFiltersDto filters) {
         Stream<User> followeesStream = subscriptionRepository.findByFollowerId(followerId);
 
-        Stream<User> filteredStream = followeesStream;
         for (UserFilter userFilter : userFilters) {
             if (userFilter.isApplicable(filters)) {
-                filteredStream = userFilter.apply(filteredStream, filters);
+                followeesStream = userFilter.apply(followeesStream, filters);
             }
         }
 
-        return filteredStream.map(userMapper::toUserDto)
+        return followeesStream.map(userMapper::toUserDto)
                 .toList();
     }
 }
