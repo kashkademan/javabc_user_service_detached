@@ -8,7 +8,6 @@ import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
@@ -108,7 +107,9 @@ public class SkillServiceImpl implements SkillService {
         int offersCount = skillOfferRepository.countAllOffersOfSkill(skillId, userId);
 
         if (offersCount < minOffersForAcquire) {
-            throw new DataValidationException("Недостаточно рекомендаций для приобретения навыка, нужно ещё " + (minOffersForAcquire - offersCount));
+            throw new DataValidationException("Недостаточно рекомендаций для приобретения навыка, нужно ещё "
+                    + (minOffersForAcquire - offersCount)
+            );
         }
 
         User user = userRepository.findById(userId)
