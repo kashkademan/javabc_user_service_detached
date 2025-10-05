@@ -12,9 +12,7 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.validation.mentorship.MentorshipValidation;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -50,8 +48,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public List<UserDto> getMentees(long userId) {
         User mentor = mentorshipRepository.getByIdOrThrow(userId);
-        return Optional.ofNullable(mentor.getMentees())
-                .orElse(Collections.emptyList())
+        return mentor.getMentees()
                 .stream()
                 .map(userMapper::toUserDto)
                 .toList();
@@ -61,8 +58,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     @Override
     public List<UserDto> getMentors(long userId) {
         User mentee = mentorshipRepository.getByIdOrThrow(userId);
-        return Optional.ofNullable(mentee.getMentors())
-                .orElse(Collections.emptyList())
+        return mentee.getMentors()
                 .stream()
                 .map(userMapper::toUserDto)
                 .toList();
