@@ -45,3 +45,5 @@ user:
   skill:
     recommendation:
       min: 3
+
+max-active-goals: 2
