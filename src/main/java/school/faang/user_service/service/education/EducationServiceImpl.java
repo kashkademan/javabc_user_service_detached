@@ -8,7 +8,6 @@ import school.faang.user_service.dto.user.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
