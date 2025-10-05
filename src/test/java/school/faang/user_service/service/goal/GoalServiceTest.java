@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -53,7 +54,7 @@ class GoalServiceTest {
     @Mock
     private UserRepository userRepository;
     @Spy
-    private GoalMapper goalMapper = new GoalMapperImplSpy();
+    private GoalMapper goalMapper = Mappers.getMapper(GoalMapper.class);
     @Mock
     private UserContext userContext;
     @Mock
@@ -1319,63 +1320,5 @@ class GoalServiceTest {
         goalService.update(goalId, dto);
 
         assertEquals(created, existing.getCreatedAt());
-    }
-
-    private static class GoalMapperImplSpy implements GoalMapper {
-
-        @Override
-        public Goal toGoal(CreateGoalDto createGoalDto) {
-            if (createGoalDto == null) {
-                return null;
-            }
-
-            Goal.GoalBuilder goal = Goal.builder();
-
-            goal.title(createGoalDto.title());
-            goal.description(createGoalDto.description());
-            goal.deadline(createGoalDto.deadline());
-
-            return goal.build();
-        }
-
-        @Override
-        public GoalDto toGoalDto(Goal goal) {
-            if (goal == null) {
-                return null;
-            }
-
-            return new GoalDto(
-                    goal.getId(),
-                    goal.getCreatedAt(),
-                    goal.getUpdatedAt(),
-                    goal.getTitle(),
-                    goal.getDescription(),
-                    goal.getDeadline(),
-                    mapMentorToId(goal.getMentor()),
-                    mapUsersToUserIds(goal.getUsers()),
-                    goal.getStatus(),
-                    mapParentGoalToId(goal.getParent())
-            );
-        }
-
-        @Override
-        public void update(UpdateGoalDto dto, Goal entity) {
-            if (dto == null) {
-                return;
-            }
-
-            if (dto.title() != null) {
-                entity.setTitle(dto.title());
-            }
-            if (dto.description() != null) {
-                entity.setDescription(dto.description());
-            }
-            if (dto.status() != null) {
-                entity.setStatus(dto.status());
-            }
-            if (dto.deadline() != null) {
-                entity.setDeadline(dto.deadline());
-            }
-        }
     }
 }
