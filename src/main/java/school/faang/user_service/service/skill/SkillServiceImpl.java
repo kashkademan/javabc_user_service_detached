@@ -12,7 +12,6 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.user.SkillRepository;
@@ -50,30 +49,36 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
+        if (skillDto.title() == null || skillDto.title().isBlank()) {
+            throw new DataValidationException("The Title field cannot be null or empty");
+        }
         if (skillRepository.existsByTitle(skillDto.title())) {
-            throw new DataValidationException("Такой скилл уже существует");
+            throw new DataValidationException("This skill already exists.");
         }
 
         Skill skill = skillMapper.toSkill(skillDto);
         Skill saveToDto = skillRepository.save(skill);
-        log.info("Скилл '{}' успешно создан", skillDto.title());
+        log.info("Skill {} saved to DB", skillDto.title());
 
         return skillMapper.toSkillDto(saveToDto);
     }
 
     @Override
     public List<SkillDto> getByUserId(Long userId) {
+        validateUserId(userId);
+        validateCurrentUserMatches(userId);
+
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         if (skills.isEmpty()) {
-            log.info("Пользователю с ID {} не назначено ни одного скилла", userId);
+            log.info("User with ID {} has no skills assigned", userId);
             return Collections.emptyList();
         }
 
-        log.info("Получены скиллы пользователя с id= {}", userId);
+        log.info("The skills of the user with the id= {} have been obtained", userId);
 
         return skills.stream()
-                .map(skill -> skillMapper.toSkillDto(skill))
+                .map(skillMapper::toSkillDto)
                 .toList();
     }
 
@@ -82,7 +87,7 @@ public class SkillServiceImpl implements SkillService {
         List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
 
         if (offeredSkills.isEmpty()) {
-            log.info("Пользователю с ID {} не предложено ни одного скилла", userId);
+            log.info("The user with the ID {} has not been offered any skills", userId);
             return Collections.emptyList();
         }
 
@@ -94,44 +99,52 @@ public class SkillServiceImpl implements SkillService {
                 })
                 .collect(Collectors.toList());
 
-        log.info("Успешно получены данные о {} предложенных скиллах для пользователя {}",
+        log.info("Successfully received data on {} suggested skills for the user {}",
                 result.size(), userId);
 
         return result;
     }
 
     @Override
-    public void acquireSkillFromOffers(long skillId, long userId) {
+    public void acquireSkillFromOffers(long skillId, Long userId) {
         validateSkillExists(skillId);
         validateUserExists(userId);
-        validateUserAuthorization(userId);
+        validateCurrentUserMatches(userId);
         validateUserDoesNotHaveSkill(skillId, userId);
         validateSkillWasOffered(skillId, userId);
         validateRecommendationsCount(skillId, userId, minSkillRecommendationsCount);
 
-        log.info("Пользователь {} приобретает скилл {}", userId, skillId);
+        log.info("User {} acquires a skill {}", userId, skillId);
         skillRepository.assignSkillToUser(skillId, userId);
+    }
+
+    private void validateUserId(Long userId) {
+        if (userId == null || userId < 0) {
+            throw new DataValidationException("ID user cannot be null or less than zero");
+        }
+    }
+
+    private void validateCurrentUserMatches(Long userId) {
+        if (!userId.equals(userContext.getUserId())) {
+            throw new DataValidationException("You can not perform actions on behalf of another user");
+        }
     }
 
     private Skill validateSkillExists(long skillId) {
         return skillRepository.findById(skillId)
-                .orElseThrow(() -> new EntityNotFoundException("Скилл с ID " + skillId + " не найден"));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Skill with ID " + skillId + " was not found"));
     }
 
     private User validateUserExists(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
-    }
-
-    private void validateUserAuthorization(long userId) {
-        if (userContext.getUserId() != userId) {
-            throw new ForbiddenException("Нельзя приобретать скиллы для других пользователей");
-        }
+                .orElseThrow(() ->
+                        new EntityNotFoundException("User with ID " + userId + " not found "));
     }
 
     private void validateUserDoesNotHaveSkill(long skillId, long userId) {
         if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
-            throw new DataValidationException("У вас уже есть этот скилл");
+            throw new DataValidationException("You already have this skill");
         }
     }
 
@@ -139,15 +152,15 @@ public class SkillServiceImpl implements SkillService {
         List<Skill> offeredSkills = skillRepository.findSkillsOfferedToUser(userId);
         boolean isOffered = offeredSkills.stream().anyMatch(s -> s.getId() == skillId);
         if (!isOffered) {
-            throw new DataValidationException("Этот скилл не был вам предложен");
+            throw new DataValidationException("This skill was not offered to you");
         }
     }
 
     private void validateRecommendationsCount(long skillId, long userId, int minCount) {
         int recommendationsCount = skillOfferRepository.countAllOffersOfSkill(skillId, userId);
         if (recommendationsCount < minCount) {
-            throw new DataValidationException("Для присвоения скилла необходимо минимум " + minCount
-                    + " рекомендации, у вас сейчас: " + recommendationsCount);
+            throw new DataValidationException("At least " + minCount
+                    + " you need to assign a skill Recommendations, you now have:" + recommendationsCount);
         }
     }
 }

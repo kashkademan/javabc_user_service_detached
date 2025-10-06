@@ -14,5 +14,5 @@ public interface SkillService {
 
     List<SkillCandidateDto> getOfferedSkills(long userId);
 
-    void acquireSkillFromOffers(long skillId, long userId);
+    void acquireSkillFromOffers(long skillId, Long userId);
 }
