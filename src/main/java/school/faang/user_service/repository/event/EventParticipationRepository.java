@@ -28,5 +28,5 @@ public interface EventParticipationRepository extends JpaRepository<User, Long> 
             SELECT COUNT(ue.id) FROM user_event ue
             WHERE ue.event_id = :eventId
             """)
-    int countParticipants(long eventId);
+    Long countParticipants(Long eventId);
 }
