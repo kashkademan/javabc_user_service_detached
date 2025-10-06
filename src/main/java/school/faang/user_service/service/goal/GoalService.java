@@ -42,10 +42,14 @@ public class GoalService {
                        List<Skill> skillList, User mentor) {
 
         userList.forEach(user -> {
-            long totalGoal = user.getGoals().stream().filter(g -> Objects.equals(g.getStatus(), ACTIVE)).count();
-            if (totalGoal >= MAX_GOALS_FOR_ONE_USER) {
-                throw new DataValidationException(String.format("The user {} already has {} goals",
-                        user.getId(), MAX_GOALS_FOR_ONE_USER));
+            if (user.getGoals() != null) {
+                long totalGoal = user.getGoals().stream()
+                        .filter(g -> Objects.equals(g.getStatus(), ACTIVE))
+                        .count();
+                if (totalGoal >= MAX_GOALS_FOR_ONE_USER) {
+                    throw new DataValidationException(String.format("The user {} already has {} goals",
+                            user.getId(), MAX_GOALS_FOR_ONE_USER));
+                }
             }
         });
 
@@ -109,7 +113,9 @@ public class GoalService {
     private void isParticipantInTheGoal(long mentorId, Goal goal) {
         Long userId = userContext.getUserId();
 
-        List<Long> usersIdByGoal = goal.getUsers().stream().map(User::getId).toList();
+        List<Long> usersIdByGoal = goal.getUsers().stream()
+                .map(User::getId)
+                .toList();
 
         if (!Objects.equals(userId, mentorId) && !usersIdByGoal.contains(userId)) {
             throw new ForbiddenException(String.format("The user with ID - {} is not a mentor or participant "
