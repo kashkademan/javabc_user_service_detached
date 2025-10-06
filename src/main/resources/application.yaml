@@ -42,3 +42,7 @@ user:
   password:
     min:
       length: 6
+
+recommendation:
+  cooldown:
+    months: 6
