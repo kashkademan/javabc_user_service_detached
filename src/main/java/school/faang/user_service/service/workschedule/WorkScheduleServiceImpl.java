@@ -23,8 +23,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     private final WorkScheduleMapper workScheduleMapper;
 
     @Override
-    public WorkScheduleDto addWorkSchedule(WorkScheduleDto workScheduleDto) {
-        validateWorkScheduleDto(workScheduleDto);
+    public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto) {
+        validateWorkSchedule(workScheduleDto);
+        validateUserAccess(userId, workScheduleDto.id());
 
         User user = userRepository.getByIdOrThrow(workScheduleDto.id());
 
@@ -36,10 +37,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     }
 
     public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleDto workScheduleDto) {
-        validateWorkScheduleDto(workScheduleDto);
+        validateWorkSchedule(workScheduleDto);
+        validateUserAccess(userId, workScheduleDto.id());
 
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
-        validateUserAccess(userId, workSchedule);
 
         WorkSchedule newWorkSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         newWorkSchedule.setUser(workSchedule.getUser());
@@ -54,7 +55,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
-    private void validateWorkScheduleDto(WorkScheduleDto workScheduleDto) {
+    private void validateWorkSchedule(WorkScheduleDto workScheduleDto) {
         if (!(workScheduleDto.startTime().isBefore(workScheduleDto.startLunch())
                 && workScheduleDto.startLunch().isBefore(workScheduleDto.endLunch())
                 && workScheduleDto.endLunch().isBefore(workScheduleDto.endTime()))) {
@@ -65,12 +66,12 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
     }
 
-    private void validateUserAccess(long userId, WorkSchedule workSchedule) {
-        if (!Objects.equals(workSchedule.getId(), userId)) {
-            log.warn("user_id ({}) doesn't match workSchedule user_id ({})", workSchedule.getId(), userId);
-            throw new ForbiddenException("User does not belong to this work schedule.");
+    private void validateUserAccess(long userId, long scheduleUserId) {
+        if (!Objects.equals(userId, scheduleUserId)) {
+            log.warn("Access denied: user {} tried to access schedule of {}", userId, scheduleUserId);
+            throw new ForbiddenException(
+                    String.format("User %d does not have access to work schedule %d", userId, scheduleUserId)
+            );
         }
     }
-
 }
-
