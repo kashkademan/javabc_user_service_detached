@@ -20,8 +20,8 @@ import school.faang.user_service.service.education.EducationService;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-public class EducationController{
-        private final EducationService educationService;
+public class EducationController {
+    private final EducationService educationService;
 
 
     @PostMapping
@@ -29,11 +29,14 @@ public class EducationController{
 
         return educationService.addEducation(createEducationDto);
     }
+
     @PatchMapping("/{educationId}")
-    public EducationDto updateEducation(@Valid @RequestBody UpdateEducationDto updateEducationDto, @PathVariable long educationId) {
+    public EducationDto updateEducation(@Valid @RequestBody UpdateEducationDto updateEducationDto,
+                                        @PathVariable long educationId) {
 
         return educationService.updateEducation(educationId, updateEducationDto);
     }
+
     @GetMapping("/{educationId}")
     public EducationDto getById(@PathVariable long educationId) {
         return educationService.getById(educationId);

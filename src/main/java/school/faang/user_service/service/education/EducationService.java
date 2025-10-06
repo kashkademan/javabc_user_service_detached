@@ -22,10 +22,10 @@ import java.time.Year;
 @Slf4j
 @RequiredArgsConstructor
 public class EducationService {
-        private final UserRepository userRepository;
-        private final EducationRepository educationRepository;
-        private final EducationMapper educationMapper;
-        private final UserContext userContext;
+    private final UserRepository userRepository;
+    private final EducationRepository educationRepository;
+    private final EducationMapper educationMapper;
+    private final UserContext userContext;
 
     public EducationDto addEducation(CreateEducationDto createEducationDto) {
         long userId = userContext.getUserId();
