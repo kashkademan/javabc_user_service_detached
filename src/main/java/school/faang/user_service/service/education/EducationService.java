@@ -17,6 +17,7 @@ import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.Year;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -52,10 +53,7 @@ public class EducationService {
         validateYearFrom(updateEducationDto.yearFrom());
 
         Education existingEducation = educationRepository.getByIdOrThrow(educationId);
-        if (userId != existingEducation.getUser().getId()) {
-            log.warn("Пользователь с ID: {} пытается обновить чужое образование с ID: {}", userId, educationId);
-            throw new ForbiddenException("Не достаточно прав для обновления этогй записи об образовании");
-        }
+        validateUserIsEducationOwner(userId, existingEducation);
 
         educationMapper.updateEducationFromDto(updateEducationDto, existingEducation);
         Education updateEducation = educationRepository.save(existingEducation);
@@ -65,10 +63,7 @@ public class EducationService {
     public EducationDto getById(long educationId) {
         long userId = userContext.getUserId();
         Education existingEducation = educationRepository.getByIdOrThrow(educationId);
-        if (userId != existingEducation.getUser().getId()) {
-            log.warn("Пользователь с ID: {} пытается получить данные с ID: {}", userId, educationId);
-            throw new ForbiddenException("Не достаточно прав для получения этих данных");
-        }
+        validateUserIsEducationOwner(userId, existingEducation);
         return educationMapper.toEducationDto(existingEducation);
     }
 
@@ -77,10 +72,7 @@ public class EducationService {
         Education existingEducation = educationRepository.getByIdOrThrow(educationId);
         educationRepository.deleteById(educationId);
         log.info("Данные с ID: {} были удалены" + educationId);
-        if (userId != existingEducation.getUser().getId()) {
-            log.warn("Пользователь с ID: {} пытается удалить данные с ID: {}", userId, educationId);
-            throw new ForbiddenException("Не достаточно прав для удаления этих данных");
-        }
+        validateUserIsEducationOwner(userId, existingEducation);
         return educationMapper.toEducationDto(existingEducation);
     }
 
@@ -88,6 +80,14 @@ public class EducationService {
         if (yearFrom != null && yearFrom > Year.now().getValue()) {
             log.warn("Попытка добавить образование с годом начала в будущем: {}", yearFrom);
             throw new DataValidationException("Год начала обучения не может быть больше текущего");
+        }
+    }
+
+    private void validateUserIsEducationOwner(long userId, Education education) {
+        User educationOwner = education.getUser();
+
+        if (Objects.equals(userId,educationOwner.getId())) {
+            throw new ForbiddenException("Не достаточно прав для получения этих данных");
         }
     }
 }
