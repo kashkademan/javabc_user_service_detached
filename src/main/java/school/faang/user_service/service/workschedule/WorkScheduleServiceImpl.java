@@ -1,7 +1,9 @@
 package school.faang.user_service.service.workschedule;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
@@ -16,20 +18,16 @@ import school.faang.user_service.repository.user.WorkScheduleRepository;
 @Slf4j
 @Service
 @AllArgsConstructor
-@Data
+@Setter
+@Getter
 public class WorkScheduleServiceImpl implements WorkScheduleService {
     private UserRepository userRepository;
     private WorkScheduleRepository workScheduleRepository;
     private WorkScheduleMapper workScheduleMapper;
 
     @Override
-    public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto) {
-        if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
-                || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
-                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
-            throw new DataValidationException(
-                    "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
-        }
+    public WorkScheduleDto addWorkSchedule(long userId, @NonNull WorkScheduleDto workScheduleDto) {
+        timeOrderCheck(workScheduleDto);
         User user = userRepository.getByIdOrThrow(userId);
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         workSchedule.setUser(user);
@@ -39,13 +37,9 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     }
 
     @Override
-    public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, WorkScheduleDto workScheduleDto) {
-        if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
-                || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
-                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
-            throw new DataValidationException(
-                    "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
-        }
+    public WorkScheduleDto updateWorkSchedule(
+            long userId, long workScheduleId, @NonNull WorkScheduleDto workScheduleDto) {
+        timeOrderCheck(workScheduleDto);
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
         if (workSchedule.getUser().getId() != userId) {
             throw new ForbiddenException("Вы можете менять только свой график, этот график - не ваш.");
@@ -61,5 +55,14 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
     public WorkScheduleDto getById(long workScheduleId) {
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
+    }
+
+    public void timeOrderCheck(@NonNull WorkScheduleDto workScheduleDto) {
+        if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
+                || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
+                || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
+            throw new DataValidationException(
+                    "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
+        }
     }
 }
