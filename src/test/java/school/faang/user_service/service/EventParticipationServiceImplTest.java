@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventParticipationServiceImpl;
@@ -35,8 +36,8 @@ public class EventParticipationServiceImplTest {
     private EventParticipationRepository eventParticipationRepository;
     @Mock
     private EventRepository eventRepository;
-    @Mock
-    private UserMapper userMapper;
+    @Spy
+    private UserMapperImpl userMapper;
     @InjectMocks
     private EventParticipationServiceImpl service;
     private User user;
