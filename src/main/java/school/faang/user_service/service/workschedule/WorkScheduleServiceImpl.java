@@ -1,5 +1,6 @@
 package school.faang.user_service.service.workschedule;
 
+import com.amazonaws.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,18 +28,20 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
 
     @Override
     public WorkScheduleDto addWorkSchedule(long userId, @NonNull WorkScheduleDto workScheduleDto) {
+        validateWorkScheduleDto(workScheduleDto);
         timeOrderCheck(workScheduleDto);
         User user = userRepository.getByIdOrThrow(userId);
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         workSchedule.setUser(user);
-        WorkSchedule newWorkSchedule = workScheduleRepository.save(workSchedule);
-        log.info("Новый график с id {} добавлен.", newWorkSchedule.getId());
-        return workScheduleMapper.toWorkScheduleDto(newWorkSchedule);
+        workSchedule = workScheduleRepository.save(workSchedule);
+        log.info("Новый график с id {} добавлен.", workSchedule.getId());
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
     @Override
     public WorkScheduleDto updateWorkSchedule(
             long userId, long workScheduleId, @NonNull WorkScheduleDto workScheduleDto) {
+        validateWorkScheduleDto(workScheduleDto);
         timeOrderCheck(workScheduleDto);
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
         if (workSchedule.getUser().getId() != userId) {
@@ -63,6 +66,21 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
             throw new DataValidationException(
                     "Нарушена хронология. Проверьте порядок полей времени в workScheduleDto.");
+        }
+    }
+
+    public void validateWorkScheduleDto(@NonNull WorkScheduleDto workScheduleDto) {
+        validateNullOrEmpty(workScheduleDto.id().toString(), "Id");
+        validateNullOrEmpty(workScheduleDto.startTime().toString(), "StartTime");
+        validateNullOrEmpty(workScheduleDto.endTime().toString(), "EndTIme");
+        validateNullOrEmpty(workScheduleDto.startLunch().toString(), "StartLunch");
+        validateNullOrEmpty(workScheduleDto.endLunch().toString(), "EndLunch");
+        validateNullOrEmpty(workScheduleDto.timezone(), "Timezone");
+    }
+
+    private void validateNullOrEmpty(String value, String param) {
+        if (StringUtils.isNullOrEmpty(value)) {
+            throw new DataValidationException(param + " - пустое или равно Null.");
         }
     }
 }
