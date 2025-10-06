@@ -1,8 +1,7 @@
 package school.faang.user_service.controller.user;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
@@ -10,35 +9,35 @@ import school.faang.user_service.service.user.UserSubscriptionService;
 
 import java.util.List;
 
-@Component
+@Controller
 @RequiredArgsConstructor
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
-    public void followUser(@NotNull long followeeId) {
+    public void followUser(long followeeId) {
         long userId = userContext.getUserId();
         userSubscriptionService.followUser(userId, followeeId);
     }
 
-    public void unfollowUser(@NotNull long followeeId) {
+    public void unfollowUser(long followeeId) {
         long userId = userContext.getUserId();
         userSubscriptionService.unfollowUser(userId, followeeId);
     }
 
-    public CountResponse getFollowersCount(@NotNull long followeeId) {
+    public CountResponse getFollowersCount(long followeeId) {
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
-    public CountResponse getFolloweesCount(@NotNull long followeeId) {
+    public CountResponse getFolloweesCount(long followeeId) {
         return userSubscriptionService.getFolloweesCount(followeeId);
     }
 
-    public List<UserDto> getFollowers(@NotNull long followeeId) {
+    public List<UserDto> getFollowers(long followeeId) {
         return userSubscriptionService.getFollowers(followeeId);
     }
 
-    public List<UserDto> getFollowees(@NotNull long followerId) {
+    public List<UserDto> getFollowees(long followerId) {
         return userSubscriptionService.getFollowees(followerId);
     }
 

@@ -74,21 +74,18 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     @Override
     public List<UserDto> getFollowers(long followeeId) {
-        try (Stream<User> stream = subscriptionRepository.findByFolloweeId(followeeId)) {
-            List<UserDto> results = stream.map(userMapper::toUserDto).toList();
-            log.debug("getFollowers: followeeId={}, followersCount={}", followeeId, results.size());
-            return results;
-        }
+        Stream<User> stream = subscriptionRepository.findByFolloweeId(followeeId);
+        List<UserDto> results = stream.map(userMapper::toUserDto).toList();
+        log.debug("getFollowers: followeeId={}, followersCount={}", followeeId, results.size());
+        return results;
     }
 
     @Override
     public List<UserDto> getFollowees(long followerId) {
-        try (Stream<User> stream = subscriptionRepository.findByFollowerId(followerId)) {
-            List<UserDto> results = stream.map(userMapper::toUserDto).toList();
-            log.debug("getFollowees: followerId={}, followeesCount={}", followerId, results.size());
-            return results;
-        }
+        Stream<User> stream = subscriptionRepository.findByFollowerId(followerId);
+        List<UserDto> results = stream.map(userMapper::toUserDto).toList();
+        log.debug("getFollowees: followerId={}, followeesCount={}", followerId, results.size());
+        return results;
     }
-
 
 }
