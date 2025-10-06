@@ -94,17 +94,21 @@ public class EventService {
     }
 
     private boolean matchesFilters(Event event, EventFilterDto filters) {
-        if (filters == null) return true;
+        if (filters == null) {
+            return true;
+        }
 
-        return (filters.titleContains() == null || event.getTitle().contains(filters.titleContains())) &&
-                (filters.descriptionContains() == null || event.getDescription()
-                        .contains(filters.descriptionContains()))
-                && (filters.ownerId() == null || event.getOwner().getId().equals(filters.ownerId())) &&
-                (filters.type() == null || event.getType().equals(filters.type()));
+        return (filters.titleContains() == null || event.getTitle().contains(filters.titleContains()))
+                && (filters.descriptionContains() == null || event.getDescription()
+                .contains(filters.descriptionContains()))
+                && (filters.ownerId() == null || event.getOwner().getId().equals(filters.ownerId()))
+                && (filters.type() == null || event.getType().equals(filters.type()));
     }
 
     private void validateOwnerSkills(User owner, Set<Long> skillsId) {
-        if (skillsId == null || skillsId.isEmpty()) return;
+        if (skillsId == null || skillsId.isEmpty()) {
+            return;
+        }
 
         Set<Long> ownerSkillsId = owner.getSkills().stream()
                 .map(Skill::getId)

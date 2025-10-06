@@ -37,7 +37,9 @@ public interface EventMapper {
 
     @Named("mapSkillTitles")
     default Set<String> mapSkillTitles(List<Skill> skills) {
-        if (skills == null || skills.isEmpty()) return Set.of();
+        if (skills == null || skills.isEmpty()) {
+            return Set.of();
+        }
         return skills.stream()
                 .map(Skill::getTitle)
                 .collect(Collectors.toSet());
