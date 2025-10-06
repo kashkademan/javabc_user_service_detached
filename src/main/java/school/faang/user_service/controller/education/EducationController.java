@@ -31,9 +31,9 @@ public class EducationController {
     }
 
     @PatchMapping("/{educationId}")
-    public EducationDto updateEducation(@Valid @RequestBody UpdateEducationDto updateEducationDto,
-                                        @PathVariable long educationId) {
-
+    public EducationDto updateEducation( @PathVariable long educationId,
+                                         @Valid @RequestBody UpdateEducationDto updateEducationDto
+                                            ) {
         return educationService.updateEducation(educationId, updateEducationDto);
     }
 
