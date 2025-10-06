@@ -13,6 +13,7 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.mapstruct.ReportingPolicy.IGNORE;
 
@@ -25,8 +26,6 @@ public interface GoalMapper {
     @Mapping(target = "skillsToAchieve", ignore = true)
     Goal toGoal(CreateGoalDto createGoalDto);
 
-    void update(UpdateGoalDto updateGoalDto, @MappingTarget Goal entity);
-
     @Mapping(source = "mentor.id", target = "mentorId")
     @Mapping(source = "users", target = "userIds", qualifiedByName = "mapUsersId")
     @Mapping(source = "skillsToAchieve", target = "skillIds", qualifiedByName = "mapSkillsId")
@@ -37,6 +36,24 @@ public interface GoalMapper {
         return users.stream()
                 .map(User::getId)
                 .toList();
+    }
+
+    static void update(UpdateGoalDto updateGoalDto, @MappingTarget Goal entity) {
+        if (Objects.nonNull(updateGoalDto.title())) {
+            entity.setTitle(updateGoalDto.title());
+        }
+
+        if (Objects.nonNull(updateGoalDto.description())) {
+            entity.setDescription(updateGoalDto.description());
+        }
+
+        if (Objects.nonNull(updateGoalDto.deadline())) {
+            entity.setDeadline(updateGoalDto.deadline());
+        }
+
+        if (Objects.nonNull(updateGoalDto.status())) {
+            entity.setStatus(updateGoalDto.status());
+        }
     }
 
     @Named("mapSkillsId")

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
@@ -13,8 +14,10 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.goal.FilterGoal;
+import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.SkillRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -34,12 +37,15 @@ public class GoalService {
     private static final int MAX_GOALS_FOR_ONE_USER = 2;
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
     private final UserContext userContext;
     private final List<FilterGoal> filterGoals;
+    private final GoalMapper goalMapper;
 
+    public Goal create(Goal goal, List<Long> userIds,
+                       List<Long> skillIds, Long mentorId) {
 
-    public Goal create(Goal goal, List<User> userList,
-                       List<Skill> skillList, User mentor) {
+        List<User> userList = userRepository.findAllById(userIds);
 
         userList.forEach(user -> {
             if (user.getGoals() != null) {
@@ -53,8 +59,10 @@ public class GoalService {
             }
         });
 
-        checkDealLineGoals(goal.getDeadline());
+        List<Skill> skillList = skillRepository.findAllById(skillIds);
 
+        checkDealLineGoals(goal.getDeadline());
+        User mentor = userRepository.getByIdOrThrow(mentorId);
         goal.setSkillsToAchieve(skillList);
         goal.setStatus(ACTIVE);
         goal.setMentor(mentor);
@@ -65,15 +73,31 @@ public class GoalService {
     }
 
     @Transactional
-    public Goal update(Goal goal, GoalStatus goalStatus, Long mentorId, LocalDateTime dateTime) {
+    public Goal update(Long goalId, UpdateGoalDto updateGoalDto) {
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
 
-        isParticipantInTheGoal(mentorId, goal);
+        if (Objects.nonNull(updateGoalDto.skillIds())) {
+            List<Skill> skillList = skillRepository.findAllById(updateGoalDto.skillIds());
+            goal.setSkillsToAchieve(skillList);
+        }
 
+
+        if (updateGoalDto.mentorId() != null) {
+            User mentor = userRepository.getByIdOrThrow(updateGoalDto.mentorId());
+            goal.setMentor(mentor);
+        }
+
+        long oldMentorId = goal.getMentor().getId();
+        GoalMapper.update(updateGoalDto, goal);
+
+        isParticipantInTheGoal(oldMentorId, goal);
+        LocalDateTime dateTime = updateGoalDto.deadline();
         if (Objects.nonNull(dateTime)) {
             checkDealLineGoals(dateTime);
             goal.setDeadline(dateTime);
         }
 
+        GoalStatus goalStatus = updateGoalDto.status();
         checkGoalStatus(goal, goalStatus);
 
         goalRepository.save(goal);
