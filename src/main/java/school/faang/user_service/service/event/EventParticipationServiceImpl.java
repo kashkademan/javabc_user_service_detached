@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventParticipationServiceImpl implements school.faang.user_service.service.event.EventParticipationService {
+public class EventParticipationServiceImpl implements EventParticipationService {
 
     private final EventParticipationRepository eventParticipationRepository;
     private final EventRepository eventRepository;

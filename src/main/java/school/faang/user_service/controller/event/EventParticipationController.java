@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
