@@ -13,4 +13,15 @@ public interface CareerMapper {
 
     @Mapping(source = "dateFrom", target = "from")
     CareerDto toCareerDto(Career career);
+
+    static CareerDto toCareerDtoWithUser(Career career) {
+        return CareerDto.builder()
+                .id(career.getId())
+                .userId(career.getUser().getId())
+                .to(career.getDateTo())
+                .from(career.getDateFrom())
+                .company(career.getCompany())
+                .position(career.getPosition())
+                .build();
+    }
 }
