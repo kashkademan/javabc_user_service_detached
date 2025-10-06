@@ -12,6 +12,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.user.User;
@@ -358,5 +359,142 @@ class RecommendationServiceImplTest {
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper, skillOfferRepository);
         }
 
+    }
+
+    @Nested
+    class Delete {
+
+        @Test
+        @DisplayName("delete: successfully deletes recommendation owned by user")
+        void delete_success() {
+
+            long recommendationId = 1L;
+            given(userContext.getUserId()).willReturn(100L);
+            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(1);
+
+            recommendationService.delete(recommendationId);
+
+            verify(recommendationRepository).deleteByIdAndAuthor_id(recommendationId, 100L);
+            verify(skillOfferRepository).deleteAllByRecommendationId(recommendationId);
+            verifyNoMoreInteractions(recommendationRepository, skillOfferRepository);
+        }
+
+        @Test
+        @DisplayName("delete: throws ForbiddenException when user is not the owner")
+        void delete_fail_notOwner() {
+
+            long recommendationId = 1L;
+            given(userContext.getUserId()).willReturn(100L);
+            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(0);
+
+            assertThatThrownBy(() -> recommendationService.delete(recommendationId))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessage("You can delete only your own recommendation or it does not exist");
+
+            verify(recommendationRepository).deleteByIdAndAuthor_id(recommendationId, 100L);
+            verifyNoInteractions(skillOfferRepository);
+            verifyNoMoreInteractions(recommendationRepository);
+        }
+
+        @Test
+        @DisplayName("delete: no exception thrown for non-existing recommendation")
+        void delete_fail_recommendationNotFound() {
+
+            long recommendationId = 1L;
+            given(userContext.getUserId()).willReturn(100L);
+            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(0);
+
+            assertThatThrownBy(() -> recommendationService.delete(recommendationId))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessage("You can delete only your own recommendation or it does not exist");
+
+            verify(recommendationRepository).deleteByIdAndAuthor_id(recommendationId, 100L);
+            verifyNoInteractions(skillOfferRepository);
+            verifyNoMoreInteractions(recommendationRepository);
+        }
+    }
+
+    @Nested
+    class GetByFilters {
+
+        @Test
+        @DisplayName("getByFilters: successfully filters recommendations based on criteria")
+        void getByFilters_success() {
+            Recommendation recommendation1 = new Recommendation();
+            Recommendation recommendation2 = new Recommendation();
+            User author = new User();
+            author.setId(100L);
+            recommendation1.setAuthor(author);
+            recommendation2.setAuthor(author);
+            recommendation1.setContent("Content with keyword");
+            recommendation2.setContent("Other content");
+            User receiver = new User();
+            receiver.setId(200L);
+            recommendation1.setReceiver(receiver);
+            recommendation2.setReceiver(receiver);
+
+            RecommendationDto dto1 = new RecommendationDto(1L, 100L, 200L, "Content with keyword");
+            RecommendationDto dto2 = new RecommendationDto(2L, 100L, 200L, "Other content");
+
+            RecommendationFilterDto filters = new RecommendationFilterDto("keyword", 100L, 200L);
+
+            given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
+            given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
+            given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
+
+            List<RecommendationDto> result = recommendationService.getByFilters(filters);
+
+            assertThat(result).containsExactly(dto1);
+            verify(recommendationRepository).findAll();
+            verify(recommendationMapper).toRecommendationDto(recommendation1);
+            verifyNoMoreInteractions(recommendationRepository, recommendationMapper);
+        }
+
+        @Test
+        @DisplayName("getByFilters: returns all recommendations when filters are empty")
+        void getByFilters_emptyFilters() {
+            Recommendation recommendation1 = new Recommendation();
+            Recommendation recommendation2 = new Recommendation();
+            User author1 = new User();
+            author1.setId(100L);
+            User author2 = new User();
+            author2.setId(101L);
+            recommendation1.setAuthor(author1);
+            recommendation2.setAuthor(author2);
+            recommendation1.setContent("First recommendation");
+            recommendation2.setContent("Second recommendation");
+
+            RecommendationDto dto1 = new RecommendationDto(1L, 100L, 200L, "First recommendation");
+            RecommendationDto dto2 = new RecommendationDto(2L, 101L, 201L, "Second recommendation");
+
+            RecommendationFilterDto filters = new RecommendationFilterDto(null, null, null);
+
+            given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
+            given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
+            given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
+
+            List<RecommendationDto> result = recommendationService.getByFilters(filters);
+
+            assertThat(result).containsExactlyInAnyOrder(dto1, dto2);
+            verify(recommendationRepository).findAll();
+            verify(recommendationMapper).toRecommendationDto(recommendation1);
+            verify(recommendationMapper).toRecommendationDto(recommendation2);
+            verifyNoMoreInteractions(recommendationRepository, recommendationMapper);
+        }
+
+        @Test
+        @DisplayName("getByFilters: returns empty list if no recommendations match filters")
+        void getByFilters_noResults() {
+            RecommendationFilterDto filters = new RecommendationFilterDto("unmatched", 123L, 456L);
+
+            given(recommendationRepository.findAll()).willReturn(Collections.emptyList());
+
+            List<RecommendationDto> result = recommendationService.getByFilters(filters);
+
+            assertThat(result).isEmpty();
+            verify(recommendationRepository).findAll();
+            verifyNoInteractions(recommendationMapper);
+            verifyNoMoreInteractions(recommendationRepository);
+        }
     }
 }
