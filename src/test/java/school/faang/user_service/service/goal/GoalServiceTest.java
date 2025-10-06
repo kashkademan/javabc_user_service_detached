@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
@@ -67,6 +69,11 @@ class GoalServiceTest {
     private ArgumentCaptor<Goal> goalCaptor;
     @Captor
     private ArgumentCaptor<List<UserSkillGuarantee>> guaranteesCaptor;
+
+    @BeforeEach
+    void beforeEach() {
+        ReflectionTestUtils.setField(goalService, "maxGoalsPerUser", 2);
+    }
 
     @ParameterizedTest
     @MethodSource("invalidDeadlines")

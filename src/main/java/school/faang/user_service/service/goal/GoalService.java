@@ -3,6 +3,7 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -35,6 +36,9 @@ import java.util.Objects;
 @Service
 @Slf4j
 public class GoalService {
+
+    @Value("${goal.max-active-goals}")
+    private int maxGoalsPerUser;
 
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
@@ -299,7 +303,7 @@ public class GoalService {
         createGoalDto.userIds()
                 .forEach(userId -> {
                     int activeGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
-                    if (activeGoalsCount >= 2) {
+                    if (activeGoalsCount >= maxGoalsPerUser) {
                         throw new DataValidationException("User has more than 2 active goals: %s"
                                 .formatted(activeGoalsCount));
                     }
