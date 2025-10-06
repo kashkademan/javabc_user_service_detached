@@ -69,9 +69,11 @@ public class Event {
     private User owner;
 
     @ManyToMany
-    @JoinTable(name = "event_skill",
+    @JoinTable(
+            name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id"))
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
     private List<Skill> relatedSkills;
 
     @Column(name = "type")
