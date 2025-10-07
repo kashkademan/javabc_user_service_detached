@@ -15,7 +15,6 @@ import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
 import school.faang.user_service.dto.recommendation.RecommendationResponse;
 import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;
@@ -30,25 +29,12 @@ public class RecommendationController {
 
     @PostMapping
     public RecommendationResponse create(@Valid @RequestBody CreateRecommendationRequest request) {
-
-        if (request == null) {
-            throw new DataValidationException("request is required");
-        }
-        if (request.receiverId() == null) {
-            throw new DataValidationException("receiverId is required");
-        }
-        if (isBlank(request.content())) {
-            throw new DataValidationException("content must not be blank");
-        }
         return recommendationService.create(request);
     }
 
     @PutMapping("/{recommendationId}")
     public RecommendationResponse update(@PathVariable @Positive long recommendationId,
                                          @Valid @RequestBody UpdateRecommendationRequest request) {
-        if (request == null || isBlank(request.content())) {
-            throw new DataValidationException("content must not be blank");
-        }
         return recommendationService.update(recommendationId, request);
     }
 
@@ -60,9 +46,5 @@ public class RecommendationController {
     @GetMapping
     public List<RecommendationResponse> getByFilters(@Valid FilterRecommendationRequest filters) {
         return recommendationService.getByFilters(filters);
-    }
-
-    private boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
     }
 }
