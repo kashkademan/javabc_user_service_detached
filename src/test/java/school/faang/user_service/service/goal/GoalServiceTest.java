@@ -49,6 +49,7 @@ public class GoalServiceTest {
     private GoalService goalService;
 
     private Goal goal;
+    private Long userId;
     private User user1;
     private User user2;
     private User mentor;
@@ -62,6 +63,7 @@ public class GoalServiceTest {
     @BeforeEach
     public void setUp() {
         goal = new Goal();
+        goal.setId(1L);
         goal.setTitle("Test Goal");
         goal.setDeadline(LocalDateTime.now().plusDays(30));
         user1 = new User();
@@ -74,13 +76,12 @@ public class GoalServiceTest {
         skill2 = new Skill();
         skill2.setId(20L);
         skillList = Arrays.asList(skill1, skill2);
-
+        mentorId = 3L;
         mentor = new User();
-        mentor.setId(3L);
+        mentor.setId(mentorId);
 
         userIds = Arrays.asList(1L, 2L);
         skillIds = Arrays.asList(10L, 20L);
-        mentorId = 3L;
     }
 
     @Test
@@ -132,5 +133,53 @@ public class GoalServiceTest {
                 () -> goalService.create(goal, userIds, skillIds, mentorId));
 
         verify(goalRepository, never()).save(any(Goal.class));
+    }
+
+    @Test
+    @DisplayName("Checking for goal deletion when the request was made by a mentor")
+    public void delete_CheckForGoalFullRemove() {
+        userId = 3L;
+        Long goalId = 1L;
+        List<User> users = List.of(user1, user2);
+        goal.setUsers(users);
+        goal.setMentor(mentor);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(userContext.getUserId()).thenReturn(userId);
+
+        goalService.delete(goalId);
+
+        verify(goalRepository, times(1)).deleteById(goalId);
+    }
+
+    @Test
+    @DisplayName("Checking if a user's target has been deleted when the target has ONLY ONE user")
+    public void delete_CheckForRemoveGoalHaveOneUser() {
+        userId = 1L;
+        Long goalId = 1L;
+        List<User> users = List.of(user1);
+        goal.setUsers(users);
+        goal.setMentor(mentor);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(userContext.getUserId()).thenReturn(userId);
+
+        goalService.delete(goalId);
+
+        verify(goalRepository, times(1)).deleteById(goalId);
+    }
+
+    @Test
+    @DisplayName("Checking if a user's target has been deleted when the target has ANY user")
+    public void delete_CheckForRemoveGoalHaveAnyUser() {
+        userId = 1L;
+        Long goalId = 1L;
+        List<User> users = List.of(user1, user2);
+        goal.setUsers(users);
+        goal.setMentor(mentor);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        when(userContext.getUserId()).thenReturn(userId);
+
+        goalService.delete(goalId);
+
+        verify(goalRepository, times(1)).deleteUserFromGoal(userId, goalId);
     }
 }
