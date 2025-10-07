@@ -36,7 +36,8 @@ public class WorkScheduleService {
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
-    public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
+    public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId,
+                                              UpdateWorkScheduleDto updateWorkScheduleDto) {
         UpdateWorkScheduleValidator.validate(updateWorkScheduleDto);
 
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);

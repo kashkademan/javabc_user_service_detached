@@ -60,16 +60,19 @@ public class WorkScheduleValidatorTest {
 
     @Test
     void testStartTimeNotBeforeLunchStart() {
-        Assertions.assertThrows(DataValidationException.class, () -> WorkScheduleValidator.validate(invalidStartTimeDto));
+        Assertions.assertThrows(DataValidationException.class, () ->
+                WorkScheduleValidator.validate(invalidStartTimeDto));
     }
 
     @Test
     void testLunchStartTimeNotBeforeLunchEnd() {
-        Assertions.assertThrows(DataValidationException.class, () -> WorkScheduleValidator.validate(invalidLunchStartDto));
+        Assertions.assertThrows(DataValidationException.class, () ->
+                WorkScheduleValidator.validate(invalidLunchStartDto));
     }
 
     @Test
     void testLunchEndTimeNotBeforeEnd() {
-        Assertions.assertThrows(DataValidationException.class, () -> WorkScheduleValidator.validate(invalidLunchEndDto));
+        Assertions.assertThrows(DataValidationException.class, () ->
+                WorkScheduleValidator.validate(invalidLunchEndDto));
     }
 }

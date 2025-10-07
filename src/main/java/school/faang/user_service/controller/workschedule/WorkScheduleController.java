@@ -26,7 +26,8 @@ public class WorkScheduleController {
     }
 
     @PutMapping("/{id}")
-    public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId, @RequestBody UpdateWorkScheduleDto updateWorkScheduleDto) {
+    public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId,
+                                              @RequestBody UpdateWorkScheduleDto updateWorkScheduleDto) {
         return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, updateWorkScheduleDto);
     }
 
