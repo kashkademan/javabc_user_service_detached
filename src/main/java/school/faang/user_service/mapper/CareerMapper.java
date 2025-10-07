@@ -1,17 +1,14 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.career.CareerResponse;
-import school.faang.user_service.dto.career.CreateCareerRequest;
-import school.faang.user_service.dto.career.UpdateCareerRequest;
+import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.entity.user.Career;
 
 @Mapper(componentModel = "spring")
 public interface CareerMapper {
 
-    Career toEntity(CreateCareerRequest request);
+    Career toCareer(CareerDto careerDto);
 
-    Career toEntity(UpdateCareerRequest request);
+    CareerDto toCareerDto(Career career);
 
-    CareerResponse toResponse(Career career);
 }

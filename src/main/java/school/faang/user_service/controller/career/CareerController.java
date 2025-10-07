@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.career.CareerResponse;
-import school.faang.user_service.dto.career.CreateCareerRequest;
-import school.faang.user_service.dto.career.UpdateCareerRequest;
+import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.service.career.CareerService;
 
 @Slf4j
@@ -27,23 +25,23 @@ public class CareerController {
     private final UserContext userContext;
 
     @PostMapping
-    public CareerResponse addCareer(@Valid @RequestBody CreateCareerRequest request) {
+    public CareerDto addCareer(@Valid @RequestBody CareerDto careerDto) {
         Long userId = userContext.getUserId();
-        log.info("User {} is adding career: {} at {}", userId, request.position(),
-                request.company());
-        return careerService.addCareer(userId, request);
+        log.info("User {} is adding career: {} at {}", userId, careerDto.position(),
+                careerDto.company());
+        return careerService.addCareer(userId, careerDto);
     }
 
     @PutMapping("/{careerId}")
-    public CareerResponse updateCareer(@PathVariable long careerId,
-                                       @Valid @RequestBody UpdateCareerRequest request) {
+    public CareerDto updateCareer(@PathVariable long careerId,
+                                       @Valid @RequestBody CareerDto careerDto) {
         Long userId = userContext.getUserId();
         log.info("User {} is updating career {}", userId, careerId);
-        return careerService.updateCareer(userId, careerId, request);
+        return careerService.updateCareer(userId, careerId, careerDto);
     }
 
     @GetMapping("/{careerId}")
-    public CareerResponse getById(@PathVariable long careerId) {
+    public CareerDto getById(@PathVariable long careerId) {
         log.info("Retrieved career with id: {}", careerId);
         return careerService.getById(careerId);
     }

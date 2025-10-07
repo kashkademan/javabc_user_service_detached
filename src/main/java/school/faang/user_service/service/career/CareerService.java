@@ -1,8 +1,6 @@
 package school.faang.user_service.service.career;
 
-import school.faang.user_service.dto.career.CareerResponse;
-import school.faang.user_service.dto.career.CreateCareerRequest;
-import school.faang.user_service.dto.career.UpdateCareerRequest;
+import school.faang.user_service.dto.career.CareerDto;
 
 /**
  * Сервис для управления данными о карьере пользователей.
@@ -17,12 +15,12 @@ public interface CareerService {
      * дата окончания не раньше даты начала и т.д.).
      *
      * @param userId  идентификатор пользователя, для которого добавляется карьера
-     * @param request DTO с данными для создания карьеры
-     * @return CareerResponse с данными созданной карьеры, включая присвоенный ID
+     * @param careerDto DTO с данными для создания карьеры
+     * @return careerDto с данными созданной карьеры, включая присвоенный ID
      * @throws DataValidationException если данные не прошли валидацию
      * @throws RuntimeException если пользователь с указанным ID не найден
      */
-    CareerResponse addCareer(Long userId, CreateCareerRequest request);
+    CareerDto addCareer(Long userId, CareerDto careerDto);
 
     /**
      * Обновляет существующие данные о карьере.
@@ -32,19 +30,19 @@ public interface CareerService {
      * @param userId идентификатор пользователя, выполняющего обновление
      * @param careerId идентификатор карьеры, которую необходимо обновить
      * @param request DTO с обновленными данными карьеры
-     * @return CareerResponse с обновленными данными карьеры
+     * @return CareerDto с обновленными данными карьеры
      * @throws DataValidationException если данные не прошли валидацию
      * @throws ForbiddenException если пользователь не является владельцем карьеры
      * @throws RuntimeException если карьера с указанным ID не найдена
      */
-    CareerResponse updateCareer(Long userId, long careerId, UpdateCareerRequest request);
+    CareerDto updateCareer(Long userId, long careerId, CareerDto careerDto);
 
     /**
      * Получает данные о карьере по её идентификатору.
      *
      * @param careerId идентификатор карьеры
-     * @return CareerResponse с данными запрошенной карьеры
+     * @return CareerDto с данными запрошенной карьеры
      * @throws RuntimeException если карьера с указанным ID не найдена
      */
-    CareerResponse getById(long careerId);
+    CareerDto getById(long careerId);
 }
