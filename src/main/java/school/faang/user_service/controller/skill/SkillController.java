@@ -2,8 +2,7 @@ package school.faang.user_service.controller.skill;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -13,7 +12,7 @@ import school.faang.user_service.service.skill.SkillService;
 import java.util.List;
 
 @Slf4j
-@Component
+@Controller
 @RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;
