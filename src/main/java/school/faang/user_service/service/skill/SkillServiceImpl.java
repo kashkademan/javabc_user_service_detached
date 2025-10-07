@@ -1,5 +1,6 @@
 package school.faang.user_service.service.skill;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,29 +24,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
 
-    private final int minSkillRecommendationsCount;
+    @Value("${user.skill.recommendation.min}")
+    private int minSkillRecommendationsCount;
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
     private final UserContext userContext;
     private final UserRepository userRepository;
-
-    @Autowired
-    public SkillServiceImpl(@Value("${user.skill.recommendation.min}") int minSkillRecommendationsCount,
-                            SkillRepository skillRepository,
-                            SkillMapper skillMapper,
-                            SkillOfferRepository skillOfferRepository,
-                            UserContext userContext,
-                            UserRepository userRepository) {
-        this.minSkillRecommendationsCount = minSkillRecommendationsCount;
-        this.skillRepository = skillRepository;
-        this.skillMapper = skillMapper;
-        this.skillOfferRepository = skillOfferRepository;
-        this.userContext = userContext;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
