@@ -6,13 +6,13 @@ import school.faang.user_service.exception.DataValidationException;
 public class WorkScheduleValidator {
     public static void validate(WorkScheduleDto dto) {
         if (!dto.startTime().isBefore(dto.startLunch())) {
-            throw new DataValidationException("Стартовое время графика должно быть раньше времени старта обеда");
+            throw new DataValidationException("Start time must be before lunch start time");
         }
         if (!dto.startLunch().isBefore(dto.endLunch())) {
-            throw new DataValidationException("Время старта обеда должно быть раньше времени его окончания");
+            throw new DataValidationException("Lunch start time must be before lunch end time");
         }
         if (!dto.endLunch().isBefore(dto.endTime())) {
-            throw new DataValidationException("Время конца обеда должно быть раньше времени конца графика");
+            throw new DataValidationException("Lunch end time must be before work end time");
         }
     }
 }
