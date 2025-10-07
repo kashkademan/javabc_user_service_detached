@@ -432,12 +432,11 @@ class RecommendationServiceImplTest {
             RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "Content with keyword");
             RecommendationResponse dto2 = new RecommendationResponse(2L, 100L, 200L, "Other content");
 
-            FilterRecommendationRequest filters = new FilterRecommendationRequest("keyword", 100L, 200L);
-
             given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
             given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
             given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
 
+            FilterRecommendationRequest filters = new FilterRecommendationRequest("keyword", 100L, 200L);
             List<RecommendationResponse> result = recommendationService.getByFilters(filters);
 
             assertThat(result).containsExactly(dto1);
@@ -449,11 +448,6 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("getByFilters: returns all recommendations when filters are empty")
         void getByFilters_emptyFilters() {
-
-            RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "First recommendation");
-            RecommendationResponse dto2 = new RecommendationResponse(2L, 101L, 201L, "Second recommendation");
-
-            FilterRecommendationRequest filters = new FilterRecommendationRequest(null, null, null);
 
             Recommendation recommendation1 = new Recommendation();
             User author1 = new User();
@@ -468,9 +462,12 @@ class RecommendationServiceImplTest {
             recommendation2.setContent("Second recommendation");
 
             given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
+            RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "First recommendation");
             given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
+            RecommendationResponse dto2 = new RecommendationResponse(2L, 101L, 201L, "Second recommendation");
             given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
 
+            FilterRecommendationRequest filters = new FilterRecommendationRequest(null, null, null);
             List<RecommendationResponse> result = recommendationService.getByFilters(filters);
 
             assertThat(result).containsExactlyInAnyOrder(dto1, dto2);
