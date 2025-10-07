@@ -23,6 +23,7 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDto addEducation(long userId, EducationDto educationDto) {
+        validateEducation(educationDto);
         validateYearFrom(educationDto.yearFrom());
 
         User user = userRepository.getByIdOrThrow(userId);
@@ -37,6 +38,7 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDto updateEducation(long userId, long educationId, EducationDto educationDto) {
+        validateEducation(educationDto);
         validateYearFrom(educationDto.yearFrom());
 
         Education education = educationRepository.getByIdOrThrow(educationId);
@@ -65,8 +67,17 @@ public class EducationServiceImpl implements EducationService {
     private void validateYearFrom(int yearFrom) {
         if (yearFrom > LocalDate.now().getYear()) {
             String errorMessage = "Неверный год поступления";
-            log.error(errorMessage);
+            log.warn(errorMessage);
             throw new DataValidationException(errorMessage);
+        }
+    }
+
+    private void validateEducation(EducationDto educationDto) {
+        if (educationDto.yearFrom() == null
+                && educationDto.institution().isBlank()) {
+            String message = "Отсутствуют год поступления или учебное заведение";
+            log.warn(message);
+            throw new DataValidationException(message);
         }
     }
 

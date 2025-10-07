@@ -16,14 +16,10 @@ public class EducationController {
     private final UserContext userContext;
 
     public EducationDto addEducation(EducationDto educationDto) {
-        validateEducation(educationDto);
-
         return educationService.addEducation(userContext.getUserId(), educationDto);
     }
 
     public EducationDto updateEducation(long educationId, EducationDto educationDto) {
-        validateEducation(educationDto);
-
         return educationService.updateEducation(userContext.getUserId(),
                 educationId,
                 educationDto);
@@ -33,12 +29,4 @@ public class EducationController {
         return educationService.getById(educationId);
     }
 
-    private void validateEducation(EducationDto educationDto) {
-        if (educationDto.yearFrom() == null
-                && educationDto.institution().isBlank()) {
-            String message = "Отсутствуют год поступления или учебное заведение";
-            log.error(message);
-            throw new DataValidationException(message);
-        }
-    }
 }
