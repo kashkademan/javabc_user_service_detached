@@ -115,7 +115,7 @@ public class GoalServiceTest {
         assertNotNull(result);
         assertEquals(mentor, result.getMentor());
         assertEquals(1L, result.getId());
-        assertEquals("Test Goal", result.getTitle());
+        assertEquals("Test", result.getTitle());
         assertEquals(skillList, result.getSkillsToAchieve());
 
         verify(goalRepository, times(1)).save(any(Goal.class));
