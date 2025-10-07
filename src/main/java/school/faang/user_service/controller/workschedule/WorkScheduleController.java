@@ -21,7 +21,7 @@ public class WorkScheduleController {
         return workScheduleService.addWorkSchedule(userContext.getUserId(), workScheduleDto);
     }
 
-    public UpdateWorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
+    public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
         return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, updateWorkScheduleDto);
     }
 
