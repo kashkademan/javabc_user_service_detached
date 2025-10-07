@@ -1,12 +1,10 @@
 package school.faang.user_service.service.validator;
 
-import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 
-@Component
 public class WorkScheduleValidator {
-    public void validate(WorkScheduleDto dto) {
+    public static void validate(WorkScheduleDto dto) {
         if (!dto.startTime().isBefore(dto.startLunch())) {
             throw new DataValidationException("Стартовое время графика должно быть раньше времени старта обеда");
         }
