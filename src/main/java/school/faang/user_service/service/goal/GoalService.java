@@ -76,21 +76,20 @@ public class GoalService {
     public Goal update(Long goalId, UpdateGoalDto updateGoalDto) {
         Goal goal = goalRepository.getByIdOrThrow(goalId);
 
+        long oldMentorId = goal.getMentor().getId();
+        isParticipantInTheGoal(oldMentorId, goal);
+
         if (Objects.nonNull(updateGoalDto.skillIds())) {
             List<Skill> skillList = skillRepository.findAllById(updateGoalDto.skillIds());
             goal.setSkillsToAchieve(skillList);
         }
 
-
         if (updateGoalDto.mentorId() != null) {
             User mentor = userRepository.getByIdOrThrow(updateGoalDto.mentorId());
             goal.setMentor(mentor);
         }
-
-        long oldMentorId = goal.getMentor().getId();
         GoalMapper.update(updateGoalDto, goal);
 
-        isParticipantInTheGoal(oldMentorId, goal);
         LocalDateTime dateTime = updateGoalDto.deadline();
         if (Objects.nonNull(dateTime)) {
             checkDealLineGoals(dateTime);
