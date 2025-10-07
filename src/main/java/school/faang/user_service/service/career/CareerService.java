@@ -64,7 +64,6 @@ public class CareerService {
         if (!Objects.equals(user.getId(), currentUserId)) {
             throw new ForbiddenException("You are not allowed to delete this career");
         }
-
         careerRepository.delete(career);
     }
 
@@ -80,9 +79,9 @@ public class CareerService {
             throw new ForbiddenException("You are not allowed to update this career");
         }
 
-        Career updatedCareer = careerMapper.toCareer(updateCareerDto);
-        updatedCareer.setUser(career.getUser());
-        updatedCareer = careerRepository.save(updatedCareer);
-        return careerMapper.toCareerDto(updatedCareer);
+        careerMapper.update(updateCareerDto, career);
+        career.setUser(career.getUser());
+        career = careerRepository.save(career);
+        return careerMapper.toCareerDto(career);
     }
 }

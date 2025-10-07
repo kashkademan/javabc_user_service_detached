@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
@@ -23,5 +24,23 @@ public interface CareerMapper {
                 .company(career.getCompany())
                 .position(career.getPosition())
                 .build();
+    }
+
+    default void update(UpdateCareerDto dto, Career career) {
+        if (dto == null) {
+            return;
+        }
+        if (dto.from() != null) {
+            career.setDateFrom(dto.from());
+        }
+        if (dto.to() != null) {
+            career.setDateTo(dto.to());
+        }
+        if (dto.company() != null) {
+            career.setCompany(dto.company());
+        }
+        if (dto.position() != null) {
+            career.setPosition(dto.position());
+        }
     }
 }
