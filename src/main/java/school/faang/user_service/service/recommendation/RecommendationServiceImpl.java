@@ -143,7 +143,9 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .filter(r -> authorId == null || Objects.equals(r.getAuthor().getId(), authorId))
                 .filter(r -> receiverId == null || Objects.equals(r.getReceiver().getId(), receiverId))
                 .filter(r -> {
-                    if (isBlank(contentContains)) return true;
+                    if (isBlank(contentContains)) {
+                        return true;
+                    }
                     String c = r.getContent();
                     return c != null && c.toLowerCase().contains(contentContains.toLowerCase());
                 })

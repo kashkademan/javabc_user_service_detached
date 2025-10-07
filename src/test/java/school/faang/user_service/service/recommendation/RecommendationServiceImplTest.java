@@ -139,10 +139,6 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("create: throws DataValidationException on cooldown violations")
         void create_fail_cooldownViolation() {
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
-                    42L, "Sample content", List.of(1L, 2L)
-            );
-
             Recommendation existing = new Recommendation();
             existing.setContent("Old content");
             User author = new User();
@@ -156,6 +152,9 @@ class RecommendationServiceImplTest {
             given(recommendationRepository.findAll()).willReturn(List.of(existing));
             given(userContext.getUserId()).willReturn(100L);
 
+            CreateRecommendationRequest input = new CreateRecommendationRequest(
+                    42L, "Sample content", List.of(1L, 2L)
+            );
             assertThatThrownBy(() -> recommendationService.create(input))
                     .isInstanceOf(DataValidationException.class)
                     .hasMessageContaining("You can leave a recommendation for this user only once in");
@@ -220,11 +219,7 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("update: successfully updates recommendation and returns DTO")
         void update_success() {
-
             long recommendationId = 1L;
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
-                    "Updated content", null
-            );
             Recommendation existing = new Recommendation();
             existing.setId(recommendationId);
             existing.setContent("Old content");
@@ -246,6 +241,9 @@ class RecommendationServiceImplTest {
             given(recommendationRepository.save(existing)).willReturn(updated);
             given(recommendationMapper.toRecommendationDto(updated)).willReturn(expectedDto);
 
+            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+                    "Updated content", null
+            );
             RecommendationResponse result = recommendationService.update(recommendationId, input);
 
             assertThat(result).isEqualTo(expectedDto);
@@ -294,9 +292,6 @@ class RecommendationServiceImplTest {
         void update_fail_forbidden() {
 
             long recommendationId = 1L;
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
-                    "Updated content", null
-            );
             Recommendation existing = new Recommendation();
             existing.setId(recommendationId);
             existing.setContent("Old content");
@@ -307,6 +302,9 @@ class RecommendationServiceImplTest {
             given(userContext.getUserId()).willReturn(100L);
             given(recommendationRepository.findById(recommendationId)).willReturn(Optional.of(existing));
 
+            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+                    "Updated content", null
+            );
             assertThatThrownBy(() -> recommendationService.update(recommendationId, input))
                     .isInstanceOf(ForbiddenException.class)
                     .hasMessage("You can update only your own recommendation");
@@ -320,9 +318,6 @@ class RecommendationServiceImplTest {
         void update_success_withSkillIds() {
 
             long recommendationId = 1L;
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
-                    "Updated content", List.of(1L, 2L)
-            );
             Recommendation existing = new Recommendation();
             existing.setId(recommendationId);
             existing.setContent("Old content");
@@ -345,6 +340,9 @@ class RecommendationServiceImplTest {
             given(recommendationRepository.save(existing)).willReturn(updated);
             given(recommendationMapper.toRecommendationDto(updated)).willReturn(expectedDto);
 
+            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+                    "Updated content", List.of(1L, 2L)
+            );
             RecommendationResponse result = recommendationService.update(recommendationId, input);
 
             assertThat(result).isEqualTo(expectedDto);
@@ -451,21 +449,23 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("getByFilters: returns all recommendations when filters are empty")
         void getByFilters_emptyFilters() {
-            Recommendation recommendation1 = new Recommendation();
-            Recommendation recommendation2 = new Recommendation();
-            User author1 = new User();
-            author1.setId(100L);
-            User author2 = new User();
-            author2.setId(101L);
-            recommendation1.setAuthor(author1);
-            recommendation2.setAuthor(author2);
-            recommendation1.setContent("First recommendation");
-            recommendation2.setContent("Second recommendation");
 
             RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "First recommendation");
             RecommendationResponse dto2 = new RecommendationResponse(2L, 101L, 201L, "Second recommendation");
 
             FilterRecommendationRequest filters = new FilterRecommendationRequest(null, null, null);
+
+            Recommendation recommendation1 = new Recommendation();
+            User author1 = new User();
+            author1.setId(100L);
+            recommendation1.setAuthor(author1);
+            recommendation1.setContent("First recommendation");
+
+            User author2 = new User();
+            author2.setId(101L);
+            Recommendation recommendation2 = new Recommendation();
+            recommendation2.setAuthor(author2);
+            recommendation2.setContent("Second recommendation");
 
             given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
             given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
