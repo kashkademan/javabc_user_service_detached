@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.EducationDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.education.EducationService;
 
 @Controller
