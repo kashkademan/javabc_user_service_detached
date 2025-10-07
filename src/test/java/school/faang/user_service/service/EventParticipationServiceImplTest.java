@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.User;
@@ -58,8 +59,12 @@ public class EventParticipationServiceImplTest {
     @Test
     public void checkRegisterParticipantSuccess() {
         event.setAttendees(List.of());
-        service.registerParticipant(eventId, userId);
+        EventParticipationDto expectedDto = new EventParticipationDto(eventId, userId);
+        when(eventParticipationRepository.register(eventId, userId)).thenReturn(expectedDto);
 
+        EventParticipationDto result = service.registerParticipant(eventId, userId);
+
+        assertEquals(expectedDto, result);
         verify(eventParticipationRepository).register(eventId, userId);
     }
 

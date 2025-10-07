@@ -3,6 +3,7 @@ package school.faang.user_service.repository.event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.entity.user.User;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface EventParticipationRepository extends JpaRepository<User, Long> 
 
     @Modifying
     @Query(nativeQuery = true, value = "INSERT INTO user_event (event_id, user_id) VALUES (:eventId, :userId)")
-    void register(long eventId, long userId);
+    EventParticipationDto register(long eventId, long userId);
 
     @Modifying
     @Query(nativeQuery = true, value = "DELETE FROM user_event WHERE event_id = :eventId AND user_id = :userId")

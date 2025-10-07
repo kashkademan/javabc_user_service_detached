@@ -8,20 +8,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PostMapping("/{eventId}/participants/{userId}")
-    public void registerParticipant(@PathVariable long eventId, @PathVariable long userId) {
-        eventParticipationService.registerParticipant(eventId, userId);
+    public EventParticipationDto registerParticipant(@PathVariable long eventId, @PathVariable long userId) {
+        return eventParticipationService.registerParticipant(eventId, userId);
     }
 
     @DeleteMapping("/{eventId}/participants/{userId}")

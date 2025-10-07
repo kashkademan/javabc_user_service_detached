@@ -1,6 +1,7 @@
 package school.faang.user_service.service.event;
 
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.dto.user.UserDto;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface EventParticipationService {
     /**
      * Метод регистрирует участников на событие
      */
-    void registerParticipant(long eventId, long userId);
+    EventParticipationDto registerParticipant(long eventId, long userId);
 
     /**
      * Метод отменяет участие в событии

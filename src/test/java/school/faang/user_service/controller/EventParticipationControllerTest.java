@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.controller.event.EventParticipationController;
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
 
@@ -38,8 +39,13 @@ public class EventParticipationControllerTest {
     }
 
     @Test
-    void registerParticipant_shouldCallService() {
-        controller.registerParticipant(eventId, userId);
+    void registerParticipant_shouldReturnDto() {
+        EventParticipationDto eventParticipationDto = new EventParticipationDto(eventId, userId);
+        when(service.registerParticipant(eventId, userId)).thenReturn(eventParticipationDto);
+
+        EventParticipationDto result = controller.registerParticipant(eventId, userId);
+
+        assertEquals(eventParticipationDto, result);
         verify(service).registerParticipant(eventId, userId);
     }
 

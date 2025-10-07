@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.EventParticipationDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
@@ -23,15 +24,15 @@ public class EventParticipationServiceImpl implements EventParticipationService 
     private final UserMapper userMapper;
 
     @Override
-    public void registerParticipant(long eventId, long userId) {
+    public EventParticipationDto registerParticipant(long eventId, long userId) {
         log.info("User registration {} for event {}", userId, eventId);
         List<User> attendees = eventRepository.getByIdOrThrow(eventId).getAttendees();
         attendees.stream().filter(user -> user.getId() == userId).findFirst().ifPresent(user -> {
             log.warn("Participant {} try to make double registration for event {}", userId, eventId);
             throw new ForbiddenException("Double registration is forbidden!");
         });
-        eventParticipationRepository.register(eventId, userId);
         log.info("User {} successfully registered for event {}", userId, eventId);
+        return eventParticipationRepository.register(eventId, userId);
     }
 
     @Override
