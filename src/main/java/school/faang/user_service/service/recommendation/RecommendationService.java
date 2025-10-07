@@ -1,9 +1,9 @@
 package school.faang.user_service.service.recommendation;
 
-import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.RecommendationResponse;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public interface RecommendationService {
      * @param recommendationDto данные для создания рекомендации (получатель, содержимое, необязательные skillIds)
      * @return созданная рекомендация
      */
-    RecommendationDto create(CreateRecommendationDto recommendationDto);
+    RecommendationResponse create(CreateRecommendationRequest recommendationDto);
 
     /**
      * Обновляет существующую рекомендацию по ее идентификатору.
@@ -43,7 +43,7 @@ public interface RecommendationService {
      * @param recommendationDto поля для обновления
      * @return обновленная рекомендация
      */
-    RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto);
+    RecommendationResponse update(long recommendationId, UpdateRecommendationRequest recommendationDto);
 
     /**
      * Удаляет рекомендацию по ее идентификатору.
@@ -67,5 +67,5 @@ public interface RecommendationService {
      * @param filters критерии фильтрации (например, автор, получатель, диапазон дат, скиллы)
      * @return список рекомендаций, удовлетворяющих фильтрам (возможно пустой)
      */
-    List<RecommendationDto> getByFilters(RecommendationFilterDto filters);
+    List<RecommendationResponse> getByFilters(FilterRecommendationRequest filters);
 }

@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.RecommendationResponse;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
@@ -29,27 +29,27 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public RecommendationDto create(@Valid @RequestBody CreateRecommendationDto recommendationDto) {
+    public RecommendationResponse create(@Valid @RequestBody CreateRecommendationRequest request) {
 
-        if (recommendationDto == null) {
-            throw new DataValidationException("recommendationDto is required");
+        if (request == null) {
+            throw new DataValidationException("request is required");
         }
-        if (recommendationDto.receiverId() == null) {
+        if (request.receiverId() == null) {
             throw new DataValidationException("receiverId is required");
         }
-        if (isBlank(recommendationDto.content())) {
+        if (isBlank(request.content())) {
             throw new DataValidationException("content must not be blank");
         }
-        return recommendationService.create(recommendationDto);
+        return recommendationService.create(request);
     }
 
     @PutMapping("/{recommendationId}")
-    public RecommendationDto update(@PathVariable @Positive long recommendationId,
-                                    @Valid @RequestBody UpdateRecommendationDto recommendationDto) {
-        if (recommendationDto == null || isBlank(recommendationDto.content())) {
+    public RecommendationResponse update(@PathVariable @Positive long recommendationId,
+                                         @Valid @RequestBody UpdateRecommendationRequest request) {
+        if (request == null || isBlank(request.content())) {
             throw new DataValidationException("content must not be blank");
         }
-        return recommendationService.update(recommendationId, recommendationDto);
+        return recommendationService.update(recommendationId, request);
     }
 
     @DeleteMapping("/{recommendationId}")
@@ -58,7 +58,7 @@ public class RecommendationController {
     }
 
     @GetMapping
-    public List<RecommendationDto> getByFilters(@Valid RecommendationFilterDto filters) {
+    public List<RecommendationResponse> getByFilters(@Valid FilterRecommendationRequest filters) {
         return recommendationService.getByFilters(filters);
     }
 

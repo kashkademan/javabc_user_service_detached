@@ -3,7 +3,7 @@ package school.faang.user_service.dto.recommendation;
 /**
  * Фильтры для поиска рекомендаций.
  */
-public record RecommendationFilterDto(
+public record FilterRecommendationRequest(
         String contentContains,
         Long authorId,
         Long receiverId

@@ -1,7 +1,8 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
+import org.mapstruct.Mapping;
+import school.faang.user_service.dto.recommendation.RecommendationResponse;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 /**
@@ -9,5 +10,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
  */
 @Mapper(componentModel = "spring")
 public interface RecommendationMapper {
-    RecommendationDto toRecommendationDto(Recommendation recommendation);
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "receiverId", source = "receiver.id")
+    RecommendationResponse toRecommendationDto(Recommendation recommendation);
 }

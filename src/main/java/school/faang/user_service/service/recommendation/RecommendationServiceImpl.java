@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.RecommendationResponse;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -38,10 +38,10 @@ public class RecommendationServiceImpl implements RecommendationService {
     private int cooldownMonths;
 
     @Override
-    public RecommendationDto create(CreateRecommendationDto recommendationDto) {
+    public RecommendationResponse create(CreateRecommendationRequest request) {
         final Long authorId = userContext.getUserId();
-        final Long receiverId = recommendationDto.receiverId();
-        final String content = recommendationDto.content();
+        final Long receiverId = request.receiverId();
+        final String content = request.content();
 
         log.info("Creating recommendation: authorId={}, receiverId={}", authorId, receiverId);
 
@@ -72,8 +72,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         Long newId = recommendationRepository.create(authorId, receiverId, content);
         log.debug("Recommendation created with id={}", newId);
 
-        if (recommendationDto.skillIds() != null && !recommendationDto.skillIds().isEmpty()) {
-            for (Long skillId : recommendationDto.skillIds()) {
+        if (request.skillIds() != null && !request.skillIds().isEmpty()) {
+            for (Long skillId : request.skillIds()) {
                 if (skillId != null) {
                     skillOfferRepository.create(skillId, newId);
                 }
@@ -87,11 +87,11 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
+    public RecommendationResponse update(long recommendationId, UpdateRecommendationRequest request) {
         final Long currentUserId = userContext.getUserId();
         log.info("Updating recommendation id={} by user={}", recommendationId, currentUserId);
 
-        if (recommendationDto == null || isBlank(recommendationDto.content())) {
+        if (request == null || isBlank(request.content())) {
             throw new DataValidationException("content must not be blank");
         }
 
@@ -102,12 +102,12 @@ public class RecommendationServiceImpl implements RecommendationService {
             throw new ForbiddenException("You can update only your own recommendation");
         }
 
-        recommendation.setContent(recommendationDto.content());
+        recommendation.setContent(request.content());
         Recommendation saved = recommendationRepository.save(recommendation);
 
-        if (recommendationDto.skillIds() != null) {
+        if (request.skillIds() != null) {
             skillOfferRepository.deleteAllByRecommendationId(recommendationId);
-            for (Long skillId : recommendationDto.skillIds()) {
+            for (Long skillId : request.skillIds()) {
                 if (skillId != null) {
                     skillOfferRepository.create(recommendationId, skillId);
                 }
@@ -132,7 +132,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public List<RecommendationDto> getByFilters(RecommendationFilterDto filters) {
+    public List<RecommendationResponse> getByFilters(FilterRecommendationRequest filters) {
         log.info("Fetching recommendations by filters: {}", filters);
 
         String contentContains = filters != null ? filters.contentContains() : null;
