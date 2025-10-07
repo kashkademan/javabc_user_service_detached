@@ -1,12 +1,63 @@
 package school.faang.user_service.service.workschedule;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.service.validator.UpdateWorkScheduleValidator;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
+import school.faang.user_service.service.validator.WorkScheduleValidator;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.WorkSchedule;
+import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.mapper.UpdateWorkScheduleMapper;
+import school.faang.user_service.mapper.WorkScheduleMapper;
+import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.repository.user.WorkScheduleRepository;
 
-public interface WorkScheduleService {
-    WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto);
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class WorkScheduleService {
+    private final UserRepository userRepository;
+    private final WorkScheduleRepository workScheduleRepository;
+    private final WorkScheduleMapper workScheduleMapper;
+    private final UpdateWorkScheduleMapper updateWorkScheduleMapper;
 
-    UpdateWorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto);
+    public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto) {
+        WorkScheduleValidator.validate(workScheduleDto);
 
-    WorkScheduleDto getById(long workScheduleId);
+        User user = userRepository.getByIdOrThrow(userId);
+
+        WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
+        workSchedule.setUser(user);
+
+        workScheduleRepository.save(workSchedule);
+        log.info("WorkSchedule for {} added", workSchedule.getUser());
+
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
+    }
+
+    public UpdateWorkScheduleDto updateWorkSchedule(long userId, long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
+        UpdateWorkScheduleValidator.validate(updateWorkScheduleDto);
+
+        WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
+        if (userId != workSchedule.getId()) {
+            throw new ForbiddenException("Вы пытаетесь обновить чужие данные");
+        }
+            WorkSchedule updatedWorkSchedule = updateWorkScheduleMapper.toWorkSchedule(updateWorkScheduleDto);
+            updatedWorkSchedule.setUser(workSchedule.getUser());
+
+            workScheduleRepository.save(updatedWorkSchedule);
+        log.info("WorkSchedule for {} updated", workSchedule.getUser());
+
+        return updateWorkScheduleMapper.toUpdateWorkScheduleDto(updatedWorkSchedule);
+    }
+
+    public WorkScheduleDto getById(long workScheduleId) {
+        WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
+
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
+    }
+
 }
