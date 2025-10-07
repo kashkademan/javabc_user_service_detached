@@ -86,7 +86,7 @@ public class EducationService {
     private void validateUserIsEducationOwner(long userId, Education education) {
         User educationOwner = education.getUser();
 
-        if (Objects.equals(userId,educationOwner.getId())) {
+        if (Objects.equals(userId, educationOwner.getId())) {
             throw new ForbiddenException("Не достаточно прав для получения этих данных");
         }
     }
