@@ -1,12 +1,12 @@
 package school.faang.user_service.pipeline_test;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestPipelineFail {
 
     @Test
-    void shouldFail() {
-        fail("This test should fail to demonstrate CI pipeline");
+    void shouldPass() {
+        assertTrue(true, "This test should pass now");
     }
 }
