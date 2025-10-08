@@ -103,12 +103,6 @@ public class WorkScheduleServiceImplTest {
         assertEquals(workScheduleDto.id(), newWorkSchedule.getId());
     }
 
-
-
-
-
-
-
     @Test
     public void testUpdateWorkScheduleWithEmptyOrNullField() {
         long userId = 1;
@@ -143,8 +137,13 @@ public class WorkScheduleServiceImplTest {
 
     @Test
     public void testUpdateOtherUserWorkSchedule() {
-        long userId = 2;
         long workScheduleId = 1;
+        WorkSchedule workSchedule = new WorkSchedule();
+        User user = new User();
+        user.setId(1L);
+        workSchedule.setUser(user);
+        when(workScheduleRepository.getByIdOrThrow(workScheduleId)).thenReturn(workSchedule);
+        long userId = 2;
         WorkScheduleDto workScheduleDto = new WorkScheduleDto(
                 1L,
                 LocalTime.of(9, 0, 0, 0),
@@ -153,20 +152,13 @@ public class WorkScheduleServiceImplTest {
                 LocalTime.of(14, 0, 0, 0),
                 "Europe/Moscow"
         );
-        WorkSchedule workSchedule = new WorkSchedule();
-        User user = new User();
-        user.setId(1L);
-        workSchedule.setUser(user);
-        when(workScheduleRepository.getByIdOrThrow(workScheduleId)).thenReturn(workSchedule);
 
         assertThrows(ForbiddenException.class,
                 () -> workScheduleServiceImpl.updateWorkSchedule(userId, workScheduleId, workScheduleDto));
     }
 
-
     @Test
     public void testUpdateWorkScheduleUpdatesSchedule() {
-        long userId = 1;
         long workScheduleId = 1;
         WorkScheduleDto workScheduleDto = new WorkScheduleDto(
                 1L,
@@ -181,6 +173,7 @@ public class WorkScheduleServiceImplTest {
         user.setId(1L);
         workSchedule.setUser(user);
         when(workScheduleRepository.getByIdOrThrow(workScheduleId)).thenReturn(workSchedule);
+        long userId = 1;
 
         workScheduleServiceImpl.updateWorkSchedule(userId, workScheduleId, workScheduleDto);
 
@@ -189,18 +182,6 @@ public class WorkScheduleServiceImplTest {
 
         assertEquals(workScheduleDto.id(), newWorkSchedule.getId());
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Test
     public void testGetById() {
@@ -213,4 +194,3 @@ public class WorkScheduleServiceImplTest {
         assertEquals(workScheduleId, result);
     }
 }
-
