@@ -2,9 +2,9 @@ package school.faang.user_service.controller.workschedule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +25,7 @@ public class WorkScheduleController {
         return workScheduleService.addWorkSchedule(userContext.getUserId(), workScheduleDto);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId,
                                               @RequestBody UpdateWorkScheduleDto updateWorkScheduleDto) {
         return workScheduleService.updateWorkSchedule(userContext.getUserId(), workScheduleId, updateWorkScheduleDto);
