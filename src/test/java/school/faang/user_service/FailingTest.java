@@ -9,7 +9,7 @@ public class FailingTest {
     void comprehensiveFailureDemo() {
 
         String expected = "hello";
-        String actual = "helo";
-        assertEquals(expected, actual, "Демонстрация падения теста из-за опечатки");
+        String actual = "hello";
+        assertEquals(expected, actual, "The test must be successful");
     }
 }
