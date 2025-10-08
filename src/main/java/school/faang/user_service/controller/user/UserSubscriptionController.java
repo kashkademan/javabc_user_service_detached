@@ -3,7 +3,7 @@ package school.faang.user_service.controller.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.UserSubscriptionService;
 
@@ -25,11 +25,11 @@ public class UserSubscriptionController {
         userSubscriptionService.unfollowUser(userId, followeeId);
     }
 
-    public CountResponse getFollowersCount(long followeeId) {
+    public CountResponseDto getFollowersCount(long followeeId) {
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
-    public CountResponse getFolloweesCount(long followeeId) {
+    public CountResponseDto getFolloweesCount(long followeeId) {
         return userSubscriptionService.getFolloweesCount(followeeId);
     }
 

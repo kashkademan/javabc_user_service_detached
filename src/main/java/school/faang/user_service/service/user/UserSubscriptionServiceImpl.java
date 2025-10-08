@@ -3,7 +3,7 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.user.CountResponse;
+import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -59,17 +59,17 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
-    public CountResponse getFollowersCount(long followeeId) {
+    public CountResponseDto getFollowersCount(long followeeId) {
         int followersCount = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
         log.debug("getFollowersCount: followeeId={}, count={}", followeeId, followersCount);
-        return new CountResponse(followersCount);
+        return new CountResponseDto(followersCount);
     }
 
     @Override
-    public CountResponse getFolloweesCount(long followerId) {
+    public CountResponseDto getFolloweesCount(long followerId) {
         int followeesCount = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
         log.debug("getFollowersCount: followerId={}, count={}", followerId, followeesCount);
-        return new CountResponse(followeesCount);
+        return new CountResponseDto(followeesCount);
     }
 
     @Override
