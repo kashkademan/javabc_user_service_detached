@@ -53,10 +53,14 @@ public class MentorshipServiceTest {
         long menteeId = 200L;
         boolean validationResult;
 
-        validationResult = mentorshipValidation.canAddMentorship(mentorId, menteeId, (mentor, mentee) -> !Objects.equals(mentor, mentee));
+        validationResult = mentorshipValidation.canAddMentorship(mentorId,
+                menteeId,
+                (mentor, mentee) -> !Objects.equals(mentor, mentee));
         assertTrue(validationResult);
 
-        validationResult = mentorshipValidation.canAddMentorship(mentorId, mentorId, (mentor, mentee) -> !Objects.equals(mentor, mentee));
+        validationResult = mentorshipValidation.canAddMentorship(mentorId,
+                mentorId,
+                (mentor, mentee) -> !Objects.equals(mentor, mentee));
         assertFalse(validationResult);
 
         User mentor = new User();
@@ -81,17 +85,17 @@ public class MentorshipServiceTest {
     @Test
     public void testMentorshipDeleted() {
         long currentUserId = 123L;
-        long mentorId = 1L;
-        long menteeId = 2L;
 
         when(userContext.getUserId()).thenReturn(currentUserId);
         assertThrows(ForbiddenException.class,
                 () -> mentorshipService.deleteMentorship(1L, 2L),
                 "Must be exception deleting not yours mentorship relationship");
 
+        long mentorId = 1L;
         User mentor = new User();
         mentor.setId(mentorId);
 
+        long menteeId = 2L;
         User mentee = new User();
         mentee.setId(menteeId);
         List<User> mentors = new ArrayList<>();
