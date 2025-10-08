@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.goal;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,6 +13,7 @@ public record CreateGoalDto(
         @NotBlank
         String description,
         @NotNull
+        @Future
         LocalDateTime deadline,
         @NotNull
         Long mentorId,

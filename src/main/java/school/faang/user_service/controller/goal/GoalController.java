@@ -3,7 +3,6 @@ package school.faang.user_service.controller.goal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +13,7 @@ import school.faang.user_service.controller.facade.goal.GoalMapping;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.dto.goal.UpdateGoalDto;
-import school.faang.user_service.service.goal.GoalService;
+import school.faang.user_service.dto.goal.GoalUpdateDto;
 
 import java.util.List;
 
@@ -24,26 +22,25 @@ import java.util.List;
 @RequestMapping("/goals")
 public class GoalController {
 
-    private final GoalService goalService;
     private final GoalMapping goalMapping;
 
     @PostMapping
-    GoalDto create(@Valid @RequestBody CreateGoalDto createGoalDto) {
+    public GoalDto create(@Valid @RequestBody CreateGoalDto createGoalDto) {
         return goalMapping.mappingForCreate(createGoalDto);
     }
 
     @PatchMapping("/{goalId}")
-    GoalDto update(@PathVariable long goalId, @Valid @RequestBody UpdateGoalDto updateGoalDto) {
+    public GoalDto update(@PathVariable long goalId, @Valid @RequestBody GoalUpdateDto updateGoalDto) {
         return goalMapping.mappingForUpdate(goalId, updateGoalDto);
     }
 
     @DeleteMapping("/{goalId}")
-    void delete(@PathVariable long goalId) {
-        goalService.delete(goalId);
+    public void delete(@PathVariable long goalId) {
+        goalMapping.mappingDelete(goalId);
     }
 
-    @GetMapping()
-    List<GoalDto> getByFilters(@Valid @RequestBody GoalFilterDto filters) {
+    @PostMapping
+    public List<GoalDto> getByFilters(@Valid @RequestBody GoalFilterDto filters) {
         return goalMapping.mappingForFilters(filters);
     }
 }

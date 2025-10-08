@@ -10,11 +10,14 @@ import java.util.stream.Stream;
 public class DescriptionContainsGoalFilter implements FilterGoal {
     @Override
     public boolean isApplication(GoalFilterDto goalFilterDto) {
-        return goalFilterDto.descriptionContains() != null;
+        return goalFilterDto.descriptionContains() != null
+                && !goalFilterDto.descriptionContains().isBlank();
     }
 
     @Override
     public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto goalFilterDto) {
-        return goals.filter(goal -> goal.getDescription().contains(goalFilterDto.descriptionContains()));
+        String description = goalFilterDto.descriptionContains().toLowerCase();
+        return goals.filter(goal -> goal.getDescription() != null
+                && goal.getDescription().toLowerCase().contains(description));
     }
 }

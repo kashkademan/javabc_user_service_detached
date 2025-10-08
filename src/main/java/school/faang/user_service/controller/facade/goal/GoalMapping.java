@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.service.goal.GoalService;
@@ -23,19 +23,25 @@ public class GoalMapping {
 
     public GoalDto mappingForCreate(CreateGoalDto createGoalDto) {
         Goal goal = goalMapper.toGoal(createGoalDto);
-
-        return goalMapper.toGoalDto(goalService.create(goal, createGoalDto.userIds(),
-                createGoalDto.skillIds(), createGoalDto.mentorId()));
+        Goal result = goalService.create(goal, createGoalDto.userIds(),
+                createGoalDto.skillIds(), createGoalDto.mentorId());
+        return goalMapper.toGoalDto(result);
     }
 
-    public GoalDto mappingForUpdate(Long goalId, UpdateGoalDto updateGoalDto) {
-
-        return goalMapper.toGoalDto(goalService.update(goalId, updateGoalDto));
+    public GoalDto mappingForUpdate(Long goalId, GoalUpdateDto updateGoalDto) {
+        Goal result = goalService.update(goalId, updateGoalDto);
+        return goalMapper.toGoalDto(result);
     }
 
     public List<GoalDto> mappingForFilters(GoalFilterDto filters) {
-        return goalService.getByFilters(filters)
+        List<Goal> goals = goalService.getByFilters(filters);
+
+        return goals.stream()
                 .map(goalMapper::toGoalDto)
                 .toList();
+    }
+
+    public void mappingDelete(Long goalId) {
+        goalService.delete(goalId);
     }
 }

@@ -7,7 +7,7 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
-import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -38,7 +38,7 @@ public interface GoalMapper {
                 .toList();
     }
 
-    static void update(UpdateGoalDto updateGoalDto, @MappingTarget Goal entity) {
+    static void update(GoalUpdateDto updateGoalDto, @MappingTarget Goal entity) {
         if (Objects.nonNull(updateGoalDto.title())) {
             entity.setTitle(updateGoalDto.title());
         }
@@ -49,10 +49,6 @@ public interface GoalMapper {
 
         if (Objects.nonNull(updateGoalDto.deadline())) {
             entity.setDeadline(updateGoalDto.deadline());
-        }
-
-        if (Objects.nonNull(updateGoalDto.status())) {
-            entity.setStatus(updateGoalDto.status());
         }
     }
 

@@ -33,7 +33,7 @@ public class UserController {
         return userService.getById(userId);
     }
 
-    private void  validateString(String value, String paramName) {
+    private void validateString(String value, String paramName) {
         if (StringUtils.isNotBlank(value)) {
             throw new DataValidationException(paramName + " should be present!");
         }

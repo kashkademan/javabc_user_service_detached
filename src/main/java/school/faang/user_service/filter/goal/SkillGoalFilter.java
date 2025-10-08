@@ -6,6 +6,8 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.Skill;
 
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -17,11 +19,17 @@ public class SkillGoalFilter implements FilterGoal {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto goalFilterDto) {
-        return goals
-                .filter(goal -> new HashSet<>(goal.getSkillsToAchieve()
-                        .stream()
-                        .map(Skill::getId)
-                        .toList()).containsAll(goalFilterDto.skillIds()));
+        Set<Long> requiredSkillIds = new HashSet<>(goalFilterDto.skillIds());
 
+        return goals
+                .filter(goal -> hasAllSkills(goal, requiredSkillIds));
+    }
+
+    private boolean hasAllSkills(Goal goal, Set<Long> requiredSkillIds) {
+        return goal.getSkillsToAchieve()
+                .stream()
+                .map(Skill::getId)
+                .collect(Collectors.toSet())
+                .containsAll(requiredSkillIds);
     }
 }
