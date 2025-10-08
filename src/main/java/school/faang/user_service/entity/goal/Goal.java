@@ -21,13 +21,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,7 +36,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@ToString
 @Table(name = "goal")
 public class Goal {
 
@@ -56,7 +55,7 @@ public class Goal {
     private String description;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private GoalStatus status;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -78,7 +77,8 @@ public class Goal {
     private User mentor;
 
     @OneToMany(mappedBy = "goal")
-    private List<GoalInvitation> invitations;
+    @Builder.Default
+    private List<GoalInvitation> invitations = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -86,7 +86,8 @@ public class Goal {
             joinColumns = @JoinColumn(name = "goal_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
+    @Builder.Default
+    private List<User> users = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -94,5 +95,6 @@ public class Goal {
             joinColumns = @JoinColumn(name = "goal_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private List<Skill> skillsToAchieve;
+    @Builder.Default
+    private List<Skill> skillsToAchieve = new ArrayList<>();
 }

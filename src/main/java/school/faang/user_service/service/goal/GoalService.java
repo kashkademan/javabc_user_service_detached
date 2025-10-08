@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalCreateByMentorDto;
+import school.faang.user_service.dto.goal.GoalCreateByUserDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Skill;
@@ -25,16 +26,18 @@ import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.UserSkillGuaranteeRepository;
+import school.faang.user_service.validator.goal.GoalValidator;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class GoalService {
 
     @Value("${goal.max-active-goals}")
@@ -42,106 +45,106 @@ public class GoalService {
 
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
-    private final GoalMapper goalMapper;
-    private final UserContext userContext;
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
+    private final GoalMapper goalMapper;
+    private final UserContext userContext;
+
     @Transactional
-    public GoalDto create(CreateGoalDto createGoalDto) {
-        Long requesterId = userContext.getUserId();
-
-        validateCreateGoalRequest(createGoalDto, requesterId);
-
-        Goal goal = goalMapper.toGoal(createGoalDto);
-        goal.setStatus(GoalStatus.ACTIVE);
-        goal.setUsers(new ArrayList<>());
-
-        addSkillsToGoalIfExists(createGoalDto, goal);
-        addParentGoalIfExists(createGoalDto, goal);
-
-        if (ObjectUtils.isEmpty(createGoalDto.mentorId())) {
-            createGoalByUser(requesterId, goal);
-        } else {
-            createGoalByMentor(requesterId, goal, createGoalDto);
-        }
-
+    public GoalDto createByUser(GoalCreateByUserDto goalCreateByUserDto) {
+        GoalValidator.validateCreateGoalByUser(goalCreateByUserDto);
+        Goal goal = goalMapper.toGoal(goalCreateByUserDto);
+        createGoalByUser(goal, goalCreateByUserDto);
         goalRepository.save(goal);
+
+        return goalMapper.toGoalDto(goal);
+    }
+
+    @Transactional
+    public GoalDto createByMentor(GoalCreateByMentorDto goalCreateByMentorDto) {
+        GoalValidator.validateCreateGoalByMentor(goalCreateByMentorDto);
+        Goal goal = goalMapper.toGoal(goalCreateByMentorDto);
+        createGoalByMentor(goal, goalCreateByMentorDto);
+        goalRepository.save(goal);
+
         return goalMapper.toGoalDto(goal);
     }
 
     @Transactional
     public void delete(long goalId) {
-        Long requesterId = userContext.getUserId();
         Goal goalToDelete = goalRepository.getByIdOrThrow(goalId);
 
-        if (goalRepository.findByParent(goalId).findAny().isPresent()) {
-            throw new ForbiddenException("Goal %s is parent and cannot be delete".formatted(goalId));
-        }
-
         if (ObjectUtils.isEmpty(goalToDelete.getMentor())) {
-            deleteGoalByUser(requesterId, goalToDelete);
+            deleteGoalByUser(goalToDelete);
         } else {
-            deleteGoalByMentor(requesterId, goalToDelete);
+            deleteGoalByMentor(goalToDelete);
         }
     }
 
     public List<GoalDto> getByFilters(GoalFilterDto filters) {
         Long requesterId = userContext.getUserId();
-        userRepository.findById(requesterId).orElseThrow(
-                () -> new EntityNotFoundException("User %s not found".formatted(requesterId))
-        );
+        userRepository.getByIdOrThrow(requesterId);
+
+        Predicate<Goal> predicate = goal -> true;
+
+        if (filters.titleContains() != null) {
+            predicate = predicate.and(goal ->
+                    StringUtils.containsIgnoreCase(goal.getTitle(), filters.titleContains()));
+        }
+        if (filters.descriptionContains() != null) {
+            predicate = predicate.and(goal ->
+                    StringUtils.containsIgnoreCase(goal.getDescription(), filters.descriptionContains()));
+        }
+        if (filters.status() != null) {
+            predicate = predicate.and(goal -> filters.status().equals(goal.getStatus()));
+        }
+        if (filters.mentorId() != null) {
+            predicate = predicate.and(goal ->
+                    goal.getMentor() != null && filters.mentorId().equals(goal.getMentor().getId()));
+        }
 
         return goalRepository.findAll().stream()
-                .filter(goal ->
-                        filters.titleContains() == null
-                                || StringUtils.containsIgnoreCase(goal.getTitle(), filters.titleContains())
-                )
-                .filter(goal ->
-                        filters.descriptionContains() == null
-                                || StringUtils.containsIgnoreCase(goal.getDescription(), filters.descriptionContains())
-                )
-                .filter(goal ->
-                        filters.status() == null
-                                || filters.status().equals(goal.getStatus())
-                )
-                .filter(goal ->
-                        filters.mentorId() == null
-                                || (goal.getMentor() != null && filters.mentorId().equals(goal.getMentor().getId()))
-                )
+                .filter(predicate)
                 .map(goalMapper::toGoalDto)
                 .toList();
     }
 
-    public GoalDto update(long goalId, UpdateGoalDto updateGoalDto) {
+    public GoalDto update(long goalId, GoalUpdateDto goalUpdateDto) {
         Long requesterId = userContext.getUserId();
         Goal goalToUpdate = goalRepository.getByIdOrThrow(goalId);
-
-        validateUpdateGoalRequest(updateGoalDto, requesterId, goalToUpdate);
-
-        goalMapper.update(updateGoalDto, goalToUpdate);
+        GoalValidator.validateUpdateGoal(goalUpdateDto, requesterId, goalToUpdate);
+        goalMapper.update(goalUpdateDto, goalToUpdate);
         goalRepository.save(goalToUpdate);
+
         return goalMapper.toGoalDto(goalToUpdate);
     }
 
-    private void deleteGoalByUser(long requesterId, Goal goalToDelete) {
-        List<User> users = goalToDelete.getUsers();
+    private void deleteGoalByUser(Goal goalToDelete) {
+        Long requesterId = userContext.getUserId();
+        Long goalToDeleteId = goalToDelete.getId();
 
-        boolean belongsToGoal = users.stream()
-                .anyMatch(u -> Objects.equals(u.getId(), requesterId));
-
-        if (!belongsToGoal) {
-            throw new ForbiddenException("User %s cannot delete goal %s".formatted(requesterId, goalToDelete.getId()));
+        if (goalRepository.isParent(goalToDeleteId)) {
+            throw new ForbiddenException("Goal %s is parent and cannot be delete".formatted(goalToDeleteId));
         }
 
-        if (users.size() > 1) {
-            goalRepository.deleteUserFromGoal(requesterId, goalToDelete.getId());
+        List<User> users = goalToDelete.getUsers();
+        boolean userBelongsToGoal = users.stream().anyMatch(u -> Objects.equals(u.getId(), requesterId));
+
+        if (!userBelongsToGoal) {
+            throw new ForbiddenException("User %s cannot delete goal %s".formatted(requesterId, goalToDeleteId));
+        }
+
+        if (users.size() == 1) {
+            goalRepository.deleteById(goalToDeleteId);
         } else {
-            goalRepository.deleteById(goalToDelete.getId());
+            goalRepository.deleteUserFromGoal(requesterId, goalToDeleteId);
         }
     }
 
-    private void deleteGoalByMentor(long requesterId, Goal goalToDelete) {
+    private void deleteGoalByMentor(Goal goalToDelete) {
+        Long requesterId = userContext.getUserId();
+
         User mentor = goalToDelete.getMentor();
         List<Skill> skills = goalToDelete.getSkillsToAchieve();
 
@@ -160,17 +163,29 @@ public class GoalService {
         }
     }
 
-    private void createGoalByMentor(long requesterId, Goal goal, CreateGoalDto createGoalDto) {
-        User mentor = userRepository.findById(requesterId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found by id: %s".formatted(requesterId)));
-
-        List<User> users = createGoalDto.userIds()
-                .stream()
-                .map(userId -> userRepository.findById(userId).orElseThrow(
-                        () -> new EntityNotFoundException("User not found by id: %s".formatted(userId)))
-                )
-                .toList();
+    private void createGoalByMentor(Goal goal, GoalCreateByMentorDto goalCreateByMentorDto) {
+        Long requesterId = userContext.getUserId();
+        User mentor = userRepository.getByIdOrThrow(requesterId);
         goal.setMentor(mentor);
+        List<Long> userIds = goalCreateByMentorDto.userIds();
+        validateActiveGoalsCountByUsers(userIds);
+
+        List<User> users = userRepository.findAllById(userIds);
+
+        if (users.size() != userIds.size()) {
+            Set<Long> foundIds = users.stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
+
+            List<Long> missing = userIds.stream()
+                    .filter(id -> !foundIds.contains(id))
+                    .toList();
+
+            throw new EntityNotFoundException("Users not found by userIds: " + missing);
+        }
+
+        addSkillsToGoalIfExists(goalCreateByMentorDto.skillIds(), goal);
+        addParentGoalIfExists(goalCreateByMentorDto.parentGoalId(), goal);
         goal.getUsers().addAll(users);
 
         if (!ObjectUtils.isEmpty(goal.getSkillsToAchieve())) {
@@ -189,124 +204,59 @@ public class GoalService {
 
             userSkillGuaranteeRepository.saveAll(guarantees);
         }
+        goal.setStatus(GoalStatus.ACTIVE);
     }
 
-    private void createGoalByUser(long requesterId, Goal goal) {
-        User user = userRepository.findById(requesterId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found by id: %s".formatted(requesterId)));
+    private void createGoalByUser(Goal goal, GoalCreateByUserDto goalCreateByUserDto) {
+        Long requesterId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(requesterId);
+        validateActiveGoalsCountByUser(requesterId);
         goal.getUsers().add(user);
+
+        addSkillsToGoalIfExists(goalCreateByUserDto.skillIds(), goal);
+        addParentGoalIfExists(goalCreateByUserDto.parentGoalId(), goal);
+        goal.setStatus(GoalStatus.ACTIVE);
     }
 
-    private void addSkillsToGoalIfExists(CreateGoalDto createGoalDto, Goal goal) {
-        if (!ObjectUtils.isEmpty(createGoalDto.skillIds())) {
-            if (createGoalDto.skillIds().size() != new HashSet<>(createGoalDto.skillIds()).size()) {
-                throw new DataValidationException("SkillIds must contain only unique values: %s"
-                        .formatted(createGoalDto.skillIds()));
+    private void addSkillsToGoalIfExists(List<Long> skillIds, Goal goal) {
+        if (!ObjectUtils.isEmpty(skillIds)) {
+            if (skillIds.size() != new HashSet<>(skillIds).size()) {
+                throw new DataValidationException("Skill IDs must contain only unique values: %s".formatted(skillIds));
             }
 
-            List<Skill> skills = createGoalDto.skillIds()
-                    .stream()
-                    .map(skillId -> skillRepository.findById(skillId).orElseThrow(
-                            () -> new EntityNotFoundException("Skill not found by id: %s".formatted(skillId)))
-                    )
-                    .toList();
+            List<Skill> skills = skillRepository.findAllById(skillIds);
 
-            goal.setSkillsToAchieve(new ArrayList<>());
+            if (skills.size() != skillIds.size()) {
+                Set<Long> foundIds = skills.stream()
+                        .map(Skill::getId)
+                        .collect(Collectors.toSet());
+
+                List<Long> missing = skillIds.stream()
+                        .filter(id -> !foundIds.contains(id))
+                        .toList();
+
+                throw new EntityNotFoundException("Skills not found by ids: " + missing);
+            }
+
             goal.getSkillsToAchieve().addAll(skills);
         }
     }
 
-    private void addParentGoalIfExists(CreateGoalDto createGoalDto, Goal goal) {
-        if (!ObjectUtils.isEmpty(createGoalDto.parentGoalId())) {
-            Goal parentGoal = goalRepository.findById(createGoalDto.parentGoalId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Parent Goal not found by id: %s".formatted(createGoalDto.parentGoalId())
-                    ));
+    private void addParentGoalIfExists(Long parentGoalId, Goal goal) {
+        if (!ObjectUtils.isEmpty(parentGoalId)) {
+            Goal parentGoal = goalRepository.getByIdOrThrow(parentGoalId);
             goal.setParent(parentGoal);
         }
     }
 
-    private void validateUpdateGoalRequest(UpdateGoalDto updateGoalDto, Long requesterId, Goal goalToUpdate) {
-        if (ObjectUtils.nullSafeEquals(goalToUpdate.getStatus(), GoalStatus.COMPLETED)) {
-            throw new DataValidationException("Cannot update - Goal is already completed");
-        }
-
-        if (!ObjectUtils.isEmpty(updateGoalDto.deadline())
-                && updateGoalDto.deadline().isBefore(LocalDateTime.now().plusDays(1))) {
-            throw new DataValidationException("Deadline date should provide at least 1 day for achievement");
-        }
-
-        User mentor = goalToUpdate.getMentor();
-
-        if (ObjectUtils.isEmpty(mentor)) {
-            List<User> users = goalToUpdate.getUsers();
-            if (users.size() > 1) {
-                throw new DataValidationException("User cannot update goal if there are other participants");
-            }
-            if (!ObjectUtils.nullSafeEquals(requesterId, users.get(0).getId())) {
-                throw new ForbiddenException(
-                        "RequesterId %s and userIds first id %s must be the same"
-                                .formatted(requesterId, users.get(0).getId())
-                );
-            }
-        } else {
-            if (ObjectUtils.isEmpty(updateGoalDto.mentorId())) {
-                throw new ForbiddenException("MentorId required");
-            }
-            if (!requesterId.equals(updateGoalDto.mentorId()) || !requesterId.equals(mentor.getId())) {
-                throw new ForbiddenException("Mentor %s does not belong to goal".formatted(requesterId));
-            }
+    private void validateActiveGoalsCountByUser(Long userId) {
+        int activeGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
+        if (activeGoalsCount >= maxGoalsPerUser) {
+            throw new DataValidationException("User has %s active goals".formatted(maxGoalsPerUser));
         }
     }
 
-
-    private void validateCreateGoalRequest(CreateGoalDto createGoalDto, Long requesterId) {
-        if (!ObjectUtils.isEmpty(createGoalDto.deadline())
-                && createGoalDto.deadline().isBefore(LocalDateTime.now().plusDays(1))) {
-            throw new DataValidationException("Deadline date should provide at least 1 day for achievement");
-        }
-
-        if (!ObjectUtils.isEmpty(createGoalDto.mentorId())) {
-            if (!requesterId.equals(createGoalDto.mentorId())) {
-                throw new ForbiddenException(
-                        "MentorId %s and requesterId %s must be the same"
-                                .formatted(createGoalDto.mentorId(), requesterId)
-                );
-            }
-
-            if (createGoalDto.userIds().contains(createGoalDto.mentorId())) {
-                throw new ForbiddenException("Mentor cannot create goal for himself");
-            }
-        }
-
-        if (ObjectUtils.isEmpty(createGoalDto.mentorId())) {
-            if (createGoalDto.userIds().size() > 1) {
-                throw new DataValidationException(
-                        "When mentorId is empty, userIds size must be 1, actual: %s"
-                                .formatted(createGoalDto.userIds().size())
-                );
-            }
-            if (!ObjectUtils.nullSafeEquals(requesterId, createGoalDto.userIds().get(0))) {
-                throw new ForbiddenException(
-                        "RequesterId %s and userIds first id %s must be the same"
-                                .formatted(requesterId, createGoalDto.userIds().get(0))
-                );
-            }
-        }
-
-        if (createGoalDto.userIds().size() != new HashSet<>(createGoalDto.userIds()).size()) {
-            throw new DataValidationException(
-                    "UserIds must contain only unique values: %s".formatted(createGoalDto.userIds())
-            );
-        }
-
-        createGoalDto.userIds()
-                .forEach(userId -> {
-                    int activeGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
-                    if (activeGoalsCount >= maxGoalsPerUser) {
-                        throw new DataValidationException("User has more than 2 active goals: %s"
-                                .formatted(activeGoalsCount));
-                    }
-                });
+    private void validateActiveGoalsCountByUsers(List<Long> userIds) {
+        userIds.forEach(this::validateActiveGoalsCountByUser);
     }
 }

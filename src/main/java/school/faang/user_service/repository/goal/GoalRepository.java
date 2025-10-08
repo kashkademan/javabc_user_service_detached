@@ -28,7 +28,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     @Query(nativeQuery = true, value = """
             SELECT COUNT(ug.goal_id) FROM user_goal ug
             JOIN goal g ON g.id = ug.goal_id
-            WHERE ug.user_id = :userId AND g.status = 0
+            WHERE ug.user_id = :userId AND g.status = 'ACTIVE'
             """)
     int countActiveGoalsPerUser(long userId);
 
@@ -63,6 +63,9 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "INSERT INTO goal_skill (goal_id, skill_id) VALUES (?2, ?1)")
     void addSkillToGoal(long skillId, long goalId);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM goal WHERE parent_goal_id = :goalId)", nativeQuery = true)
+    boolean isParent(long goalId);
 
     default Goal getByIdOrThrow(long goalId) {
         return findById(goalId).orElseThrow(
