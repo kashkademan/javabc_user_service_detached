@@ -83,10 +83,10 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         return getUsersByUserId(followerId, userFiltersDto, subscriptionRepository::findByFollowerId, FOLLOWEES);
     }
 
-    private List<UserDto> getUsersByUserId(long userId,
-                                           UserFiltersDto userFiltersDto,
-                                           Function<Long, Stream<User>> findUsersFunction,
-                                           String usersType) {
+    public List<UserDto> getUsersByUserId(long userId,
+                                          UserFiltersDto userFiltersDto,
+                                          Function<Long, Stream<User>> findUsersFunction,
+                                          String usersType) {
         Stream<User> usersStream = findUsersFunction.apply(userId);
 
         for (UserFilter filter : userFilters) {
