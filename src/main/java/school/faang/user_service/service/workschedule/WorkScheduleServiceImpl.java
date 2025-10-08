@@ -33,9 +33,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         User user = userRepository.getByIdOrThrow(userId);
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         workSchedule.setUser(user);
-        workSchedule = workScheduleRepository.save(workSchedule);
         log.info("Новый график с id {} добавлен.", workSchedule.getId());
-        return workScheduleMapper.toWorkScheduleDto(workSchedule);
+        return workScheduleMapper.toWorkScheduleDto(workScheduleRepository.save(workSchedule));
     }
 
     @Override
@@ -49,9 +48,8 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
         WorkSchedule workScheduleToUpdate = workScheduleMapper.toWorkSchedule(workScheduleDto);
         workScheduleToUpdate.setUser(workSchedule.getUser());
-        WorkSchedule updatedWorkSchedule = workScheduleRepository.save(workSchedule);
-        log.info("График с id {} обновлен.", updatedWorkSchedule.getId());
-        return workScheduleMapper.toWorkScheduleDto(updatedWorkSchedule);
+        log.info("График с id {} обновлен.", workSchedule.getId());
+        return workScheduleMapper.toWorkScheduleDto(workScheduleRepository.save(workSchedule));
     }
 
     @Override
@@ -60,7 +58,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
-    public void timeOrderCheck(@NonNull WorkScheduleDto workScheduleDto) {
+    private void timeOrderCheck(@NonNull WorkScheduleDto workScheduleDto) {
         if (workScheduleDto.startTime().isAfter(workScheduleDto.startLunch())
                 || workScheduleDto.startLunch().isAfter(workScheduleDto.endLunch())
                 || workScheduleDto.endLunch().isAfter(workScheduleDto.endTime())) {
@@ -69,7 +67,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         }
     }
 
-    public void validateWorkScheduleDto(@NonNull WorkScheduleDto workScheduleDto) {
+    private void validateWorkScheduleDto(@NonNull WorkScheduleDto workScheduleDto) {
         validateNullOrEmpty(workScheduleDto.id().toString(), "Id");
         validateNullOrEmpty(workScheduleDto.startTime().toString(), "StartTime");
         validateNullOrEmpty(workScheduleDto.endTime().toString(), "EndTIme");

@@ -8,6 +8,6 @@ public record WorkScheduleDto(
         LocalTime endTime,
         LocalTime startLunch,
         LocalTime endLunch,
-        String timezone
+        String timezone // часовой пояс в формате IANA (например, "Europe/Moscow")
 ) {
 }
