@@ -11,12 +11,12 @@ public class UserPhonePatternFilter implements UserFilter {
 
     @Override
     public boolean isApplicable(UserFiltersDto filtersDto) {
-        return filtersDto.getPhonePattern() != null && !filtersDto.getPhonePattern().isEmpty();
+        return filtersDto.phonePattern() != null && !filtersDto.phonePattern().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFiltersDto filtersDto) {
-        String pattern = filtersDto.getPhonePattern();
+        String pattern = filtersDto.phonePattern();
         return users.filter(user -> user.getPhone().matches(pattern));
     }
 }

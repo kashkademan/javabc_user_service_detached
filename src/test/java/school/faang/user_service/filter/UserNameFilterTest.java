@@ -1,22 +1,20 @@
 package school.faang.user_service.filter;
 
-import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 
 import java.util.stream.Stream;
 
-@Component
-public class UserNamePatternFilter implements UserFilter {
+public class UserNameFilterTest implements UserFilter {
 
     @Override
     public boolean isApplicable(UserFiltersDto filtersDto) {
-        return filtersDto.namePattern() != null && !filtersDto.namePattern().isEmpty();
+        return true;
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFiltersDto filtersDto) {
-        String pattern = filtersDto.namePattern();
-        return users.filter(user -> user.getUsername().matches(pattern));
+        return users.filter(user -> user.getUsername() != null
+            && user.getUsername().contains(filtersDto.namePattern()));
     }
 }
