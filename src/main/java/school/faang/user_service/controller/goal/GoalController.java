@@ -39,7 +39,7 @@ public class GoalController {
         goalMapping.mappingDelete(goalId);
     }
 
-    @PostMapping
+    @PostMapping("/filters")
     public List<GoalDto> getByFilters(@Valid @RequestBody GoalFilterDto filters) {
         return goalMapping.mappingForFilters(filters);
     }
