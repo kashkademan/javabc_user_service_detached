@@ -26,6 +26,21 @@ public class CareerServiceImpl implements CareerService {
     @Override
     public CareerDto addCareer(Long userId, CareerDto careerDto) {
 
+        if (careerDto.from() == null) {
+            log.warn("Start date cannot be null");
+            throw new DataValidationException("Start date is required");
+        }
+
+        if (careerDto.company() == null || careerDto.company().isBlank()) {
+            log.warn("Company cannot be null or empty");
+            throw new DataValidationException("Company is required");
+        }
+
+        if (careerDto.position() == null || careerDto.position().isBlank()) {
+            log.warn("Position cannot be null or empty");
+            throw new DataValidationException("Position is required");
+        }
+
         if (careerDto.from().isAfter(LocalDate.now())
                 || careerDto.from().isEqual(LocalDate.now())) {
             log.warn("Start date cannot be in the future. Provided date: {}", careerDto.from());
@@ -48,6 +63,21 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     public CareerDto updateCareer(Long userId, long careerId, CareerDto careerDto) {
+
+        if (careerDto.from() == null) {
+            log.warn("Start date cannot be null");
+            throw new DataValidationException("Start date is required");
+        }
+
+        if (careerDto.company() == null || careerDto.company().isBlank()) {
+            log.warn("Company cannot be null or empty");
+            throw new DataValidationException("Company is required");
+        }
+
+        if (careerDto.position() == null || careerDto.position().isBlank()) {
+            log.warn("Position cannot be null or empty");
+            throw new DataValidationException("Position is required");
+        }
 
         if (careerDto.from().isAfter(LocalDate.now())
                 || careerDto.from().isEqual(LocalDate.now())) {
