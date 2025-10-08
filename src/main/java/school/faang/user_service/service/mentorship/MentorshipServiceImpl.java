@@ -13,6 +13,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.validation.mentorship.MentorshipValidation;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -27,7 +28,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     public void addMentorship(long mentorId, long menteeId) {
         if (!mentorshipValidation.canAddMentorship(mentorId,
                 menteeId,
-                (mentor, mentee) -> mentor != mentee)) {
+                (mentor, mentee) -> !Objects.equals(mentor, mentee))) {
             throw new DataValidationException("Mentor Id and Mentee id can't be equal");
         }
 
