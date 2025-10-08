@@ -23,6 +23,8 @@ spring:
 
 server:
   port: 8080
+  servlet:
+    context-path: /api
 
 logging:
   level:
@@ -40,6 +42,9 @@ user:
   password:
     min:
       length: 6
+  skill:
+    recommendation:
+      min: 3
 
 recommendation:
   request:
