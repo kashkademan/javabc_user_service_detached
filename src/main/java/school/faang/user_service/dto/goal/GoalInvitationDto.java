@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.goal.Goal;
 
 @Getter
 @RequiredArgsConstructor
