@@ -11,10 +11,12 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
 
     GoalInvitationDto create(long goalId, CreateGoalInvitationDto invitationDto) {
-        if (invitationDto.getInvitedUserId() == null)
+        if (invitationDto.getInvitedUserId() == null) {
             throw new DataValidationException("Invited user id should be present");
-        if (invitationDto.getGoalId() == null)
+        }
+        if (invitationDto.getGoalId() == null) {
             throw new DataValidationException("Goal id should be present");
+        }
         return goalInvitationService.create(invitationDto.getGoalId(), invitationDto);
     }
 

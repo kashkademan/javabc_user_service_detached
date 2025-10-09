@@ -44,9 +44,6 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
             throw new ForbiddenException("You cannot invite yourself");
         }
 
-        Goal goal = goalRepository.getByIdOrThrow(goalId);
-        User inviter = userRepository.getByIdOrThrow(inviterId);
-        User invited = userRepository.getByIdOrThrow(invitedUserId);
 
         log.info("User {} is inviting user {} to goal {}", inviterId, invitedUserId, goalId);
 
@@ -61,6 +58,11 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         if (activeGoals >= 3) {
             throw new DataValidationException("User already has 3 active goals");
         }
+
+
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
+        User inviter = userRepository.getByIdOrThrow(inviterId);
+        User invited = userRepository.getByIdOrThrow(invitedUserId);
 
         GoalInvitation invitation = new GoalInvitation();
         invitation.setGoal(goal);
@@ -111,12 +113,12 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
 
         return invitations.stream()
-                .filter(inv -> filters.getInviterId() == null ||
-                        inv.getInviter().getId().equals(filters.getInviterId()))
-                .filter(inv -> filters.getInvitedId() == null ||
-                        inv.getInvited().getId().equals(filters.getInvitedId()))
-                .filter(inv -> filters.getStatus() == null ||
-                        inv.getStatus() == filters.getStatus())
+                .filter(inv -> filters.getInviterId() == null
+                        || inv.getInviter().getId().equals(filters.getInviterId()))
+                .filter(inv -> filters.getInvitedId() == null
+                        || inv.getInvited().getId().equals(filters.getInvitedId()))
+                .filter(inv -> filters.getStatus() == null
+                        || inv.getStatus() == filters.getStatus())
                 .map(goalInvitationMapper::toGoalInvitationDto)
                 .toList();
     }
