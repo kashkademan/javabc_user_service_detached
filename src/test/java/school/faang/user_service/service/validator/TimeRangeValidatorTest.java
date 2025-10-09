@@ -1,22 +1,25 @@
 package school.faang.user_service.service.validator;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalTime;
 
-public class UpdateWorkScheduleValidatorTest {
-    private UpdateWorkScheduleDto validDto;
-    private UpdateWorkScheduleDto invalidStartTimeDto;
-    private UpdateWorkScheduleDto invalidLunchStartDto;
-    private UpdateWorkScheduleDto invalidLunchEndDto;
+public class TimeRangeValidatorTest {
+    private WorkScheduleDto validWorkScheduleDto;
+    private UpdateWorkScheduleDto validUpdateWorkScheduleDto;
+    private WorkScheduleDto invalidStartTimeDto;
+    private WorkScheduleDto invalidLunchStartDto;
+    private WorkScheduleDto invalidLunchEndDto;
 
     @BeforeEach
     void setUp() {
-        validDto = new UpdateWorkScheduleDto(
+        validWorkScheduleDto = new WorkScheduleDto(
+                1L,
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
                 LocalTime.of(13, 0),
@@ -24,7 +27,16 @@ public class UpdateWorkScheduleValidatorTest {
                 "Europe/Moscow"
         );
 
-        invalidStartTimeDto = new UpdateWorkScheduleDto(
+        validUpdateWorkScheduleDto = new UpdateWorkScheduleDto(
+                LocalTime.of(9, 0),
+                LocalTime.of(18, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                "Europe/Moscow"
+        );
+
+        invalidStartTimeDto = new WorkScheduleDto(
+                2L,
                 LocalTime.of(14, 0),
                 LocalTime.of(18, 0),
                 LocalTime.of(13, 0),
@@ -32,7 +44,8 @@ public class UpdateWorkScheduleValidatorTest {
                 "Europe/Moscow"
         );
 
-        invalidLunchStartDto = new UpdateWorkScheduleDto(
+        invalidLunchStartDto = new WorkScheduleDto(
+                3L,
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
                 LocalTime.of(15, 0),
@@ -40,7 +53,8 @@ public class UpdateWorkScheduleValidatorTest {
                 "Europe/Moscow"
         );
 
-        invalidLunchEndDto = new UpdateWorkScheduleDto(
+        invalidLunchEndDto = new WorkScheduleDto(
+                4L,
                 LocalTime.of(9, 0),
                 LocalTime.of(16, 0),
                 LocalTime.of(13, 0),
@@ -50,28 +64,30 @@ public class UpdateWorkScheduleValidatorTest {
     }
 
     @Test
-    void testAllTimesCorrect() {
-        Assertions.assertDoesNotThrow(() -> UpdateWorkScheduleValidator.validate(validDto));
+    void testAllTimesCorrectWithWorkScheduleDto() {
+        Assertions.assertDoesNotThrow(() -> TimeRangeValidator.validate(validWorkScheduleDto));
+    }
+
+    @Test
+    void testAllTimesCorrectWithUpdateWorkScheduleDto() {
+        Assertions.assertDoesNotThrow(() -> TimeRangeValidator.validate(validUpdateWorkScheduleDto));
     }
 
     @Test
     void testStartTimeNotBeforeLunchStart() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                UpdateWorkScheduleValidator.validate(invalidStartTimeDto));
+                TimeRangeValidator.validate(invalidStartTimeDto));
     }
 
     @Test
     void testLunchStartTimeNotBeforeLunchEnd() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                UpdateWorkScheduleValidator.validate(invalidLunchStartDto));
+                TimeRangeValidator.validate(invalidLunchStartDto));
     }
 
     @Test
     void testLunchEndTimeNotBeforeEnd() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                UpdateWorkScheduleValidator.validate(invalidLunchEndDto));
+                TimeRangeValidator.validate(invalidLunchEndDto));
     }
 }
-
-
-
