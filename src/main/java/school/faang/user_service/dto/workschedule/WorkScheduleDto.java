@@ -7,16 +7,9 @@ import java.time.LocalTime;
 
 public record WorkScheduleDto(
         long id,
-
-        @NotNull(message = "Start time cannot be null")
         LocalTime startTime,
-
-        @NotNull(message = "End time cannot be null")
         LocalTime endTime,
-
         LocalTime startLunch,
-
         LocalTime endLunch,
-
-        String timezone) implements TimeRangeDto {
+        String timezone) {
 }

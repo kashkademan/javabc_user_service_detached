@@ -10,5 +10,4 @@ public interface TimeRangeDto {
     LocalTime endLunch();
 
     LocalTime startLunch();
-
 }
