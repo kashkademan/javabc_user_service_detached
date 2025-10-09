@@ -2,8 +2,7 @@ package school.faang.user_service.dto.career;
 
 import java.time.LocalDate;
 
-public record CareerResponse(
-        Long id,
+public record UpdateCareerDto(
         LocalDate from,
         LocalDate to,
         String company,

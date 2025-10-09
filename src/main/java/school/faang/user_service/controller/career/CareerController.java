@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
+import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.service.career.CareerService;
 
 @Slf4j
@@ -25,7 +27,7 @@ public class CareerController {
     private final UserContext userContext;
 
     @PostMapping
-    public CareerDto addCareer(@Valid @RequestBody CareerDto careerDto) {
+    public CareerDto addCareer(@Valid @RequestBody CreateCareerDto careerDto) {
         Long userId = userContext.getUserId();
         log.info("User {} is adding career: {} at {}", userId, careerDto.position(),
                 careerDto.company());
@@ -33,15 +35,15 @@ public class CareerController {
     }
 
     @PutMapping("/{careerId}")
-    public CareerDto updateCareer(@PathVariable long careerId,
-                                       @Valid @RequestBody CareerDto careerDto) {
+    public CareerDto updateCareer(@PathVariable Long careerId,
+                                       @Valid @RequestBody UpdateCareerDto careerDto) {
         Long userId = userContext.getUserId();
         log.info("User {} is updating career {}", userId, careerId);
         return careerService.updateCareer(userId, careerId, careerDto);
     }
 
     @GetMapping("/{careerId}")
-    public CareerDto getById(@PathVariable long careerId) {
+    public CareerDto getById(@PathVariable Long careerId) {
         log.info("Retrieved career with id: {}", careerId);
         return careerService.getById(careerId);
     }

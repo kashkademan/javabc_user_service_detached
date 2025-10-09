@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.career.CareerDto;
+import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -24,7 +26,7 @@ public class CareerServiceImpl implements CareerService {
     private final CareerMapper careerMapper;
 
     @Override
-    public CareerDto addCareer(Long userId, CareerDto careerDto) {
+    public CareerDto addCareer(Long userId, CreateCareerDto careerDto) {
 
         if (careerDto.from() == null) {
             log.warn("Start date cannot be null");
@@ -62,7 +64,7 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public CareerDto updateCareer(Long userId, long careerId, CareerDto careerDto) {
+    public CareerDto updateCareer(Long userId, Long careerId, UpdateCareerDto careerDto) {
 
         if (careerDto.from() == null) {
             log.warn("Start date cannot be null");
@@ -108,7 +110,7 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public CareerDto getById(long careerId) {
+    public CareerDto getById(Long careerId) {
         Career career = careerRepository.getByIdOrThrow(careerId);
         log.info("Retrieved career with id: {}", careerId);
 
