@@ -38,19 +38,11 @@ public class WorkScheduleServiceTest {
     @InjectMocks
     private WorkScheduleServiceImpl workScheduleService;
 
-    private final WorkScheduleDto incorrectWorkScheduleDto = new WorkScheduleDto(
-            100L,
-            LocalTime.of(18, 0),
-            LocalTime.of(8, 0),
-            LocalTime.of(10, 0),
-            LocalTime.of(12, 0),
-            "Europe/Moscow"
-    );
 
     @Test
     public void shouldAddWorkSchedule() {
         long userId = 1L;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
+        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
                 100L,
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
@@ -62,14 +54,15 @@ public class WorkScheduleServiceTest {
         User user = new User();
         user.setId(userId);
 
-        WorkSchedule saved = new WorkSchedule();
-        saved.setId(100L);
-        saved.setUser(user);
-        saved.setStartTime(workScheduleDto.startTime());
-        saved.setEndTime(workScheduleDto.endTime());
-        saved.setStartLunch(workScheduleDto.startLunch());
-        saved.setEndLunch(workScheduleDto.endLunch());
-        saved.setTimezone(workScheduleDto.timezone());
+        final WorkSchedule saved = new WorkSchedule(
+                100L,
+                workScheduleDto.startTime(),
+                workScheduleDto.endTime(),
+                workScheduleDto.startLunch(),
+                workScheduleDto.endLunch(),
+                workScheduleDto.timezone(),
+                user
+        );
 
         when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
         when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(saved);
@@ -82,6 +75,15 @@ public class WorkScheduleServiceTest {
 
     @Test
     public void shouldThrowValidationException_addWorkSchedule() {
+        final WorkScheduleDto incorrectWorkScheduleDto = new WorkScheduleDto(
+                100L,
+                LocalTime.of(18, 0),
+                LocalTime.of(8, 0),
+                LocalTime.of(10, 0),
+                LocalTime.of(12, 0),
+                "Europe/Moscow"
+        );
+
         assertThrows(DataValidationException.class, () -> {
             workScheduleService.addWorkSchedule(
                     1L,
@@ -93,7 +95,7 @@ public class WorkScheduleServiceTest {
     public void shouldUpdateWorkSchedule() {
         long userId = 1L;
         long workScheduleId = 100L;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
+        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
                 100L,
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
@@ -105,22 +107,18 @@ public class WorkScheduleServiceTest {
         User user = new User();
         user.setId(userId);
 
-        WorkSchedule workSchedule = new WorkSchedule(
+        final WorkSchedule workSchedule = new WorkSchedule(
                 100L,
-                LocalTime.of(7, 0),
-                LocalTime.of(15, 0),
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0),
+                LocalTime.of(7, 0), LocalTime.of(15, 0),
+                LocalTime.of(13, 0), LocalTime.of(14, 0),
                 "Asia/Almaty",
                 user
         );
 
-        WorkSchedule updatedWorkSchedule = new WorkSchedule(
+        final WorkSchedule updatedWorkSchedule = new WorkSchedule(
                 100L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(10, 0),
-                LocalTime.of(12, 0),
+                LocalTime.of(9, 0), LocalTime.of(18, 0),
+                LocalTime.of(10, 0), LocalTime.of(12, 0),
                 "Europe/Moscow",
                 user
         );
@@ -136,6 +134,13 @@ public class WorkScheduleServiceTest {
 
     @Test
     public void shouldThrowValidationException_updateWorkSchedule() {
+        final WorkScheduleDto incorrectWorkScheduleDto = new WorkScheduleDto(
+                100L,
+                LocalTime.of(18, 0), LocalTime.of(8, 0),
+                LocalTime.of(10, 0), LocalTime.of(12, 0),
+                "Europe/Moscow"
+        );
+
         assertThrows(DataValidationException.class, () -> {
             workScheduleService.updateWorkSchedule(
                     1L,
@@ -149,21 +154,17 @@ public class WorkScheduleServiceTest {
         User user = new User();
         user.setId(2L);
 
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
+        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
                 100L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(10, 0),
-                LocalTime.of(12, 0),
+                LocalTime.of(9, 0), LocalTime.of(18, 0),
+                LocalTime.of(10, 0), LocalTime.of(12, 0),
                 "Europe/Moscow"
         );
 
-        WorkSchedule workSchedule = new WorkSchedule(
+        final WorkSchedule workSchedule = new WorkSchedule(
                 100L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(10, 0),
-                LocalTime.of(12, 0),
+                LocalTime.of(9, 0), LocalTime.of(18, 0),
+                LocalTime.of(10, 0), LocalTime.of(12, 0),
                 "Asia/Almaty",
                 user
         );
