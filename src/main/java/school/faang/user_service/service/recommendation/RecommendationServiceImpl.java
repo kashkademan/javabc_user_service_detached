@@ -11,6 +11,7 @@ import school.faang.user_service.dto.recommendation.UpdateRecommendationRequestD
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.filters.recommendation.RecommendationFilter;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Реализация RecommendationService.
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class RecommendationServiceImpl implements RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
+    private final List<RecommendationFilter> recommendationFilters;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
     private final SkillOfferRepository skillOfferRepository;
@@ -103,7 +106,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         recommendation.setContent(request.content());
-        Recommendation  updatedRecommendation = recommendationRepository.save(recommendation);
+        Recommendation updatedRecommendation = recommendationRepository.save(recommendation);
 
         if (request.skillIds() != null) {
             skillOfferRepository.deleteAllByRecommendationId(recommendationId);
@@ -114,7 +117,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
 
-        return recommendationMapper.toResponse( updatedRecommendation);
+        return recommendationMapper.toResponse(updatedRecommendation);
     }
 
     @Override
@@ -135,20 +138,16 @@ public class RecommendationServiceImpl implements RecommendationService {
     public List<RecommendationResponseDto> getByFilters(FilterRecommendationRequestDto filters) {
         log.info("Fetching recommendations by filters: {}", filters);
 
-        String contentContains = filters != null ? filters.contentContains() : null;
-        Long authorId = filters != null ? filters.authorId() : null;
-        Long receiverId = filters != null ? filters.receiverId() : null;
+        Stream<Recommendation> recommendationsStream = recommendationRepository.findAll().stream();
 
-        return recommendationRepository.findAll().stream()
-                .filter(r -> authorId == null || Objects.equals(r.getAuthor().getId(), authorId))
-                .filter(r -> receiverId == null || Objects.equals(r.getReceiver().getId(), receiverId))
-                .filter(r -> {
-                    if (isBlank(contentContains)) {
-                        return true;
-                    }
-                    String c = r.getContent();
-                    return c != null && c.toLowerCase().contains(contentContains.toLowerCase());
-                })
+        // Apply each filter if applicable
+        for (RecommendationFilter filter : recommendationFilters) {
+            if (filter.isApplicable(filters)) {
+                recommendationsStream = filter.apply(recommendationsStream, filters);
+            }
+        }
+
+        return recommendationsStream
                 .map(recommendationMapper::toResponse)
                 .collect(Collectors.toList());
     }

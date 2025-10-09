@@ -19,6 +19,10 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.filters.recommendation.RecommendationAuthorFilter;
+import school.faang.user_service.filters.recommendation.RecommendationContentFilter;
+import school.faang.user_service.filters.recommendation.RecommendationFilter;
+import school.faang.user_service.filters.recommendation.RecommendationReceiverFilter;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -31,7 +35,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -44,20 +47,30 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RecommendationServiceImplTest {
 
+    private final RecommendationContentFilter contentFilter = new RecommendationContentFilter();
+    private final RecommendationReceiverFilter receiverFilter = new RecommendationReceiverFilter();
+    private final RecommendationAuthorFilter authorFilter = new RecommendationAuthorFilter();
+
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
     private SkillOfferRepository skillOfferRepository;
     @Mock
     private UserContext userContext;
-    @InjectMocks
-    private RecommendationServiceImpl recommendationService;
     @Spy
     private final RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
+    @InjectMocks
+    private RecommendationServiceImpl recommendationService;
 
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(recommendationService, "cooldownMonths", 6);
+        List<RecommendationFilter> filters = List.of(
+                contentFilter,
+                receiverFilter,
+                authorFilter
+        );
+        ReflectionTestUtils.setField(recommendationService, "recommendationFilters", filters);
     }
 
     @Nested
@@ -86,11 +99,11 @@ class RecommendationServiceImplTest {
 
             when(recommendationRepository.findById(100L)).thenReturn(Optional.of(expectedRecommendation));
             when(recommendationRepository.findAll()).thenReturn(Collections.emptyList());
-            
+
             RecommendationResponseDto expectedRecommendationResponseDto = new RecommendationResponseDto(
                     100L, 10L, 42L, "Sample content"
             );
-            
+
             RecommendationResponseDto actualRecommendationResponseDto = recommendationService.create(input);
 
 
@@ -471,7 +484,7 @@ class RecommendationServiceImplTest {
                     .build();
 
             RecommendationResponseDto dto1 = new RecommendationResponseDto(1L, 100L, 200L, "Content with keyword");
-            RecommendationResponseDto dto2 = new RecommendationResponseDto(2L, 100L, 200L, "Other content");
+            // RecommendationResponseDto dto2 = new RecommendationResponseDto(2L, 100L, 200L, "Other content");
 
             when(recommendationRepository.findAll()).thenReturn(List.of(recommendation1, recommendation2));
 
