@@ -14,26 +14,26 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/eventParticipants")
+@RequestMapping("/event/{eventId}/participations")
 public class EventParticipantController {
     final EventParticipationServiceImpl eventParticipationServiceImpl;
 
-    @PostMapping("/register/{eventId}/{userId}")
+    @PostMapping("/register/{userId}")
     void registerParticipant(@PathVariable long eventId, @PathVariable long userId) {
         eventParticipationServiceImpl.registerParticipant(eventId, userId);
     }
 
-    @PostMapping("/unregister/{eventId}/{userId}")
+    @PostMapping("/unregister/{userId}")
     void unregisterParticipant(@PathVariable long eventId, @PathVariable long userId) {
         eventParticipationServiceImpl.unregisterParticipant(eventId, userId);
     }
 
-    @GetMapping("/getParticipantsCount/{eventId}")
+    @GetMapping("/count")
     CountResponse countParticipantsByEventId(@PathVariable long eventId) {
         return eventParticipationServiceImpl.countParticipantsByEventId(eventId);
     }
 
-    @GetMapping("/getAllParticipants/{eventId}")
+    @GetMapping()
     List<UserDto> getAllParticipantsByEventId(@PathVariable long eventId) {
         return eventParticipationServiceImpl.getAllParticipantsByEventId(eventId);
     }
