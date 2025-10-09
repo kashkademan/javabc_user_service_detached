@@ -3,6 +3,7 @@ package school.faang.user_service.service.workschedule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
 import school.faang.user_service.service.validator.UpdateWorkScheduleValidator;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
@@ -21,10 +22,12 @@ public class WorkScheduleService {
     private final UserRepository userRepository;
     private final WorkScheduleRepository workScheduleRepository;
     private final WorkScheduleMapper workScheduleMapper;
+    private final UserContext userContext;
 
-    public WorkScheduleDto addWorkSchedule(long userId, WorkScheduleDto workScheduleDto) {
+    public WorkScheduleDto addWorkSchedule(WorkScheduleDto workScheduleDto) {
         WorkScheduleValidator.validate(workScheduleDto);
 
+        long userId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);
 
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
@@ -36,10 +39,10 @@ public class WorkScheduleService {
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
-    public WorkScheduleDto updateWorkSchedule(long userId, long workScheduleId,
-                                              UpdateWorkScheduleDto updateWorkScheduleDto) {
+    public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
         UpdateWorkScheduleValidator.validate(updateWorkScheduleDto);
 
+        long userId = userContext.getUserId();
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
         if (!workSchedule.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You can only update your own data");
@@ -57,5 +60,4 @@ public class WorkScheduleService {
 
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
-
 }
