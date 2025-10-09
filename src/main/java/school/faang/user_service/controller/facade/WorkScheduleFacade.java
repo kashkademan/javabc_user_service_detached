@@ -3,11 +3,11 @@ package school.faang.user_service.controller.facade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.workschedule.CreateWorkScheduleDto;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.mapper.WorkScheduleMapper;
-import school.faang.user_service.service.validator.TimeRangeValidator;
 import school.faang.user_service.service.workschedule.WorkScheduleService;
 
 @Slf4j
@@ -17,10 +17,8 @@ public class WorkScheduleFacade {
     private final WorkScheduleService workScheduleService;
     private final WorkScheduleMapper workScheduleMapper;
 
-    public WorkScheduleDto addWorkSchedule(WorkScheduleDto workScheduleDto) {
-        TimeRangeValidator.validate(workScheduleDto);
-
-        WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
+    public WorkScheduleDto addWorkSchedule(CreateWorkScheduleDto createWorkScheduleDto) {
+        WorkSchedule workSchedule = workScheduleMapper.toCreateWorkSchedule(createWorkScheduleDto);
         WorkSchedule savedWorkSchedule = workScheduleService.addWorkSchedule(workSchedule);
         log.info("WorkSchedule for user added");
 
@@ -28,14 +26,10 @@ public class WorkScheduleFacade {
     }
 
     public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
-        TimeRangeValidator.validate(updateWorkScheduleDto);
+        WorkSchedule workSchedule = workScheduleService.updateWorkSchedule(workScheduleId, updateWorkScheduleDto);
+        log.info("WorkSchedule was updated");
 
-        WorkSchedule workSchedule = workScheduleService.updateWorkSchedule(workScheduleId);
-        workScheduleMapper.updateWorkSchedule(updateWorkScheduleDto, workSchedule);
-
-        WorkSchedule updatedWorkSchedule = workScheduleService.save(workSchedule);
-
-        return workScheduleMapper.toWorkScheduleDto(updatedWorkSchedule);
+        return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
     public WorkScheduleDto getById(long workScheduleId) {

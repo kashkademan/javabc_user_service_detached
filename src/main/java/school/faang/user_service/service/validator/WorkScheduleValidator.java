@@ -1,0 +1,35 @@
+package school.faang.user_service.service.validator;
+
+import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.entity.user.WorkSchedule;
+import school.faang.user_service.exception.DataValidationException;
+
+import java.time.LocalTime;
+
+public class WorkScheduleValidator {
+    public static void validate(WorkSchedule workSchedule) {
+        validateTimeSequence(
+                workSchedule.getStartTime(),
+                workSchedule.getStartLunch(),
+                workSchedule.getEndLunch(),
+                workSchedule.getEndTime()
+        );
+    }
+
+    public static void validateForUpdate(UpdateWorkScheduleDto dto) {
+        validateTimeSequence(
+                dto.startTime(),
+                dto.startLunch(),
+                dto.endLunch(),
+                dto.endTime()
+        );
+    }
+
+    private static void validateTimeSequence(LocalTime t1, LocalTime t2, LocalTime t3, LocalTime t4) {
+        if (!(t1.isBefore(t2) && t2.isBefore(t3) && t3.isBefore(t4))) {
+            throw new DataValidationException(
+                    "Invalid time sequence. Required: startTime < startLunch < endLunch < endTime"
+            );
+        }
+    }
+}
