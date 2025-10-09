@@ -1,25 +1,26 @@
 package school.faang.user_service.service.recommendation;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.RecommendationResponse;
-import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -30,44 +31,33 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * unit test for RecommendationServiceImpl.
  */
+
+@ExtendWith(MockitoExtension.class)
 class RecommendationServiceImplTest {
 
     @Mock
     private RecommendationRepository recommendationRepository;
-    @Spy
-    private RecommendationMapper recommendationMapper;
     @Mock
     private SkillOfferRepository skillOfferRepository;
     @Mock
     private UserContext userContext;
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
-
-    private AutoCloseable autoCloseable;
+    @Spy
+    private final RecommendationMapper recommendationMapper = new RecommendationMapperImpl();
 
     @BeforeEach
     void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-        this.recommendationService = new RecommendationServiceImpl(
-                recommendationRepository, recommendationMapper, userContext, skillOfferRepository
-        );
         ReflectionTestUtils.setField(recommendationService, "cooldownMonths", 6);
-
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
     }
 
     @Nested
@@ -76,41 +66,50 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("create: save recommendation and return DTO")
         void create_success() {
-
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            // Setup
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     42L, "Sample content", List.of(1L, 2L)
             );
 
-            Recommendation saved = new Recommendation();
-            RecommendationResponse expectedDto = new RecommendationResponse(
+            when(userContext.getUserId()).thenReturn(10L);
+            when(recommendationRepository.create(10L, 42L, "Sample content")).thenReturn(100L);
+
+            User author = User.builder().id(10L).build();
+            User receiver = User.builder().id(42L).build();
+
+            Recommendation expectedRecommendation = Recommendation.builder()
+                    .id(100L)
+                    .content("Sample content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
+
+            when(recommendationRepository.findById(100L)).thenReturn(Optional.of(expectedRecommendation));
+            when(recommendationRepository.findAll()).thenReturn(Collections.emptyList());
+            
+            RecommendationResponseDto expectedRecommendationResponseDto = new RecommendationResponseDto(
                     100L, 10L, 42L, "Sample content"
             );
+            
+            RecommendationResponseDto actualRecommendationResponseDto = recommendationService.create(input);
 
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.create(100L, 42L, "Sample content")).willReturn(0L);
-            given(recommendationRepository.findById(anyLong())).willReturn(Optional.of(saved));
-            given(recommendationMapper.toRecommendationDto(saved)).willReturn(expectedDto);
-            given(recommendationRepository.findAll()).willReturn(Collections.emptyList());
 
-            RecommendationResponse result = recommendationService.create(input);
-
-            assertThat(result).isEqualTo(expectedDto);
+            assertThat(actualRecommendationResponseDto).isEqualTo(expectedRecommendationResponseDto);
 
             verify(recommendationRepository).findAll();
-            verify(recommendationRepository).create(100L, 42L, "Sample content");
-            verify(recommendationRepository).findById(0L);
-            verify(recommendationMapper).toRecommendationDto(saved);
-            verify(skillOfferRepository).create(1L, 0L);
-            verify(skillOfferRepository).create(2L, 0L);
-            verifyNoMoreInteractions(recommendationMapper, recommendationRepository, skillOfferRepository);
+            verify(recommendationRepository).create(10L, 42L, "Sample content");
+            verify(recommendationRepository).findById(100L);
+            verify(recommendationMapper).toResponse(expectedRecommendation);
+            verify(skillOfferRepository).create(1L, 100L);
+            verify(skillOfferRepository).create(2L, 100L);
+            verifyNoMoreInteractions(recommendationRepository, skillOfferRepository, recommendationMapper);
         }
-
 
         @Test
         @DisplayName("create: throws DataValidationException when receiverId is null")
         void create_fail_receiverIdNull() {
 
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     null, "Content", List.of(1L, 2L)
             );
 
@@ -125,7 +124,7 @@ class RecommendationServiceImplTest {
         @DisplayName("create: throws DataValidationException when content is blank")
         void create_fail_contentBlank() {
 
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     42L, "   ", List.of(1L, 2L)
             );
 
@@ -139,20 +138,25 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("create: throws DataValidationException on cooldown violations")
         void create_fail_cooldownViolation() {
-            Recommendation existing = new Recommendation();
-            existing.setContent("Old content");
-            User author = new User();
-            author.setId(100L);
-            existing.setAuthor(author);
-            User receiver = new User();
-            receiver.setId(42L);
-            existing.setReceiver(receiver);
-            existing.setCreatedAt(LocalDateTime.now()); // Set recent creation date to trigger cooldown
+            User author = User.builder()
+                    .id(100L)
+                    .build();
 
-            given(recommendationRepository.findAll()).willReturn(List.of(existing));
-            given(userContext.getUserId()).willReturn(100L);
+            User receiver = User.builder()
+                    .id(42L)
+                    .build();
 
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            Recommendation existingRecommendation = Recommendation.builder()
+                    .content("Old content")
+                    .author(author)
+                    .receiver(receiver)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(recommendationRepository.findAll()).thenReturn(List.of(existingRecommendation));
+            when(userContext.getUserId()).thenReturn(100L);
+
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     42L, "Sample content", List.of(1L, 2L)
             );
             assertThatThrownBy(() -> recommendationService.create(input))
@@ -164,33 +168,44 @@ class RecommendationServiceImplTest {
             verifyNoMoreInteractions(recommendationRepository);
         }
 
-
         @Test
         @DisplayName("create: handles skillIds if provided")
         void create_success_withSkillIds() {
-
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     42L, "Useful Recommendation", List.of(1L, 2L)
             );
 
-            Recommendation saved = new Recommendation();
-            RecommendationResponse expectedDto = new RecommendationResponse(
-                    1L, 100L, 42L, "Useful Recommendation"
-            );
+            User author = User.builder()
+                    .id(100L)
+                    .build();
 
-            given(userContext.getUserId()).willReturn(100L);
+            User receiver = User.builder()
+                    .id(42L)
+                    .build();
 
-            given(recommendationRepository.create(anyLong(), anyLong(), anyString())).willReturn(1L);
-            given(recommendationRepository.findById(1L)).willReturn(Optional.of(saved));
-            given(recommendationMapper.toRecommendationDto(saved)).willReturn(expectedDto);
-            given(recommendationRepository.findAll()).willReturn(Collections.emptyList());
+            Recommendation savedRecommendation = Recommendation.builder()
+                    .id(1L)
+                    .content("Useful Recommendation")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
 
-            RecommendationResponse result = recommendationService.create(input);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.create(100L, 42L, "Useful Recommendation")).thenReturn(1L);
+            when(recommendationRepository.findById(1L)).thenReturn(Optional.of(savedRecommendation));
+            when(recommendationRepository.findAll()).thenReturn(Collections.emptyList());
+
+            RecommendationResponseDto result = recommendationService.create(input);
+
+            RecommendationResponseDto expectedResponse = new RecommendationResponseDto(1L, 100L, 42L, "Useful Recommendation");
+            assertThat(result).isEqualTo(expectedResponse);
 
             verify(recommendationRepository).create(100L, 42L, "Useful Recommendation");
             verify(skillOfferRepository).create(1L, 1L);
             verify(skillOfferRepository).create(2L, 1L);
-            assertThat(result).isEqualTo(expectedDto);
+            verify(recommendationRepository).findById(1L);
+            verify(recommendationRepository).findAll();
+            verifyNoMoreInteractions(recommendationRepository, skillOfferRepository);
         }
 
 
@@ -199,11 +214,11 @@ class RecommendationServiceImplTest {
         void create_fail_authorEqualsReceiver() {
 
             long sameUserId = 100L;
-            CreateRecommendationRequest input = new CreateRecommendationRequest(
+            CreateRecommendationRequestDto input = new CreateRecommendationRequestDto(
                     sameUserId, "Self recommendation", List.of(1L, 2L)
             );
 
-            given(userContext.getUserId()).willReturn(sameUserId);
+            when(userContext.getUserId()).thenReturn(sameUserId);
 
             assertThatThrownBy(() -> recommendationService.create(input))
                     .isInstanceOf(ForbiddenException.class)
@@ -220,36 +235,45 @@ class RecommendationServiceImplTest {
         @DisplayName("update: successfully updates recommendation and returns DTO")
         void update_success() {
             long recommendationId = 1L;
-            Recommendation existing = new Recommendation();
-            existing.setId(recommendationId);
-            existing.setContent("Old content");
-            User author = new User();
-            author.setId(100L);
-            existing.setAuthor(author);
-            User receiver = new User();
-            receiver.setId(42L);
-            existing.setReceiver(receiver);
-            Recommendation updated = new Recommendation();
-            updated.setId(recommendationId);
-            updated.setContent("Updated content");
-            RecommendationResponse expectedDto = new RecommendationResponse(
+            User author = User.builder()
+                    .id(100L)
+                    .build();
+
+            User receiver = User.builder()
+                    .id(42L)
+                    .build();
+
+            Recommendation existingRecommendation = Recommendation.builder()
+                    .id(recommendationId)
+                    .content("Old content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
+
+            Recommendation updatedRecommendation = Recommendation.builder()
+                    .id(recommendationId)
+                    .content("Updated content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
+
+            RecommendationResponseDto expectedRecommendationResponseDto = new RecommendationResponseDto(
                     recommendationId, 100L, 42L, "Updated content"
             );
 
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.findById(recommendationId)).willReturn(Optional.of(existing));
-            given(recommendationRepository.save(existing)).willReturn(updated);
-            given(recommendationMapper.toRecommendationDto(updated)).willReturn(expectedDto);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.findById(recommendationId)).thenReturn(Optional.of(existingRecommendation));
+            when(recommendationRepository.save(existingRecommendation)).thenReturn(updatedRecommendation);
 
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+            UpdateRecommendationRequestDto input = new UpdateRecommendationRequestDto(
                     "Updated content", null
             );
-            RecommendationResponse result = recommendationService.update(recommendationId, input);
+            RecommendationResponseDto result = recommendationService.update(recommendationId, input);
 
-            assertThat(result).isEqualTo(expectedDto);
+            assertThat(result).isEqualTo(expectedRecommendationResponseDto);
             verify(recommendationRepository).findById(recommendationId);
-            verify(recommendationRepository).save(existing);
-            verify(recommendationMapper).toRecommendationDto(updated);
+            verify(recommendationRepository).save(existingRecommendation);
+            verify(recommendationMapper).toResponse(updatedRecommendation);
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper);
         }
 
@@ -257,7 +281,7 @@ class RecommendationServiceImplTest {
         @DisplayName("update: throws DataValidationException when content is blank")
         void update_fail_contentBlank() {
             long recommendationId = 1L;
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+            UpdateRecommendationRequestDto input = new UpdateRecommendationRequestDto(
                     "   ", null
             );
 
@@ -273,11 +297,11 @@ class RecommendationServiceImplTest {
         void update_fail_notFound() {
 
             long recommendationId = 1L;
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+            UpdateRecommendationRequestDto input = new UpdateRecommendationRequestDto(
                     "Updated content", null
             );
 
-            given(recommendationRepository.findById(recommendationId)).willReturn(Optional.empty());
+            when(recommendationRepository.findById(recommendationId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> recommendationService.update(recommendationId, input))
                     .isInstanceOf(DataValidationException.class)
@@ -292,19 +316,20 @@ class RecommendationServiceImplTest {
         void update_fail_forbidden() {
 
             long recommendationId = 1L;
-            Recommendation existing = new Recommendation();
-            existing.setId(recommendationId);
-            existing.setContent("Old content");
-            User newUser = new User();
-            newUser.setId(200L);
-            existing.setAuthor(newUser);
+            User author = User.builder()
+                    .id(200L)
+                    .build();
 
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.findById(recommendationId)).willReturn(Optional.of(existing));
+            Recommendation existingRecommendation = Recommendation.builder()
+                    .id(recommendationId)
+                    .content("Old content")
+                    .author(author)
+                    .build();
 
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
-                    "Updated content", null
-            );
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.findById(recommendationId)).thenReturn(Optional.of(existingRecommendation));
+
+            UpdateRecommendationRequestDto input = new UpdateRecommendationRequestDto("Updated content", null);
             assertThatThrownBy(() -> recommendationService.update(recommendationId, input))
                     .isInstanceOf(ForbiddenException.class)
                     .hasMessage("You can update only your own recommendation");
@@ -318,43 +343,50 @@ class RecommendationServiceImplTest {
         void update_success_withSkillIds() {
 
             long recommendationId = 1L;
-            Recommendation existing = new Recommendation();
-            existing.setId(recommendationId);
-            existing.setContent("Old content");
-            User author = new User();
-            author.setId(100L);
-            existing.setAuthor(author);
-            User receiver = new User();
-            receiver.setId(42L);
-            existing.setReceiver(receiver);
+            User author = User.builder()
+                    .id(100L)
+                    .build();
 
-            Recommendation updated = new Recommendation();
-            updated.setId(recommendationId);
-            updated.setContent("Updated content");
-            RecommendationResponse expectedDto = new RecommendationResponse(
+            User receiver = User.builder()
+                    .id(42L)
+                    .build();
+
+            Recommendation existingRecommendation = Recommendation.builder()
+                    .id(recommendationId)
+                    .content("Old content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
+
+            Recommendation updatedRecommendation = Recommendation.builder()
+                    .id(recommendationId)
+                    .content("Updated content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
+
+            RecommendationResponseDto expectedRecommendation = new RecommendationResponseDto(
                     recommendationId, 100L, 42L, "Updated content"
             );
 
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.findById(recommendationId)).willReturn(Optional.of(existing));
-            given(recommendationRepository.save(existing)).willReturn(updated);
-            given(recommendationMapper.toRecommendationDto(updated)).willReturn(expectedDto);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.findById(recommendationId)).thenReturn(Optional.of(existingRecommendation));
+            when(recommendationRepository.save(existingRecommendation)).thenReturn(updatedRecommendation);
 
-            UpdateRecommendationRequest input = new UpdateRecommendationRequest(
+            UpdateRecommendationRequestDto input = new UpdateRecommendationRequestDto(
                     "Updated content", List.of(1L, 2L)
             );
-            RecommendationResponse result = recommendationService.update(recommendationId, input);
+            RecommendationResponseDto result = recommendationService.update(recommendationId, input);
 
-            assertThat(result).isEqualTo(expectedDto);
+            assertThat(result).isEqualTo(expectedRecommendation);
             verify(recommendationRepository).findById(recommendationId);
-            verify(recommendationRepository).save(existing);
+            verify(recommendationRepository).save(existingRecommendation);
             verify(skillOfferRepository).deleteAllByRecommendationId(recommendationId);
             verify(skillOfferRepository).create(recommendationId, 1L);
             verify(skillOfferRepository).create(recommendationId, 2L);
-            verify(recommendationMapper).toRecommendationDto(updated);
+            verify(recommendationMapper).toResponse(updatedRecommendation);
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper, skillOfferRepository);
         }
-
     }
 
     @Nested
@@ -365,8 +397,8 @@ class RecommendationServiceImplTest {
         void delete_success() {
 
             long recommendationId = 1L;
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(1);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).thenReturn(1);
 
             recommendationService.delete(recommendationId);
 
@@ -380,8 +412,8 @@ class RecommendationServiceImplTest {
         void delete_fail_notOwner() {
 
             long recommendationId = 1L;
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(0);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).thenReturn(0);
 
             assertThatThrownBy(() -> recommendationService.delete(recommendationId))
                     .isInstanceOf(ForbiddenException.class)
@@ -397,8 +429,8 @@ class RecommendationServiceImplTest {
         void delete_fail_recommendationNotFound() {
 
             long recommendationId = 1L;
-            given(userContext.getUserId()).willReturn(100L);
-            given(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).willReturn(0);
+            when(userContext.getUserId()).thenReturn(100L);
+            when(recommendationRepository.deleteByIdAndAuthor_id(recommendationId, 100L)).thenReturn(0);
 
             assertThatThrownBy(() -> recommendationService.delete(recommendationId))
                     .isInstanceOf(ForbiddenException.class)
@@ -416,77 +448,99 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("getByFilters: successfully filters recommendations based on criteria")
         void getByFilters_success() {
-            Recommendation recommendation1 = new Recommendation();
-            Recommendation recommendation2 = new Recommendation();
-            User author = new User();
-            author.setId(100L);
-            recommendation1.setAuthor(author);
-            recommendation2.setAuthor(author);
-            recommendation1.setContent("Content with keyword");
-            recommendation2.setContent("Other content");
-            User receiver = new User();
-            receiver.setId(200L);
-            recommendation1.setReceiver(receiver);
-            recommendation2.setReceiver(receiver);
+            User author = User.builder()
+                    .id(100L)
+                    .build();
 
-            RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "Content with keyword");
-            RecommendationResponse dto2 = new RecommendationResponse(2L, 100L, 200L, "Other content");
+            User receiver = User.builder()
+                    .id(200L)
+                    .build();
 
-            given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
-            given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
-            given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
+            Recommendation recommendation1 = Recommendation.builder()
+                    .id(1L)
+                    .content("Content with keyword")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
 
-            FilterRecommendationRequest filters = new FilterRecommendationRequest("keyword", 100L, 200L);
-            List<RecommendationResponse> result = recommendationService.getByFilters(filters);
+            Recommendation recommendation2 = Recommendation.builder()
+                    .id(2L)
+                    .content("Other content")
+                    .author(author)
+                    .receiver(receiver)
+                    .build();
 
-            assertThat(result).containsExactly(dto1);
+            RecommendationResponseDto dto1 = new RecommendationResponseDto(1L, 100L, 200L, "Content with keyword");
+            RecommendationResponseDto dto2 = new RecommendationResponseDto(2L, 100L, 200L, "Other content");
+
+            when(recommendationRepository.findAll()).thenReturn(List.of(recommendation1, recommendation2));
+
+            FilterRecommendationRequestDto filters = new FilterRecommendationRequestDto("keyword", 100L, 200L);
+            List<RecommendationResponseDto> RecommendationResponseDto = recommendationService.getByFilters(filters);
+
+            assertThat(RecommendationResponseDto).containsExactly(dto1);
             verify(recommendationRepository).findAll();
-            verify(recommendationMapper).toRecommendationDto(recommendation1);
+            verify(recommendationMapper).toResponse(recommendation1);
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper);
         }
 
         @Test
         @DisplayName("getByFilters: returns all recommendations when filters are empty")
         void getByFilters_emptyFilters() {
+            User author1 = User.builder()
+                    .id(100L)
+                    .build();
 
-            Recommendation recommendation1 = new Recommendation();
-            User author1 = new User();
-            author1.setId(100L);
-            recommendation1.setAuthor(author1);
-            recommendation1.setContent("First recommendation");
+            User author2 = User.builder()
+                    .id(101L)
+                    .build();
 
-            User author2 = new User();
-            author2.setId(101L);
-            Recommendation recommendation2 = new Recommendation();
-            recommendation2.setAuthor(author2);
-            recommendation2.setContent("Second recommendation");
+            User receiver1 = User.builder()
+                    .id(200L)
+                    .build();
 
-            given(recommendationRepository.findAll()).willReturn(List.of(recommendation1, recommendation2));
-            RecommendationResponse dto1 = new RecommendationResponse(1L, 100L, 200L, "First recommendation");
-            given(recommendationMapper.toRecommendationDto(recommendation1)).willReturn(dto1);
-            RecommendationResponse dto2 = new RecommendationResponse(2L, 101L, 201L, "Second recommendation");
-            given(recommendationMapper.toRecommendationDto(recommendation2)).willReturn(dto2);
+            User receiver2 = User.builder()
+                    .id(201L)
+                    .build();
 
-            FilterRecommendationRequest filters = new FilterRecommendationRequest(null, null, null);
-            List<RecommendationResponse> result = recommendationService.getByFilters(filters);
+            Recommendation recommendation1 = Recommendation.builder()
+                    .id(1L)
+                    .content("First recommendation")
+                    .author(author1)
+                    .receiver(receiver1)
+                    .build();
 
-            assertThat(result).containsExactlyInAnyOrder(dto1, dto2);
+            Recommendation recommendation2 = Recommendation.builder()
+                    .id(2L)
+                    .content("Second recommendation")
+                    .author(author2)
+                    .receiver(receiver2)
+                    .build();
+
+            when(recommendationRepository.findAll()).thenReturn(List.of(recommendation1, recommendation2));
+            RecommendationResponseDto dto1 = new RecommendationResponseDto(1L, 100L, 200L, "First recommendation");
+            RecommendationResponseDto dto2 = new RecommendationResponseDto(2L, 101L, 201L, "Second recommendation");
+
+            FilterRecommendationRequestDto filters = new FilterRecommendationRequestDto(null, null, null);
+            List<RecommendationResponseDto> recommendationResponseDto = recommendationService.getByFilters(filters);
+
+            assertThat(recommendationResponseDto).containsExactlyInAnyOrder(dto1, dto2);
             verify(recommendationRepository).findAll();
-            verify(recommendationMapper).toRecommendationDto(recommendation1);
-            verify(recommendationMapper).toRecommendationDto(recommendation2);
+            verify(recommendationMapper).toResponse(recommendation1);
+            verify(recommendationMapper).toResponse(recommendation2);
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper);
         }
 
         @Test
         @DisplayName("getByFilters: returns empty list if no recommendations match filters")
         void getByFilters_noResults() {
-            FilterRecommendationRequest filters = new FilterRecommendationRequest("unmatched", 123L, 456L);
+            FilterRecommendationRequestDto filters = new FilterRecommendationRequestDto("unmatched", 123L, 456L);
 
-            given(recommendationRepository.findAll()).willReturn(Collections.emptyList());
+            when(recommendationRepository.findAll()).thenReturn(Collections.emptyList());
 
-            List<RecommendationResponse> result = recommendationService.getByFilters(filters);
+            List<RecommendationResponseDto> recommendationResponseDto = recommendationService.getByFilters(filters);
 
-            assertThat(result).isEmpty();
+            assertThat(recommendationResponseDto).isEmpty();
             verify(recommendationRepository).findAll();
             verifyNoInteractions(recommendationMapper);
             verifyNoMoreInteractions(recommendationRepository);

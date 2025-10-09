@@ -1,9 +1,9 @@
 package school.faang.user_service.service.recommendation;
 
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.RecommendationResponse;
-import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequestDto;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public interface RecommendationService {
      * @param recommendationDto данные для создания рекомендации (получатель, содержимое, необязательные skillIds)
      * @return созданная рекомендация
      */
-    RecommendationResponse create(CreateRecommendationRequest recommendationDto);
+    RecommendationResponseDto create(CreateRecommendationRequestDto recommendationDto);
 
     /**
      * Обновляет существующую рекомендацию по ее идентификатору.
@@ -43,7 +43,7 @@ public interface RecommendationService {
      * @param recommendationDto поля для обновления
      * @return обновленная рекомендация
      */
-    RecommendationResponse update(long recommendationId, UpdateRecommendationRequest recommendationDto);
+    RecommendationResponseDto update(long recommendationId, UpdateRecommendationRequestDto recommendationDto);
 
     /**
      * Удаляет рекомендацию по ее идентификатору.
@@ -67,5 +67,5 @@ public interface RecommendationService {
      * @param filters критерии фильтрации (например, автор, получатель, диапазон дат, скиллы)
      * @return список рекомендаций, удовлетворяющих фильтрам (возможно пустой)
      */
-    List<RecommendationResponse> getByFilters(FilterRecommendationRequest filters);
+    List<RecommendationResponseDto> getByFilters(FilterRecommendationRequestDto filters);
 }

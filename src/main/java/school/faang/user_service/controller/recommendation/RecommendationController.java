@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.RecommendationResponse;
-import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequestDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;
@@ -28,13 +28,13 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public RecommendationResponse create(@Valid @RequestBody CreateRecommendationRequest request) {
+    public RecommendationResponseDto create(@Valid @RequestBody CreateRecommendationRequestDto request) {
         return recommendationService.create(request);
     }
 
     @PutMapping("/{recommendationId}")
-    public RecommendationResponse update(@PathVariable @Positive long recommendationId,
-                                         @Valid @RequestBody UpdateRecommendationRequest request) {
+    public RecommendationResponseDto update(@PathVariable @Positive long recommendationId,
+                                            @Valid @RequestBody UpdateRecommendationRequestDto request) {
         return recommendationService.update(recommendationId, request);
     }
 
@@ -44,7 +44,7 @@ public class RecommendationController {
     }
 
     @GetMapping
-    public List<RecommendationResponse> getByFilters(@Valid FilterRecommendationRequest filters) {
+    public List<RecommendationResponseDto> getByFilters(@Valid FilterRecommendationRequestDto filters) {
         return recommendationService.getByFilters(filters);
     }
 }

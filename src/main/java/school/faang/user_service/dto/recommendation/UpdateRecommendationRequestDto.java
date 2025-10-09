@@ -7,7 +7,7 @@ import java.util.List;
  * content - новый текст рекомендации
  * skillIds - новый набор подтверждаемых/предлагаемых скиллов (если требуется обновлять)
  */
-public record UpdateRecommendationRequest(
+public record UpdateRecommendationRequestDto(
         String content,
         List<Long> skillIds
 ) {

@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.recommendation.CreateRecommendationRequest;
-import school.faang.user_service.dto.recommendation.RecommendationResponse;
-import school.faang.user_service.dto.recommendation.FilterRecommendationRequest;
-import school.faang.user_service.dto.recommendation.UpdateRecommendationRequest;
+import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationResponseDto;
+import school.faang.user_service.dto.recommendation.FilterRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.UpdateRecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -38,7 +38,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private int cooldownMonths;
 
     @Override
-    public RecommendationResponse create(CreateRecommendationRequest request) {
+    public RecommendationResponseDto create(CreateRecommendationRequestDto request) {
         final Long authorId = userContext.getUserId();
         final Long receiverId = request.receiverId();
         final String content = request.content();
@@ -69,25 +69,25 @@ public class RecommendationServiceImpl implements RecommendationService {
                     "You can leave a recommendation for this user only once in " + cooldownMonths + " months");
         }
 
-        Long newId = recommendationRepository.create(authorId, receiverId, content);
-        log.debug("Recommendation created with id={}", newId);
+        Long createdRecommendationId = recommendationRepository.create(authorId, receiverId, content);
+        log.debug("Recommendation created with id={}", createdRecommendationId);
 
         if (request.skillIds() != null && !request.skillIds().isEmpty()) {
             for (Long skillId : request.skillIds()) {
                 if (skillId != null) {
-                    skillOfferRepository.create(skillId, newId);
+                    skillOfferRepository.create(skillId, createdRecommendationId);
                 }
             }
         }
 
-        Recommendation created = recommendationRepository.findById(newId)
-                .orElseThrow(() -> new DataValidationException("Created recommendation not found by id=" + newId));
+        Recommendation created = recommendationRepository.findById(createdRecommendationId)
+                .orElseThrow(() -> new DataValidationException("Created recommendation not found by id=" + createdRecommendationId));
 
-        return recommendationMapper.toRecommendationDto(created);
+        return recommendationMapper.toResponse(created);
     }
 
     @Override
-    public RecommendationResponse update(long recommendationId, UpdateRecommendationRequest request) {
+    public RecommendationResponseDto update(long recommendationId, UpdateRecommendationRequestDto request) {
         final Long currentUserId = userContext.getUserId();
         log.info("Updating recommendation id={} by user={}", recommendationId, currentUserId);
 
@@ -103,7 +103,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         recommendation.setContent(request.content());
-        Recommendation saved = recommendationRepository.save(recommendation);
+        Recommendation  updatedRecommendation = recommendationRepository.save(recommendation);
 
         if (request.skillIds() != null) {
             skillOfferRepository.deleteAllByRecommendationId(recommendationId);
@@ -114,7 +114,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
 
-        return recommendationMapper.toRecommendationDto(saved);
+        return recommendationMapper.toResponse( updatedRecommendation);
     }
 
     @Override
@@ -122,8 +122,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         final long currentUserId = userContext.getUserId();
         log.info("Deleting recommendation id={} by user={}", recommendationId, currentUserId);
 
-        int affected = recommendationRepository.deleteByIdAndAuthor_id(recommendationId, currentUserId);
-        if (affected == 0) {
+        int deletedRecommendation = recommendationRepository.deleteByIdAndAuthor_id(recommendationId, currentUserId);
+        if (deletedRecommendation == 0) {
             throw new ForbiddenException("You can delete only your own recommendation or it does not exist");
         }
 
@@ -132,7 +132,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public List<RecommendationResponse> getByFilters(FilterRecommendationRequest filters) {
+    public List<RecommendationResponseDto> getByFilters(FilterRecommendationRequestDto filters) {
         log.info("Fetching recommendations by filters: {}", filters);
 
         String contentContains = filters != null ? filters.contentContains() : null;
@@ -149,7 +149,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                     String c = r.getContent();
                     return c != null && c.toLowerCase().contains(contentContains.toLowerCase());
                 })
-                .map(recommendationMapper::toRecommendationDto)
+                .map(recommendationMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
