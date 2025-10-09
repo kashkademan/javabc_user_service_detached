@@ -54,7 +54,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
             throw new DataValidationException("You Don't follow this user.");
         }
 
-        subscriptionRepository.unfollowUser(followerId, followerId);
+        subscriptionRepository.unfollowUser(followerId, followeeId);
         log.info("unfollowUser success: {} -> {}", followerId, followeeId);
     }
 
