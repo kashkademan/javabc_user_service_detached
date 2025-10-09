@@ -30,7 +30,7 @@ public class WorkScheduleFacade {
     public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
         TimeRangeValidator.validate(updateWorkScheduleDto);
 
-        WorkSchedule workSchedule = workScheduleService.getById(workScheduleId);
+        WorkSchedule workSchedule = workScheduleService.updateWorkSchedule(workScheduleId);
         workScheduleMapper.updateWorkSchedule(updateWorkScheduleDto, workSchedule);
 
         WorkSchedule updatedWorkSchedule = workScheduleService.save(workSchedule);

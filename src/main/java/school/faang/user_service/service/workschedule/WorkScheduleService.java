@@ -7,7 +7,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
 
@@ -17,7 +16,6 @@ import school.faang.user_service.repository.user.WorkScheduleRepository;
 public class WorkScheduleService {
     private final UserRepository userRepository;
     private final WorkScheduleRepository workScheduleRepository;
-    private final WorkScheduleMapper workScheduleMapper;
     private final UserContext userContext;
 
     public WorkSchedule addWorkSchedule(WorkSchedule workSchedule) {
@@ -30,7 +28,7 @@ public class WorkScheduleService {
 
     public WorkSchedule updateWorkSchedule(long workScheduleId) {
         long userId = userContext.getUserId();
-        WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
+        WorkSchedule workSchedule = getById(workScheduleId);
 
         if (!workSchedule.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You can only update your own data");
