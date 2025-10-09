@@ -84,8 +84,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         Recommendation created = recommendationRepository.findById(createdRecommendationId)
-                .orElseThrow(() -> new DataValidationException("Created recommendation not found by id=" +
-                        createdRecommendationId));
+                .orElseThrow(() -> new DataValidationException("Created recommendation not found by id="
+                        + createdRecommendationId));
 
         return recommendationMapper.toResponse(created);
     }

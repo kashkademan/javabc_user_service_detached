@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 @Component
 public class RecommendationAuthorFilter implements RecommendationFilter {
     @Override
-    public Stream<Recommendation> apply(Stream<Recommendation> recommendations
-            , FilterRecommendationRequestDto filters) {
+    public Stream<Recommendation> apply(Stream<Recommendation> recommendations,
+                                        FilterRecommendationRequestDto filters) {
         if (filters.authorId() == null) {
             return recommendations;
         }

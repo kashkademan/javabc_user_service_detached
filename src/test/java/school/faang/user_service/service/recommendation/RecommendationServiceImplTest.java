@@ -251,13 +251,8 @@ class RecommendationServiceImplTest {
         @DisplayName("update: successfully updates recommendation and returns DTO")
         void update_success() {
             long recommendationId = 1L;
-            User author = User.builder()
-                    .id(100L)
-                    .build();
-
-            User receiver = User.builder()
-                    .id(42L)
-                    .build();
+            User author = User.builder().id(100L).build();
+            User receiver = User.builder().id(42L).build();
 
             Recommendation existingRecommendation = Recommendation.builder()
                     .id(recommendationId)
@@ -332,9 +327,7 @@ class RecommendationServiceImplTest {
         void update_fail_forbidden() {
 
             long recommendationId = 1L;
-            User author = User.builder()
-                    .id(200L)
-                    .build();
+            User author = User.builder().id(200L).build();
 
             Recommendation existingRecommendation = Recommendation.builder()
                     .id(recommendationId)
@@ -359,13 +352,8 @@ class RecommendationServiceImplTest {
         void update_success_withSkillIds() {
 
             long recommendationId = 1L;
-            User author = User.builder()
-                    .id(100L)
-                    .build();
-
-            User receiver = User.builder()
-                    .id(42L)
-                    .build();
+            User author = User.builder().id(100L).build();
+            User receiver = User.builder().id(42L).build();
 
             Recommendation existingRecommendation = Recommendation.builder()
                     .id(recommendationId)
@@ -464,13 +452,8 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("getByFilters: successfully filters recommendations based on criteria")
         void getByFilters_success() {
-            User author = User.builder()
-                    .id(100L)
-                    .build();
-
-            User receiver = User.builder()
-                    .id(200L)
-                    .build();
+            User author = User.builder().id(100L).build();
+            User receiver = User.builder().id(200L).build();
 
             Recommendation recommendation1 = Recommendation.builder()
                     .id(1L)
@@ -507,21 +490,10 @@ class RecommendationServiceImplTest {
         @Test
         @DisplayName("getByFilters: returns all recommendations when filters are empty")
         void getByFilters_emptyFilters() {
-            User author1 = User.builder()
-                    .id(100L)
-                    .build();
-
-            User author2 = User.builder()
-                    .id(101L)
-                    .build();
-
-            User receiver1 = User.builder()
-                    .id(200L)
-                    .build();
-
-            User receiver2 = User.builder()
-                    .id(201L)
-                    .build();
+            User author1 = User.builder().id(100L).build();
+            User author2 = User.builder().id(101L).build();
+            User receiver1 = User.builder().id(200L).build();
+            User receiver2 = User.builder().id(201L).build();
 
             Recommendation recommendation1 = Recommendation.builder()
                     .id(1L)
