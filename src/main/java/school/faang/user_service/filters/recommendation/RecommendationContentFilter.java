@@ -7,9 +7,10 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import java.util.stream.Stream;
 
 @Component
-public class RecommendationContentFilter implements RecommendationFilter{
+public class RecommendationContentFilter implements RecommendationFilter {
     @Override
-    public Stream<Recommendation> apply(Stream<Recommendation> recommendations, FilterRecommendationRequestDto filters) {
+    public Stream<Recommendation> apply(Stream<Recommendation> recommendations,
+                                        FilterRecommendationRequestDto filters) {
         if (filters.contentContains() == null || filters.contentContains().isBlank()) {
             return recommendations;
         }

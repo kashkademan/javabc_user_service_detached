@@ -204,13 +204,16 @@ class RecommendationServiceImplTest {
                     .build();
 
             when(userContext.getUserId()).thenReturn(100L);
-            when(recommendationRepository.create(100L, 42L, "Useful Recommendation")).thenReturn(1L);
+            when(recommendationRepository.create(100L, 42L, "Useful Recommendation"))
+                    .thenReturn(1L);
             when(recommendationRepository.findById(1L)).thenReturn(Optional.of(savedRecommendation));
             when(recommendationRepository.findAll()).thenReturn(Collections.emptyList());
 
             RecommendationResponseDto result = recommendationService.create(input);
 
-            RecommendationResponseDto expectedResponse = new RecommendationResponseDto(1L, 100L, 42L, "Useful Recommendation");
+            RecommendationResponseDto expectedResponse = new RecommendationResponseDto(
+                    1L, 100L, 42L, "Useful Recommendation"
+            );
             assertThat(result).isEqualTo(expectedResponse);
 
             verify(recommendationRepository).create(100L, 42L, "Useful Recommendation");
@@ -483,15 +486,19 @@ class RecommendationServiceImplTest {
                     .receiver(receiver)
                     .build();
 
-            RecommendationResponseDto dto1 = new RecommendationResponseDto(1L, 100L, 200L, "Content with keyword");
+            RecommendationResponseDto dto1 = new RecommendationResponseDto(
+                    1L, 100L, 200L, "Content with keyword"
+            );
             // RecommendationResponseDto dto2 = new RecommendationResponseDto(2L, 100L, 200L, "Other content");
 
             when(recommendationRepository.findAll()).thenReturn(List.of(recommendation1, recommendation2));
 
-            FilterRecommendationRequestDto filters = new FilterRecommendationRequestDto("keyword", 100L, 200L);
-            List<RecommendationResponseDto> RecommendationResponseDto = recommendationService.getByFilters(filters);
+            FilterRecommendationRequestDto filters = new FilterRecommendationRequestDto(
+                    "keyword", 100L, 200L
+            );
+            List<RecommendationResponseDto> recommendationResponseDto = recommendationService.getByFilters(filters);
 
-            assertThat(RecommendationResponseDto).containsExactly(dto1);
+            assertThat(recommendationResponseDto).containsExactly(dto1);
             verify(recommendationRepository).findAll();
             verify(recommendationMapper).toResponse(recommendation1);
             verifyNoMoreInteractions(recommendationRepository, recommendationMapper);

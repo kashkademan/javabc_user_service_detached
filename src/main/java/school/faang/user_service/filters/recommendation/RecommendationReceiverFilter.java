@@ -10,10 +10,12 @@ import java.util.stream.Stream;
 @Component
 public class RecommendationReceiverFilter implements RecommendationFilter {
     @Override
-    public Stream<Recommendation> apply(Stream<Recommendation> recommendations, FilterRecommendationRequestDto filters) {
+    public Stream<Recommendation> apply(Stream<Recommendation> recommendations
+            , FilterRecommendationRequestDto filters) {
         if (filters.receiverId() == null) {
             return recommendations;
         }
-        return recommendations.filter(r -> Objects.equals(r.getReceiver().getId(), filters.receiverId()));
+        return recommendations
+                .filter(r -> Objects.equals(r.getReceiver().getId(), filters.receiverId()));
     }
 }
