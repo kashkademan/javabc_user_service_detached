@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.education;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +14,10 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.education.UpdateEducationDto;
 import school.faang.user_service.dto.user.CreateEducationDto;
 import school.faang.user_service.dto.user.EducationDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.education.EducationService;
 
 @RestController
-@RequestMapping("/education")
+@RequestMapping("/api/v1/educations")
 @RequiredArgsConstructor
 @Slf4j
 public class EducationController {
@@ -25,42 +25,19 @@ public class EducationController {
     private final EducationService educationService;
 
     @PostMapping
-    public EducationDto addEducation(@RequestBody CreateEducationDto dto) {
-        log.debug("POST /addEducation dto={}", dto);
-        if (dto.yearFrom() == null) {
-            throw new DataValidationException("Не указан год начала обучения");
-        }
-        if (dto.institution() == null) {
-            throw new DataValidationException("Обязательное поле");
-        }
-        String normalizedInstitution = dto.institution().trim();
-        if (normalizedInstitution.isBlank()) {
-            throw new DataValidationException("Название учебного заведения не может быть пустым");
-        }
+    public EducationDto addEducation(@Valid @RequestBody CreateEducationDto dto) {
         long userId = userContext.getUserId();
         return educationService.addEducation(userId, dto);
     }
 
     @PatchMapping("/{educationId}")
-    public EducationDto updateEducation(@PathVariable long educationId, @RequestBody UpdateEducationDto dto) {
-        log.debug("PATCH /updateEducation educationId={}, dto={}", educationId, dto);
-        if (dto.yearFrom() == null) {
-            throw new DataValidationException("Обязательно, укажите дату начала обучения");
-        }
-        if (dto.institution() == null) {
-            throw new DataValidationException("Обязательно, укажите место обучения");
-        }
-        String normalizedInstitution = dto.institution().trim();
-        if (normalizedInstitution.isBlank()) {
-            throw new DataValidationException("Обязательно, укажите место обучения");
-        }
+    public EducationDto updateEducation(@PathVariable long educationId, @Valid @RequestBody UpdateEducationDto dto) {
         long userId = userContext.getUserId();
         return educationService.updateEducation(userId, educationId, dto);
     }
 
     @GetMapping("/{educationId}")
     public EducationDto getEducationById(@PathVariable long educationId) {
-        log.debug("GET /education/{}", educationId);
         return educationService.getById(educationId);
     }
 }
