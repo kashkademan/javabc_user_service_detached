@@ -132,14 +132,14 @@ public class UserSubscriptionServiceImplTest {
 
     @Test
     void getFollowers_mapsEntitiesToDtos() {
-        long followeeId = 300L;
-
         User u1 = new User();
         u1.setId(3L);
         u1.setUsername("lily");
         User u2 = new User();
         u2.setId(4L);
         u2.setUsername("tina");
+
+        long followeeId = 300L;
 
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(u1, u2));
 
@@ -158,14 +158,14 @@ public class UserSubscriptionServiceImplTest {
 
     @Test
     void getFollowees_mapsEntitiesToDtos() {
-        long followerId = 400L;
-
         User u1 = new User();
         u1.setId(3L);
         u1.setUsername("lily");
         User u2 = new User();
         u2.setId(4L);
         u2.setUsername("tina");
+
+        long followerId = 400L;
 
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(u1, u2));
 
