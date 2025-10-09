@@ -1,7 +1,6 @@
 package school.faang.user_service.mapper;
 
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Context;
+
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,7 +13,6 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
-import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -25,7 +23,7 @@ public interface EventMapper {
 
 
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    Event toEvent(CreateEventDto eventDto, SkillRepository skillRepository);
+    Event toEvent(CreateEventDto eventDto);
 
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
@@ -43,13 +41,5 @@ public interface EventMapper {
         return skills.stream()
                 .map(Skill::getTitle)
                 .collect(Collectors.toSet());
-    }
-
-    @AfterMapping
-    default void mapSkills(CreateEventDto dto, @MappingTarget Event event, @Context SkillRepository skillRepository) {
-        if (dto.skillsId() != null && !dto.skillsId().isEmpty()) {
-            List<Skill> skills = skillRepository.findAllById(dto.skillsId());
-            event.setRelatedSkills(skills);
-        }
     }
 }
