@@ -1,18 +1,28 @@
 package school.faang.user_service.service.validator;
 
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalTime;
 
 public class WorkScheduleValidator {
-    public static void validate(WorkSchedule workSchedule) {
+    public static void validateEntity(WorkSchedule workSchedule) {
         validateTimeSequence(
                 workSchedule.getStartTime(),
                 workSchedule.getStartLunch(),
                 workSchedule.getEndLunch(),
                 workSchedule.getEndTime()
+        );
+    }
+
+    public static void validate(WorkScheduleDto dto) {
+        validateTimeSequence(
+                dto.startTime(),
+                dto.startLunch(),
+                dto.endLunch(),
+                dto.endTime()
         );
     }
 

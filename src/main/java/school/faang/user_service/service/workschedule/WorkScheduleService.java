@@ -21,7 +21,7 @@ public class WorkScheduleService {
     private final UserContext userContext;
 
     public WorkSchedule addWorkSchedule(WorkSchedule workSchedule) {
-        WorkScheduleValidator.validate(workSchedule);
+        WorkScheduleValidator.validateEntity(workSchedule);
 
         long userId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);

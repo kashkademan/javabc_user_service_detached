@@ -9,7 +9,7 @@ import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalTime;
 
-public class TimeRangeValidatorTest {
+public class WorkScheduleValidatorTest {
     private WorkScheduleDto validWorkScheduleDto;
     private UpdateWorkScheduleDto validUpdateWorkScheduleDto;
     private WorkScheduleDto invalidStartTimeDto;
@@ -65,29 +65,29 @@ public class TimeRangeValidatorTest {
 
     @Test
     void testAllTimesCorrectWithWorkScheduleDto() {
-        Assertions.assertDoesNotThrow(() -> TimeRangeValidator.validate(validWorkScheduleDto));
+        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validate(validWorkScheduleDto));
     }
 
     @Test
     void testAllTimesCorrectWithUpdateWorkScheduleDto() {
-        Assertions.assertDoesNotThrow(() -> TimeRangeValidator.validate(validUpdateWorkScheduleDto));
+        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateForUpdate(validUpdateWorkScheduleDto));
     }
 
     @Test
     void testStartTimeNotBeforeLunchStart() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                TimeRangeValidator.validate(invalidStartTimeDto));
+                WorkScheduleValidator.validate(invalidStartTimeDto));
     }
 
     @Test
     void testLunchStartTimeNotBeforeLunchEnd() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                TimeRangeValidator.validate(invalidLunchStartDto));
+                WorkScheduleValidator.validate(invalidLunchStartDto));
     }
 
     @Test
     void testLunchEndTimeNotBeforeEnd() {
         Assertions.assertThrows(DataValidationException.class, () ->
-                TimeRangeValidator.validate(invalidLunchEndDto));
+                WorkScheduleValidator.validate(invalidLunchEndDto));
     }
 }
