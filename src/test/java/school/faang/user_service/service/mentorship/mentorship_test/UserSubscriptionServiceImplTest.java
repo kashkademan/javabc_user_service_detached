@@ -1,0 +1,181 @@
+package school.faang.user_service.service.mentorship.mentorship_test;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.user.CountResponseDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.user.SubscriptionRepository;
+import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class UserSubscriptionServiceImplTest {
+
+    @Mock
+    private SubscriptionRepository subscriptionRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    @InjectMocks
+    private UserSubscriptionServiceImpl userSubscriptionServiceImpl;
+
+    @Test
+    void followUser_success() {
+        long followerId = 1L;
+        long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
+
+        assertDoesNotThrow(() -> userSubscriptionServiceImpl.followUser(followerId, followeeId));
+
+        verify(subscriptionRepository).existsByFollowerIdAndFolloweeId(followerId, followeeId);
+        verify(subscriptionRepository).followUser(followerId, followeeId);
+        verifyNoMoreInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void followUser_selfFollow_forbidden() {
+        long id = 1L;
+        ForbiddenException exception = assertThrows(
+                ForbiddenException.class,
+                () -> userSubscriptionServiceImpl.followUser(id, id)
+        );
+        assertEquals("Self-following is not allowed.", exception.getMessage());
+        verifyNoInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void followUser_alreadyFollowing_validationError() {
+        long followerId = 1L;
+        long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(true);
+
+        DataValidationException exception = assertThrows(
+                DataValidationException.class,
+                () -> userSubscriptionServiceImpl.followUser(followerId, followeeId)
+        );
+        assertEquals("You already follow this user.", exception.getMessage());
+        verify(subscriptionRepository).existsByFollowerIdAndFolloweeId(followerId, followeeId);
+        verify(subscriptionRepository, never()).followUser(anyLong(), anyLong());
+        verifyNoMoreInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void unfollowUser_success_callsRepositoryWithCorrectArgs() {
+        long followerId = 1L;
+        long followeeId = 2L;
+
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(true);
+
+        userSubscriptionServiceImpl.unfollowUser(followerId, followeeId);
+
+        verify(subscriptionRepository).existsByFollowerIdAndFolloweeId(followerId, followeeId);
+        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+        verifyNoMoreInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void getFollowersCount_returnsDto() {
+        long followeeId = 111L;
+        when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId))
+                .thenReturn(42);
+
+        CountResponseDto dto = userSubscriptionServiceImpl.getFollowersCount(followeeId);
+
+        assertNotNull(dto);
+        assertEquals(42, dto.count());
+        verify(subscriptionRepository).findFollowersAmountByFolloweeId(followeeId);
+        verifyNoMoreInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void getFolloweesCount_returnsDto() {
+        long followerId = 222L;
+        when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId))
+                .thenReturn(7);
+
+        CountResponseDto dto = userSubscriptionServiceImpl.getFolloweesCount(followerId);
+
+        assertNotNull(dto);
+        assertEquals(7, dto.count());
+        verify(subscriptionRepository).findFolloweesAmountByFollowerId(followerId);
+        verifyNoMoreInteractions(subscriptionRepository);
+    }
+
+    @Test
+    void getFollowers_mapsEntitiesToDtos() {
+        long followeeId = 300L;
+
+        User u1 = new User();
+        u1.setId(3L);
+        u1.setUsername("lily");
+        User u2 = new User();
+        u2.setId(4L);
+        u2.setUsername("tina");
+
+        UserDto d1 = new UserDto(3L, "lily", "lily@test.com", "+333", "3");
+        UserDto d2 = new UserDto(4L, "tina", "tina@test.com", "+444", "4");
+
+        when(subscriptionRepository.findByFolloweeId(followeeId))
+                .thenReturn(Stream.of(u1, u2));
+        when(userMapper.toUserDto(u1)).thenReturn(d1);
+        when(userMapper.toUserDto(u2)).thenReturn(d2);
+
+        List<UserDto> result = userSubscriptionServiceImpl.getFollowers(followeeId);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(List.of(d1, d2)));
+
+        verify(subscriptionRepository).findByFolloweeId(followeeId);
+        verify(userMapper).toUserDto(u1);
+        verify(userMapper).toUserDto(u2);
+        verifyNoMoreInteractions(subscriptionRepository, userMapper);
+    }
+
+    @Test
+    void getFollowees_mapsEntitiesToDtos() {
+        long followerId = 400L;
+
+        User u1 = new User();
+        u1.setId(3L);
+        u1.setUsername("lily");
+        User u2 = new User();
+        u2.setId(4L);
+        u2.setUsername("tina");
+
+        UserDto d1 = new UserDto(3L, "lily", "lily@test.com", "+333", "3");
+        UserDto d2 = new UserDto(4L, "tina", "tina@test.com", "+444", "4");
+
+        when(subscriptionRepository.findByFollowerId(followerId))
+                .thenReturn(Stream.of(u1, u2));
+        when(userMapper.toUserDto(u1)).thenReturn(d1);
+        when(userMapper.toUserDto(u2)).thenReturn(d2);
+
+        List<UserDto> result = userSubscriptionServiceImpl.getFollowees(followerId);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(List.of(d1, d2)));
+
+        verify(subscriptionRepository).findByFollowerId(followerId);
+        verify(userMapper).toUserDto(u1);
+        verify(userMapper).toUserDto(u2);
+        verifyNoMoreInteractions(subscriptionRepository, userMapper);
+    }
+
+}
