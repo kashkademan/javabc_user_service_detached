@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -11,14 +12,25 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 import school.faang.user_service.service.user.UserSubscriptionServiceImpl;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 public class UserSubscriptionServiceImplTest {
@@ -26,8 +38,8 @@ public class UserSubscriptionServiceImplTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Mock
-    private UserMapper userMapper;
+    @Spy
+    private UserMapper userMapper = new UserMapperImpl();
 
     @InjectMocks
     private UserSubscriptionServiceImpl userSubscriptionServiceImpl;
@@ -129,18 +141,14 @@ public class UserSubscriptionServiceImplTest {
         u2.setId(4L);
         u2.setUsername("tina");
 
-        UserDto d1 = new UserDto(3L, "lily", "lily@test.com", "+333", "3");
-        UserDto d2 = new UserDto(4L, "tina", "tina@test.com", "+444", "4");
-
-        when(subscriptionRepository.findByFolloweeId(followeeId))
-                .thenReturn(Stream.of(u1, u2));
-        when(userMapper.toUserDto(u1)).thenReturn(d1);
-        when(userMapper.toUserDto(u2)).thenReturn(d2);
+        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(u1, u2));
 
         List<UserDto> result = userSubscriptionServiceImpl.getFollowers(followeeId);
 
         assertEquals(2, result.size());
-        assertTrue(result.containsAll(List.of(d1, d2)));
+
+        assertTrue(result.stream().anyMatch(d -> d.id() == 3L && "lily".equals(d.username())));
+        assertTrue(result.stream().anyMatch(d -> d.id() == 4L && "tina".equals(d.username())));
 
         verify(subscriptionRepository).findByFolloweeId(followeeId);
         verify(userMapper).toUserDto(u1);
@@ -159,18 +167,14 @@ public class UserSubscriptionServiceImplTest {
         u2.setId(4L);
         u2.setUsername("tina");
 
-        UserDto d1 = new UserDto(3L, "lily", "lily@test.com", "+333", "3");
-        UserDto d2 = new UserDto(4L, "tina", "tina@test.com", "+444", "4");
-
-        when(subscriptionRepository.findByFollowerId(followerId))
-                .thenReturn(Stream.of(u1, u2));
-        when(userMapper.toUserDto(u1)).thenReturn(d1);
-        when(userMapper.toUserDto(u2)).thenReturn(d2);
+        when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(u1, u2));
 
         List<UserDto> result = userSubscriptionServiceImpl.getFollowees(followerId);
 
         assertEquals(2, result.size());
-        assertTrue(result.containsAll(List.of(d1, d2)));
+
+        assertTrue(result.stream().anyMatch(d -> d.id() == 3L && "lily".equals(d.username())));
+        assertTrue(result.stream().anyMatch(d -> d.id() == 4L && "tina".equals(d.username())));
 
         verify(subscriptionRepository).findByFollowerId(followerId);
         verify(userMapper).toUserDto(u1);
