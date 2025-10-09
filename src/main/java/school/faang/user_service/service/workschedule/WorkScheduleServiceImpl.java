@@ -41,7 +41,7 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
 
         WorkSchedule newWorkSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
-        validateUserAccess(userId, newWorkSchedule.getUser().getId());
+        validateUserAccess(userId, workSchedule.getUser().getId());
         newWorkSchedule.setUser(workSchedule.getUser());
         WorkSchedule updatedWorkSchedule = workScheduleRepository.save(newWorkSchedule);
 
