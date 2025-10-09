@@ -1,10 +1,9 @@
 package school.faang.user_service.service.validator;
 
-import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 
-public class WorkScheduleValidator {
-    public static void validate(WorkScheduleDto dto) {
+public class TimeRangeValidator {
+    public static void validate(TimeRangeDto dto) {
         if (!dto.startTime().isBefore(dto.startLunch())) {
             throw new DataValidationException("Start time must be before lunch start time");
         }

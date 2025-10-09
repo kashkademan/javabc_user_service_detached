@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
-import school.faang.user_service.service.validator.UpdateWorkScheduleValidator;
+import school.faang.user_service.service.validator.TimeRangeValidator;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.service.validator.WorkScheduleValidator;
 import school.faang.user_service.entity.user.User;
@@ -25,7 +25,7 @@ public class WorkScheduleService {
     private final UserContext userContext;
 
     public WorkScheduleDto addWorkSchedule(WorkScheduleDto workScheduleDto) {
-        WorkScheduleValidator.validate(workScheduleDto);
+        TimeRangeValidator.validate(workScheduleDto);
 
         long userId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);
@@ -40,7 +40,7 @@ public class WorkScheduleService {
     }
 
     public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
-        UpdateWorkScheduleValidator.validate(updateWorkScheduleDto);
+        TimeRangeValidator.validate(updateWorkScheduleDto);
 
         long userId = userContext.getUserId();
         WorkSchedule workSchedule = workScheduleRepository.getByIdOrThrow(workScheduleId);
