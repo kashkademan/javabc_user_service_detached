@@ -17,7 +17,6 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -39,12 +38,11 @@ public class EventService {
         Long ownerId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(ownerId);
 
-        EventValidator.validateEventCreation(createEventDto, owner, LocalDateTime.now());
+        EventValidator.validateEventCreation(createEventDto, owner);
 
         Event event = eventMapper.toEvent(createEventDto);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
-        event.setCreatedAt(LocalDateTime.now());
         event.setLocation(DEFAULT_LOCATION);
 
         eventRepository.save(event);

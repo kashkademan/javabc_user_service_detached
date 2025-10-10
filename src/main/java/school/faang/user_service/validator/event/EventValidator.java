@@ -42,9 +42,8 @@ public class EventValidator {
         }
     }
 
-    public static void validateEventCreation(CreateEventDto dto, User owner, LocalDateTime now) {
+    public static void validateEventCreation(CreateEventDto dto, User owner) {
         validateOwnerSkills(owner, dto.skillsId());
-        validateEventDates(dto.startDate(), dto.endDate());
     }
 
     public static void validateEventDates(LocalDateTime startDate, LocalDateTime endDate) {
