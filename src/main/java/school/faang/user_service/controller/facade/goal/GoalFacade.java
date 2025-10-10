@@ -16,24 +16,25 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GoalMapping {
+public class GoalFacade {
 
     private final GoalService goalService;
     private final GoalMapper goalMapper;
 
-    public GoalDto mappingForCreate(CreateGoalDto createGoalDto) {
+    public GoalDto create(CreateGoalDto createGoalDto) {
         Goal goal = goalMapper.toGoal(createGoalDto);
         Goal result = goalService.create(goal, createGoalDto.userIds(),
                 createGoalDto.skillIds(), createGoalDto.mentorId());
         return goalMapper.toGoalDto(result);
     }
 
-    public GoalDto mappingForUpdate(Long goalId, GoalUpdateDto updateGoalDto) {
+    public GoalDto update(Long goalId, GoalUpdateDto updateGoalDto) {
         Goal result = goalService.update(goalId, updateGoalDto);
         return goalMapper.toGoalDto(result);
     }
 
-    public List<GoalDto> mappingForFilters(GoalFilterDto filters) {
+
+    public List<GoalDto> filters(GoalFilterDto filters) {
         List<Goal> goals = goalService.getByFilters(filters);
 
         return goals.stream()
@@ -41,7 +42,7 @@ public class GoalMapping {
                 .toList();
     }
 
-    public void mappingDelete(Long goalId) {
+    public void delete(Long goalId) {
         goalService.delete(goalId);
     }
 }

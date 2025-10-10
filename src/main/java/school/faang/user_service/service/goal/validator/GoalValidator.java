@@ -16,6 +16,19 @@ import static school.faang.user_service.entity.goal.GoalStatus.COMPLETED;
 public class GoalValidator {
     private static final int MAX_GOALS_FOR_ONE_USER = 2;
 
+    public static void validateUserAccess(List<Long> userIds, Long mentorId, Long userContextId) {
+        if ((userIds == null || !userIds.contains(userContextId))
+                && !Objects.equals(mentorId, userContextId)) {
+            throw new ForbiddenException("The user is not on the participation list or among mentors");
+        }
+    }
+
+    public static void validateMentorOrUsersPresence(List<Long> userIds, Long mentorId) {
+        if (userIds == null && mentorId == null) {
+            throw new DataValidationException("the goal must have either a mentor or users");
+        }
+    }
+
     public static void validateGoalStatusTransition(Goal goal, GoalStatus goalStatus, Long userId) {
 
         if (Objects.equals(goal.getStatus(), COMPLETED)) {

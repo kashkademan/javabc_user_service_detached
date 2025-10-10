@@ -144,6 +144,26 @@ public class GoalServiceTest {
     }
 
     @Test
+    public void create_UserIdsNullAndMentorIdNull() {
+        userIds = null;
+        mentorId = null;
+
+        assertThrows(DataValidationException.class, () -> goalService.create(goal, userIds, skillIds, mentorId));
+
+        verify(goalRepository, times(0)).save(any(Goal.class));
+    }
+
+    @Test
+    public void create_userIsNotOnTheParticipationListOrAmongMentors() {
+        mentorId = 4L;
+        userIds = null;
+
+        assertThrows(ForbiddenException.class, () -> goalService.create(goal, userIds, skillIds, mentorId));
+
+        verify(goalRepository, times(0)).save(any(Goal.class));
+    }
+
+    @Test
     @DisplayName("Must throw an exception when the user already has the maximum number of active targets.")
     public void create_ShouldErrorValidDate() {
 

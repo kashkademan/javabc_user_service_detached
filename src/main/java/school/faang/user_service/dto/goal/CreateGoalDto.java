@@ -15,11 +15,8 @@ public record CreateGoalDto(
         @NotNull
         @Future
         LocalDateTime deadline,
-        @NotNull
         Long mentorId,
-        @NotNull
         List<Long> userIds,
-        @NotNull
         List<Long> skillIds
 ) {
 }
