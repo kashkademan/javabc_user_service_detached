@@ -28,11 +28,8 @@ public class CareerService {
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
         CareerValidator.checkCareerDates(createCareerDto);
-
         long requesterId = userContext.getUserId();
-        User user = userRepository.findById(requesterId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found by id - %s".formatted(requesterId)));
-
+        User user = userRepository.getByIdOrThrow(requesterId);
         Career career = careerMapper.toCareer(createCareerDto);
         career.setUser(user);
         career = careerRepository.save(career);
@@ -40,29 +37,23 @@ public class CareerService {
     }
 
     public CareerDto getById(long careerId) {
-        return CareerMapper.toCareerDtoWithUser(careerRepository.findById(careerId).orElseThrow( //
-                () -> new EntityNotFoundException("Career not found by - %s".formatted(careerId))));
+        long requesterId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(requesterId);
+        Career career = careerRepository.getByIdOrThrow(careerId);
+        CareerValidator.validateOwner(career, user);
+        return CareerMapper.toCareerDtoWithUser(career);
     }
 
     public void deleteCareer(long careerId) {
-        Career career = careerRepository.findById(careerId)
-                .orElseThrow(() -> new EntityNotFoundException("Career not found with id - %d".formatted(careerId)));
-
-        long currentUserId = userContext.getUserId();
-
-        User user = career.getUser();
-
-        if (!Objects.equals(user.getId(), currentUserId)) {
-            throw new ForbiddenException("You are not allowed to delete this career");
-        }
+        long requesterId = userContext.getUserId();
+        Career career = careerRepository.getByIdOrThrow(careerId);
+        User user = userRepository.getByIdOrThrow(requesterId);
+        CareerValidator.validateOwner(career, user);
         careerRepository.delete(career);
     }
 
     public CareerDto updateCareer(long userId, long careerId, UpdateCareerDto updateCareerDto) {
-        if (updateCareerDto.to() != null && updateCareerDto.from() != null &&
-                updateCareerDto.from().isAfter(updateCareerDto.to())) {
-            throw new DataValidationException("Start date cannot be after end date - %s".formatted(updateCareerDto.from()));
-        }
+        CareerValidator.validateDates();
 
         Career career = careerRepository.findById(careerId)
                 .orElseThrow(() -> new EntityNotFoundException("Career not found with id - %d".formatted(careerId)));
@@ -72,7 +63,6 @@ public class CareerService {
         }
 
         careerMapper.update(updateCareerDto, career);
-        career.setUser(career.getUser());
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
     }
