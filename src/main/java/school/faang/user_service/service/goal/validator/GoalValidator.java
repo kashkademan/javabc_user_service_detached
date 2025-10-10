@@ -49,9 +49,7 @@ public class GoalValidator {
                 .toList();
 
         if (!Objects.equals(userId, mentorId) && !usersIdByGoal.contains(userId)) {
-            throw new ForbiddenException(String.format("The user with ID - {} is not a mentor or participant "
-                            + "of the Goal. Goal title - {}, goal id - {}",
-                    userId, goal.getTitle(), goal.getId()));
+            throw new ForbiddenException("The user with ID is not a mentor or participant of the Goal");
         }
     }
 

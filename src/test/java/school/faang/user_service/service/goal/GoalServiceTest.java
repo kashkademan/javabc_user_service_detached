@@ -118,6 +118,8 @@ public class GoalServiceTest {
     @Test
     @DisplayName("Must successfully create a goal when all conditions are met.")
     public void create_ShouldSuccessfullyCreateGoal() {
+        userId = mentorId;
+        when(userContext.getUserId()).thenReturn(userId);
         when(userRepository.findAllById(userIds)).thenReturn(Arrays.asList(user1, user2));
         when(skillRepository.findAllById(skillIds)).thenReturn(skillList);
         when(userRepository.getByIdOrThrow(mentorId)).thenReturn(mentor);
@@ -179,6 +181,8 @@ public class GoalServiceTest {
         List<Goal> goals = List.of(goal1, goal2);
         user1.setGoals(goals);
 
+        userId = mentorId;
+        when(userContext.getUserId()).thenReturn(userId);
         when(userRepository.findAllById(userIds)).thenReturn(Arrays.asList(user1, user2));
 
         assertThrows(DataValidationException.class,
@@ -190,14 +194,14 @@ public class GoalServiceTest {
     @Test
     @DisplayName("Checking for goal deletion when the request was made by a mentor")
     public void delete_CheckForGoalFullRemove() {
-        userId = mentor.getId();
-        Long goalId = goal.getId();
+        userId = mentorId;
         List<User> users = List.of(user1, user2);
         goal.setUsers(users);
         goal.setMentor(mentor);
+        Long goalId = goal.getId();
 
-        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
         when(userContext.getUserId()).thenReturn(userId);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
 
         goalService.delete(goalId);
 

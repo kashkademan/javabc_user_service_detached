@@ -91,7 +91,7 @@ public class GoalService {
 
         GoalValidator.validateUserAccessToGoal(mentorId, goal, userId);
 
-        if (Objects.equals(mentorId, userId)) {
+        if (Objects.equals(mentorId, userId) && Objects.nonNull(mentorId)) {
             goalRepository.deleteById(goalId);
             log.info("The user with {} has been removed from the goal id-{}'s participants", userId, goalId);
         } else {
