@@ -19,7 +19,6 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.goal.FilterGoal;
-import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -61,8 +60,6 @@ public class GoalServiceTest {
 
     @Spy
     private FilterGoal filter2;
-
-    private GoalMapper goalMapper;
 
     @InjectMocks
     private GoalService goalService;
