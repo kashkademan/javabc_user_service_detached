@@ -76,6 +76,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         Optional<MentorshipRequest> mentorshipRequest = getMentoringByIdMentee(requestId);
         mentorshipRequest.ifPresent((res) -> {
             res.setStatus(RequestStatus.REJECTED);
+            res.setRejectionReason(rejectionDto.reason());
             mentorshipRequestRepository.save(res);
         });
     }
