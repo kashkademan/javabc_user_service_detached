@@ -27,33 +27,9 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     public CareerDto addCareer(Long userId, CreateCareerDto careerDto) {
-
-        if (careerDto.from() == null) {
-            log.warn("Start date cannot be null");
-            throw new DataValidationException("Start date is required");
-        }
-
-        if (careerDto.company() == null || careerDto.company().isBlank()) {
-            log.warn("Company cannot be null or empty");
-            throw new DataValidationException("Company is required");
-        }
-
-        if (careerDto.position() == null || careerDto.position().isBlank()) {
-            log.warn("Position cannot be null or empty");
-            throw new DataValidationException("Position is required");
-        }
-
-        if (careerDto.from().isAfter(LocalDate.now())
-                || careerDto.from().isEqual(LocalDate.now())) {
-            log.warn("Start date cannot be in the future. Provided date: {}", careerDto.from());
-            throw new DataValidationException("Start date cannot be in the future");
-        }
-
-        if (careerDto.to() != null && careerDto.to().isBefore(careerDto.from())) {
-            log.warn("End date cannot be before start date. Start: {}, End: {}",
-                    careerDto.from(), careerDto.to());
-            throw new DataValidationException("End date cannot be before start date");
-        }
+        validateCareerDates(careerDto.from(), careerDto.to());
+        validateCompany(careerDto.company());
+        validatePosition(careerDto.position());
 
         User user = userRepository.getByIdOrThrow(userId);
 
@@ -66,33 +42,9 @@ public class CareerServiceImpl implements CareerService {
     @Override
     public CareerDto updateCareer(Long userId, Long careerId, UpdateCareerDto careerDto) {
 
-        if (careerDto.from() == null) {
-            log.warn("Start date cannot be null");
-            throw new DataValidationException("Start date is required");
-        }
-
-        if (careerDto.company() == null || careerDto.company().isBlank()) {
-            log.warn("Company cannot be null or empty");
-            throw new DataValidationException("Company is required");
-        }
-
-        if (careerDto.position() == null || careerDto.position().isBlank()) {
-            log.warn("Position cannot be null or empty");
-            throw new DataValidationException("Position is required");
-        }
-
-        if (careerDto.from().isAfter(LocalDate.now())
-                || careerDto.from().isEqual(LocalDate.now())) {
-            log.warn("Start date cannot be in the future. Provided date: {}",
-                    careerDto.from());
-            throw new DataValidationException("Start date cannot be in the future");
-        }
-
-        if (careerDto.to() != null && careerDto.to().isBefore(careerDto.from())) {
-            log.warn("End date cannot be before start date. Start: {}, End: {}",
-                    careerDto.from(), careerDto.to());
-            throw new DataValidationException("End date cannot be before start date");
-        }
+        validateCareerDates(careerDto.from(), careerDto.to());
+        validateCompany(careerDto.company());
+        validatePosition(careerDto.position());
 
         Career newCareer = careerRepository.getByIdOrThrow(careerId);
 
@@ -115,5 +67,45 @@ public class CareerServiceImpl implements CareerService {
         log.info("Retrieved career with id: {}", careerId);
 
         return careerMapper.toCareerDto(career);
+    }
+
+    private void validateCareerDates(LocalDate from, LocalDate to) {
+        validateStartDate(from);
+        validateDateRange(from, to);
+    }
+
+    private void validateStartDate(LocalDate from) {
+        if (from == null) {
+            log.warn("Start date cannot be null");
+            throw new DataValidationException("Start date is required");
+        }
+
+        if (from.isAfter(LocalDate.now())
+                || from.isEqual(LocalDate.now())) {
+            log.warn("Start date cannot be in the future. Provided date: {}", from);
+            throw new DataValidationException("Start date cannot be in the future");
+        }
+    }
+
+    private void validateDateRange(LocalDate from, LocalDate to) {
+        if (to != null && to.isBefore(from)) {
+            log.warn("End date cannot be before start date. Start: {}, End: {}",
+                    from, to);
+            throw new DataValidationException("End date cannot be before start date");
+        }
+    }
+
+    private void validateCompany(String company) {
+        if (company == null || company.isBlank()) {
+            log.warn("Company cannot be null or empty");
+            throw new DataValidationException("Company is required");
+        }
+    }
+
+    private void validatePosition(String position) {
+        if (position == null || position.isBlank()) {
+            log.warn("Position cannot be null or empty");
+            throw new DataValidationException("Position is required");
+        }
     }
 }
