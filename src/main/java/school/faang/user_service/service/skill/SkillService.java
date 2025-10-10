@@ -7,7 +7,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 import java.util.List;
 
 public interface SkillService {
-    void create(CreateSkillDto skillDto);
+    SkillDto create(CreateSkillDto skillDto);
 
     List<SkillDto> getByUserId(Long userId);
 
