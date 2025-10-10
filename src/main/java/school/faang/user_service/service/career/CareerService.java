@@ -14,10 +14,9 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.validator.career.CareerValidator;
 
-import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +27,12 @@ public class CareerService {
     private final UserContext userContext;
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
-        LocalDate from = createCareerDto.from();
-
-        if (LocalDate.now().isBefore(from)) {
-            throw new DataValidationException("Your date is invalid - %s".formatted(from));
-        }
+        CareerValidator.checkCareerDates(createCareerDto);
 
         long requesterId = userContext.getUserId();
-        Optional<User> optionalUser = userRepository.findById(requesterId);
+        User user = userRepository.findById(requesterId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found by id - %s".formatted(requesterId)));
 
-        if (optionalUser.isEmpty()) {
-            throw new EntityNotFoundException("User not found by id - %s".formatted(requesterId));
-        }
-
-        User user = optionalUser.get();
         Career career = careerMapper.toCareer(createCareerDto);
         career.setUser(user);
         career = careerRepository.save(career);
@@ -49,7 +40,7 @@ public class CareerService {
     }
 
     public CareerDto getById(long careerId) {
-        return CareerMapper.toCareerDtoWithUser(careerRepository.findById(careerId).orElseThrow(
+        return CareerMapper.toCareerDtoWithUser(careerRepository.findById(careerId).orElseThrow( //
                 () -> new EntityNotFoundException("Career not found by - %s".formatted(careerId))));
     }
 
@@ -68,8 +59,9 @@ public class CareerService {
     }
 
     public CareerDto updateCareer(long userId, long careerId, UpdateCareerDto updateCareerDto) {
-        if (updateCareerDto.from().isAfter(LocalDate.now())) {
-            throw new DataValidationException("Your date is invalid - %s".formatted(updateCareerDto.from()));
+        if (updateCareerDto.to() != null && updateCareerDto.from() != null &&
+                updateCareerDto.from().isAfter(updateCareerDto.to())) {
+            throw new DataValidationException("Start date cannot be after end date - %s".formatted(updateCareerDto.from()));
         }
 
         Career career = careerRepository.findById(careerId)
