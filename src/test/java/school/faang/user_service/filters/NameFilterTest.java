@@ -13,33 +13,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NameFilterTest {
     private final NameFilter nameFilter = new NameFilter();
-               //проверяем на соответ фильтру что имя заполнено
+
     @Test
     public void testIsApplicable_WhenNamePatternIsNotNullAndNotBlankReturnsTrue() {
         boolean result = nameFilter.isApplicable(new UserFiltersDto("name", null, 0, 0));
         assertTrue(result);
     }
-                //проверка пустой фильтр по имени, assertFalse ФИЛЬТР НЕ ПРИМЕНИМ когда нет шаблона имени
+
     @Test
     public void testIsApplicable_WhenNamePatternEmptyReturnsFalse() {
         boolean result = nameFilter.isApplicable(new UserFiltersDto("", null, 0, 0));
         assertFalse(result);
     }
-    //проверка пробелы фильтр по имени
+
     @Test
     public void testIsApplicable_WhenNamePatternIsBlankReturnsFalse() {
         boolean result = nameFilter.isApplicable(new UserFiltersDto(" ", null, 0, 0));
         assertFalse(result);
     }
-   // проверка null фильтр по имени
+
     @Test
     public void testIsApplicable_WhenNamePatternIsNullReturnsFalse() {
         boolean result = nameFilter.isApplicable(new UserFiltersDto(null, null, 0, 0));
         assertFalse(result);
     }
-    // проверка что найден 1 юзер и 2 проверка найден по имени Ira
+
     @Test
-    public void testApply_WhenExactNameMatchReturnsSingleUser () {
+    public void testApply_WhenExactNameMatchReturnsSingleUser() {
         Stream<User> users = Stream.of(
                 User.builder().username("Kirill").build(),
                 User.builder().username("Ira").build()
@@ -49,9 +49,9 @@ public class NameFilterTest {
         assertEquals(1, userList.size());
         assertEquals("Ira", userList.get(0).getUsername());
     }
-   // найти все  все варианты написания
+
     @Test
-    public void testApply_WhenCaseInsensitiveNameMatchReturnsAllMatchingUsers () {
+    public void testApply_WhenCaseInsensitiveNameMatchReturnsAllMatchingUsers() {
         Stream<User> users = Stream.of(
                 User.builder().username("Kirill").build(),
                 User.builder().username("kirill").build(),
