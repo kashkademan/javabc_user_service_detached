@@ -36,6 +36,9 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public SkillDto create(CreateSkillDto skillDto) {
+        if (skillDto == null) {
+            throw new DataValidationException("CreateSkillDto cannot be null");
+        }
         if (skillDto.title() == null || skillDto.title().isBlank()) {
             throw new DataValidationException("The Title field cannot be null or empty");
         }
