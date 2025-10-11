@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
-    @Value("skill.offers.min.count")
+    @Value("${skill.offers.min.count}")
     private int minCountOffers;
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
