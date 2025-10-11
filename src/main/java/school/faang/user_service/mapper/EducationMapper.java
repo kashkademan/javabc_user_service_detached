@@ -1,7 +1,6 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 import school.faang.user_service.dto.education.EducationCreateDto;
 import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.dto.education.EducationUpdateDto;
@@ -22,7 +21,7 @@ public interface EducationMapper {
                 .educationLevel(educationCreateDto.educationLevel())
                 .specialization(educationCreateDto.specialization())
                 .build();
-    };
+    }
 
     EducationDto toEducationDto(Education education);
 
@@ -46,5 +45,5 @@ public interface EducationMapper {
         if (educationUpdateDto.specialization() != null) {
             education.setSpecialization(educationUpdateDto.specialization());
         }
-    };
+    }
 }

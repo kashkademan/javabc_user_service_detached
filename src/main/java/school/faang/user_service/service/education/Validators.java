@@ -10,8 +10,8 @@ import school.faang.user_service.exception.ForbiddenException;
 import java.time.Year;
 import java.util.Objects;
 
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class Validators {
 
     public static void validateYearFrom(Integer yearFrom) {

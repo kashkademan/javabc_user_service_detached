@@ -28,7 +28,8 @@ public class EducationService {
 
     public EducationDto addEducation(EducationCreateDto educationCreateDto) {
         long userId = userContext.getUserId();
-        log.info("Добавление образования для пользователя {} с ID: {}", userRepository.getByIdOrThrow(userId).getUsername(), userId);
+        log.info("Добавление образования для пользователя {} с ID: {}",
+                userRepository.getByIdOrThrow(userId).getUsername(), userId);
 
         validateYearFrom(educationCreateDto.yearFrom());
 
@@ -39,7 +40,8 @@ public class EducationService {
         education.setUser(user);
 
         Education saveEducation = educationRepository.save(education);
-        log.info("Образование успешно добавлено для пользователя {} с ID: {}", user.getUsername(), saveEducation.getId());
+        log.info("Образование успешно добавлено для пользователя {} с ID: {}",
+                user.getUsername(), saveEducation.getId());
 
         return educationMapper.toEducationDto(saveEducation);
     }
@@ -76,7 +78,8 @@ public class EducationService {
         validateUserIsEducationOwner(userId, existingEducation);
 
         educationRepository.deleteById(educationId);
-        log.info("Данные Пользователя {} с ID: {} были удалены", existingEducation.getUser().getUsername(), educationId);
+        log.info("Образование Пользователя {} с ID: {} были удалены",
+                existingEducation.getUser().getUsername(), educationId);
         return educationMapper.toEducationDto(existingEducation);
     }
 }
