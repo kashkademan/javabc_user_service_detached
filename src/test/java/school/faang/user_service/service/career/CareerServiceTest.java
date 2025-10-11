@@ -100,7 +100,6 @@ public class CareerServiceTest {
                 "company",
                 "position"
         );
-
         Career testCareer = new Career();
         testCareer.setId(15L);
         testCareer.setUser(testUser);
@@ -214,7 +213,6 @@ public class CareerServiceTest {
                 "company",
                 "position"
         );
-
         Career updatedCareer = new Career();
         updatedCareer.setId(15L);
         updatedCareer.setUser(testUser);
@@ -268,13 +266,14 @@ public class CareerServiceTest {
         careerFromRepository.setCompany("company");
         careerFromRepository.setPosition("position");
 
+        when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
+
         UpdateCareerDto updateDto = new UpdateCareerDto(
                 LocalDate.of(2021, 6, 15),
                 LocalDate.of(2023, 12, 31),
                 "company",
                 "position"
         );
-        when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
 
         assertThrows(ForbiddenException.class, () -> careerService.updateCareer(10L,
                 15L, updateDto));
