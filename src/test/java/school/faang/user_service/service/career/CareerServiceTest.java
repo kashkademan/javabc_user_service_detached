@@ -93,6 +93,7 @@ public class CareerServiceTest {
     @Test
     void addCareer_WithValidDataReturnsCareerDto() {
         when(userRepository.getByIdOrThrow(10L)).thenReturn(testUser);
+
         CreateCareerDto createDto = new CreateCareerDto(
                 LocalDate.of(2021, 6, 15),
                 LocalDate.of(2023, 12, 31),
@@ -205,14 +206,14 @@ public class CareerServiceTest {
         careerFromRepository.setCompany("old company");
         careerFromRepository.setPosition("old position");
 
+        when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
+
         UpdateCareerDto updateDto = new UpdateCareerDto(
                 LocalDate.of(2021, 6, 15),
                 LocalDate.of(2023, 12, 31),
                 "company",
                 "position"
         );
-
-        when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
 
         Career updatedCareer = new Career();
         updatedCareer.setId(15L);
