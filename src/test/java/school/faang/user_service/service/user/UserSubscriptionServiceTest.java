@@ -60,7 +60,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void followUserWhenValidIdsCallsFollowUser() {
+    void followUser_ShouldFollowWhenValidIds() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID,
                 FOLLOWEE_ID))
                 .thenReturn(false);
@@ -70,14 +70,14 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void followUserWhenSameUserThrowsDataValidationException() {
+    void followUser_ShouldThrowExceptionWhenSameUser() {
         assertThrows(DataValidationException.class,
                 () -> userSubscriptionService.followUser(FOLLOWER_ID, FOLLOWER_ID));
         verify(subscriptionRepository, never()).followUser(anyLong(), anyLong());
     }
 
     @Test
-    void followUserWhenAlreadySubscribedThrowsDataValidationException() {
+    void followUser_ShouldThrowExceptionWhenAlreadySubscribed() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID,
                 FOLLOWEE_ID))
                 .thenReturn(true);
@@ -88,7 +88,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void unfollowUserWhenValidIdsCallsUnfollowUser() {
+    void unfollowUser_ShouldUnfollowWhenValidIds() {
 
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID,
                 FOLLOWEE_ID))
@@ -100,7 +100,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void unfollowUserWhenNotSubscribedThrowsDataValidationException() {
+    void unfollowUser_ShouldThrowExceptionWhenNotSubscribed() {
 
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID,
                 FOLLOWEE_ID))
@@ -112,7 +112,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void testGetFollowersCount() {
+    void getFollowersCount_ShouldReturnCorrectCount() {
         when(subscriptionRepository.findFollowersAmountByFolloweeId(FOLLOWEE_ID))
                 .thenReturn(EXPECTED_COUNT);
 
@@ -122,7 +122,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void testGetFolloweesCount() {
+    void getFolloweesCount_ShouldReturnCorrectCount() {
         when(subscriptionRepository.findFolloweesAmountByFollowerId(FOLLOWER_ID))
                 .thenReturn(EXPECTED_COUNT);
 
@@ -132,7 +132,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void getFollowersWithNameFilterReturnsFilteredUsers() {
+    void getFollowers_ShouldReturnFilteredUsersByName() {
 
         UserFiltersDto filter = new UserFiltersDto("anna", null, 0,
                 Integer.MAX_VALUE);
@@ -151,7 +151,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void getFollowersWithExperienceFilterReturnsFilteredUsers() {
+    void getFollowers_ShouldReturnFilteredUsersByExperience() {
 
         UserFiltersDto filter = new UserFiltersDto(null, null, 5, 10);
         User user1 = createUser(FOLLOWEE_ID, "user1", 3);
@@ -169,7 +169,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void getFolloweesWithNameFilterReturnsFilteredUsers() {
+    void getFollowees_ShouldReturnFilteredUsersByName() {
 
         UserFiltersDto filter = new UserFiltersDto("maria", null, 0,
                 Integer.MAX_VALUE);
@@ -188,7 +188,7 @@ public class UserSubscriptionServiceTest {
     }
 
     @Test
-    void getFolloweesWithExperienceFilterReturnsFilteredUsers() {
+    void getFollowees_ShouldReturnFilteredUsersByExperience() {
 
         UserFiltersDto filter = new UserFiltersDto(null, null, 4, 6);
         User user1 = createUser(FOLLOWEE_ID, "user1", 3);
