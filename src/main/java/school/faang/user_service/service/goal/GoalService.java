@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import school.faang.user_service.aspect.UserScore;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalCreateByMentorDto;
 import school.faang.user_service.dto.goal.GoalCreateByUserDto;
@@ -35,6 +36,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static school.faang.user_service.entity.user.ActionType.GOAL_COMPLETED;
+import static school.faang.user_service.entity.user.ActionType.GOAL_CREATED_BY_MENTOR;
+import static school.faang.user_service.entity.user.ActionType.GOAL_CREATED_BY_USER;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -51,6 +56,7 @@ public class GoalService {
     private final GoalMapper goalMapper;
     private final UserContext userContext;
 
+    @UserScore(type = GOAL_CREATED_BY_USER)
     @Transactional
     public GoalDto createByUser(GoalCreateByUserDto goalCreateByUserDto) {
         GoalValidator.validateCreateGoalByUser(goalCreateByUserDto);
@@ -61,6 +67,7 @@ public class GoalService {
         return goalMapper.toGoalDto(goal);
     }
 
+    @UserScore(type = GOAL_CREATED_BY_MENTOR)
     @Transactional
     public GoalDto createByMentor(GoalCreateByMentorDto goalCreateByMentorDto) {
         GoalValidator.validateCreateGoalByMentor(goalCreateByMentorDto);
@@ -110,6 +117,7 @@ public class GoalService {
                 .toList();
     }
 
+    @UserScore(type = GOAL_COMPLETED)
     public GoalDto update(long goalId, GoalUpdateDto goalUpdateDto) {
         Long requesterId = userContext.getUserId();
         Goal goalToUpdate = goalRepository.getByIdOrThrow(goalId);
