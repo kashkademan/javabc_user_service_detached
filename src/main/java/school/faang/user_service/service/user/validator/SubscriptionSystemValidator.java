@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
-@Component
 @RequiredArgsConstructor
+@Component
 public class SubscriptionSystemValidator {
     private final SubscriptionRepository subscriptionRepository;
 

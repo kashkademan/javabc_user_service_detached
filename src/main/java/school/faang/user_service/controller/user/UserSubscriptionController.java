@@ -15,9 +15,9 @@ import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.service.user.UserSubscriptionService;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Component
 @RequestMapping("/subscriptions")
-@RequiredArgsConstructor
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;

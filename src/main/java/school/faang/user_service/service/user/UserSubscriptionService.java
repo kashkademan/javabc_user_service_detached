@@ -14,8 +14,8 @@ import java.util.List;
 
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class UserSubscriptionService  {
     private final SubscriptionSystemValidator subscriptionSystemValidator;
     private final SubscriptionRepository subscriptionRepository;
