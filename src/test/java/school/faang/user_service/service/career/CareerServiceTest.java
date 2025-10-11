@@ -93,6 +93,9 @@ public class CareerServiceTest {
     @Test
     void addCareer_WithValidDataReturnsCareerDto() {
         when(userRepository.getByIdOrThrow(10L)).thenReturn(testUser);
+        Career testCareer = createTestCareer();
+        when(careerRepository.save(any(Career.class))).thenReturn(testCareer);
+        when(careerMapper.toCareerDto(testCareer)).thenReturn(createCareerDto());
 
         CreateCareerDto createDto = new CreateCareerDto(
                 LocalDate.of(2021, 6, 15),
@@ -100,28 +103,10 @@ public class CareerServiceTest {
                 "company",
                 "position"
         );
-        Career testCareer = new Career();
-        testCareer.setId(15L);
-        testCareer.setUser(testUser);
-        testCareer.setDateFrom(LocalDate.of(2021, 6, 15));
-        testCareer.setDateTo(LocalDate.of(2023, 12, 31));
-        testCareer.setCompany("company");
-        testCareer.setPosition("position");
-
-        when(careerRepository.save(any(Career.class))).thenReturn(testCareer);
-        when(careerMapper.toCareerDto(testCareer)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15),
-                        LocalDate.of(2023, 12, 31), "company", "position")
-        );
 
         CareerDto result = careerService.addCareer(10L, createDto);
 
-        assertEquals("company", result.company());
-        assertEquals("position", result.position());
-        assertEquals(LocalDate.of(2023, 12, 31), result.to());
-        assertEquals(LocalDate.of(2021, 6, 15), result.from());
-        assertEquals(15L, result.id());
-
+        assertCareerDto(result);
         verify(careerRepository).save(any(Career.class));
         verify(userRepository).getByIdOrThrow(10L);
     }
@@ -197,15 +182,11 @@ public class CareerServiceTest {
 
     @Test
     void updateCareer_WithValidDataAndOwnerReturnsUpdatedCareerDto() {
-        Career careerFromRepository = new Career();
-        careerFromRepository.setId(15L);
-        careerFromRepository.setUser(testUser);
-        careerFromRepository.setDateFrom(LocalDate.of(2020, 1, 1));
-        careerFromRepository.setDateTo(LocalDate.of(2022, 1, 1));
-        careerFromRepository.setCompany("old company");
-        careerFromRepository.setPosition("old position");
-
+        Career careerFromRepository = createCareerFromRepository();
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
+        Career updatedCareer = createUpdatedCareer();
+        when(careerRepository.save(any(Career.class))).thenReturn(updatedCareer);
+        when(careerMapper.toCareerDto(updatedCareer)).thenReturn(createCareerDto());
 
         UpdateCareerDto updateDto = new UpdateCareerDto(
                 LocalDate.of(2021, 6, 15),
@@ -213,27 +194,10 @@ public class CareerServiceTest {
                 "company",
                 "position"
         );
-        Career updatedCareer = new Career();
-        updatedCareer.setId(15L);
-        updatedCareer.setUser(testUser);
-        updatedCareer.setDateFrom(LocalDate.of(2021, 6, 15));
-        updatedCareer.setDateTo(LocalDate.of(2023, 12, 31));
-        updatedCareer.setCompany("company");
-        updatedCareer.setPosition("position");
-
-        when(careerRepository.save(any(Career.class))).thenReturn(updatedCareer);
-        when(careerMapper.toCareerDto(updatedCareer)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(
-                        2023, 12, 31), "company", "position")
-        );
 
         CareerDto result = careerService.updateCareer(10L, 15L, updateDto);
 
-        assertEquals("company", result.company());
-        assertEquals("position", result.position());
-        assertEquals(LocalDate.of(2023, 12, 31), result.to());
-        assertEquals(LocalDate.of(2021, 6, 15), result.from());
-        assertEquals(15L, result.id());
+        assertCareerDto(result);
         verify(careerRepository).save(any(Career.class));
         verify(careerRepository).getByIdOrThrow(15L);
     }
@@ -256,16 +220,7 @@ public class CareerServiceTest {
 
     @Test
     void updateCareer_WhenUserNotOwnerThrowsForbiddenException() {
-        User anotherUser = new User();
-        anotherUser.setId(20L);
-        Career careerFromRepository = new Career();
-        careerFromRepository.setId(15L);
-        careerFromRepository.setUser(anotherUser);
-        careerFromRepository.setDateFrom(LocalDate.of(2021, 6, 15));
-        careerFromRepository.setDateTo(LocalDate.of(2023, 12, 31));
-        careerFromRepository.setCompany("company");
-        careerFromRepository.setPosition("position");
-
+        Career careerFromRepository = createCareerWithDifferentUser();
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
 
         UpdateCareerDto updateDto = new UpdateCareerDto(
@@ -282,27 +237,13 @@ public class CareerServiceTest {
 
     @Test
     void getById_WithExistingCareerReturnsCareerDto() {
-        Career career = new Career();
-        career.setId(15L);
-        career.setUser(testUser);
-        career.setDateFrom(LocalDate.of(2021, 6, 15));
-        career.setDateTo(LocalDate.of(2023, 12, 31));
-        career.setCompany("company");
-        career.setPosition("position");
-
+        Career career = createTestCareer();
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(career);
-        when(careerMapper.toCareerDto(career)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(
-                        2023, 12, 31), "company", "position")
-        );
+        when(careerMapper.toCareerDto(career)).thenReturn(createCareerDto());
 
         CareerDto result = careerService.getById(15L);
 
-        assertEquals("company", result.company());
-        assertEquals("position", result.position());
-        assertEquals(LocalDate.of(2023, 12, 31), result.to());
-        assertEquals(LocalDate.of(2021, 6, 15), result.from());
-        assertEquals(15L, result.id());
+        assertCareerDto(result);
         verify(careerRepository).getByIdOrThrow(15L);
     }
 
@@ -313,5 +254,64 @@ public class CareerServiceTest {
 
         assertThrows(DataValidationException.class, () -> careerService.getById(35L));
         verifyNoInteractions(userRepository, careerMapper);
+    }
+
+    private Career createTestCareer() {
+        Career testCareer = new Career();
+        testCareer.setId(15L);
+        testCareer.setUser(testUser);
+        testCareer.setDateFrom(LocalDate.of(2021, 6, 15));
+        testCareer.setDateTo(LocalDate.of(2023, 12, 31));
+        testCareer.setCompany("company");
+        testCareer.setPosition("position");
+        return testCareer;
+    }
+
+    private CareerDto createCareerDto() {
+        return new CareerDto(15L, LocalDate.of(2021, 6, 15),
+                LocalDate.of(2023, 12, 31), "company", "position");
+    }
+
+    private void assertCareerDto(CareerDto result) {
+        assertEquals("company", result.company());
+        assertEquals("position", result.position());
+        assertEquals(LocalDate.of(2023, 12, 31), result.to());
+        assertEquals(LocalDate.of(2021, 6, 15), result.from());
+        assertEquals(15L, result.id());
+    }
+
+    private Career createCareerFromRepository() {
+        Career careerFromRepository = new Career();
+        careerFromRepository.setId(15L);
+        careerFromRepository.setUser(testUser);
+        careerFromRepository.setDateFrom(LocalDate.of(2020, 1, 1));
+        careerFromRepository.setDateTo(LocalDate.of(2022, 1, 1));
+        careerFromRepository.setCompany("old company");
+        careerFromRepository.setPosition("old position");
+        return careerFromRepository;
+    }
+
+    private Career createUpdatedCareer() {
+        Career career = new Career();
+        career.setId(15L);
+        career.setUser(testUser);
+        career.setDateFrom(LocalDate.of(2021, 6, 15));
+        career.setDateTo(LocalDate.of(2023, 12, 31));
+        career.setCompany("company");
+        career.setPosition("position");
+        return career;
+    }
+
+    private Career createCareerWithDifferentUser() {
+        User anotherUser = new User();
+        anotherUser.setId(20L);
+        Career careerFromRepository = new Career();
+        careerFromRepository.setId(15L);
+        careerFromRepository.setUser(anotherUser);
+        careerFromRepository.setDateFrom(LocalDate.of(2021, 6, 15));
+        careerFromRepository.setDateTo(LocalDate.of(2023, 12, 31));
+        careerFromRepository.setCompany("company");
+        careerFromRepository.setPosition("position");
+        return careerFromRepository;
     }
 }
