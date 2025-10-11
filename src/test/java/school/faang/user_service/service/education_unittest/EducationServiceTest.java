@@ -152,14 +152,14 @@ class EducationServiceTest {
 
         EducationDto result = educationService.addEducation(educationCreateDto);
 
+        assertNotNull(result);
+        assertEquals(result, educationDto);
+
         verify(userContext).getUserId();
         verify(userRepository).getByIdOrThrow(USER_ID);
         verify(educationMapper).toEducation(educationCreateDto);
         verify(educationRepository).save(education);
         verify(educationMapper).toEducationDto(education);
-
-        assertNotNull(result);
-        assertEquals(result, educationDto);
     }
 
     @Test
@@ -206,13 +206,13 @@ class EducationServiceTest {
     void shouldPerformFullUpdateFlow() {
         EducationDto result = educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
 
+        assertNotNull(result);
+        assertEquals(educationDto, result);
+
         verify(userContext).getUserId();
         verify(educationRepository).getByIdOrThrow(EDUCATION_ID);
         verify(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
         verify(educationRepository).save(existingEducation);
         verify(educationMapper).toEducationDto(updatedEducation);
-
-        assertNotNull(result);
-        assertEquals(educationDto, result);
     }
 }

@@ -7,7 +7,8 @@ import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.mapper.EducationMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class EducationMapperTest {
 
