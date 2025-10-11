@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class UserSubscriptionService  {
+public class UserSubscriptionService {
     private final SubscriptionSystemValidator subscriptionSystemValidator;
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
@@ -45,7 +45,7 @@ public class UserSubscriptionService  {
     }
 
     public List<UserDto> getFollowers(long followeeId, UserFiltersDto filters) {
-       List<UserDto> followers =  subscriptionRepository.findByFolloweeId(followeeId)
+        List<UserDto> followers = subscriptionRepository.findByFolloweeId(followeeId)
                 .map(userMapper::toUserDto)
                 .filter(userDto -> applyFilters(userDto, filters))
                 .toList();
@@ -54,7 +54,7 @@ public class UserSubscriptionService  {
     }
 
     public List<UserDto> getFollowees(long followerId, UserFiltersDto filters) {
-        List<UserDto> followees =  subscriptionRepository.findByFollowerId(followerId)
+        List<UserDto> followees = subscriptionRepository.findByFollowerId(followerId)
                 .map(userMapper::toUserDto)
                 .filter(userDto -> applyFilters(userDto, filters))
                 .toList();
@@ -63,10 +63,14 @@ public class UserSubscriptionService  {
     }
 
     private boolean applyFilters(UserDto user, UserFiltersDto filters) {
-        if (filters == null) return true;
-        if (filters.getNamePattern() != null &&
-                !user.username().toLowerCase().contains(filters.getNamePattern().toLowerCase())) return false;
-        return filters.getPhonePattern() == null ||
-                (user.phone() != null && user.phone().contains(filters.getPhonePattern()));
+        if (filters == null) {
+            return true;
+        }
+        if (filters.getNamePattern() != null
+                && !user.username().toLowerCase().contains(filters.getNamePattern().toLowerCase())) {
+            return false;
+        }
+        return filters.getPhonePattern() == null
+                || (user.phone() != null && user.phone().contains(filters.getPhonePattern()));
     }
 }
