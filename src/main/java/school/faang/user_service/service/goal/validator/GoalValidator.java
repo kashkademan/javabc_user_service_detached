@@ -32,14 +32,25 @@ public class GoalValidator {
     public static void validateGoalStatusTransition(Goal goal, GoalStatus goalStatus, Long userId) {
 
         if (Objects.equals(goal.getStatus(), COMPLETED)) {
-            throw new ForbiddenException(String.format("Goal title - {}, goal id - {} has already been completed",
+            throw new ForbiddenException(String.format("Goal title - %s, goal id - %d has already been completed",
                     goal.getTitle(), goal.getId()));
         }
 
-        if (Objects.equals(goalStatus, COMPLETED) && !Objects.equals(userId, goal.getMentor().getId())) {
-            throw new ForbiddenException(String.format("Only a mentor can complete the goal (title - {}, goal id - {})",
-                    goal.getTitle(), goal.getId()));
+        if (Objects.equals(goalStatus, COMPLETED)) {
+            boolean hasMentor = goal.getMentor() != null && goal.getMentor().getId() != null;
+            boolean isMentor = hasMentor && Objects.equals(userId, goal.getMentor().getId());
+            boolean isAssignedUser = !hasMentor
+                    && goal.getUsers() != null
+                    && goal.getUsers().stream()
+                            .filter(Objects::nonNull)
+                            .anyMatch(user -> Objects.equals(user.getId(), userId));
+            if (!isMentor && !isAssignedUser) {
+                throw new ForbiddenException(
+                        String.format("Only a mentor or assigned user can complete the goal (title - %s, goal id - %d)",
+                        goal.getTitle(), goal.getId()));
+            }
         }
+
     }
 
     public static void validateUserAccessToGoal(long mentorId, Goal goal, Long userId) {
