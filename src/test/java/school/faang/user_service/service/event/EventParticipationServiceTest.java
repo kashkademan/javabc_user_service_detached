@@ -1,5 +1,13 @@
 package school.faang.user_service.service.event;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,108 +28,92 @@ import school.faang.user_service.repository.event.EventRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
-
-    @Mock
-    EventParticipationRepository eventParticipationRepository;
-
     @Mock
     EventRepository eventRepository;
-
-    @Spy
-    UserMapper userMapper;
-
+    @Mock
+    EventParticipationRepository eventParticipationRepository;
     @Mock
     UserContext userContext;
-
+    @Spy
+    UserMapper userMapper;
     @InjectMocks
     EventParticipationServiceImpl eventParticipationService;
 
-    @Test
-    public void testParticipantRegistered() {
-        long eventId = 4L;
-        long userId = 1L;
+    Event event;
+    User user;
+    List<Event> events = new ArrayList<>();
+    List<User> users = new ArrayList<>();
+    int expectedCount;
+    CountResponse countResponse;
 
-        User user = new User();
-        user.setId(userId);
+    @BeforeEach
+    void prepareData() {
+        userContext.setUserId(123L);
+        event = Event.builder()
+                .id(4L)
+                .build();
+        user = User.builder()
+                .id(1L)
+                .build();
 
-        Event event = new Event();
-        event.setId(eventId);
-        List<Event> events = new ArrayList<>();
         events.add(event);
-
-        when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(events);
-        long finalUserId = userId;
-        assertThrows(DataValidationException.class,
-                () -> eventParticipationService.registerParticipant(eventId, finalUserId),
-                "User has already registered for the event");
-
-        userId = 2L;
-        eventParticipationService.registerParticipant(eventId, userId);
-        verify(eventParticipationRepository).register(anyLong(), anyLong());
-        verify(eventParticipationRepository).register(eq(eventId), eq(userId));
-        verify(eventParticipationRepository, times(1)).register(eq(eventId), eq(userId));
-    }
-
-    @Test
-    public void testParticipantUnregistered() {
-        long eventId = 1L;
-        long userId = 1L;
-        long currentUserId = 123L;
-        when(userContext.getUserId()).thenReturn(currentUserId);
-        assertThrows(ForbiddenException.class,
-                () -> eventParticipationService.unregisterParticipant(eventId, userId),
-                "Can't delete someone else from the event");
-        when(userContext.getUserId()).thenReturn(userId);
-
-        assertThrows(DataValidationException.class,
-                () -> eventParticipationService.unregisterParticipant(eventId, userId),
-                "User hasn't registered for the event");
-        Event event = new Event();
-        event.setId(eventId);
-        List<Event> events = new ArrayList<>();
-        events.add(event);
-        when(eventRepository.findParticipatedEventsByUserId(userId)).thenReturn(events);
-        eventParticipationService.unregisterParticipant(eventId, userId);
-        verify(eventParticipationRepository).unregister(eq(eventId), eq(userId));
-        verify(eventParticipationRepository, times(1)).unregister(eq(eventId), eq(userId));
-    }
-
-    @Test
-    public void testParticipantsCountGet() {
-        int expectedCount = 10;
-        CountResponse expectedResponse = new CountResponse(expectedCount);
-        long eventId = 1L;
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
-        CountResponse actualResponse = eventParticipationService.countParticipantsByEventId(eventId);
-        assertEquals(expectedResponse, actualResponse);
-        verify(eventParticipationRepository).countParticipants(eq(eventId));
-        verify(eventParticipationRepository, times(1)).countParticipants(eq(eventId));
-    }
-
-    @Test
-    public void testAllParticipantsByEventIdGet() {
-        long eventId = 1L;
-        long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        List<User> users = new ArrayList<>();
         users.add(user);
+        expectedCount = 10;
+        countResponse = new CountResponse(expectedCount);
+    }
 
-        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
+    @Test
+    void testSuccessfullyParticipantRegistered() {
+        when(eventRepository.findParticipatedEventsByUserId(user.getId())).thenReturn(new ArrayList<>());
+        eventParticipationService.registerParticipant(event.getId(), user.getId());
+        verify(eventParticipationRepository, times(1)).register(eq(event.getId()), eq(user.getId()));
+    }
 
-        List<UserDto> actualResult = eventParticipationService.getAllParticipantsByEventId(eventId);
+    @Test
+    void testDataValidationExceptionBeforeParticipantRegistered() {
+        when(eventRepository.findParticipatedEventsByUserId(user.getId())).thenReturn(events);
+        assertThrows(DataValidationException.class,
+                () -> eventParticipationService.registerParticipant(event.getId(), user.getId()),
+                "User has already registered for the event");
+    }
+
+    @Test
+    void testSuccessfullyParticipantUnregistered() {
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(eventRepository.findParticipatedEventsByUserId(user.getId())).thenReturn(events);
+        eventParticipationService.unregisterParticipant(event.getId(), user.getId());
+        verify(eventParticipationRepository, times(1)).unregister(eq(event.getId()), eq(user.getId()));
+    }
+
+    @Test
+    void testForbiddenExceptionWhileParticipantUnregistered() {
+        assertThrows(ForbiddenException.class,
+                () -> eventParticipationService.unregisterParticipant(event.getId(), user.getId()),
+                "Can't delete someone else'e registration for the event");
+    }
+
+    @Test
+    void testDataValidationExceptionWhileParticipantUnregistered() {
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(eventRepository.findParticipatedEventsByUserId(user.getId())).thenReturn(new ArrayList<>());
+        assertThrows(DataValidationException.class,
+                () -> eventParticipationService.unregisterParticipant(event.getId(), user.getId()),
+                "User hasn't registered for the event");
+    }
+
+    @Test
+    void testParticipantsCountGet() {
+        when(eventParticipationRepository.countParticipants(event.getId())).thenReturn(expectedCount);
+        CountResponse actualResult = eventParticipationService.countParticipantsByEventId(event.getId());
+        assertEquals(countResponse, actualResult);
+    }
+
+    @Test
+    void testEventsAllParticipantsGet() {
+        when(eventParticipationRepository.findAllParticipantsByEventId(event.getId())).thenReturn(users);
+        List<UserDto> actualResult = eventParticipationService.getAllParticipantsByEventId(event.getId());
         assertEquals(users.stream().map(userMapper::toUserDto).toList(), actualResult);
-        verify(eventParticipationRepository).findAllParticipantsByEventId(eq(eventId));
-        verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eq(eventId));
     }
 }
