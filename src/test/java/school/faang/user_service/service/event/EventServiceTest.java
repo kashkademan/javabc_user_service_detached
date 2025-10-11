@@ -27,7 +27,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,32 +81,34 @@ class EventServiceTest {
     }
 
     @Test
-    void testCreateEvent() {
+    void testCreate_setsStatusAndLocation_andValidates() {
         CreateEventDto dto = CreateEventDto.builder()
-                .title("Title")
+                .title("New Event")
                 .description("Desc")
                 .type(EventType.MEETING)
                 .build();
 
-        Event unsavedEvent = Event.builder().build();
-        Event event = Event.builder().id(EVENT_ID).build();
+        Event unsaved = new Event();
+        Event saved = Event.builder().id(EVENT_ID).build();
 
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(userRepository.getByIdOrThrow(OWNER_ID)).thenReturn(user);
-        when(eventMapper.toEvent(dto)).thenReturn(unsavedEvent);
-        when(eventRepository.save(unsavedEvent)).thenReturn(event);
+        when(eventMapper.toEvent(dto)).thenReturn(unsaved);
+        when(eventRepository.save(unsaved)).thenReturn(saved);
         when(eventMapper.toEventDto(any(Event.class))).thenReturn(eventDto);
 
         EventDto result = eventService.create(dto);
 
+        assertEquals(EventStatus.PLANNED, unsaved.getStatus());
+        assertEquals(DEFAULT_LOCATION, unsaved.getLocation());
+        verify(eventRepository).save(unsaved);
         assertEquals(EVENT_ID, result.id());
-        verify(eventRepository).save(unsavedEvent);
     }
 
     @Test
-    void testUpdateEvent() {
+    void testUpdate_validatesOwnerAndUpdatesEvent() {
         UpdateEventDto dto = UpdateEventDto.builder()
-                .title("Updated Title")
+                .title("Updated")
                 .description("Updated Desc")
                 .type(EventType.MEETING)
                 .build();
@@ -124,47 +125,67 @@ class EventServiceTest {
             return null;
         }).when(eventMapper).update(dto, event);
 
-        EventDto updatedDto = EventDto.builder()
-                .id(EVENT_ID)
-                .title("Updated Title")
-                .description("Updated Desc")
-                .status(EventStatus.PLANNED)
-                .ownerId(OWNER_ID)
-                .type(EventType.MEETING)
-                .skills(Set.of())
-                .build();
-
         when(eventRepository.save(event)).thenReturn(event);
-        when(eventMapper.toEventDto(event)).thenReturn(updatedDto);
+        when(eventMapper.toEventDto(event)).thenAnswer(invocation ->
+                EventDto.builder()
+                        .id(event.getId())
+                        .title(event.getTitle())
+                        .description(event.getDescription())
+                        .status(event.getStatus())
+                        .type(event.getType())
+                        .ownerId(event.getOwner().getId())
+                        .skills(Set.of())
+                        .build()
+        );
+
         EventDto result = eventService.update(EVENT_ID, dto);
 
-        assertEquals("Updated Title", result.title());
+        verify(eventRepository).getByIdOrThrow(EVENT_ID);
         verify(eventRepository).save(event);
+        verify(eventMapper).update(dto, event);
+        verify(eventMapper).toEventDto(event);
+
+        assertEquals("Updated", result.title());
+        assertEquals("Updated Desc", result.description());
+        assertEquals(EventType.MEETING, result.type());
     }
 
     @Test
-    void testGetByFilters_withMatchingEvent() {
+    void testGetByFilters_withAllFilters() {
         EventFilterDto filter = EventFilterDto.builder()
                 .titleContains("Title")
+                .descriptionContains("Desc")
+                .ownerId(OWNER_ID)
+                .type(EventType.MEETING)
                 .build();
 
-        event.setTitle("Title matches");
         when(eventRepository.findAll()).thenReturn(List.of(event));
         when(eventMapper.toEventDto(any(Event.class))).thenReturn(eventDto);
 
         List<EventDto> result = eventService.getByFilters(filter);
 
         assertEquals(1, result.size());
-        assertEquals("Title", result.get(0).title());
+        verify(eventMapper).toEventDto(event);
     }
 
     @Test
-    void testGetByFilters_withNoMatchingEvents() {
+    void testGetByFilters_withNullFilters_returnsAll() {
+        when(eventRepository.findAll()).thenReturn(List.of(event));
+        when(eventMapper.toEventDto(event)).thenReturn(eventDto);
+
+        List<EventDto> result = eventService.getByFilters(null);
+
+        assertEquals(1, result.size());
+        assertEquals(EVENT_ID, result.get(0).id());
+    }
+
+    @Test
+    void testGetByFilters_multipleConditions_noMatch() {
         EventFilterDto filter = EventFilterDto.builder()
-                .titleContains("non-existent")
+                .titleContains("wrong")
+                .ownerId(999L)
                 .build();
 
-        event.setTitle("Some event");
         when(eventRepository.findAll()).thenReturn(List.of(event));
 
         List<EventDto> result = eventService.getByFilters(filter);
@@ -173,19 +194,18 @@ class EventServiceTest {
     }
 
     @Test
-    void testDelete_successful() {
+    void testDelete_success() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(1);
-        eventService.delete(EVENT_ID);
 
+        assertDoesNotThrow(() -> eventService.delete(EVENT_ID));
         verify(eventRepository).deleteById(OWNER_ID, EVENT_ID);
     }
 
     @Test
-    void testDelete_notFoundOrAccessDenied() {
+    void testDelete_fails_throwsEntityNotFound() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
-        doThrow(new EntityNotFoundException("Event not found or access denied"))
-                .when(eventRepository).deleteById(OWNER_ID, EVENT_ID);
+        when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(0);
 
         assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
     }
