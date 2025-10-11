@@ -23,8 +23,8 @@ import java.util.function.Predicate;
 
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class EventService {
 
     private final EventRepository eventRepository;
