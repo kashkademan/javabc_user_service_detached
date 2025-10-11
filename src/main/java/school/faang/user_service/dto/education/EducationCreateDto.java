@@ -4,8 +4,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
-public record UpdateEducationDto(
+@Builder
+public record EducationCreateDto(
         @NotNull @Min(1980) @Max(2025) Integer yearFrom,
         @NotNull @Min(1980) @Max(2025) Integer yearTo,
         @NotBlank String institution,

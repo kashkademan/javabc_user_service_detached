@@ -7,9 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.education.UpdateEducationDto;
-import school.faang.user_service.dto.user.CreateEducationDto;
-import school.faang.user_service.dto.user.EducationDto;
+import school.faang.user_service.dto.education.EducationCreateDto;
+import school.faang.user_service.dto.education.EducationDto;
+import school.faang.user_service.dto.education.EducationUpdateDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -18,6 +18,7 @@ import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.education.EducationService;
+import school.faang.user_service.service.education.Validators;
 
 import java.time.Year;
 
@@ -45,20 +46,20 @@ class EducationServiceTest {
     @InjectMocks
     private EducationService educationService;
 
-    private CreateEducationDto createEducationDto;
+    private EducationCreateDto educationCreateDto;
     private User user;
     private Education education;
     private EducationDto educationDto;
     private Education existingEducation;
     private Education updatedEducation;
-    private UpdateEducationDto updateEducationDto;
+    private EducationUpdateDto educationUpdateDto;
 
     private final long USER_ID = 1L;
     private final long EDUCATION_ID = 1L;
 
     @BeforeEach
     void setUp() {
-        createEducationDto = new CreateEducationDto(
+        educationCreateDto = new EducationCreateDto(
                 2020, 2024, "University", "Bachelor", "Computer Science");
 
         existingEducation = new Education();
@@ -78,16 +79,16 @@ class EducationServiceTest {
         educationDto = new EducationDto(EDUCATION_ID, 2020, 2024, "University",
                 "Bachelor", "Computer Science");
 
-        updateEducationDto = new UpdateEducationDto(
+        educationUpdateDto = new EducationUpdateDto(
                 2020, 2024, "University 123123", "Bachelor", "Computer Science");
 
         lenient().when(userContext.getUserId()).thenReturn(USER_ID);
         lenient().when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(user);
-        lenient().when(educationMapper.toEducation(createEducationDto)).thenReturn(education);
+        lenient().when(educationMapper.toEducation(educationCreateDto)).thenReturn(education);
         lenient().when(educationRepository.save(education)).thenReturn(education);
         lenient().when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
         lenient().when(educationRepository.getByIdOrThrow(EDUCATION_ID)).thenReturn(existingEducation);
-        lenient().doNothing().when(educationMapper).updateEducationFromDto(updateEducationDto, existingEducation);
+        lenient().doNothing().when(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
         lenient().when(educationRepository.save(existingEducation)).thenReturn(updatedEducation);
         lenient().when(educationMapper.toEducationDto(updatedEducation)).thenReturn(educationDto);
     }
@@ -101,7 +102,7 @@ class EducationServiceTest {
     @Test
     void testValidateYearFrom() {
         // Проверка, что метод validateYearFrom вызывается без ошибок
-        assertDoesNotThrow(() -> educationService.validateYearFrom(createEducationDto.yearFrom()),
+        assertDoesNotThrow(() -> Validators.validateYearFrom(educationCreateDto.yearFrom()),
                 "Метод validateYearFrom не должен выбрасывать исключение");
     }
 
@@ -111,7 +112,7 @@ class EducationServiceTest {
         int futureYear = Year.now().getValue() + 1;
 
         DataValidationException exception = assertThrows(DataValidationException.class, () -> {
-            educationService.validateYearFrom(futureYear);
+            Validators.validateYearFrom(futureYear);
         });
 
         assertEquals("Год начала обучения не может быть больше текущего", exception.getMessage());
@@ -127,7 +128,7 @@ class EducationServiceTest {
     @Test
     void testToEducation() {
 
-        Education mappedEducation = educationMapper.toEducation(createEducationDto);
+        Education mappedEducation = educationMapper.toEducation(educationCreateDto);
         assertNotNull(mappedEducation);
         assertEquals(mappedEducation, education);
     }
@@ -149,11 +150,11 @@ class EducationServiceTest {
     @Test
     void testAddEducation() {
 
-        EducationDto result = educationService.addEducation(createEducationDto);
+        EducationDto result = educationService.addEducation(educationCreateDto);
 
         verify(userContext).getUserId();
         verify(userRepository).getByIdOrThrow(USER_ID);
-        verify(educationMapper).toEducation(createEducationDto);
+        verify(educationMapper).toEducation(educationCreateDto);
         verify(educationRepository).save(education);
         verify(educationMapper).toEducationDto(education);
 
@@ -179,22 +180,22 @@ class EducationServiceTest {
         anotherEducation.setUser(anotherUser);
 
         ForbiddenException ex = assertThrows(ForbiddenException.class, () ->
-                educationService.validateUserIsEducationOwner(USER_ID, anotherEducation));
+                Validators.validateUserIsEducationOwner(USER_ID, anotherEducation));
 
         assertEquals("Не достаточно прав для получения этих данных", ex.getMessage());
     }
 
     @Test
     void shouldUpdateEducationEntity() {
-        educationService.updateEducation(EDUCATION_ID, updateEducationDto);
+        educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
 
-        verify(educationMapper).updateEducationFromDto(updateEducationDto, existingEducation);
+        verify(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
         verify(educationRepository).save(existingEducation);
     }
 
     @Test
     void shouldReturnUpdatedEducationDto() {
-        EducationDto result = educationService.updateEducation(EDUCATION_ID, updateEducationDto);
+        EducationDto result = educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
 
         verify(educationMapper).toEducationDto(updatedEducation);
         assertNotNull(result);
@@ -203,11 +204,11 @@ class EducationServiceTest {
 
     @Test
     void shouldPerformFullUpdateFlow() {
-        EducationDto result = educationService.updateEducation(EDUCATION_ID, updateEducationDto);
+        EducationDto result = educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
 
         verify(userContext).getUserId();
         verify(educationRepository).getByIdOrThrow(EDUCATION_ID);
-        verify(educationMapper).updateEducationFromDto(updateEducationDto, existingEducation);
+        verify(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
         verify(educationRepository).save(existingEducation);
         verify(educationMapper).toEducationDto(updatedEducation);
 

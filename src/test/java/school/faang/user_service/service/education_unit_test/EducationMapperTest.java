@@ -1,9 +1,9 @@
 package school.faang.user_service.service.education_unit_test;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.education.UpdateEducationDto;
-import school.faang.user_service.dto.user.CreateEducationDto;
-import school.faang.user_service.dto.user.EducationDto;
+import school.faang.user_service.dto.education.EducationUpdateDto;
+import school.faang.user_service.dto.education.EducationCreateDto;
+import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.mapper.EducationMapper;
 
@@ -13,7 +13,7 @@ public class EducationMapperTest {
 
     private final EducationMapper educationMapper = new EducationMapper() {
         @Override
-        public Education toEducation(CreateEducationDto createEducationDto) {
+        public Education toEducation(EducationCreateDto educationCreateDto) {
             return null;
         }
 
@@ -23,30 +23,30 @@ public class EducationMapperTest {
         }
 
         @Override
-        public void updateEducationFromDto(UpdateEducationDto updateEducationDto, Education education) {
-            if (updateEducationDto == null || education == null) {
+        public void updateEducationFromDto(EducationUpdateDto educationUpdateDto, Education education) {
+            if (educationUpdateDto == null || education == null) {
                 return;
             }
 
-            education.setYearFrom(updateEducationDto.yearFrom());
-            education.setYearTo(updateEducationDto.yearTo());
-            education.setInstitution(updateEducationDto.institution());
-            education.setEducationLevel(updateEducationDto.educationLevel());
-            education.setSpecialization(updateEducationDto.specialization());
+            education.setYearFrom(educationUpdateDto.yearFrom());
+            education.setYearTo(educationUpdateDto.yearTo());
+            education.setInstitution(educationUpdateDto.institution());
+            education.setEducationLevel(educationUpdateDto.educationLevel());
+            education.setSpecialization(educationUpdateDto.specialization());
         }
     };
 
     @Test
     void testUpdateEducationFromDto() {
         // given
-        UpdateEducationDto updateEducationDto = new UpdateEducationDto(
+        EducationUpdateDto educationUpdateDto = new EducationUpdateDto(
             2020, 2024, "University 123123", "Bachelor", "Computer Science");
 
         Education existingEducation = new Education();
         existingEducation.setInstitution("Old University");
         existingEducation.setEducationLevel("Master");
 
-        educationMapper.updateEducationFromDto(updateEducationDto, existingEducation);
+        educationMapper.updateEducationFromDto(educationUpdateDto, existingEducation);
 
         assertEquals("University 123123", existingEducation.getInstitution());
         assertEquals("Bachelor", existingEducation.getEducationLevel());
