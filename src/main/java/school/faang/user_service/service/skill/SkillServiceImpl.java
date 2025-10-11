@@ -8,7 +8,6 @@ import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.user.Skill;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -21,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
     @Value("skill.offers.min.count")
-    private int MIN_COUNT_OFFERS;
+    private int minCountOffers;
     private final SkillRepository skillRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillMapper skillMapper;
@@ -56,8 +55,8 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void acquireSkillFromOffers(long skillId, long userId) {
-        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < MIN_COUNT_OFFERS) {
-            throw new ForbiddenException("Offers count should be more than " + MIN_COUNT_OFFERS);
+        if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < minCountOffers) {
+            throw new ForbiddenException("Offers count should be more than " + minCountOffers);
         }
         log.info("user {} acquire skill {}", userId, skillId);
         skillRepository.assignSkillToUser(skillId, userId);
