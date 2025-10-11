@@ -16,7 +16,12 @@ public interface EducationMapper {
 
     EducationDto toEducationDto(Education education);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    void updateEducationFromDto(UpdateEducationDto updateEducationDto, @MappingTarget Education education);
+    default void updateEducationFromDto(UpdateEducationDto updateEducationDto, @MappingTarget Education education) {
+
+        education.setEducationLevel(updateEducationDto.educationLevel());
+        education.setYearFrom(updateEducationDto.yearFrom());
+        education.setInstitution(updateEducationDto.institution());
+        education.setSpecialization(education.getSpecialization());
+        education.setYearTo(updateEducationDto.yearTo());
+    };
 }

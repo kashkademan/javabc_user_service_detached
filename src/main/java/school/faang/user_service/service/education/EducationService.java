@@ -19,9 +19,9 @@ import school.faang.user_service.repository.user.UserRepository;
 import java.time.Year;
 import java.util.Objects;
 
-@Service
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class EducationService {
     private final UserRepository userRepository;
     private final EducationRepository educationRepository;
@@ -43,7 +43,7 @@ public class EducationService {
         Education saveEducation = educationRepository.save(education);
         log.info("Образование успешно добавлено с ID: {}", saveEducation.getId());
 
-        return educationMapper.toEducationDto(education);
+        return educationMapper.toEducationDto(saveEducation);
     }
 
     public EducationDto updateEducation(long educationId, UpdateEducationDto updateEducationDto) {
@@ -71,22 +71,22 @@ public class EducationService {
         long userId = userContext.getUserId();
         Education existingEducation = educationRepository.getByIdOrThrow(educationId);
         educationRepository.deleteById(educationId);
-        log.info("Данные с ID: {} были удалены" + educationId);
+        log.info("Данные с ID: {} были удалены", educationId);
         validateUserIsEducationOwner(userId, existingEducation);
         return educationMapper.toEducationDto(existingEducation);
     }
 
-    private void validateYearFrom(Integer yearFrom) {
+    public void validateYearFrom(Integer yearFrom) {
         if (yearFrom != null && yearFrom > Year.now().getValue()) {
             log.warn("Попытка добавить образование с годом начала в будущем: {}", yearFrom);
             throw new DataValidationException("Год начала обучения не может быть больше текущего");
         }
     }
 
-    private void validateUserIsEducationOwner(long userId, Education education) {
+    public void validateUserIsEducationOwner(long userId, Education education) {
         User educationOwner = education.getUser();
 
-        if (Objects.equals(userId, educationOwner.getId())) {
+        if (!Objects.equals(userId, educationOwner.getId())) {
             throw new ForbiddenException("Не достаточно прав для получения этих данных");
         }
     }
