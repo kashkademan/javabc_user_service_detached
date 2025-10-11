@@ -66,8 +66,7 @@ public class UserSubscriptionService  {
         if (filters == null) return true;
         if (filters.getNamePattern() != null &&
                 !user.username().toLowerCase().contains(filters.getNamePattern().toLowerCase())) return false;
-        if (filters.getPhonePattern() != null &&
-                (user.phone() == null || !user.phone().contains(filters.getPhonePattern()))) return false;
-        return true;
+        return filters.getPhonePattern() == null ||
+                (user.phone() != null && user.phone().contains(filters.getPhonePattern()));
     }
 }
