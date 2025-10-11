@@ -1,4 +1,4 @@
-package school.faang.user_service.service.education_unit_test;
+package school.faang.user_service.service.education_unittest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
