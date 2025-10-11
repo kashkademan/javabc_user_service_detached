@@ -8,24 +8,25 @@ import school.faang.user_service.exception.ForbiddenException;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static school.faang.user_service.service.education.Validators.*;
+import static school.faang.user_service.service.education.Validators.validateUserIsEducationOwner;
+import static school.faang.user_service.service.education.Validators.validateYearFrom;
 
 class ValidatorsTest {
 
     @Test
-    void validateYearFrom_ShouldThrow_WhenYearTooHigh() {
+    void validateYearFromShouldThrow_WhenYearTooHigh() {
         assertThatThrownBy(() -> validateYearFrom(2026))
                 .isInstanceOf(DataValidationException.class);
     }
 
     @Test
-    void validateYearFrom_ShouldPass_WhenYearValid() {
+    void validateYearFromShouldPass_WhenYearValid() {
         assertThatCode(() -> validateYearFrom(2000))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void validateUserIsEducationOwner_ShouldThrow_WhenNotOwner() {
+    void validateUserIsEducationOwnerShouldThrow_WhenNotOwner() {
         User user1 = new User();
         user1.setId(1L);
 
@@ -41,7 +42,7 @@ class ValidatorsTest {
     }
 
     @Test
-    void validateUserIsEducationOwner_ShouldPass_WhenOwner() {
+    void validateUserIsEducationOwnerShouldPass_WhenOwner() {
         User user = new User();
         user.setId(1L);
 

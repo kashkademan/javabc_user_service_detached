@@ -74,7 +74,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void addEducation_ShouldAddSuccessfully() {
+    void addEducationShouldAddSuccessfully() {
         EducationCreateDto createDto = new EducationCreateDto(
                 2000,
                 2005,
@@ -98,7 +98,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void updateEducation_ShouldUpdateSuccessfully() {
+    void updateEducationShouldUpdateSuccessfully() {
         EducationUpdateDto updateDto = new EducationUpdateDto(
                 2001,
                 2006,
@@ -121,7 +121,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void getById_ShouldReturnEducation_WhenUserIsOwner() {
+    void getByIdShouldReturnEducationWhenUserIsOwner() {
         when(userContext.getUserId()).thenReturn(1L);
         when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
         when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
@@ -134,7 +134,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void getById_ShouldThrow_WhenUserIsNotOwner() {
+    void getByIdShouldThrowWhenUserIsNotOwner() {
         User anotherUser = new User();
         anotherUser.setId(2L);
         education.setUser(anotherUser);
@@ -150,7 +150,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void deleteEducation_ShouldDeleteSuccessfully() {
+    void deleteEducationShouldDeleteSuccessfully() {
         when(userContext.getUserId()).thenReturn(1L);
         when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
         when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
@@ -162,7 +162,7 @@ public class EducationServiceTest {
     }
 
     @Test
-    void deleteEducation_ShouldThrow_WhenNotOwner() {
+    void deleteEducationShouldThrow_WhenNotOwner() {
         User anotherUser = new User();
         anotherUser.setId(2L);
         anotherUser.setUsername("Another");
