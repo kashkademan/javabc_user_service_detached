@@ -52,7 +52,47 @@ public class CareerServiceTest {
     }
 
     @Test
+    void addCareer_WithNullStartDateThrowsDataValidationException() {
+        CreateCareerDto createDto = new CreateCareerDto(
+                null,
+                LocalDate.of(2023, 12, 31),
+                "company",
+                "position"
+        );
+
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        verifyNoInteractions(userRepository, careerRepository, careerMapper);
+    }
+
+    @Test
+    void addCareer_WithNullCompanyThrowsDataValidationException() {
+        CreateCareerDto createDto = new CreateCareerDto(
+                LocalDate.of(2021, 6, 15),
+                LocalDate.of(2023, 12, 31),
+                null,
+                "position"
+        );
+
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        verifyNoInteractions(userRepository, careerRepository, careerMapper);
+    }
+
+    @Test
+    void addCareer_WithBlankCompanyThrowsDataValidationException() {
+        CreateCareerDto createDto = new CreateCareerDto(
+                LocalDate.of(2021, 6, 15),
+                LocalDate.of(2023, 12, 31),
+                "   ",
+                "position"
+        );
+
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        verifyNoInteractions(userRepository, careerRepository, careerMapper);
+    }
+
+    @Test
     void addCareer_WithValidDataReturnsCareerDto() {
+        when(userRepository.getByIdOrThrow(10L)).thenReturn(testUser);
         CreateCareerDto createDto = new CreateCareerDto(
                 LocalDate.of(2021, 6, 15),
                 LocalDate.of(2023, 12, 31),
@@ -60,19 +100,18 @@ public class CareerServiceTest {
                 "position"
         );
 
-        when(userRepository.getByIdOrThrow(10L)).thenReturn(testUser);
-
         Career testCareer = new Career();
         testCareer.setId(15L);
         testCareer.setUser(testUser);
-        testCareer.setDateFrom(LocalDate.of(2021, 6, 15));  // Правильное название
-        testCareer.setDateTo(LocalDate.of(2023, 12, 31));   // Правильное название
+        testCareer.setDateFrom(LocalDate.of(2021, 6, 15));
+        testCareer.setDateTo(LocalDate.of(2023, 12, 31));
         testCareer.setCompany("company");
         testCareer.setPosition("position");
 
         when(careerRepository.save(any(Career.class))).thenReturn(testCareer);
         when(careerMapper.toCareerDto(testCareer)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(2023, 12, 31), "company", "position")
+                new CareerDto(15L, LocalDate.of(2021, 6, 15),
+                        LocalDate.of(2023, 12, 31), "company", "position")
         );
 
         CareerDto result = careerService.addCareer(10L, createDto);
@@ -96,7 +135,8 @@ public class CareerServiceTest {
                 "position"
         );
 
-        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L,
+                createDto));
         verifyNoInteractions(userRepository, careerRepository, careerMapper);
     }
 
@@ -109,7 +149,8 @@ public class CareerServiceTest {
                 "position"
         );
 
-        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L,
+                createDto));
         verifyNoInteractions(userRepository, careerRepository, careerMapper);
     }
 
@@ -122,7 +163,8 @@ public class CareerServiceTest {
                 "position"
         );
 
-        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L,
+                createDto));
         verifyNoInteractions(userRepository, careerRepository, careerMapper);
     }
 
@@ -135,19 +177,26 @@ public class CareerServiceTest {
                 ""
         );
 
+        assertThrows(DataValidationException.class, () -> careerService.addCareer(10L,
+                createDto));
+        verifyNoInteractions(userRepository, careerRepository, careerMapper);
+    }
+
+    @Test
+    void addCareer_WithCurrentStartDateThrowsDataValidationException() {
+        CreateCareerDto createDto = new CreateCareerDto(
+                LocalDate.now(),
+                LocalDate.of(2023, 12, 31),
+                "company",
+                "position"
+        );
+
         assertThrows(DataValidationException.class, () -> careerService.addCareer(10L, createDto));
         verifyNoInteractions(userRepository, careerRepository, careerMapper);
     }
 
     @Test
     void updateCareer_WithValidDataAndOwnerReturnsUpdatedCareerDto() {
-        UpdateCareerDto updateDto = new UpdateCareerDto(
-                LocalDate.of(2021, 6, 15),
-                LocalDate.of(2023, 12, 31),
-                "company",
-                "position"
-        );
-
         Career careerFromRepository = new Career();
         careerFromRepository.setId(15L);
         careerFromRepository.setUser(testUser);
@@ -155,6 +204,13 @@ public class CareerServiceTest {
         careerFromRepository.setDateTo(LocalDate.of(2022, 1, 1));
         careerFromRepository.setCompany("old company");
         careerFromRepository.setPosition("old position");
+
+        UpdateCareerDto updateDto = new UpdateCareerDto(
+                LocalDate.of(2021, 6, 15),
+                LocalDate.of(2023, 12, 31),
+                "company",
+                "position"
+        );
 
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
 
@@ -168,7 +224,8 @@ public class CareerServiceTest {
 
         when(careerRepository.save(any(Career.class))).thenReturn(updatedCareer);
         when(careerMapper.toCareerDto(updatedCareer)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(2023, 12, 31), "company", "position")
+                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(
+                        2023, 12, 31), "company", "position")
         );
 
         CareerDto result = careerService.updateCareer(10L, 15L, updateDto);
@@ -193,19 +250,13 @@ public class CareerServiceTest {
 
         when(careerRepository.getByIdOrThrow(35L))
                 .thenThrow(new DataValidationException("Career not found"));
-        assertThrows(DataValidationException.class, () -> careerService.updateCareer(10L, 35L, updateDto));
+        assertThrows(DataValidationException.class, () -> careerService.updateCareer(10L,
+                35L, updateDto));
         verifyNoInteractions(userRepository, careerMapper);
     }
 
     @Test
     void updateCareer_WhenUserNotOwnerThrowsForbiddenException() {
-        UpdateCareerDto updateDto = new UpdateCareerDto(
-                LocalDate.of(2021, 6, 15),
-                LocalDate.of(2023, 12, 31),
-                "company",
-                "position"
-        );
-
         User anotherUser = new User();
         anotherUser.setId(20L);
         Career careerFromRepository = new Career();
@@ -216,9 +267,16 @@ public class CareerServiceTest {
         careerFromRepository.setCompany("company");
         careerFromRepository.setPosition("position");
 
+        UpdateCareerDto updateDto = new UpdateCareerDto(
+                LocalDate.of(2021, 6, 15),
+                LocalDate.of(2023, 12, 31),
+                "company",
+                "position"
+        );
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(careerFromRepository);
 
-        assertThrows(ForbiddenException.class, () -> careerService.updateCareer(10L, 15L, updateDto));
+        assertThrows(ForbiddenException.class, () -> careerService.updateCareer(10L,
+                15L, updateDto));
         verify(careerRepository, never()).save(any(Career.class));
     }
 
@@ -234,7 +292,8 @@ public class CareerServiceTest {
 
         when(careerRepository.getByIdOrThrow(15L)).thenReturn(career);
         when(careerMapper.toCareerDto(career)).thenReturn(
-                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(2023, 12, 31), "company", "position")
+                new CareerDto(15L, LocalDate.of(2021, 6, 15), LocalDate.of(
+                        2023, 12, 31), "company", "position")
         );
 
         CareerDto result = careerService.getById(15L);
