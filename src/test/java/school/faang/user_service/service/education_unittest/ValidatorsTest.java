@@ -6,7 +6,8 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static school.faang.user_service.service.education.Validators.*;
 
 class ValidatorsTest {
