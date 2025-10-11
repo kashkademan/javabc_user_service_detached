@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,8 +79,6 @@ class EventServiceTest {
                 .name("Event name")
                 .skills(Set.of())
                 .build();
-
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
     }
 
     @Test
@@ -90,11 +90,13 @@ class EventServiceTest {
                 .build();
 
         Event unsavedEvent = Event.builder().build();
+        Event event = Event.builder().id(EVENT_ID).build();
 
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(userRepository.getByIdOrThrow(OWNER_ID)).thenReturn(user);
         when(eventMapper.toEvent(dto)).thenReturn(unsavedEvent);
         when(eventRepository.save(unsavedEvent)).thenReturn(event);
-        when(eventMapper.toEventDto(event)).thenReturn(eventDto);
+        when(eventMapper.toEventDto(any(Event.class))).thenReturn(eventDto);
 
         EventDto result = eventService.create(dto);
 
@@ -110,6 +112,7 @@ class EventServiceTest {
                 .type(EventType.MEETING)
                 .build();
 
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.getByIdOrThrow(EVENT_ID)).thenReturn(event);
 
         doAnswer(invocation -> {
@@ -147,12 +150,12 @@ class EventServiceTest {
 
         event.setTitle("Title matches");
         when(eventRepository.findAll()).thenReturn(List.of(event));
-        when(eventMapper.toEventDto(event)).thenReturn(eventDto);
+        when(eventMapper.toEventDto(any(Event.class))).thenReturn(eventDto);
 
         List<EventDto> result = eventService.getByFilters(filter);
 
         assertEquals(1, result.size());
-        assertNotNull(result.get(0).title());
+        assertEquals("Title", result.get(0).title());
     }
 
     @Test
@@ -171,6 +174,7 @@ class EventServiceTest {
 
     @Test
     void testDelete_successful() {
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(1);
         eventService.delete(EVENT_ID);
 
@@ -179,7 +183,9 @@ class EventServiceTest {
 
     @Test
     void testDelete_notFoundOrAccessDenied() {
-        when(eventRepository.deleteById(OWNER_ID, EVENT_ID));
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
+        doThrow(new EntityNotFoundException("Event not found or access denied"))
+                .when(eventRepository).deleteById(OWNER_ID, EVENT_ID);
 
         assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
     }
