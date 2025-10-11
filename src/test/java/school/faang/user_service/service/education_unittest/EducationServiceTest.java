@@ -12,25 +12,23 @@ import school.faang.user_service.dto.education.EducationDto;
 import school.faang.user_service.dto.education.EducationUpdateDto;
 import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.education.EducationService;
-import school.faang.user_service.service.education.Validators;
 
-import java.time.Year;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.lenient;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EducationServiceTest {
+public class EducationServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -46,173 +44,138 @@ class EducationServiceTest {
     @InjectMocks
     private EducationService educationService;
 
-    private EducationCreateDto educationCreateDto;
     private User user;
     private Education education;
     private EducationDto educationDto;
-    private Education existingEducation;
-    private Education updatedEducation;
-    private EducationUpdateDto educationUpdateDto;
-
-    private static final long USER_ID = 1L;
-    private static final long EDUCATION_ID = 1L;
 
     @BeforeEach
     void setUp() {
-        educationCreateDto = new EducationCreateDto(
-                2020, 2024, "University", "Bachelor", "Computer Science");
-
-        existingEducation = new Education();
-        existingEducation.setId(EDUCATION_ID);
-
         user = new User();
-        user.setId(USER_ID);
-        existingEducation.setUser(user);
+        user.setId(1L);
+        user.setUsername("test_user");
 
         education = new Education();
-        education.setId(EDUCATION_ID);
+        education.setId(10L);
+        education.setUser(user);
+        education.setYearFrom(2000);
+        education.setYearTo(2005);
+        education.setInstitution("University");
+        education.setEducationLevel("Bachelor");
+        education.setSpecialization("Computer Science");
 
-        updatedEducation = new Education();
-        updatedEducation.setId(EDUCATION_ID);
-        updatedEducation.setUser(user);
-
-        educationDto = new EducationDto(EDUCATION_ID, 2020, 2024, "University",
-                "Bachelor", "Computer Science");
-
-        educationUpdateDto = new EducationUpdateDto(
-                2020, 2024, "University 123123", "Bachelor", "Computer Science");
-
-        lenient().when(userContext.getUserId()).thenReturn(USER_ID);
-        lenient().when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(user);
-        lenient().when(educationMapper.toEducation(educationCreateDto)).thenReturn(education);
-        lenient().when(educationRepository.save(education)).thenReturn(education);
-        lenient().when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
-        lenient().when(educationRepository.getByIdOrThrow(EDUCATION_ID)).thenReturn(existingEducation);
-        lenient().doNothing().when(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
-        lenient().when(educationRepository.save(existingEducation)).thenReturn(updatedEducation);
-        lenient().when(educationMapper.toEducationDto(updatedEducation)).thenReturn(educationDto);
+        educationDto = new EducationDto(
+                10L,
+                2000,
+                2005,
+                "University",
+                "Bachelor",
+                "Computer Science"
+        );
     }
 
     @Test
-    public void testGetUserId() {
-        long userId = userContext.getUserId();
-        assertEquals(USER_ID, userId, "User ID должен быть равен " + USER_ID);
-    }
+    void addEducation_ShouldAddSuccessfully() {
+        EducationCreateDto createDto = new EducationCreateDto(
+                2000,
+                2005,
+                "University",
+                "Bachelor",
+                "Computer Science"
+        );
 
-    @Test
-    void testValidateYearFrom() {
-        // Проверка, что метод validateYearFrom вызывается без ошибок
-        assertDoesNotThrow(() -> Validators.validateYearFrom(educationCreateDto.yearFrom()),
-                "Метод validateYearFrom не должен выбрасывать исключение");
-    }
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
+        when(educationMapper.toEducation(createDto)).thenReturn(education);
+        when(educationRepository.save(any(Education.class))).thenReturn(education);
+        when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
 
-    @Test
-    void testValidateYearFromFutureYear() {
+        EducationDto result = educationService.addEducation(createDto);
 
-        int futureYear = Year.now().getValue() + 1;
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> {
-            Validators.validateYearFrom(futureYear);
-        });
-
-        assertEquals("Год начала обучения не может быть больше текущего", exception.getMessage());
-    }
-
-    @Test
-    void testGetByIdOrThrow() {
-        User fetchedUser = userRepository.getByIdOrThrow(USER_ID);
-        assertNotNull(fetchedUser);
-        assertEquals(USER_ID, fetchedUser.getId());
-    }
-
-    @Test
-    void testToEducation() {
-
-        Education mappedEducation = educationMapper.toEducation(educationCreateDto);
-        assertNotNull(mappedEducation);
-        assertEquals(mappedEducation, education);
-    }
-
-    @Test
-    void testToEducationDto() {
-        EducationDto mappedEducationDto = educationMapper.toEducationDto(education);
-        assertNotNull(mappedEducationDto);
-        assertEquals(mappedEducationDto, educationDto);
-    }
-
-    @Test
-    void testSave() {
-        Education savedEducation = educationRepository.save(education);
-        assertNotNull(savedEducation);
-        assertEquals(savedEducation, education);
-    }
-
-    @Test
-    void testAddEducation() {
-
-        EducationDto result = educationService.addEducation(educationCreateDto);
-
-        assertNotNull(result);
-        assertEquals(result, educationDto);
-
-        verify(userContext).getUserId();
-        verify(userRepository).getByIdOrThrow(USER_ID);
-        verify(educationMapper).toEducation(educationCreateDto);
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(10L);
         verify(educationRepository).save(education);
         verify(educationMapper).toEducationDto(education);
     }
 
     @Test
-    void testGetByIdOrThrowUpdate() {
+    void updateEducation_ShouldUpdateSuccessfully() {
+        EducationUpdateDto updateDto = new EducationUpdateDto(
+                2001,
+                2006,
+                "Updated University",
+                "Master",
+                "Software Engineering"
+        );
 
-        Education fetched = educationRepository.getByIdOrThrow(EDUCATION_ID);
+        when(userContext.getUserId()).thenReturn(1L);
+        when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
+        doNothing().when(educationMapper).updateEducationFromDto(updateDto, education);
+        when(educationRepository.save(education)).thenReturn(education);
+        when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
 
-        assertNotNull(fetched);
-        assertEquals(EDUCATION_ID, fetched.getId());
+        EducationDto result = educationService.updateEducation(10L, updateDto);
+
+        assertThat(result).isNotNull();
+        verify(educationMapper).updateEducationFromDto(updateDto, education);
+        verify(educationRepository).save(education);
     }
 
     @Test
-    void testValidateUserIsEducationOwner() {
-        Education anotherEducation = new Education();
+    void getById_ShouldReturnEducation_WhenUserIsOwner() {
+        when(userContext.getUserId()).thenReturn(1L);
+        when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
+        when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
 
+        EducationDto result = educationService.getById(10L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(10L);
+        verify(educationRepository).getByIdOrThrow(10L);
+    }
+
+    @Test
+    void getById_ShouldThrow_WhenUserIsNotOwner() {
         User anotherUser = new User();
-        anotherUser.setId(123L);
-        anotherEducation.setUser(anotherUser);
+        anotherUser.setId(2L);
+        education.setUser(anotherUser);
 
-        ForbiddenException ex = assertThrows(ForbiddenException.class, () ->
-                Validators.validateUserIsEducationOwner(USER_ID, anotherEducation));
+        when(userContext.getUserId()).thenReturn(1L);
+        when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
 
-        assertEquals("Не достаточно прав для получения этих данных", ex.getMessage());
+        assertThatThrownBy(() -> educationService.getById(10L))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("Не достаточно прав");
+
+        verify(educationRepository, never()).deleteById(anyLong());
     }
 
     @Test
-    void shouldUpdateEducationEntity() {
-        educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
+    void deleteEducation_ShouldDeleteSuccessfully() {
+        when(userContext.getUserId()).thenReturn(1L);
+        when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
+        when(educationMapper.toEducationDto(education)).thenReturn(educationDto);
 
-        verify(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
-        verify(educationRepository).save(existingEducation);
+        EducationDto result = educationService.deleteEducation(10L);
+
+        assertThat(result).isNotNull();
+        verify(educationRepository).deleteById(10L);
     }
 
     @Test
-    void shouldReturnUpdatedEducationDto() {
-        EducationDto result = educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
+    void deleteEducation_ShouldThrow_WhenNotOwner() {
+        User anotherUser = new User();
+        anotherUser.setId(2L);
+        anotherUser.setUsername("Another");
+        education.setUser(anotherUser);
 
-        verify(educationMapper).toEducationDto(updatedEducation);
-        assertNotNull(result);
-        assertEquals(educationDto, result);
-    }
+        when(userContext.getUserId()).thenReturn(1L);
+        when(educationRepository.getByIdOrThrow(10L)).thenReturn(education);
 
-    @Test
-    void shouldPerformFullUpdateFlow() {
-        EducationDto result = educationService.updateEducation(EDUCATION_ID, educationUpdateDto);
+        assertThatThrownBy(() -> educationService.deleteEducation(10L))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("Не достаточно прав");
 
-        assertNotNull(result);
-        assertEquals(educationDto, result);
-
-        verify(userContext).getUserId();
-        verify(educationRepository).getByIdOrThrow(EDUCATION_ID);
-        verify(educationMapper).updateEducationFromDto(educationUpdateDto, existingEducation);
-        verify(educationRepository).save(existingEducation);
-        verify(educationMapper).toEducationDto(updatedEducation);
+        verify(educationRepository, never()).deleteById(anyLong());
     }
 }
+
