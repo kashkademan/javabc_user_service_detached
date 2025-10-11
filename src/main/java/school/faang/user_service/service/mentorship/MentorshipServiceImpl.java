@@ -25,7 +25,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final UserContext userContext;
 
     @Override
-    public void addMentorship(long mentorId, long menteeId) {
+    public UserDto addMentorship(long mentorId, long menteeId) {
         if (!mentorshipValidation.canAddMentorship(mentorId,
                 menteeId,
                 (mentor, mentee) -> !Objects.equals(mentor, mentee))) {
@@ -37,13 +37,14 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         if (mentee.getMentors().contains(mentor)) {
             log.info("Mentee {} already has mentor {}", menteeId, mentorId);
-            return;
+            return userMapper.toUserDto(mentee);
         }
 
         mentee.getMentors().add(mentor);
-        mentorshipRepository.save(mentee);
+        User savedUser = mentorshipRepository.save(mentee);
 
         log.info("Mentorship created between mentor {} and mentee {}", mentorId, menteeId);
+        return userMapper.toUserDto(savedUser);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     }
 
     @Override
-    public void deleteMentorship(long menteeId, long mentorId) {
+    public UserDto deleteMentorship(long menteeId, long mentorId) {
         long currentUserId = userContext.getUserId();
 
         if (currentUserId != menteeId && currentUserId != mentorId) {
@@ -77,7 +78,8 @@ public class MentorshipServiceImpl implements MentorshipService {
         User mentee = mentorshipRepository.getByIdOrThrow(menteeId);
         mentee.getMentors().remove(mentor);
 
-        mentorshipRepository.save(mentee);
+        User savedUser = mentorshipRepository.save(mentee);
+        return userMapper.toUserDto(savedUser);
     }
 
 }
