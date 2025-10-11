@@ -54,8 +54,8 @@ class EducationServiceTest {
     private Education updatedEducation;
     private EducationUpdateDto educationUpdateDto;
 
-    private final long USER_ID = 1L;
-    private final long EDUCATION_ID = 1L;
+    private static final long USER_ID = 1L;
+    private static final long EDUCATION_ID = 1L;
 
     @BeforeEach
     void setUp() {
