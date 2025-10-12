@@ -43,14 +43,13 @@ public class UserScoreAspect {
 
     private boolean shouldAddScore(JoinPoint joinPoint, ActionType actionType) {
         return switch (actionType) {
-            case GOAL_CREATED_BY_USER,
-                 GOAL_CREATED_BY_MENTOR,
-                 CAREER_ADDED -> true;
-
-            case GOAL_COMPLETED -> checkGoalCompleted(joinPoint);
-            default -> throw new IllegalStateException(
-                    "Unhandled ActionType in UserScoreAspect: %s".formatted(actionType)
-            );
+          case GOAL_CREATED_BY_USER,
+              GOAL_CREATED_BY_MENTOR,
+              CAREER_ADDED -> true;
+          case GOAL_COMPLETED -> checkGoalCompleted(joinPoint);
+          default -> throw new IllegalStateException(
+                "Unhandled ActionType in UserScoreAspect: %s".formatted(actionType)
+        );
         };
     }
 

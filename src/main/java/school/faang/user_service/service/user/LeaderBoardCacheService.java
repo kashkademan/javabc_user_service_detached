@@ -29,7 +29,9 @@ public class LeaderBoardCacheService {
         Set<ZSetOperations.TypedTuple<String>> top =
                 redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, leaderBoardConfig.getSize() - 1);
 
-        if (top == null) return List.of();
+        if (top == null) {
+            return List.of();
+        }
 
         List<LeaderScoreDto> result = new ArrayList<>();
         for (ZSetOperations.TypedTuple<String> tuple : top) {
@@ -37,6 +39,16 @@ public class LeaderBoardCacheService {
         }
 
         return result;
+    }
+
+    public boolean exists(String key) {
+        Long size = redisTemplate.opsForZSet().size(key);
+        return size != null && size > 0;
+    }
+
+    public void clearLeaderBoard() {
+        String key = leaderBoardConfig.getRedisKey();
+        redisTemplate.delete(key);
     }
 
     private void trimLeaderboard(String key) {
