@@ -74,19 +74,18 @@ public class SkillServiceImplTest {
 
     @Test
     void create_whenSkillAlreadyExists_shouldThrowException() {
-        CreateSkillDto createSkillDto = new CreateSkillDto(SKILL_NAME);
         when(skillRepository.existsByTitle(SKILL_NAME)).thenReturn(true);
 
         assertThrows(DataValidationException.class,
-                () -> skillService.create(createSkillDto));
+                () -> skillService.create(new CreateSkillDto(SKILL_NAME)));
 
         verify(skillRepository, never()).save(any());
     }
 
     @Test
     void create_shouldSaveAndReturnDto_whenSkillDoesNotExist() {
-        CreateSkillDto createSkillDto = new CreateSkillDto(SKILL_NAME);
-        Skill skill = new Skill();
+        final CreateSkillDto createSkillDto = new CreateSkillDto(SKILL_NAME);
+        final Skill skill = new Skill();
 
         Skill savedSkill = new Skill();
         savedSkill.setId(SKILL_ID);
@@ -299,11 +298,15 @@ public class SkillServiceImplTest {
         verify(skillRepository).assignSkillToUser(SKILL_ID, USER_ID);
 
         verify(userSkillGuaranteeRepository).saveAll(argThat((List<UserSkillGuarantee> guarantees) -> {
-            if (guarantees.size() != 2) return false;
+            if (guarantees.size() != 2) {
+                return false;
+            }
+
             return guarantees.stream().allMatch(g ->
-                    g.getUser() == user &&
-                            g.getSkill() == skill &&
-                            (g.getGuarantor() == guarantor1 || g.getGuarantor() == guarantor2)
+                    g.getUser() == user
+                        && g.getSkill() == skill
+                        && (g.getGuarantor() == guarantor1
+                            || g.getGuarantor() == guarantor2)
             );
         }));
     }
