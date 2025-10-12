@@ -7,6 +7,7 @@ import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.user.User;
 
 import java.util.List;
 
@@ -26,6 +27,6 @@ public interface GoalMapper {
     void update(UpdateGoalDto dto, @MappingTarget Goal entity);
 
     default List<Long> getUserIds(Goal goal) {
-        return goal.getUsers().stream().map(user -> user.getId()).toList();
+        return goal.getUsers().stream().map(User::getId).toList();
     }
 }

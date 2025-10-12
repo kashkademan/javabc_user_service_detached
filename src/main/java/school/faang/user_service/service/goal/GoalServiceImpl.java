@@ -51,8 +51,8 @@ public class GoalServiceImpl implements GoalService {
                 .count();
 
         if (activeGoalsSize >= maxActiveGoals) {
-            throw new ForbiddenException(("Forbidden to create goal. User already has %d active goals." +
-                    " Max active goals = %d".formatted(maxActiveGoals))
+            throw new ForbiddenException(("Forbidden to create goal. User already has %d active goals."
+                    + " Max active goals = %d".formatted(maxActiveGoals))
                     .formatted(activeGoalsSize));
         }
 
