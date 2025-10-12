@@ -1,6 +1,7 @@
 package school.faang.user_service.service.event;
 
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class EventServiceImpl implements EventService {
         event.setStatus(EventStatus.PLANNED);
 
         Event savedEvent = eventRepository.save(event);
-        log.info("User {} created", event.getId());
+        log.info("Event {} created", event.getId());
         return eventMapper.toEventDto(savedEvent);
     }
 
@@ -49,13 +51,20 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
         Long currentUserId = userContext.getUserId();
+
         if (!event.getOwner().getId().equals(currentUserId)) {
             throw new ForbiddenException("You are not the owner of this event");
         }
-        eventMapper.update(updateEventDto, event);
 
+        if (updateEventDto.startDate() != null) {
+            if (updateEventDto.startDate().isBefore(LocalDateTime.now())) {
+                throw new ValidationException("Cannot update event to start in the past");
+            }
+        }
+
+        eventMapper.update(updateEventDto, event);
         Event updatedEvent = eventRepository.save(event);
-        log.info("User {} updated", event.getId());
+        log.info("Event {} updated", event.getId());
         return eventMapper.toEventDto(updatedEvent);
     }
 
@@ -90,6 +99,6 @@ public class EventServiceImpl implements EventService {
         }
 
         eventRepository.delete(event);
-        log.info("User {} deleted", event.getId());
+        log.info("Event {} deleted", event.getId());
     }
 }
