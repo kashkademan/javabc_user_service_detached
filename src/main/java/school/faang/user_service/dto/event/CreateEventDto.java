@@ -35,7 +35,9 @@ public record CreateEventDto(
 ) {
     @AssertTrue(message = "End date must be after start date", groups = ValidationGroups.OnCreate.class)
     public boolean isEndDateAfterStartDate() {
-        if (startDate == null || endDate == null) return true;
+        if (startDate == null || endDate == null) {
+            return true;
+        }
         return endDate.isAfter(startDate);
     }
 }
