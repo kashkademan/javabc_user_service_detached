@@ -1,51 +1,38 @@
 package school.faang.user_service.controller.event;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.validation.ValidationGroups;
 
 import java.util.List;
 
+@Validated
 @Controller
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
 
-    public EventDto create(CreateEventDto eventDto) {
-        validateCreateEventDto(eventDto);
+    public EventDto create(
+            @RequestBody @Validated(ValidationGroups.OnCreate.class) CreateEventDto eventDto) {
         return eventService.create(eventDto);
     }
 
-    public EventDto update(long eventId, UpdateEventDto updateEventDto) {
+    public EventDto update(
+            @PathVariable long eventId,
+            @RequestBody @Validated(ValidationGroups.OnUpdate.class) UpdateEventDto updateEventDto) {
         return eventService.update(eventId, updateEventDto);
     }
 
-    public List<EventDto> getByFilters(EventFilterDto filters) {
+    public List<EventDto> getByFilters(@Valid EventFilterDto filters) {
         return eventService.getByFilters(filters);
-    }
-
-    private void validateCreateEventDto(CreateEventDto createEventDto) {
-        if (createEventDto == null) {
-            throw new IllegalArgumentException("EventDto must not be null");
-        }
-        if (createEventDto.title() == null || createEventDto.title().trim().isEmpty()) {
-            throw new IllegalArgumentException("Title must not be null or empty");
-        }
-        if (createEventDto.description() == null || createEventDto.description().trim().isEmpty()) {
-            throw new IllegalArgumentException("Description must not be null or empty");
-        }
-        if (createEventDto.startDate() == null) {
-            throw new IllegalArgumentException("Start date must not be null");
-        }
-        if (createEventDto.endDate() == null) {
-            throw new IllegalArgumentException("End date must not be null");
-        }
-        if (createEventDto.type() == null) {
-            throw new IllegalArgumentException("Event type must not be null");
-        }
     }
 }
