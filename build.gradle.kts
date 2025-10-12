@@ -137,7 +137,6 @@ tasks.jacocoTestReport {
     }
 }
 
-/* В случае, если понадобиться покрытие сервисных классов Тестами в 70% - раскомментировать
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.jacocoTestReport)
 
@@ -169,7 +168,6 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
-*/
 
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
