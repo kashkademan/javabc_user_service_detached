@@ -47,17 +47,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDto update(long requesterId, long projectId, UpdateProjectDto updateProjectDto) {
         log.info("create project requested: userId={}, projectId={}", requesterId, projectId);
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> {
-                    log.warn("project fetch failed: not found");
-                    return new NotFoundException("Project not found: id=" + projectId);
-                });
         long userId = userContext.getUserId();
 
         validateUserId(userId, requesterId);
         validateNotNull(updateProjectDto.title(), "title");
         validateNotNull(updateProjectDto.status(), "status");
         validateNotNull(updateProjectDto.isPrivate(), "isPrivate");
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> {
+                    log.warn("project fetch failed: not found");
+                    return new NotFoundException("Project not found: id=" + projectId);
+                });
 
         Project savedProject = projectRepository.save(project);
         log.info("project {} updated", savedProject.getId());
