@@ -126,10 +126,10 @@ public class SkillServiceImplTest {
 
         List<Skill> skills = List.of(skill);
 
-        UserDto userDto = new UserDto(USER_ID, USER_NAME, USER_EMAIL, USER_PHONE, ABOUT_USER);
         User guarantor = new User();
         UserSkillGuarantee guarantee = new UserSkillGuarantee();
         guarantee.setGuarantor(guarantor);
+        UserDto userDto = new UserDto(USER_ID, USER_NAME, USER_EMAIL, USER_PHONE, ABOUT_USER);
 
         when(skillRepository.findAllByUserId(USER_ID)).thenReturn(skills);
         when(userSkillGuaranteeRepository.findAllByUserIdAndSkillId(USER_ID, SKILL_ID))
