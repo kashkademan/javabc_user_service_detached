@@ -75,6 +75,11 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         return getFilterUserDto(followees, userFiltersDto);
     }
 
+    @Override
+    public List<Long> getFollowerIds(Long followee) {
+        return subscriptionRepository.findFollowerIdsByFollowee(followee);
+    }
+
     private void processSubscription(Long followerId,
                                      Long followeeId,
                                      SubscriptionType type,

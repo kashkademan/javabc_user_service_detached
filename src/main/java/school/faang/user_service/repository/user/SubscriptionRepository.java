@@ -3,8 +3,10 @@ package school.faang.user_service.repository.user;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.user.User;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface SubscriptionRepository extends JpaRepository<User, Long> {
@@ -57,4 +59,10 @@ public interface SubscriptionRepository extends JpaRepository<User, Long> {
             WHERE subs.follower_id = :followerId
             """)
     Stream<User> findByFollowerId(long followerId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT follower_id FROM subscription AS subs
+            WHERE subs.followee_id = :followeeId
+            """)
+    List<Long> findFollowerIdsByFollowee(@Param("followeeId") Long followee);
 }

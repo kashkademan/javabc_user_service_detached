@@ -14,6 +14,8 @@ import school.faang.user_service.dto.user.UserUpdateDto;
 import school.faang.user_service.dto.user.UserViewDto;
 import school.faang.user_service.service.user.UserService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -34,6 +36,11 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserViewDto getById(@PathVariable Long userId) {
         return userService.getById(userId);
+    }
+
+    @PostMapping("/batch")
+    public List<UserViewDto> getByIds(@RequestBody List<Long> userIds) {
+        return userService.getByIds(userIds);
     }
 
 }

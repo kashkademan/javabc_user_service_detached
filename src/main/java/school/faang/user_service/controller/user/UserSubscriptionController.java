@@ -53,6 +53,12 @@ public class UserSubscriptionController {
         return ResponseEntity.ok(service.getFollowers(followeeId, filters));
     }
 
+    @GetMapping("/{followeeId}")
+    public ResponseEntity<List<Long>> getFollowerIds(@PathVariable Long followeeId) {
+        List<Long> followerIds = service.getFollowerIds(followeeId);
+        return ResponseEntity.ok(followerIds);
+    }
+
     @GetMapping("/followees")
     public ResponseEntity<List<UserViewDto>> getFollowees(@RequestParam Long followerId,
                                                           @ModelAttribute UserFiltersDto filters) {
