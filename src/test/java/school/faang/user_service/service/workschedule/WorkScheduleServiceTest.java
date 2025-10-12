@@ -26,6 +26,12 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkScheduleServiceTest {
+    private static final long USER_ID = 1L;
+    private static final long ANOTHER_USER_ID = 2L;
+    private static final long WORK_SCHEDULE_ID = 100L;
+    private static final String ASIA_ALMATY_TIMEZONE = "Asia/Almaty";
+    private static final String EUROPE_MOSCOW_TIMEZONE = "Europe/Moscow";
+
     @Mock
     private UserRepository userRepository;
 
@@ -38,145 +44,114 @@ public class WorkScheduleServiceTest {
     @InjectMocks
     private WorkScheduleServiceImpl workScheduleService;
 
+    @Test
+    public void shouldAddWorkScheduleSuccessfully() {
+        WorkScheduleDto scheduleDto = createValidWorkScheduleDto(ASIA_ALMATY_TIMEZONE);
+        User user = createUser(USER_ID);
+        WorkSchedule savedSchedule = createWorkScheduleEntity(scheduleDto, user);
+
+        when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(user);
+        when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(savedSchedule);
+
+        WorkScheduleDto result = workScheduleService.addWorkSchedule(USER_ID, scheduleDto);
+
+        assertNotNull(result);
+        assertEquals(scheduleDto, result);
+    }
 
     @Test
-    public void shouldAddWorkSchedule() {
-        long userId = 1L;
-        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                100L,
+    public void shouldThrowValidationExceptionWhenAddingInvalidWorkSchedule() {
+        WorkScheduleDto invalidScheduleDto = createInvalidWorkScheduleDto();
+
+        assertThrows(DataValidationException.class,
+                () -> workScheduleService.addWorkSchedule(USER_ID, invalidScheduleDto));
+    }
+
+    @Test
+    public void shouldUpdateWorkScheduleSuccessfully() {
+        WorkScheduleDto updatedScheduleDto = createValidWorkScheduleDto(EUROPE_MOSCOW_TIMEZONE);
+        User user = createUser(USER_ID);
+        WorkSchedule existingSchedule = createExistingWorkSchedule(user);
+        WorkSchedule updatedSchedule = createWorkScheduleEntity(updatedScheduleDto, user);
+
+        when(workScheduleRepository.getByIdOrThrow(WORK_SCHEDULE_ID)).thenReturn(existingSchedule);
+        when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(updatedSchedule);
+
+        WorkScheduleDto result = workScheduleService.updateWorkSchedule(USER_ID, WORK_SCHEDULE_ID, updatedScheduleDto);
+
+        assertNotNull(result);
+        assertEquals(updatedScheduleDto, result);
+    }
+
+    @Test
+    public void shouldThrowValidationExceptionWhenUpdatingWithInvalidWorkSchedule() {
+        WorkScheduleDto invalidScheduleDto = createInvalidWorkScheduleDto();
+
+        assertThrows(DataValidationException.class,
+                () -> workScheduleService.updateWorkSchedule(USER_ID, WORK_SCHEDULE_ID, invalidScheduleDto));
+    }
+
+    @Test
+    public void shouldThrowForbiddenExceptionWhenUserAccessesAnotherUsersSchedule() {
+        User anotherUser = createUser(ANOTHER_USER_ID);
+        WorkScheduleDto scheduleDto = createValidWorkScheduleDto(EUROPE_MOSCOW_TIMEZONE);
+        WorkSchedule workSchedule = createWorkScheduleEntity(scheduleDto, anotherUser);
+
+        when(workScheduleRepository.getByIdOrThrow(WORK_SCHEDULE_ID)).thenReturn(workSchedule);
+
+        assertThrows(ForbiddenException.class,
+                () -> workScheduleService.updateWorkSchedule(USER_ID, WORK_SCHEDULE_ID, scheduleDto));
+    }
+
+    private WorkScheduleDto createValidWorkScheduleDto(String timezone) {
+        return new WorkScheduleDto(
+                WORK_SCHEDULE_ID,
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
                 LocalTime.of(10, 0),
                 LocalTime.of(12, 0),
-                "Asia/Almaty"
+                timezone
         );
-
-        User user = new User();
-        user.setId(userId);
-
-        final WorkSchedule saved = new WorkSchedule(
-                100L,
-                workScheduleDto.startTime(),
-                workScheduleDto.endTime(),
-                workScheduleDto.startLunch(),
-                workScheduleDto.endLunch(),
-                workScheduleDto.timezone(),
-                user
-        );
-
-        when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
-        when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(saved);
-
-        WorkScheduleDto result = workScheduleService.addWorkSchedule(userId, workScheduleDto);
-
-        assertNotNull(result);
-        assertEquals(workScheduleDto, result);
     }
 
-    @Test
-    public void shouldThrowValidationException_addWorkSchedule() {
-        final WorkScheduleDto incorrectWorkScheduleDto = new WorkScheduleDto(
-                100L,
-                LocalTime.of(18, 0),
+    private WorkScheduleDto createInvalidWorkScheduleDto() {
+        return new WorkScheduleDto(
+                WORK_SCHEDULE_ID,
+                LocalTime.of(18, 0),  // startTime after endTime - invalid
                 LocalTime.of(8, 0),
                 LocalTime.of(10, 0),
                 LocalTime.of(12, 0),
-                "Europe/Moscow"
+                EUROPE_MOSCOW_TIMEZONE
         );
-
-        assertThrows(DataValidationException.class, () -> {
-            workScheduleService.addWorkSchedule(
-                    1L,
-                    incorrectWorkScheduleDto);
-        });
     }
 
-    @Test
-    public void shouldUpdateWorkSchedule() {
-        long userId = 1L;
-        long workScheduleId = 100L;
-        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                100L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(10, 0),
-                LocalTime.of(12, 0),
-                "Europe/Moscow"
-        );
-
+    private User createUser(long userId) {
         User user = new User();
         user.setId(userId);
-
-        final WorkSchedule workSchedule = new WorkSchedule(
-                100L,
-                LocalTime.of(7, 0), LocalTime.of(15, 0),
-                LocalTime.of(13, 0), LocalTime.of(14, 0),
-                "Asia/Almaty",
-                user
-        );
-
-        final WorkSchedule updatedWorkSchedule = new WorkSchedule(
-                100L,
-                LocalTime.of(9, 0), LocalTime.of(18, 0),
-                LocalTime.of(10, 0), LocalTime.of(12, 0),
-                "Europe/Moscow",
-                user
-        );
-
-        when(workScheduleRepository.getByIdOrThrow(workScheduleId)).thenReturn(workSchedule);
-        when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(updatedWorkSchedule);
-
-        WorkScheduleDto result = workScheduleService.updateWorkSchedule(userId, workScheduleId, workScheduleDto);
-
-        assertNotNull(result);
-        assertEquals(workScheduleDto, result);
+        return user;
     }
 
-    @Test
-    public void shouldThrowValidationException_updateWorkSchedule() {
-        final WorkScheduleDto incorrectWorkScheduleDto = new WorkScheduleDto(
-                100L,
-                LocalTime.of(18, 0), LocalTime.of(8, 0),
-                LocalTime.of(10, 0), LocalTime.of(12, 0),
-                "Europe/Moscow"
-        );
-
-        assertThrows(DataValidationException.class, () -> {
-            workScheduleService.updateWorkSchedule(
-                    1L,
-                    100L,
-                    incorrectWorkScheduleDto);
-        });
-    }
-
-    @Test
-    public void shouldThrowForbiddenException() {
-        User user = new User();
-        user.setId(2L);
-
-        final WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                100L,
-                LocalTime.of(9, 0), LocalTime.of(18, 0),
-                LocalTime.of(10, 0), LocalTime.of(12, 0),
-                "Europe/Moscow"
-        );
-
-        final WorkSchedule workSchedule = new WorkSchedule(
-                100L,
-                LocalTime.of(9, 0), LocalTime.of(18, 0),
-                LocalTime.of(10, 0), LocalTime.of(12, 0),
-                "Asia/Almaty",
+    private WorkSchedule createWorkScheduleEntity(WorkScheduleDto dto, User user) {
+        return new WorkSchedule(
+                dto.id(),
+                dto.startTime(),
+                dto.endTime(),
+                dto.startLunch(),
+                dto.endLunch(),
+                dto.timezone(),
                 user
         );
+    }
 
-        when(workScheduleRepository.getByIdOrThrow(100L)).thenReturn(workSchedule);
-
-        assertThrows(ForbiddenException.class, () -> {
-            workScheduleService.updateWorkSchedule(
-                    1L,
-                    100L,
-                    workScheduleDto
-            );
-        });
+    private WorkSchedule createExistingWorkSchedule(User user) {
+        return new WorkSchedule(
+                WORK_SCHEDULE_ID,
+                LocalTime.of(7, 0),
+                LocalTime.of(15, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                ASIA_ALMATY_TIMEZONE,
+                user
+        );
     }
 }
