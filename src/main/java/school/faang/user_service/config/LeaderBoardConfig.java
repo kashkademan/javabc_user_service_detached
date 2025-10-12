@@ -11,10 +11,12 @@ import java.util.Map;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "leaders-board")
+@ConfigurationProperties(prefix = "leader-board")
 @Component
-public class LeadersBoardConfig {
+public class LeaderBoardConfig {
     private Map<String, Integer> scores = new HashMap<>();
+    private int size;
+    private String redisKey;
 
     public int getPointsFor(ActionType actionType) {
         String key = actionType.name().toLowerCase();

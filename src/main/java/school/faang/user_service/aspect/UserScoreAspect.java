@@ -35,10 +35,9 @@ public class UserScoreAspect {
 
             long userId = userContext.getUserId();
             User user = userRepository.getByIdOrThrow(userId);
-
             userScoreService.addScore(user, actionType);
         } catch (Exception e) {
-            log.error("Error handling user score for {}: {}", actionType, e.getMessage(), e);
+            log.error("Error handling user score for {}: {}", actionType, e.getMessage());
         }
     }
 

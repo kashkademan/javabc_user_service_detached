@@ -44,9 +44,11 @@ user:
 goal:
   max-active-goals: 2
 
-leaders-board:
+leader-board:
   scores:
     goal_created_by_user: 2
     goal_created_by_mentor: 3
     goal_completed: 5
     career_added: 1
+  size: 3
+  redis-key: "leaderBoard"

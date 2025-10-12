@@ -42,6 +42,9 @@ public class UserScoreEvent {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+    @Column(name = "username", length = 64, nullable = false)
+    private String username;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "action_type")
     private ActionType actionType;
