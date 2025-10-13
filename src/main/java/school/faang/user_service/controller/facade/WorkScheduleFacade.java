@@ -18,8 +18,7 @@ public class WorkScheduleFacade {
     private final WorkScheduleMapper workScheduleMapper;
 
     public WorkScheduleDto addWorkSchedule(WorkScheduleCreateDto workScheduleCreateDto) {
-        WorkSchedule workSchedule = workScheduleMapper.toCreateWorkSchedule(workScheduleCreateDto);
-        WorkSchedule savedWorkSchedule = workScheduleService.addWorkSchedule(workSchedule);
+        WorkSchedule savedWorkSchedule = workScheduleService.addWorkSchedule(workScheduleCreateDto);
 
         return workScheduleMapper.toWorkScheduleDto(savedWorkSchedule);
     }

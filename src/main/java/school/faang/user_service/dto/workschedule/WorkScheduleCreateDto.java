@@ -12,10 +12,10 @@ public record WorkScheduleCreateDto(
         @NotNull
         LocalTime endTime,
 
-        @Nullable
+        @NotNull
         LocalTime startLunch,
 
-        @Nullable
+        @NotNull
         LocalTime endLunch,
 
         @Nullable

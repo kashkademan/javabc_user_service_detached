@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.workschedule;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,7 +21,7 @@ public class WorkScheduleController {
     private final WorkScheduleFacade workScheduleFacade;
 
     @PostMapping
-    public WorkScheduleDto addWorkSchedule(@RequestBody WorkScheduleCreateDto workScheduleCreateDto) {
+    public WorkScheduleDto addWorkSchedule(@Valid @RequestBody WorkScheduleCreateDto workScheduleCreateDto) {
         return workScheduleFacade.addWorkSchedule(workScheduleCreateDto);
     }
 
