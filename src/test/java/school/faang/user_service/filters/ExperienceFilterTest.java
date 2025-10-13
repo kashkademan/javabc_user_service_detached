@@ -40,6 +40,12 @@ public class ExperienceFilterTest {
     }
 
     @Test
+    public void testIsApplicable_WhenNegativeMinExperienceReturnsFalse() {
+        boolean result = experienceFilter.isApplicable(new UserFiltersDto(null, null, -100, 100));
+        assertFalse(result, "Should not be applicable when min experience is negative");
+    }
+
+    @Test
     public void testApply_WhenMinExperienceFilterReturnsSelectedUsers() {
         Stream<User> users = Stream.of(
                 User.builder().experience(1).build(),
@@ -49,8 +55,8 @@ public class ExperienceFilterTest {
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 3, Integer.MAX_VALUE));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
-        assertTrue(userList.get(0).getExperience() >= 3);
-        assertTrue(userList.get(1).getExperience() >= 3);
+        assertTrue(userList.get(0).getExperience()==5);
+        assertTrue(userList.get(1).getExperience()==3);
     }
 
     @Test
@@ -63,8 +69,8 @@ public class ExperienceFilterTest {
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 0, 5));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
-        assertTrue(userList.get(0).getExperience() <= 5);
-        assertTrue(userList.get(1).getExperience() <= 5);
+        assertTrue(userList.get(0).getExperience()==3);
+        assertTrue(userList.get(1).getExperience()==5);
     }
 
     @Test
@@ -74,6 +80,18 @@ public class ExperienceFilterTest {
                 User.builder().experience(3).build()
         );
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 5, 10));
+        List<User> userList = result.toList();
+        assertEquals(0, userList.size());
+    }
+
+    @Test
+    public void testApply_WhenMinGreaterThanMaxReturnsEmptyStream() {
+        Stream<User> users = Stream.of(
+                User.builder().experience(2).build(),
+                User.builder().experience(3).build(),
+                User.builder().experience(4).build()
+        );
+        Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 5, 3));
         List<User> userList = result.toList();
         assertEquals(0, userList.size());
     }
