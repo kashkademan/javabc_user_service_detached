@@ -8,5 +8,5 @@ import java.time.LocalDate;
 public record CreateCareerDto(@NotNull LocalDate from,
                               LocalDate to,
                               @NotBlank String company,
-                              @NotBlank String position) {
+                              @NotBlank String position) implements CareerDateDto {
 }

@@ -8,8 +8,6 @@ import school.faang.user_service.dto.career.CreateCareerDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
@@ -27,7 +25,7 @@ public class CareerService {
     private final UserContext userContext;
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
-        CareerValidator.checkCareerDates(createCareerDto);
+        CareerValidator.validateCareerDates(createCareerDto);
         long requesterId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(requesterId);
         Career career = careerMapper.toCareer(createCareerDto);
@@ -40,7 +38,7 @@ public class CareerService {
         long requesterId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(requesterId);
         Career career = careerRepository.getByIdOrThrow(careerId);
-        CareerValidator.validateOwner(career, user);
+        CareerValidator.validateOwner(career, user.getId());
         return CareerMapper.toCareerDtoWithUser(career);
     }
 
@@ -48,20 +46,14 @@ public class CareerService {
         long requesterId = userContext.getUserId();
         Career career = careerRepository.getByIdOrThrow(careerId);
         User user = userRepository.getByIdOrThrow(requesterId);
-        CareerValidator.validateOwner(career, user);
+        CareerValidator.validateOwner(career, user.getId());
         careerRepository.delete(career);
     }
 
     public CareerDto updateCareer(long userId, long careerId, UpdateCareerDto updateCareerDto) {
-        CareerValidator.validateDates();
-
-        Career career = careerRepository.findById(careerId)
-                .orElseThrow(() -> new EntityNotFoundException("Career not found with id - %d".formatted(careerId)));
-
-        if (!Objects.equals(career.getUser().getId(), userId)) {
-            throw new ForbiddenException("You are not allowed to update this career");
-        }
-
+        CareerValidator.validateCareerDates(updateCareerDto);
+        Career career = careerRepository.getByIdOrThrow(careerId);
+        CareerValidator.validateOwner(career, userId);
         careerMapper.update(updateCareerDto, career);
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
