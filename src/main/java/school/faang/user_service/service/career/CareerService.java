@@ -51,7 +51,7 @@ public class CareerService {
         CareerValidator.validateCareerDates(updateCareerDto);
         Career career = careerRepository.getByIdOrThrow(careerId);
         CareerValidator.validateOwner(career, userId);
-        careerMapper.update(updateCareerDto, career);
+        CareerMapper.update(updateCareerDto, career);
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
     }

@@ -26,21 +26,21 @@ public interface CareerMapper {
                 .build();
     }
 
-    default void update(UpdateCareerDto dto, Career career) {
+    static void update(UpdateCareerDto dto, Career career) {
         if (dto == null) {
             return;
         }
-        if (dto.from() != null) {
-            career.setDateFrom(dto.from());
+        if (dto.getFrom() != null) {
+            career.setDateFrom(dto.getFrom());
         }
-        if (dto.to() != null) {
-            career.setDateTo(dto.to());
+        if (dto.getTo() != null) {
+            career.setDateTo(dto.getTo());
         }
-        if (dto.company() != null) {
-            career.setCompany(dto.company());
+        if (dto.getCompany() != null) {
+            career.setCompany(dto.getCompany());
         }
-        if (dto.position() != null) {
-            career.setPosition(dto.position());
+        if (dto.getPosition() != null) {
+            career.setPosition(dto.getPosition());
         }
     }
 }

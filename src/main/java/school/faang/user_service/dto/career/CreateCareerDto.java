@@ -2,10 +2,20 @@ package school.faang.user_service.dto.career;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
 import java.time.LocalDate;
 
-public record CreateCareerDto(@NotNull LocalDate from,
-                              LocalDate to,
-                              @NotBlank String company,
-                              @NotBlank String position) implements CareerDateDto {
+@Getter
+public class CreateCareerDto extends BaseCareerDtoWithDates {
+    @NotBlank
+    private final String company;
+    @NotBlank
+    private final String position;
+
+    public CreateCareerDto(@NotNull LocalDate from, LocalDate to, String company, String position) {
+        super(from, to);
+        this.company = company;
+        this.position = position;
+    }
 }
