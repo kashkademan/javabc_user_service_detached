@@ -36,10 +36,14 @@ public class WorkScheduleValidator {
     }
 
     private static void validateTimeSequence(LocalTime t1, LocalTime t2, LocalTime t3, LocalTime t4) {
-        if (!(t1.isBefore(t2) && t2.isBefore(t3) && t3.isBefore(t4))) {
-            throw new DataValidationException(
-                    "Invalid time sequence. Required: startTime < startLunch < endLunch < endTime"
-            );
+        if (!t1.isBefore(t2)) {
+            throw new DataValidationException("Start time must be before lunch start time.");
+        }
+        if (!t2.isBefore(t3)) {
+            throw new DataValidationException("Lunch start time must be before lunch end time.");
+        }
+        if (!t3.isBefore(t4)) {
+            throw new DataValidationException("Lunch end time must be before work end time.");
         }
     }
 }
