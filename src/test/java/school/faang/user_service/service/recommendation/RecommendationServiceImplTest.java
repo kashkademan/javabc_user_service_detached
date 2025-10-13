@@ -62,7 +62,10 @@ class RecommendationServiceImplTest {
         return User.builder().id(id).build();
     }
 
-    private static Recommendation rec(long id, String content, long authorId, long receiverId) {
+    private static Recommendation rec(long id,
+                                      String content,
+                                      long authorId,
+                                      long receiverId) {
         return Recommendation.builder()
                 .id(id)
                 .content(content)
@@ -71,7 +74,12 @@ class RecommendationServiceImplTest {
                 .build();
     }
 
-    private static Recommendation recWithCreatedAt(String content, long authorId, long receiverId, LocalDateTime createdAt) {
+    private static Recommendation recWithCreatedAt(
+            String content,
+            long authorId,
+            long receiverId,
+            LocalDateTime createdAt
+    ) {
         return Recommendation.builder()
                 .content(content)
                 .author(user(authorId))
@@ -178,7 +186,8 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("create: throws DataValidationException when content is blank")
     void create_fail_contentBlank() {
-        CreateRecommendationRequestDto input = createReq(RECEIVER_ID, "   ", List.of(SKILL_ID, ANOTHER_SKILL_ID));
+        CreateRecommendationRequestDto input
+                = createReq(RECEIVER_ID, "   ", List.of(SKILL_ID, ANOTHER_SKILL_ID));
 
         assertThatThrownBy(() -> recommendationService.create(input))
                 .isInstanceOf(DataValidationException.class)
@@ -380,7 +389,11 @@ class RecommendationServiceImplTest {
         FilterRecommendationRequestDto f = filters("keyword", AUTHOR_ID, RECEIVER_ID);
         List<RecommendationResponseDto> response = recommendationService.getByFilters(f);
 
-        RecommendationResponseDto dto1 = resp(RECOMMENDATION_ID, AUTHOR_ID, RECEIVER_ID, "Content with keyword");
+        RecommendationResponseDto dto1 = resp(
+                RECOMMENDATION_ID,
+                AUTHOR_ID,
+                RECEIVER_ID,
+                "Content with keyword");
         assertThat(response).containsExactly(dto1);
 
         verify(recommendationRepository).findAll();
@@ -391,16 +404,30 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("getByFilters: returns all recommendations when filters are empty")
     void getByFilters_emptyFilters() {
-        Recommendation r1 = rec(RECOMMENDATION_ID, "First recommendation", AUTHOR_ID, RECEIVER_ID);
-        Recommendation r2 = rec(ANOTHER_RECOMMENDATION_ID, "Second recommendation", ANOTHER_AUTHOR_ID, ANOTHER_RECEIVER_ID);
+        Recommendation r1 = rec(RECOMMENDATION_ID,
+                "First recommendation",
+                AUTHOR_ID,
+                RECEIVER_ID);
+        Recommendation r2 = rec(
+                ANOTHER_RECOMMENDATION_ID,
+                "Second recommendation",
+                ANOTHER_AUTHOR_ID,
+                ANOTHER_RECEIVER_ID);
 
         when(recommendationRepository.findAll()).thenReturn(List.of(r1, r2));
 
         FilterRecommendationRequestDto f = filters(null, null, null);
         List<RecommendationResponseDto> response = recommendationService.getByFilters(f);
 
-        RecommendationResponseDto dto1 = resp(RECOMMENDATION_ID, AUTHOR_ID, RECEIVER_ID, "First recommendation");
-        RecommendationResponseDto dto2 = resp(ANOTHER_RECOMMENDATION_ID, ANOTHER_AUTHOR_ID, ANOTHER_RECEIVER_ID, "Second recommendation");
+        RecommendationResponseDto dto1 = resp(RECOMMENDATION_ID,
+                AUTHOR_ID,
+                RECEIVER_ID,
+                "First recommendation");
+        RecommendationResponseDto dto2 = resp(
+                ANOTHER_RECOMMENDATION_ID,
+                ANOTHER_AUTHOR_ID,
+                ANOTHER_RECEIVER_ID
+                , "Second recommendation");
 
         assertThat(response).containsExactlyInAnyOrder(dto1, dto2);
         verify(recommendationRepository).findAll();

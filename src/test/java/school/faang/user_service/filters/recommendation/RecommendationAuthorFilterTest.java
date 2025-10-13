@@ -13,7 +13,16 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.faang.user_service.filters.recommendation.RecommendationTestData.*;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.AUTHOR_ID_1;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.AUTHOR_ID_2;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.RECEIVER_ID_1;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.CONTENT_1;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.CONTENT_2;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.CONTENT_3;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.REC_ID_1;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.REC_ID_2;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.REC_ID_3;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.rec;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationAuthorFilterTest {
