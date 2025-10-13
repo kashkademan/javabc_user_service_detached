@@ -30,6 +30,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final GoalRepository goalRepository;
     private final GoalInvitationMapper goalInvitationMapper;
     private final UserContext userContext;
+    private static final int MAX_ACTIVE_GOALS = 3;
 
 
     @Override
@@ -55,7 +56,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         }
 
         int activeGoals = goalRepository.countActiveGoalsPerUser(invitedUserId);
-        if (activeGoals >= 3) {
+        if (activeGoals >= MAX_ACTIVE_GOALS) {
             throw new DataValidationException("User already has 3 active goals");
         }
 
