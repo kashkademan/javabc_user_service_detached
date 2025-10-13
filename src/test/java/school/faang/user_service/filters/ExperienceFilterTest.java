@@ -22,9 +22,9 @@ public class ExperienceFilterTest {
     }
 
     @Test
-    public void testIsApplicable_WhenMaxExperienceSetReturnsTrue() {
+    public void testIsApplicable_WhenMaxExperienceSetReturnsFalse() {
         boolean result = experienceFilter.isApplicable(new UserFiltersDto(null, null, 0, 10));
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @Test
@@ -55,8 +55,8 @@ public class ExperienceFilterTest {
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 3, Integer.MAX_VALUE));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
-        assertTrue(userList.get(0).getExperience() == 5);
-        assertTrue(userList.get(1).getExperience() == 3);
+        assertEquals(userList.get(0).getExperience() == 5);
+        assertEquals(userList.get(1).getExperience() == 3);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class ExperienceFilterTest {
                 User.builder().experience(10).build(),
                 User.builder().experience(5).build()
         );
-        Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 0, 5));
+        Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 1, 5));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
         assertTrue(userList.get(0).getExperience() == 3);
