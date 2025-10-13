@@ -2,12 +2,20 @@ package school.faang.user_service.service.validator;
 
 import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
-import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
+import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalTime;
 
 public class WorkScheduleValidator {
+    public static void validateEntity(WorkSchedule workSchedule) {
+        validateTimeSequence(
+                workSchedule.getStartTime(),
+                workSchedule.getStartLunch(),
+                workSchedule.getEndLunch(),
+                workSchedule.getEndTime()
+        );
+    }
 
     public static void validate(WorkScheduleDto dto) {
         validateTimeSequence(
@@ -19,15 +27,6 @@ public class WorkScheduleValidator {
     }
 
     public static void validateForCreate(WorkScheduleCreateDto dto) {
-        validateTimeSequence(
-                dto.startTime(),
-                dto.startLunch(),
-                dto.endLunch(),
-                dto.endTime()
-        );
-    }
-
-    public static void validateForUpdate(WorkScheduleUpdateDto dto) {
         validateTimeSequence(
                 dto.startTime(),
                 dto.startLunch(),

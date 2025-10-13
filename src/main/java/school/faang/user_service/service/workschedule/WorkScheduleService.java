@@ -37,16 +37,15 @@ public class WorkScheduleService {
     }
 
     public WorkSchedule updateWorkSchedule(long workScheduleId, WorkScheduleUpdateDto workScheduleUpdateDto) {
-        WorkScheduleValidator.validateForUpdate(workScheduleUpdateDto);
-
         WorkSchedule workSchedule = getById(workScheduleId);
         long userId = userContext.getUserId();
 
-        if (!Objects.equals(workSchedule.getUser().getId(), userId)) { //
+        if (!Objects.equals(workSchedule.getUser().getId(), userId)) {
             throw new ForbiddenException("You can only update your own data");
         }
 
         updateScheduleFields(workSchedule, workScheduleUpdateDto);
+        WorkScheduleValidator.validateEntity(workSchedule);
 
         return workScheduleRepository.save(workSchedule);
     }
