@@ -22,7 +22,7 @@
 
 1. Сначала нужно склонировать родительский репозиторий
 ```shell
-git clone https://github.com/Linempy/startup-platform.git
+git clone https://github.com/CorporationX/CorporationX.git
 ```
 
 2. Перейти в нужный микросервис
