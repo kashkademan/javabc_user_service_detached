@@ -20,9 +20,6 @@ public record WorkScheduleCreateDto(
         @NotNull
         LocalTime endLunch,
 
-        @Nullable
+        @NotNull
         String timezone) {
-    public WorkScheduleCreateDto {
-        timezone = timezone != null ? timezone : "UTC";
-    }
 }
