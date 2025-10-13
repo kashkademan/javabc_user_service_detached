@@ -11,7 +11,7 @@ public class UserPhonePatternFilter implements UserFilter {
 
     @Override
     public boolean isApplicable(UserFiltersDto filtersDto) {
-        return filtersDto.phonePattern() != null && !filtersDto.phonePattern().isEmpty();
+        return filtersDto.phonePattern() != null && !filtersDto.phonePattern().isBlank();
     }
 
     @Override
