@@ -3,8 +3,8 @@ package school.faang.user_service.controller.facade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.workschedule.CreateWorkScheduleDto;
-import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.mapper.WorkScheduleMapper;
@@ -17,15 +17,15 @@ public class WorkScheduleFacade {
     private final WorkScheduleService workScheduleService;
     private final WorkScheduleMapper workScheduleMapper;
 
-    public WorkScheduleDto addWorkSchedule(CreateWorkScheduleDto createWorkScheduleDto) {
-        WorkSchedule workSchedule = workScheduleMapper.toCreateWorkSchedule(createWorkScheduleDto);
+    public WorkScheduleDto addWorkSchedule(WorkScheduleCreateDto workScheduleCreateDto) {
+        WorkSchedule workSchedule = workScheduleMapper.toCreateWorkSchedule(workScheduleCreateDto);
         WorkSchedule savedWorkSchedule = workScheduleService.addWorkSchedule(workSchedule);
 
         return workScheduleMapper.toWorkScheduleDto(savedWorkSchedule);
     }
 
-    public WorkScheduleDto updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
-        WorkSchedule workSchedule = workScheduleService.updateWorkSchedule(workScheduleId, updateWorkScheduleDto);
+    public WorkScheduleDto updateWorkSchedule(long workScheduleId, WorkScheduleUpdateDto workScheduleUpdateDto) {
+        WorkSchedule workSchedule = workScheduleService.updateWorkSchedule(workScheduleId, workScheduleUpdateDto);
 
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }

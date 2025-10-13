@@ -1,6 +1,6 @@
 package school.faang.user_service.service.validator;
 
-import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
@@ -26,7 +26,7 @@ public class WorkScheduleValidator {
         );
     }
 
-    public static void validateForUpdate(UpdateWorkScheduleDto dto) {
+    public static void validateForUpdate(WorkScheduleUpdateDto dto) {
         validateTimeSequence(
                 dto.startTime(),
                 dto.startLunch(),

@@ -3,7 +3,7 @@ package school.faang.user_service.service.validator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.exception.DataValidationException;
 
@@ -11,7 +11,7 @@ import java.time.LocalTime;
 
 public class WorkScheduleValidatorTest {
     private WorkScheduleDto validWorkScheduleDto;
-    private UpdateWorkScheduleDto validUpdateWorkScheduleDto;
+    private WorkScheduleUpdateDto validWorkScheduleUpdateDto;
     private WorkScheduleDto invalidStartTimeDto;
     private WorkScheduleDto invalidLunchStartDto;
     private WorkScheduleDto invalidLunchEndDto;
@@ -27,7 +27,7 @@ public class WorkScheduleValidatorTest {
                 "Europe/Moscow"
         );
 
-        validUpdateWorkScheduleDto = new UpdateWorkScheduleDto(
+        validWorkScheduleUpdateDto = new WorkScheduleUpdateDto(
                 LocalTime.of(9, 0),
                 LocalTime.of(18, 0),
                 LocalTime.of(13, 0),
@@ -70,7 +70,7 @@ public class WorkScheduleValidatorTest {
 
     @Test
     void testAllTimesCorrectWithUpdateWorkScheduleDto() {
-        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateForUpdate(validUpdateWorkScheduleDto));
+        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateForUpdate(validWorkScheduleUpdateDto));
     }
 
     @Test

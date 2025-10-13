@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 
-public record CreateWorkScheduleDto(
+public record WorkScheduleCreateDto(
         @NotNull
         LocalTime startTime,
 
@@ -20,4 +20,7 @@ public record CreateWorkScheduleDto(
 
         @Nullable
         String timezone) {
+    public WorkScheduleCreateDto {
+        timezone = timezone != null ? timezone : "UTC";
+    }
 }

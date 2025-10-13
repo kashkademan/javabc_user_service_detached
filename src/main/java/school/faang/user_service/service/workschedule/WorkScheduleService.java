@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.workschedule.UpdateWorkScheduleDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.ForbiddenException;
@@ -32,8 +32,8 @@ public class WorkScheduleService {
         return workScheduleRepository.save(workSchedule);
     }
 
-    public WorkSchedule updateWorkSchedule(long workScheduleId, UpdateWorkScheduleDto updateWorkScheduleDto) {
-        WorkScheduleValidator.validateForUpdate(updateWorkScheduleDto);
+    public WorkSchedule updateWorkSchedule(long workScheduleId, WorkScheduleUpdateDto workScheduleUpdateDto) {
+        WorkScheduleValidator.validateForUpdate(workScheduleUpdateDto);
 
         WorkSchedule workSchedule = getById(workScheduleId);
         long userId = userContext.getUserId();
@@ -42,7 +42,7 @@ public class WorkScheduleService {
             throw new ForbiddenException("You can only update your own data");
         }
 
-        updateScheduleFields(workSchedule, updateWorkScheduleDto);
+        updateScheduleFields(workSchedule, workScheduleUpdateDto);
 
         return workScheduleRepository.save(workSchedule);
     }
@@ -51,7 +51,7 @@ public class WorkScheduleService {
         return workScheduleRepository.getByIdOrThrow(workScheduleId);
     }
 
-    private void updateScheduleFields(WorkSchedule entity, UpdateWorkScheduleDto dto) {
+    private void updateScheduleFields(WorkSchedule entity, WorkScheduleUpdateDto dto) {
         entity.setStartTime(dto.startTime());
         entity.setEndTime(dto.endTime());
         entity.setStartLunch(dto.startLunch());
