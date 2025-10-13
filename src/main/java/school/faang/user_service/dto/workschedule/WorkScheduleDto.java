@@ -1,7 +1,10 @@
 package school.faang.user_service.dto.workschedule;
 
+import lombok.Builder;
+
 import java.time.LocalTime;
 
+@Builder
 public record WorkScheduleDto(
         long id,
         LocalTime startTime,

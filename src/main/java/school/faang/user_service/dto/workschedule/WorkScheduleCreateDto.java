@@ -2,9 +2,11 @@ package school.faang.user_service.dto.workschedule;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.LocalTime;
 
+@Builder
 public record WorkScheduleCreateDto(
         @NotNull
         LocalTime startTime,
