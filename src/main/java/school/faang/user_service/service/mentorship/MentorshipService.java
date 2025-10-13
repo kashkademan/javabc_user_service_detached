@@ -14,10 +14,11 @@ public interface MentorshipService {
      *
      * @param mentorId the identifier of the mentor
      * @param menteeId the identifier of the mentee
+     * @return {@link UserDto} representing the mentee after the mentorship has been added
      * @throws IllegalArgumentException                                    if {@code mentorId} equals {@code menteeId}
      * @throws school.faang.user_service.exception.DataValidationException if validation fails
      */
-    void addMentorship(long mentorId, long menteeId);
+    UserDto addMentorship(long mentorId, long menteeId);
 
     /**
      * Retrieves all mentees for a given mentor.
@@ -43,8 +44,9 @@ public interface MentorshipService {
      *
      * @param menteeId the identifier of the mentee
      * @param mentorId the identifier of the mentor
+     * @return {@link UserDto} representing the mentee after the mentorship has been deleted
      * @throws school.faang.user_service.exception.ForbiddenException
      * if the current user is not a participant in the mentorship
      */
-    void deleteMentorship(long menteeId, long mentorId);
+    UserDto deleteMentorship(long menteeId, long mentorId);
 }
