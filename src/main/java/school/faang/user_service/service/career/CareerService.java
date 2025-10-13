@@ -8,13 +8,10 @@ import school.faang.user_service.dto.career.CreateCareerDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.career.CareerValidator;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

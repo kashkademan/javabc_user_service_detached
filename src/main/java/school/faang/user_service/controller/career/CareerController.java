@@ -40,7 +40,8 @@ public class CareerController {
     }
 
     @PatchMapping("/{careerId}")
-    public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId, @Valid @RequestBody UpdateCareerDto updateCareerDto) {
+    public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId,
+                                                  @Valid @RequestBody UpdateCareerDto updateCareerDto) {
         long userId = userContext.getUserId();
         CareerDto updatedCareer = careerService.updateCareer(userId, careerId, updateCareerDto);
         return ResponseEntity.ok(updatedCareer);
