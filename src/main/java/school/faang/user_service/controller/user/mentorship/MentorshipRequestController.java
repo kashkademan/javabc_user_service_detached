@@ -31,23 +31,23 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    MentorshipRequestDto toMentorshipRequestDto(
+    public MentorshipRequestDto createMentorshipRequest(
             @Valid @RequestBody CreateMentorshipRequestDto createMentorshipRequestDto) {
         return mentorshipRequestService.create(createMentorshipRequestDto);
     }
 
     @GetMapping("/filtering")
-    List<MentorshipRequestDto> getByFilters(@Valid @RequestBody MentorshipRequestFilterDto filter) {
+    public List<MentorshipRequestDto> getByFilters(@Valid @RequestBody MentorshipRequestFilterDto filter) {
         return mentorshipRequestService.getByFilters(filter);
     }
 
     @PatchMapping("/accept/{requestId}")
-    void accept(@PathVariable @Positive long requestId) {
+    public void accept(@PathVariable @Positive long requestId) {
         mentorshipRequestService.accept(requestId);
     }
 
     @PatchMapping("/reject/{requestId}")
-    void reject(@PathVariable @Positive long requestId, @Valid @RequestBody RejectionDto rejectionDto) {
+    public void reject(@PathVariable @Positive long requestId, @Valid @RequestBody RejectionDto rejectionDto) {
         mentorshipRequestService.reject(requestId, rejectionDto);
     }
 }
