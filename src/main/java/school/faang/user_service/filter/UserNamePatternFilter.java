@@ -11,7 +11,7 @@ public class UserNamePatternFilter implements UserFilter {
 
     @Override
     public boolean isApplicable(UserFiltersDto filtersDto) {
-        return filtersDto.namePattern() != null && !filtersDto.namePattern().isEmpty();
+        return filtersDto.namePattern() != null && !filtersDto.namePattern().isBlank();
     }
 
     @Override
