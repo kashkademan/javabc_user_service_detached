@@ -3,64 +3,79 @@ package school.faang.user_service.service.validator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
+import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
+import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
 
 import java.time.LocalTime;
 
 public class WorkScheduleValidatorTest {
+    private WorkScheduleCreateDto workScheduleCreateDto;
     private WorkScheduleDto validWorkScheduleDto;
-    private WorkScheduleUpdateDto validWorkScheduleUpdateDto;
+    private WorkSchedule validWorkSchedule;
     private WorkScheduleDto invalidStartTimeDto;
     private WorkScheduleDto invalidLunchStartDto;
     private WorkScheduleDto invalidLunchEndDto;
 
     @BeforeEach
     void setUp() {
-        validWorkScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0),
-                "Europe/Moscow"
-        );
+        workScheduleCreateDto = WorkScheduleCreateDto.builder()
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(18, 0))
+                .startLunch(LocalTime.of(13, 0))
+                .endLunch(LocalTime.of(14, 0))
+                .timezone("Europe/Moscow")
+                .build();
 
-        validWorkScheduleUpdateDto = new WorkScheduleUpdateDto(
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0),
-                "Europe/Moscow"
-        );
+        validWorkScheduleDto = WorkScheduleDto.builder()
+                .id(1L)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(18, 0))
+                .startLunch(LocalTime.of(13, 0))
+                .endLunch(LocalTime.of(14, 0))
+                .timezone("Europe/Moscow")
+                .build();
 
-        invalidStartTimeDto = new WorkScheduleDto(
-                2L,
-                LocalTime.of(14, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(13, 0),
-                LocalTime.of(14, 0),
-                "Europe/Moscow"
-        );
+        validWorkSchedule = WorkSchedule.builder()
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(18, 0))
+                .startLunch(LocalTime.of(13, 0))
+                .endLunch(LocalTime.of(14, 0))
+                .timezone("Europe/Moscow")
+                .build();
 
-        invalidLunchStartDto = new WorkScheduleDto(
-                3L,
-                LocalTime.of(9, 0),
-                LocalTime.of(18, 0),
-                LocalTime.of(15, 0),
-                LocalTime.of(14, 0),
-                "Europe/Moscow"
-        );
+        invalidStartTimeDto = WorkScheduleDto.builder()
+                .id(2L)
+                .startTime(LocalTime.of(14, 0))
+                .endTime(LocalTime.of(18, 0))
+                .startLunch(LocalTime.of(13, 0))
+                .endLunch(LocalTime.of(14, 0))
+                .timezone("Europe/Moscow")
+                .build();
 
-        invalidLunchEndDto = new WorkScheduleDto(
-                4L,
-                LocalTime.of(9, 0),
-                LocalTime.of(16, 0),
-                LocalTime.of(13, 0),
-                LocalTime.of(17, 0),
-                "Europe/Moscow"
-        );
+        invalidLunchStartDto = WorkScheduleDto.builder()
+                .id(3L)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(18, 0))
+                .startLunch(LocalTime.of(15, 0))
+                .endLunch(LocalTime.of(14, 0))
+                .timezone("Europe/Moscow")
+                .build();
+
+        invalidLunchEndDto = WorkScheduleDto.builder()
+                .id(4L)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(16, 0))
+                .startLunch(LocalTime.of(13, 0))
+                .endLunch(LocalTime.of(17, 0))
+                .timezone("Europe/Moscow")
+                .build();
+    }
+
+    @Test
+    void testAllTimesCorrectWithWorkScheduleCreateDto() {
+        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateForCreate(workScheduleCreateDto));
     }
 
     @Test
@@ -69,8 +84,8 @@ public class WorkScheduleValidatorTest {
     }
 
     @Test
-    void testAllTimesCorrectWithUpdateWorkScheduleDto() {
-        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateForUpdate(validWorkScheduleUpdateDto));
+    void testAllTimesCorrectWithWorkSchedule() {
+        Assertions.assertDoesNotThrow(() -> WorkScheduleValidator.validateEntity(validWorkSchedule));
     }
 
     @Test
