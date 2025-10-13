@@ -35,7 +35,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * unit test for RecommendationServiceImpl.
@@ -426,8 +429,8 @@ class RecommendationServiceImplTest {
         RecommendationResponseDto dto2 = resp(
                 ANOTHER_RECOMMENDATION_ID,
                 ANOTHER_AUTHOR_ID,
-                ANOTHER_RECEIVER_ID
-                , "Second recommendation");
+                ANOTHER_RECEIVER_ID,
+                "Second recommendation");
 
         assertThat(response).containsExactlyInAnyOrder(dto1, dto2);
         verify(recommendationRepository).findAll();

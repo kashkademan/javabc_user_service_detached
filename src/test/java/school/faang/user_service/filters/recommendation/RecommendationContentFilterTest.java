@@ -9,7 +9,9 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.faang.user_service.filters.recommendation.RecommendationTestData.AUTHOR_ID_1;
 import static school.faang.user_service.filters.recommendation.RecommendationTestData.RECEIVER_ID_1;
 import static school.faang.user_service.filters.recommendation.RecommendationTestData.REC_ID_1;
@@ -37,14 +39,12 @@ public class RecommendationContentFilterTest {
         FilterRecommendationRequestDto filterDto = filterByContent("test");
         assertTrue(filter.isApplicable(filterDto));
 
-        // per original behavior: null/blank content still considered applicable if DTO != null
         assertTrue(filter.isApplicable(filterByContent(null)));
         assertTrue(filter.isApplicable(filterByContent("   ")));
     }
 
     @Test
     public void testIsApplicable_withNullContent_returnsFalse() {
-        // per original test: null DTO -> false
         assertFalse(filter.isApplicable(null));
     }
 
@@ -80,11 +80,9 @@ public class RecommendationContentFilterTest {
         Recommendation rec1 = rec(REC_ID_1, AUTHOR_ID_1, RECEIVER_ID_1, CONTENT_JAVA_1);
         Recommendation rec2 = rec(REC_ID_2, AUTHOR_ID_1, RECEIVER_ID_1, CONTENT_PYTHON_1);
 
-        // null content => no filtering
         List<Recommendation> withNull = filter.apply(Stream.of(rec1, rec2), filterByContent(null)).toList();
         assertEquals(2, withNull.size());
 
-        // blank content => no filtering (per original behavior)
         List<Recommendation> withBlank = filter.apply(Stream.of(rec1, rec2), filterByContent("   ")).toList();
         assertEquals(2, withBlank.size());
     }
