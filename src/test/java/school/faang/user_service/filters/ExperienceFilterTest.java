@@ -55,8 +55,8 @@ public class ExperienceFilterTest {
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 3, Integer.MAX_VALUE));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
-        assertTrue(userList.get(0).getExperience()==5);
-        assertTrue(userList.get(1).getExperience()==3);
+        assertTrue(userList.get(0).getExperience() == 5);
+        assertTrue(userList.get(1).getExperience() == 3);
     }
 
     @Test
@@ -69,8 +69,8 @@ public class ExperienceFilterTest {
         Stream<User> result = experienceFilter.apply(users, new UserFiltersDto(null, null, 0, 5));
         List<User> userList = result.toList();
         assertEquals(2, userList.size());
-        assertTrue(userList.get(0).getExperience()==3);
-        assertTrue(userList.get(1).getExperience()==5);
+        assertTrue(userList.get(0).getExperience() == 3);
+        assertTrue(userList.get(1).getExperience() == 5);
     }
 
     @Test
