@@ -23,16 +23,19 @@ import school.faang.user_service.service.education.EducationService;
 public class EducationController {
     private final UserContext userContext;
     private final EducationService educationService;
+
     @PostMapping
     public EducationDto addEducation(@Valid @RequestBody CreateEducationDto dto) {
         long userId = userContext.getUserId();
         return educationService.addEducation(userId, dto);
     }
+
     @PatchMapping("/{educationId}")
     public EducationDto updateEducation(@PathVariable long educationId, @Valid @RequestBody UpdateEducationDto dto) {
         long userId = userContext.getUserId();
         return educationService.updateEducation(userId, educationId, dto);
     }
+
     @GetMapping("/{educationId}")
     public EducationDto getEducationById(@PathVariable long educationId) {
         return educationService.getById(educationId);

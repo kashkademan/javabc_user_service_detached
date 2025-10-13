@@ -23,6 +23,7 @@ public class EducationServiceImpl implements EducationService {
     private final UserRepository userRepository;
     private final EducationRepository educationRepository;
     private final EducationMapper educationMapper;
+
     @Transactional
     @Override
     public EducationDto addEducation(long userId, CreateEducationDto dto) {
@@ -44,6 +45,7 @@ public class EducationServiceImpl implements EducationService {
         Education saved = educationRepository.save(entity);
         return educationMapper.toEducationDto(saved);
     }
+
     @Transactional
     @Override
     public EducationDto updateEducation(long userId, long educationId, UpdateEducationDto dto) {
@@ -64,6 +66,7 @@ public class EducationServiceImpl implements EducationService {
         Education saved = educationRepository.save(existing);
         return educationMapper.toEducationDto(saved);
     }
+
     @Override
     public EducationDto getById(long educationId) {
         log.debug("getById id={}", educationId);
