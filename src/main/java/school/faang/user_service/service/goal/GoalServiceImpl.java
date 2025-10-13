@@ -64,11 +64,11 @@ public class GoalServiceImpl implements GoalService {
 
         if (createGoalDto.userIds().isEmpty()) {
             throw new DataValidationException("Users cant be empty");
-        } else {
-            List<User> users = createGoalDto.userIds().stream()
-                    .map(userId -> userRepository.getByIdOrThrow(userId)).toList();
-            goal.setUsers(users);
         }
+
+        List<User> users = createGoalDto.userIds().stream()
+                .map(userId -> userRepository.getByIdOrThrow(userId)).toList();
+        goal.setUsers(users);
 
         if (createGoalDto.parentId() != null) {
             goal.setParent(goalRepository.getByIdOrThrow(createGoalDto.parentId()));
@@ -82,12 +82,12 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public void delete(long goalId) {
-        GoalDto goalDto = goalMapper.toGoalDto(goalRepository.getByIdOrThrow(goalId));
-
-        if (goalDto.mentorId() == userContext.getUserId()) {
+        Goal goal = goalRepository.getByIdOrThrow(goalId);
+        List<Long> userIds = goal.getUsers().stream().map(User::getId).toList();
+        if (goal.getMentor().getId() == userContext.getUserId()) {
             goalRepository.deleteById(goalId);
             log.info("Goal {} deleted", goalId);
-        } else if (goalDto.userIds().contains(userContext.getUserId())) {
+        } else if (userIds.contains(userContext.getUserId())) {
             goalRepository.deleteUserFromGoal(userContext.getUserId(), goalId);
             log.info("User {} deleted his goal {}", userContext.getUserId(), goalId);
         } else {
@@ -98,14 +98,13 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public GoalDto update(long goalId, UpdateGoalDto updateGoalDto) {
         Goal goal = goalRepository.getByIdOrThrow(goalId);
+        List<Long> userIds = goal.getUsers().stream().map(User::getId).toList();
 
-        GoalDto goalDto = goalMapper.toGoalDto(goal);
-
-        if (goalDto.status().equals(GoalStatus.COMPLETED)) {
+        if (goal.getStatus().equals(GoalStatus.COMPLETED)) {
             throw new ForbiddenException("Cant update goal in completed status");
         }
 
-        if (goalDto.mentorId() != userContext.getUserId() || !goalDto.userIds().contains(userContext.getUserId())) {
+        if (goal.getMentor().getId() != userContext.getUserId() || !userIds.contains(userContext.getUserId())) {
             throw new ForbiddenException("Current user cant update chosen goal");
         }
 
