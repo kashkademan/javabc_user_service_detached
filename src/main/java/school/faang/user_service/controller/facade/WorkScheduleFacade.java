@@ -29,6 +29,10 @@ public class WorkScheduleFacade {
         return workScheduleMapper.toWorkScheduleDto(workSchedule);
     }
 
+    public void deleteWorkSchedule(long workScheduleId) {
+        workScheduleService.deleteWorkSchedule(workScheduleId);
+    }
+
     public WorkScheduleDto getById(long workScheduleId) {
         WorkSchedule workSchedule = workScheduleService.getById(workScheduleId);
 

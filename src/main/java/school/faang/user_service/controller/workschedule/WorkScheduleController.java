@@ -2,6 +2,7 @@ package school.faang.user_service.controller.workschedule;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,11 @@ public class WorkScheduleController {
     public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId,
                                               @RequestBody WorkScheduleUpdateDto workScheduleUpdateDto) {
         return workScheduleFacade.updateWorkSchedule(workScheduleId, workScheduleUpdateDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteWorkSchedule(@PathVariable("id") long workScheduleId) {
+        workScheduleFacade.deleteWorkSchedule(workScheduleId);
     }
 
     @GetMapping("/{id}")

@@ -51,6 +51,18 @@ public class WorkScheduleService {
         return workScheduleRepository.save(workSchedule);
     }
 
+    public void deleteWorkSchedule(long workScheduleId) {
+        WorkSchedule workSchedule = getById(workScheduleId);
+        long userId = userContext.getUserId();
+
+        if (!Objects.equals(workSchedule.getUser().getId(), userId)) { //
+            throw new ForbiddenException("You can only delete your own data");
+        }
+
+        workScheduleRepository.delete(workSchedule);
+        System.out.printf("Work schedule of user: %s, has been deleted.", userId);
+    }
+
     public WorkSchedule getById(long workScheduleId) {
         return workScheduleRepository.getByIdOrThrow(workScheduleId);
     }
