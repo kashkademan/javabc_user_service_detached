@@ -12,6 +12,8 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
 import school.faang.user_service.service.validator.WorkScheduleValidator;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class WorkScheduleService {
         WorkSchedule workSchedule = getById(workScheduleId);
         long userId = userContext.getUserId();
 
-        if (!workSchedule.getUser().getId().equals(userId)) {
+        if (!Objects.equals(workSchedule.getUser().getId(), userId)) { //
             throw new ForbiddenException("You can only update your own data");
         }
 
