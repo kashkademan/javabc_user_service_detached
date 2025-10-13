@@ -2,9 +2,10 @@ package school.faang.user_service.filters.recommendation;
 
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.FilterRecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.user.User;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -12,92 +13,70 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.faang.user_service.filters.recommendation.RecommendationTestData.*;
 
+@ExtendWith(MockitoExtension.class)
 public class RecommendationAuthorFilterTest {
     private final RecommendationAuthorFilter filter = new RecommendationAuthorFilter();
 
+    public static FilterRecommendationRequestDto filterByContentAndAuthor(String content, Long authorId) {
+        return new FilterRecommendationRequestDto(content, authorId, null);
+    }
+
+    public static FilterRecommendationRequestDto filterByAuthor(Long authorId) {
+        return new FilterRecommendationRequestDto(null, authorId, null);
+    }
+
     @Test
     public void testIsApplicable_withNonNullAuthorId_returnsTrue() {
-        FilterRecommendationRequestDto filterDto = new FilterRecommendationRequestDto(
-                null, null, null
-        );
+        FilterRecommendationRequestDto filterDto = filterByAuthor(AUTHOR_ID_1);
         boolean result = filter.isApplicable(filterDto);
         assertTrue(result);
     }
 
     @Test
     public void testIsApplicable_withNullAuthorId_returnsFalse() {
-        FilterRecommendationRequestDto filterDto = null;
-        boolean result = filter.isApplicable(filterDto);
+        boolean result = filter.isApplicable(null);
         assertFalse(result);
     }
 
     @Test
     public void testApply_withMatchingAuthorId_filtersRecommendationsCorrectly() {
-        User author1 = User.builder().id(123L).build();
-        User author2 = User.builder().id(456L).build();
-        User receiver = User.builder().id(789L).build();
+        Recommendation rec1 = rec(REC_ID_1, AUTHOR_ID_1, RECEIVER_ID_1, CONTENT_1);
+        Recommendation rec2 = rec(REC_ID_2, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_2);
+        Recommendation rec3 = rec(REC_ID_3, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_3);
 
-        Recommendation rec1 = Recommendation.builder().id(1L).content("Recommendation 1")
-                .author(author1).receiver(receiver).build();
-        Recommendation rec2 = Recommendation.builder().id(2L).content("Recommendation 2")
-                .author(author2).receiver(receiver).build();
-        Recommendation rec3 = Recommendation.builder().id(3L).content("Recommendation 3")
-                .author(author2).receiver(receiver).build();
+        FilterRecommendationRequestDto filterDto = filterByContentAndAuthor(CONTENT_1, AUTHOR_ID_1);
 
-        FilterRecommendationRequestDto filterDto = new FilterRecommendationRequestDto(
-                "Recommendation 1", 123L, null
-        );
+        List<Recommendation> filtered = filter.apply(Stream.of(rec1, rec2, rec3), filterDto).toList();
 
-        Stream<Recommendation> filteredStream = filter.apply(Stream.of(rec1, rec2, rec3), filterDto);
-        List<Recommendation> filteredRecommendations = filteredStream.toList();
-
-        assertEquals(1, filteredRecommendations.size());
-        assertEquals(123L, filteredRecommendations.get(0).getAuthor().getId());
+        assertEquals(1, filtered.size());
+        assertEquals(AUTHOR_ID_1, filtered.get(0).getAuthor().getId());
     }
 
     @Test
     public void testApply_withNonMatchingAuthorId_excludesAllRecommendations() {
-        User author1 = User.builder().id(123L).build();
-        User author2 = User.builder().id(456L).build();
-        User receiver = User.builder().id(789L).build();
+        Recommendation rec1 = rec(REC_ID_1, AUTHOR_ID_1, RECEIVER_ID_1, CONTENT_1);
+        Recommendation rec2 = rec(REC_ID_2, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_2);
+        Recommendation rec3 = rec(REC_ID_3, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_3);
 
-        Recommendation rec1 = Recommendation.builder().id(1L).content("Recommendation 1")
-                .author(author1).receiver(receiver).build();
-        Recommendation rec2 = Recommendation.builder().id(2L).content("Recommendation 2")
-                .author(author2).receiver(receiver).build();
-        Recommendation rec3 = Recommendation.builder().id(3L).content("Recommendation 3")
-                .author(author2).receiver(receiver).build();
-        FilterRecommendationRequestDto filterDto = new FilterRecommendationRequestDto(
-                null, 999L, null
-        );
+        FilterRecommendationRequestDto filterDto = filterByAuthor(999L);
 
-        Stream<Recommendation> filteredStream = filter.apply(Stream.of(rec1, rec2, rec3), filterDto);
-        List<Recommendation> filteredRecommendations = filteredStream.toList();
+        List<Recommendation> filtered = filter.apply(Stream.of(rec1, rec2, rec3), filterDto).toList();
 
-        assertTrue(filteredRecommendations.isEmpty());
+        assertTrue(filtered.isEmpty());
     }
 
     @Test
     public void testApply_withNullAuthorId_doesNotFilterRecommendations() {
-        User author1 = User.builder().id(123L).build();
-        User author2 = User.builder().id(456L).build();
-        User receiver = User.builder().id(789L).build();
+        Recommendation rec1 = rec(REC_ID_1, AUTHOR_ID_1, RECEIVER_ID_1, CONTENT_1);
+        Recommendation rec2 = rec(REC_ID_2, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_2);
+        Recommendation rec3 = rec(REC_ID_3, AUTHOR_ID_2, RECEIVER_ID_1, CONTENT_3);
 
-        Recommendation rec1 = Recommendation.builder().id(1L).content("Recommendation 1")
-                .author(author1).receiver(receiver).build();
-        Recommendation rec2 = Recommendation.builder().id(2L).content("Recommendation 2")
-                .author(author2).receiver(receiver).build();
-        Recommendation rec3 = Recommendation.builder().id(3L).content("Recommendation 3")
-                .author(author2).receiver(receiver).build();
+        FilterRecommendationRequestDto filterDto = filterByAuthor(null);
 
-        FilterRecommendationRequestDto filterDto = new FilterRecommendationRequestDto(
-                null, null, null
-        );
+        List<Recommendation> filtered = filter.apply(Stream.of(rec1, rec2, rec3), filterDto).toList();
 
-        Stream<Recommendation> filteredStream = filter.apply(Stream.of(rec1, rec2, rec3), filterDto);
-        List<Recommendation> filteredRecommendations = filteredStream.toList();
-
-        assertEquals(3, filteredRecommendations.size());
+        assertEquals(3, filtered.size());
     }
 }

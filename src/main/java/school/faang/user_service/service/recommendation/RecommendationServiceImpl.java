@@ -113,7 +113,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             skillOfferRepository.deleteAllByRecommendationId(recommendationId);
             for (Long skillId : request.skillIds()) {
                 if (skillId != null) {
-                    skillOfferRepository.create(recommendationId, skillId);
+                    skillOfferRepository.create(skillId, recommendationId);
                 }
             }
         }
