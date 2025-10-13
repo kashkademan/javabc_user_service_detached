@@ -1,10 +1,8 @@
 package school.faang.user_service.service.workschedule;
 
 import com.amazonaws.util.StringUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
@@ -18,13 +16,11 @@ import school.faang.user_service.repository.user.WorkScheduleRepository;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-@Setter
-@Getter
+@RequiredArgsConstructor
 public class WorkScheduleServiceImpl implements WorkScheduleService {
-    private UserRepository userRepository;
-    private WorkScheduleRepository workScheduleRepository;
-    private WorkScheduleMapper workScheduleMapper;
+    private final UserRepository userRepository;
+    private final WorkScheduleRepository workScheduleRepository;
+    private final WorkScheduleMapper workScheduleMapper;
 
     @Override
     public WorkScheduleDto addWorkSchedule(long userId, @NonNull WorkScheduleDto workScheduleDto) {

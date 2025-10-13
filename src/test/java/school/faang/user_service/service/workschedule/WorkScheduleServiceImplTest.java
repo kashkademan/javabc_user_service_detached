@@ -53,14 +53,7 @@ public class WorkScheduleServiceImplTest {
     @Test
     public void testAddWorkScheduleWithEmptyOrNullField() {
         long userId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(13, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                ""
-        );
+        WorkScheduleDto workScheduleDto = createIncorrectWorkScheduleWithEmptyField();
         assertThrows(DataValidationException.class,
                 () -> workScheduleServiceImpl.addWorkSchedule(userId, workScheduleDto));
     }
@@ -68,14 +61,7 @@ public class WorkScheduleServiceImplTest {
     @Test
     public void testAddWorkScheduleWithTimeOrderError() {
         long userId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(19, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                "Europe/Moscow"
-        );
+        WorkScheduleDto workScheduleDto = createIncorrectWorkScheduleWithIcorrectTimeOrder();
         assertThrows(DataValidationException.class,
                 () -> workScheduleServiceImpl.addWorkSchedule(userId, workScheduleDto));
     }
@@ -83,14 +69,7 @@ public class WorkScheduleServiceImplTest {
     @Test
     public void testAddWorkScheduleAddsSchedule() {
         long userId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(13, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                "Europe/Moscow"
-        );
+        WorkScheduleDto workScheduleDto = createCorrectWorkScheduleDtoForTest();
         User user = new User();
         user.setId(1L);
         when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
@@ -107,14 +86,7 @@ public class WorkScheduleServiceImplTest {
     public void testUpdateWorkScheduleWithEmptyOrNullField() {
         long userId = 1;
         long workScheduleId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(13, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                ""
-        );
+        WorkScheduleDto workScheduleDto = createIncorrectWorkScheduleWithEmptyField();
         assertThrows(DataValidationException.class,
                 () -> workScheduleServiceImpl.updateWorkSchedule(userId, workScheduleId, workScheduleDto));
     }
@@ -123,14 +95,7 @@ public class WorkScheduleServiceImplTest {
     public void testUpdateWorkScheduleWithTimeOrderError() {
         long userId = 1;
         long workScheduleId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(19, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                "Europe/Moscow"
-        );
+        WorkScheduleDto workScheduleDto = createIncorrectWorkScheduleWithIcorrectTimeOrder();
         assertThrows(DataValidationException.class,
                 () -> workScheduleServiceImpl.updateWorkSchedule(userId, workScheduleId, workScheduleDto));
     }
@@ -144,14 +109,7 @@ public class WorkScheduleServiceImplTest {
         workSchedule.setUser(user);
         when(workScheduleRepository.getByIdOrThrow(workScheduleId)).thenReturn(workSchedule);
         long userId = 2;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(13, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                "Europe/Moscow"
-        );
+        WorkScheduleDto workScheduleDto = createCorrectWorkScheduleDtoForTest();
 
         assertThrows(ForbiddenException.class,
                 () -> workScheduleServiceImpl.updateWorkSchedule(userId, workScheduleId, workScheduleDto));
@@ -160,14 +118,7 @@ public class WorkScheduleServiceImplTest {
     @Test
     public void testUpdateWorkScheduleUpdatesSchedule() {
         long workScheduleId = 1;
-        WorkScheduleDto workScheduleDto = new WorkScheduleDto(
-                1L,
-                LocalTime.of(9, 0, 0, 0),
-                LocalTime.of(18, 0, 0, 0),
-                LocalTime.of(13, 0, 0, 0),
-                LocalTime.of(14, 0, 0, 0),
-                "Europe/Moscow"
-        );
+        WorkScheduleDto workScheduleDto = createCorrectWorkScheduleDtoForTest();
         WorkSchedule workSchedule = workScheduleMapper.toWorkSchedule(workScheduleDto);
         User user = new User();
         user.setId(1L);
@@ -192,5 +143,38 @@ public class WorkScheduleServiceImplTest {
         verify(workScheduleRepository, times(1)).getByIdOrThrow(captorWorkScheduleId.capture());
         long result = captorWorkScheduleId.getValue();
         assertEquals(workScheduleId, result);
+    }
+
+    private WorkScheduleDto createCorrectWorkScheduleDtoForTest() {
+        return new WorkScheduleDto(
+                1L,
+                LocalTime.of(9, 0, 0, 0),
+                LocalTime.of(18, 0, 0, 0),
+                LocalTime.of(13, 0, 0, 0),
+                LocalTime.of(14, 0, 0, 0),
+                "Europe/Moscow"
+        );
+    }
+
+    private WorkScheduleDto createIncorrectWorkScheduleWithEmptyField() {
+        return new WorkScheduleDto(
+                1L,
+                LocalTime.of(9, 0, 0, 0),
+                LocalTime.of(18, 0, 0, 0),
+                LocalTime.of(13, 0, 0, 0),
+                LocalTime.of(14, 0, 0, 0),
+                ""
+        );
+    }
+
+    private WorkScheduleDto createIncorrectWorkScheduleWithIcorrectTimeOrder() {
+        return new WorkScheduleDto(
+                1L,
+                LocalTime.of(9, 0, 0, 0),
+                LocalTime.of(18, 0, 0, 0),
+                LocalTime.of(19, 0, 0, 0),
+                LocalTime.of(14, 0, 0, 0),
+                "Europe/Moscow"
+        );
     }
 }
