@@ -41,6 +41,10 @@ public class GoalServiceImpl implements GoalService {
                 .map(User::getId)
                 .toList();
 
+        if (createGoalDto.userIds().isEmpty()) {
+            throw new DataValidationException("Users cant be empty");
+        }
+
         if (!createGoalDto.userIds().contains(userContext.getUserId())
                 || !createGoalDto.userIds().containsAll(menteeIds)) {
             throw new ForbiddenException("Forbidden to create goal for chosen users");
@@ -60,10 +64,6 @@ public class GoalServiceImpl implements GoalService {
 
         if (createGoalDto.mentorId() != null) {
             goal.setMentor(userRepository.getByIdOrThrow(createGoalDto.mentorId()));
-        }
-
-        if (createGoalDto.userIds().isEmpty()) {
-            throw new DataValidationException("Users cant be empty");
         }
 
         List<User> users = createGoalDto.userIds().stream()
@@ -104,7 +104,7 @@ public class GoalServiceImpl implements GoalService {
             throw new ForbiddenException("Cant update goal in completed status");
         }
 
-        if (goal.getMentor().getId() != userContext.getUserId() || !userIds.contains(userContext.getUserId())) {
+        if (goal.getMentor().getId() != userContext.getUserId() && !userIds.contains(userContext.getUserId())) {
             throw new ForbiddenException("Current user cant update chosen goal");
         }
 
