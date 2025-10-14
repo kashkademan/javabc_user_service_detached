@@ -20,7 +20,6 @@ public class CareerService {
     private final CareerRepository careerRepository;
     private final CareerMapper careerMapper;
     private final UserContext userContext;
-    private final long userId = userContext.getUserId();
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
         CareerValidator.validateCareerDates(createCareerDto);
@@ -50,6 +49,7 @@ public class CareerService {
 
     public CareerDto updateCareer(long careerId, CareerUpdateDto updateCareerDto) {
         CareerValidator.validateCareerDates(updateCareerDto);
+        long userId = userContext.getUserId();
         Career career = careerRepository.getByIdOrThrow(careerId);
         CareerValidator.validateOwner(career, userId);
         CareerMapper.update(updateCareerDto, career);
