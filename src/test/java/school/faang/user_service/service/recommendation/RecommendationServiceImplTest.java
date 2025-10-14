@@ -309,13 +309,9 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("update: throws ForbiddenException when user tries to update another user's recommendation")
     void update_fail_forbidden() {
-        Recommendation existing = Recommendation.builder()
-                .id(RECOMMENDATION_ID)
-                .content(OLD_CONTENT)
-                .author(user(AUTHOR_ID))
-                .build();
+        Recommendation existing = rec(RECOMMENDATION_ID, OLD_CONTENT, AUTHOR_ID, RECEIVER_ID);
 
-        when(userContext.getUserId()).thenReturn(RECEIVER_ID);
+        when(userContext.getUserId()).thenReturn(ANOTHER_AUTHOR_ID);
         when(recommendationRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.of(existing));
 
         UpdateRecommendationRequestDto input = updateReq(UPDATED_CONTENT, null);
@@ -407,7 +403,8 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("getByFilters: returns all recommendations when filters are empty")
     void getByFilters_emptyFilters() {
-        Recommendation r1 = rec(RECOMMENDATION_ID,
+        Recommendation r1 = rec(
+                RECOMMENDATION_ID,
                 "First recommendation",
                 AUTHOR_ID,
                 RECEIVER_ID);
@@ -422,7 +419,8 @@ class RecommendationServiceImplTest {
         FilterRecommendationRequestDto f = filters(null, null, null);
         List<RecommendationResponseDto> response = recommendationService.getByFilters(f);
 
-        RecommendationResponseDto dto1 = resp(RECOMMENDATION_ID,
+        RecommendationResponseDto dto1 = resp(
+                RECOMMENDATION_ID,
                 AUTHOR_ID,
                 RECEIVER_ID,
                 "First recommendation");
