@@ -1,7 +1,7 @@
 package school.faang.user_service.filter.recommendation;
 
 import org.springframework.data.jpa.domain.Specification;
-import school.faang.user_service.dto.user.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.ArrayList;
