@@ -56,8 +56,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .ifPresent(existingRequest -> {
                     LocalDateTime createdAt = existingRequest.getCreatedAt();
                     if (createdAt.isAfter(LocalDateTime.now().minusMonths(timeForRequest))) {
-                        log.warn("Duplicate recommendation request attempt: requesterId={}, " +
-                                        "receiverId={}, existingRequestId={}, createdAt={}",
+                        log.warn("Duplicate recommendation request attempt: requesterId={}, "
+                                        + "receiverId={}, existingRequestId={}, createdAt={}",
                                 dto.requesterId(), dto.receiverId(), existingRequest.getId(), createdAt);
                         throw new DataValidationException(
                                 "You have already made a request during this period");
@@ -110,7 +110,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     public void accept(Long id) {
         log.debug("Accepting recommendation request: requestId={}, userId={}", id, userContext.getUserId());
         RecommendationRequest request = recommendationRequestRepository.getByIdOrThrow(id);
-        if (!Objects.equals(userContext.getUserId(),request.getReceiver().getId())) {
+        if (!Objects.equals(userContext.getUserId(), request.getReceiver().getId())) {
             log.warn("Unauthorized accept attempt: requestId={}, userId={}, actualReceiverId={}",
                     id, userContext.getUserId(), request.getReceiver().getId());
             throw new ForbiddenException("You can not accept this request");
