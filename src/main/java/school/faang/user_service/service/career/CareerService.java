@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.dto.career.CreateCareerDto;
-import school.faang.user_service.dto.career.UpdateCareerDto;
+import school.faang.user_service.dto.career.CareerUpdateDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.CareerMapper;
@@ -13,13 +13,14 @@ import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.career.CareerValidator;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class CareerService {
     private final UserRepository userRepository;
     private final CareerRepository careerRepository;
     private final CareerMapper careerMapper;
     private final UserContext userContext;
+    private final long userId = userContext.getUserId();
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
         CareerValidator.validateCareerDates(createCareerDto);
@@ -47,7 +48,7 @@ public class CareerService {
         careerRepository.delete(career);
     }
 
-    public CareerDto updateCareer(long userId, long careerId, UpdateCareerDto updateCareerDto) {
+    public CareerDto updateCareer(long careerId, CareerUpdateDto updateCareerDto) {
         CareerValidator.validateCareerDates(updateCareerDto);
         Career career = careerRepository.getByIdOrThrow(careerId);
         CareerValidator.validateOwner(career, userId);

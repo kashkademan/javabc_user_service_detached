@@ -6,7 +6,6 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public record CareerDto(long id,
                         LocalDate from,
                         LocalDate to,

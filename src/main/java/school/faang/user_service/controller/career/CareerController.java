@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.dto.career.CreateCareerDto;
-import school.faang.user_service.dto.career.UpdateCareerDto;
+import school.faang.user_service.dto.career.CareerUpdateDto;
 import school.faang.user_service.service.career.CareerService;
 
-@RestController
-@RequestMapping("/career")
 @RequiredArgsConstructor
+@RequestMapping("/career")
+@RestController
 public class CareerController {
     private final CareerService careerService;
     private final UserContext userContext;
@@ -41,9 +41,8 @@ public class CareerController {
 
     @PatchMapping("/{careerId}")
     public ResponseEntity<CareerDto> updateCareer(@PathVariable long careerId,
-                                                  @Valid @RequestBody UpdateCareerDto updateCareerDto) {
-        long userId = userContext.getUserId();
-        CareerDto updatedCareer = careerService.updateCareer(userId, careerId, updateCareerDto);
+                                                  @Valid @RequestBody CareerUpdateDto updateCareerDto) {
+        CareerDto updatedCareer = careerService.updateCareer(careerId, updateCareerDto);
         return ResponseEntity.ok(updatedCareer);
     }
 }
