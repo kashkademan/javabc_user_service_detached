@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.dto.career.CreateCareerDto;
-import school.faang.user_service.dto.career.CareerUpdateDto;
+import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.CareerMapper;
@@ -47,7 +47,7 @@ public class CareerService {
         careerRepository.delete(career);
     }
 
-    public CareerDto updateCareer(long careerId, CareerUpdateDto updateCareerDto) {
+    public CareerDto updateCareer(long careerId, UpdateCareerDto updateCareerDto) {
         CareerValidator.validateCareerDates(updateCareerDto);
         long userId = userContext.getUserId();
         Career career = careerRepository.getByIdOrThrow(careerId);

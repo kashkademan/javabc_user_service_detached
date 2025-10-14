@@ -7,13 +7,14 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class CareerUpdateDto extends BaseCareerDtoWithDates {
-    @NotBlank
+public class UpdateCareerDto extends BaseCareerDtoWithDates {
     private final String company;
-    @NotBlank
     private final String position;
 
-    public CareerUpdateDto(@NotNull LocalDate from, LocalDate to, String company, String position) {
+    public UpdateCareerDto(@NotNull LocalDate from,
+                           LocalDate to,
+                           @NotBlank String company,
+                           @NotBlank String position) {
         super(from, to);
         this.company = company;
         this.position = position;

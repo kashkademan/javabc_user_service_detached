@@ -8,12 +8,13 @@ import java.time.LocalDate;
 
 @Getter
 public class CreateCareerDto extends BaseCareerDtoWithDates {
-    @NotBlank
     private final String company;
-    @NotBlank
     private final String position;
 
-    public CreateCareerDto(@NotNull LocalDate from, LocalDate to, String company, String position) {
+    public CreateCareerDto(@NotNull LocalDate from,
+                           LocalDate to,
+                           @NotBlank String company,
+                           @NotBlank String position) {
         super(from, to);
         this.company = company;
         this.position = position;
