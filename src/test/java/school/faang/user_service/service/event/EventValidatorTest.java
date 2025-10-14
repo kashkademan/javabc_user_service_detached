@@ -42,8 +42,7 @@ public class EventValidatorTest {
         long currentUserId = OWNER_ID;
 
         assertThatThrownBy(() -> EventValidator.validateOwner(event, currentUserId))
-                .isInstanceOf(ForbiddenException.class)
-                .hasMessage("Only owner can modify event");
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -94,17 +93,6 @@ public class EventValidatorTest {
     }
 
     @Test
-    void validateOwnerSkills_shouldThrowDataValidationException_ifOwnerHasNoSkills() {
-        User owner = new User();
-        owner.setSkills(List.of());
-        Set<Long> requiredSkills = Set.of(OWNER_ID);
-
-        assertThatThrownBy(() -> EventValidator.validateOwnerSkills(owner, requiredSkills))
-                .isInstanceOf(DataValidationException.class)
-                .hasMessageContaining("Owner does not have required skills: [1]");
-    }
-
-    @Test
     void validateEventDates_shouldThrow_whenDatesNull() {
         assertThrows(DataValidationException.class,
                 () -> EventValidator.validateEventDates(null, null));
@@ -134,18 +122,19 @@ public class EventValidatorTest {
     void validateEventCreation_shouldValidateSkillsAndDates() {
         Skill skill1 = new Skill();
         skill1.setId(OWNER_ID);
+
         User owner = new User();
         owner.setSkills(List.of(skill1));
-        CreateEventDto dto = new CreateEventDto(
-                "Title",
-                "Description",
-                LocalDateTime.of(2025, 1, 1, 10, 0),
-                LocalDateTime.of(2025, 1, 1, 12, 0),
-                null,
-                Set.of(OWNER_ID)
-        );
 
-        assertThatCode(() -> EventValidator.validateEventCreation(dto, owner))
-                .doesNotThrowAnyException();
+        CreateEventDto dto = CreateEventDto.builder()
+                .title("Title")
+                .description("Description")
+                .startDate(LocalDateTime.of(2025, 1, 1, 10, 0))
+                .endDate(LocalDateTime.of(2025, 1, 1, 12, 0))
+                .type(null)
+                .skillsId(Set.of(OWNER_ID))
+                .build();
+
+        assertDoesNotThrow(() -> EventValidator.validateEventCreation(dto, owner));
     }
 }

@@ -17,6 +17,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -26,55 +27,84 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 @Service
 public class EventService {
-
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final EventMapper eventMapper;
     private final UserContext userContext;
 
-    private static final String DEFAULT_LOCATION = "location";
-
     public EventDto create(CreateEventDto createEventDto) {
-        Long ownerId = userContext.getUserId();
+        long ownerId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(ownerId);
 
         EventValidator.validateEventCreation(createEventDto, owner);
+        EventValidator.validateEventDates(createEventDto.startDate(), createEventDto.endDate());
 
-        Event event = eventMapper.toEvent(createEventDto);
+        Event event = EventMapper.toEvent(createEventDto);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
-        event.setLocation(DEFAULT_LOCATION);
 
         eventRepository.save(event);
-        log.info("Event created with id: {}", event.getId());
-        return eventMapper.toEventDto(event);
+        log.info("Event created: id={}, title='{}', ownerId={}, type={}, status={}",
+                event.getId(),
+                event.getTitle(),
+                owner.getId(),
+                event.getType(),
+                event.getStatus());
+
+        return EventMapper.toEventDto(event);
     }
 
     public EventDto update(long eventId, UpdateEventDto updateEventDto) {
         Event event = eventRepository.getByIdOrThrow(eventId);
+
         EventValidator.validateOwner(event, userContext.getUserId());
-        eventMapper.update(updateEventDto, event);
+        if (updateEventDto.startDate()
+                != null || updateEventDto.endDate() != null) {
+            LocalDateTime start = updateEventDto.startDate()
+                    != null ? updateEventDto.startDate() : event.getStartDate();
+            LocalDateTime end = updateEventDto.endDate()
+                    != null ? updateEventDto.endDate() : event.getEndDate();
+            EventValidator.validateEventDates(start, end);
+        }
+
+        EventMapper.updateEvent(updateEventDto, event);
         eventRepository.save(event);
-        log.info("Event updated: {}", eventId);
-        return eventMapper.toEventDto(event);
+        log.info("Event updated: id={}, title='{}', ownerId={}, type={}, status={}",
+                event.getId(),
+                event.getTitle(),
+                event.getOwner().getId(),
+                event.getType(),
+                event.getStatus());
+        return EventMapper.toEventDto(event);
     }
 
 
-    public List<EventDto> getByFilters(EventFilterDto filters) {
-        List<Event> events = eventRepository.findAll();
-        return events.stream()
+    public List<Event> getByFilters(EventFilterDto filters) {
+        List<Event> allEvents = eventRepository.findAll();
+
+        if (filters == null) {
+            return allEvents;
+        }
+
+        return allEvents.stream()
                 .filter(event -> matchesFilters(event, filters))
-                .map(eventMapper::toEventDto)
                 .toList();
     }
 
     public void delete(long eventId) {
-        Long currentUserId = userContext.getUserId();
+        long currentUserId = userContext.getUserId();
+        Event event = eventRepository.findById(eventId).orElse(null);
+
         int deletedCount = eventRepository.deleteById(currentUserId, eventId);
+
         if (deletedCount == 0) {
+            log.warn("Failed to delete event: id={}, userId={} — not found or access denied",
+                    eventId, currentUserId);
             throw new EntityNotFoundException("Event not found or access denied");
         }
-        log.info("Event deleted: {}", eventId);
+
+        String title = event != null ? event.getTitle() : "unknown";
+        log.info("Event deleted: id={}, title='{}', deletedByUserId={}",
+                eventId, title, currentUserId);
     }
 
     private boolean matchesFilters(Event event, EventFilterDto filters) {
@@ -85,16 +115,21 @@ public class EventService {
         List<Predicate<Event>> predicates = new ArrayList<>();
 
         if (filters.titleContains() != null) {
-            predicates.add(e -> e.getTitle().contains(filters.titleContains()));
+            predicates.add(e -> e.getTitle() != null
+                    && e.getTitle().contains(filters.titleContains()));
         }
         if (filters.descriptionContains() != null) {
-            predicates.add(e -> e.getDescription().contains(filters.descriptionContains()));
+            predicates.add(e -> e.getDescription() != null
+                    && e.getDescription().contains(filters.descriptionContains()));
         }
         if (filters.ownerId() != null) {
-            predicates.add(e -> e.getOwner().getId().equals(filters.ownerId()));
+            predicates.add(e -> e.getOwner() != null
+                    && e.getOwner().getId() != null
+                    && e.getOwner().getId().equals(filters.ownerId()));
         }
         if (filters.type() != null) {
-            predicates.add(e -> e.getType().equals(filters.type()));
+            predicates.add(e -> e.getType() != null
+                    && e.getType().equals(filters.type()));
         }
 
         return predicates.stream()

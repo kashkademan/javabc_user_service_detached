@@ -3,8 +3,8 @@ package school.faang.user_service.dto.event;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.springframework.lang.Nullable;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import java.time.LocalDateTime;
@@ -12,20 +12,15 @@ import java.util.Set;
 
 @Builder
 public record UpdateEventDto(
-        @Nullable
+        @Size(min = 1, max = 255)
         String title,
-        @Nullable
         String description,
-        @Nullable @FutureOrPresent
+        @FutureOrPresent
         LocalDateTime startDate,
-        @Nullable @Future
+        @Future
         LocalDateTime endDate,
-        @Nullable
         EventType type,
-        @Nullable
         EventStatus status,
-        @Nullable
         Integer maxAttendees,
-        @Nullable
         Set<Long> skillsId
 ) {}

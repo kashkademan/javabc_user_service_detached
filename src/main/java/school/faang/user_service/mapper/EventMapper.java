@@ -1,47 +1,77 @@
 package school.faang.user_service.mapper;
 
-
-import org.mapstruct.InheritConfiguration;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
-import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
+import school.faang.user_service.entity.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+
 public interface EventMapper {
 
-    Event toEvent(CreateEventDto eventDto);
-
-    @Mapping(target = "ownerId", source = "owner.id")
-    @Mapping(target = "skills", source = "relatedSkills", qualifiedByName = "mapSkillTitles")
-    EventDto toEventDto(Event event);
-
-    @InheritConfiguration(name = "toEvent")
-    void update(UpdateEventDto eventDto, @MappingTarget Event entity);
-
-    @Named("mapSkillTitles")
-    default Set<String> mapSkillTitles(List<Skill> skills) {
-        if (skills == null || skills.isEmpty()) {
-            return Set.of();
+    static Event toEvent(CreateEventDto dto) {
+        if (dto == null) {
+            return null;
         }
-        return skills.stream()
-                .map(Skill::getTitle)
-                .collect(Collectors.toSet());
+
+        Event event = new Event();
+        event.setTitle(dto.title());
+        event.setDescription(dto.description());
+        event.setStartDate(dto.startDate());
+        event.setEndDate(dto.endDate());
+        event.setType(dto.type());
+        event.setStatus(EventStatus.PLANNED);
+        event.setRelatedSkills(mapSkills(dto.skillsId()));
+
+        return event;
     }
 
-    default List<Skill> mapSkills(Set<Long> skillIds) {
+    static void updateEvent(UpdateEventDto dto, Event event) {
+        if (dto == null || event == null) {
+            return;
+        }
+
+        Optional.ofNullable(dto.title()).ifPresent(event::setTitle);
+        Optional.ofNullable(dto.description()).ifPresent(event::setDescription);
+        Optional.ofNullable(dto.startDate()).ifPresent(event::setStartDate);
+        Optional.ofNullable(dto.endDate()).ifPresent(event::setEndDate);
+        Optional.ofNullable(dto.type()).ifPresent(event::setType);
+
+        if (dto.skillsId() != null) {
+            event.setRelatedSkills(mapSkills(dto.skillsId()));
+        }
+    }
+
+    static EventDto toEventDto(Event event) {
+        if (event == null) {
+            return null;
+        }
+
+        User owner = event.getOwner();
+
+        return EventDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .status(event.getStatus())
+                .type(event.getType())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .ownerId(owner != null ? owner.getId() : null)
+                .skills(mapSkillTitles(event.getRelatedSkills()))
+                .build();
+    }
+
+    private static List<Skill> mapSkills(Set<Long> skillIds) {
         if (skillIds == null || skillIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -52,5 +82,15 @@ public interface EventMapper {
                     return skill;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private static Set<String> mapSkillTitles(List<Skill> skills) {
+        if (skills == null || skills.isEmpty()) {
+            return Set.of();
+        }
+        return skills.stream()
+                .map(Skill::getTitle)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 }

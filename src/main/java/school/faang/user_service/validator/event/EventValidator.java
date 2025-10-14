@@ -1,6 +1,5 @@
 package school.faang.user_service.validator.event;
 
-import org.springframework.util.ObjectUtils;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 public class EventValidator {
     public static void validateOwner(Event event, long currentUserId) {
         if (event.getOwner() == null) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("Event owner is null");
         }
         if (!Objects.equals(currentUserId, event.getOwner().getId())) {
             throw new ForbiddenException("Only owner can modify event");
@@ -25,11 +24,20 @@ public class EventValidator {
     }
 
     public static void validateOwnerSkills(User owner, Set<Long> skillsId) {
-        if (ObjectUtils.isEmpty(skillsId)) {
+        if (owner == null) {
+            throw new IllegalArgumentException("Owner cannot be null");
+        }
+
+        if (skillsId == null || skillsId.isEmpty()) {
             return;
         }
 
+        if (owner.getSkills() == null || owner.getSkills().isEmpty()) {
+            throw new DataValidationException("Owner does not have any skills, required: " + skillsId);
+        }
+
         Set<Long> ownerSkillsId = owner.getSkills().stream()
+                .filter(Objects::nonNull)
                 .map(Skill::getId)
                 .collect(Collectors.toSet());
 

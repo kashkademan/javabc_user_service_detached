@@ -16,7 +16,7 @@ import java.util.Set;
 public record CreateEventDto(
         @NotBlank
         String title,
-        @NotBlank @Size(min = 1, max = 64)
+        @Size(min = 1, max = 255)
         String description,
         @NotNull @FutureOrPresent
         LocalDateTime startDate,
@@ -24,6 +24,5 @@ public record CreateEventDto(
         LocalDateTime endDate,
         @NotNull
         EventType type,
-        @NotNull
         Set<Long> skillsId
 ) {}
