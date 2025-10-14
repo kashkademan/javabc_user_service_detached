@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,7 +38,7 @@ public class MentorshipRequestController {
         return mentorshipRequestService.create(createMentorshipRequestDto);
     }
 
-    @GetMapping("/filtering")
+    @GetMapping()
     public List<MentorshipRequestDto> getByFilters(@Valid @RequestBody MentorshipRequestFilterDto filter) {
         return mentorshipRequestService.getByFilters(filter);
     }

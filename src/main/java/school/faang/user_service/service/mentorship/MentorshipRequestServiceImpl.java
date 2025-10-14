@@ -1,8 +1,10 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -11,7 +13,7 @@ import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.mentorship.MentorshipRequestFilter;
+import school.faang.user_service.filters.mentorship.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -25,6 +27,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Validated
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
@@ -33,7 +36,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final Period mentoringRequestLimitation;
 
     @Override
-    public MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
+    public @Valid MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
         businessRule(requestDto.mentorId());
 
         MentorshipRequest createMentorshipRequest = mentorshipRequestRepository
@@ -45,7 +48,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
-    public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
+    public List<@Valid MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
         Stream<MentorshipRequest> mentorshipRequestAll = mentorshipRequestRepository.findAll().stream();
 
         for (MentorshipRequestFilter itemFilter : mentorshipRequestFilter) {
@@ -83,7 +86,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
                 null,
                 RequestStatus.PENDING);
 
-        List<MentorshipRequestDto> mentorshipRequests = getByFilters(filter);
+        List<@Valid MentorshipRequestDto> mentorshipRequests = getByFilters(filter);
 
         if (mentorshipRequests.isEmpty()) {
             generateAnError("There is no mentoring request for the mentee ID that " + requestId);

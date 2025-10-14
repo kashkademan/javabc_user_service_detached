@@ -1,6 +1,5 @@
-package school.faang.user_service.filter.mentorship;
+package school.faang.user_service.filters.mentorship;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.user.MentorshipRequest;
@@ -12,12 +11,12 @@ import java.util.stream.Stream;
 public class MentorshipRequestFilterMentee implements MentorshipRequestFilter {
 
     @Override
-    public boolean isApplicable(@NotNull MentorshipRequestFilterDto mentorshipRequestFilterDto) {
+    public boolean isApplicable(MentorshipRequestFilterDto mentorshipRequestFilterDto) {
         return mentorshipRequestFilterDto.requesterId() != null;
     }
 
     @Override
-    public Stream<MentorshipRequest> apply(@NotNull Stream<MentorshipRequest> mentorshipRequest,
+    public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequest,
                                            MentorshipRequestFilterDto mentorshipRequestFilterDto) {
         return mentorshipRequest.filter((requester) -> Objects.equals(
                 mentorshipRequestFilterDto.requesterId(),
