@@ -3,6 +3,7 @@ package school.faang.user_service.service.skill;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -18,7 +19,7 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -50,7 +51,7 @@ public class SkillServiceImplTest {
     private SkillRepository skillRepository;
 
     @Spy
-    private SkillMapperImpl skillMapper;
+    private final SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
 
     @Mock
     private SkillOfferRepository skillOfferRepository;
@@ -64,14 +65,19 @@ public class SkillServiceImplTest {
     @Captor
     private ArgumentCaptor<Skill> captor;
 
-    private final Skill skill1 = mock(Skill.class);
-    private final Skill skill2 = mock(Skill.class);
-    private final long skill1Id = 10L;
-    private final long skill2Id = 15L;
-    private final Long userId = 1L;
+    private static final long SKILL1_ID = 10L;
+    private static final long SKILL2_ID = 15L;
+    private static final long USER_ID = 1L;
+    private final Skill skill1 = Skill.builder().id(SKILL1_ID).title("Java").build();
+    private final Skill skill2 = Skill.builder().id(SKILL2_ID).title("Spring").build();
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(skillService, "minSkillRecommendationsCount", 3);
+    }
 
     @Test
-    void testCreateWithNullSkillDto() {
+    public void testCreateWithNullSkillDto() {
         assertThrows(DataValidationException.class, () -> skillService.create(null));
     }
 
@@ -105,18 +111,12 @@ public class SkillServiceImplTest {
 
         SkillDto result = skillService.create(dto);
 
-        verify(skillRepository, times(1)).save(captor.capture());
+        verify(skillRepository).save(captor.capture());
         Skill skill = captor.getValue();
         assertEquals(dto.title(), skill.getTitle());
 
         assertNotNull(result);
         assertEquals(dto.title(), result.title());
-    }
-
-    private CreateSkillDto prepareCreateSkillDto(boolean existsByTitle) {
-        CreateSkillDto dto = new CreateSkillDto("title");
-        when(skillRepository.existsByTitle(dto.title())).thenReturn(existsByTitle);
-        return dto;
     }
 
     @Test
@@ -134,63 +134,54 @@ public class SkillServiceImplTest {
         Long currentUserId = 2L;
         when(userContext.getUserId()).thenReturn(currentUserId);
 
-        assertThrows(DataValidationException.class, () -> skillService.getByUserId(userId));
+        assertThrows(DataValidationException.class, () -> skillService.getByUserId(USER_ID));
     }
 
     @Test
     public void getByUserId_returnsEmptyListWhenNoSkills() {
-        when(userContext.getUserId()).thenReturn(userId);
-        when(skillRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(skillRepository.findAllByUserId(USER_ID)).thenReturn(Collections.emptyList());
 
-        List<SkillDto> result = skillService.getByUserId(userId);
+        List<SkillDto> result = skillService.getByUserId(USER_ID);
 
         assertTrue(result.isEmpty());
-        verify(skillRepository, times(1)).findAllByUserId(userId);
+        verify(skillRepository, times(1)).findAllByUserId(USER_ID);
     }
 
     @Test
     public void getByUserId_returnsSkillDtoWhenSkillsExist() {
-        when(userContext.getUserId()).thenReturn(userId);
+        when(userContext.getUserId()).thenReturn(USER_ID);
 
-        when(skill1.getTitle()).thenReturn("Java");
-        when(skill2.getTitle()).thenReturn("Spring");
+        when(skillRepository.findAllByUserId(USER_ID)).thenReturn(List.of(skill1, skill2));
 
-        when(skillRepository.findAllByUserId(userId)).thenReturn(List.of(skill1, skill2));
-
-        List<SkillDto> result = skillService.getByUserId(userId);
+        List<SkillDto> result = skillService.getByUserId(USER_ID);
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         assertEquals("Java", result.get(0).title());
         assertEquals("Spring", result.get(1).title());
-        verify(skillRepository, times(1)).findAllByUserId(userId);
+        verify(skillRepository, times(1)).findAllByUserId(USER_ID);
         verify(skillMapper, times(1)).toSkillDto(skill1);
         verify(skillMapper, times(1)).toSkillDto(skill2);
     }
 
     @Test
     public void getOfferedSkills_returnsEmptyListWhenNoSkillsOffered() {
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(Collections.emptyList());
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(Collections.emptyList());
 
-        List<SkillCandidateDto> result = skillService.getOfferedSkills(userId);
+        List<SkillCandidateDto> result = skillService.getOfferedSkills(USER_ID);
 
         assertTrue(result.isEmpty());
-        assertEquals(Collections.emptyList(), result);
-        verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
+        verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
     }
 
     @Test
     public void getOfferedSkills_returnsSkillCandidateDtoWhenSkillsExist() {
-        when(skill1.getId()).thenReturn(skill1Id);
-        when(skill2.getId()).thenReturn(skill2Id);
-        when(skill1.getTitle()).thenReturn("Java");
-        when(skill2.getTitle()).thenReturn("Spring");
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill1, skill2));
+        when(skillOfferRepository.countAllOffersOfSkill(skill1.getId(), USER_ID)).thenReturn(5);
+        when(skillOfferRepository.countAllOffersOfSkill(skill2.getId(), USER_ID)).thenReturn(3);
 
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(List.of(skill1, skill2));
-        when(skillOfferRepository.countAllOffersOfSkill(skill1.getId(), userId)).thenReturn(5);
-        when(skillOfferRepository.countAllOffersOfSkill(skill2.getId(), userId)).thenReturn(3);
-
-        List<SkillCandidateDto> result = skillService.getOfferedSkills(userId);
+        List<SkillCandidateDto> result = skillService.getOfferedSkills(USER_ID);
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -203,9 +194,9 @@ public class SkillServiceImplTest {
         assertEquals("Spring", resultDto2.skill().title());
         assertEquals(3, resultDto2.offersAmount());
 
-        verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
-        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(skill1Id, userId);
-        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(skill2Id, userId);
+        verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
+        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(SKILL1_ID, USER_ID);
+        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(SKILL2_ID, USER_ID);
     }
 
     @Test
@@ -213,49 +204,49 @@ public class SkillServiceImplTest {
         long skillId = 1L;
         when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
+        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(skillId, USER_ID));
 
         verify(skillRepository, times(1)).findById(skillId);
     }
 
     @Test
     public void acquireSkillFromOffers_throwsWhenUserDoesNotExist() {
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(skill1Id, userId));
+        assertThrows(EntityNotFoundException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID));
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
     }
 
     @Test
     public void acquireSkillFromOffers_throwsWhenUserIsNotOwner() {
         long currentUserId = 2L; // userId = 1L - owner
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mock(User.class)));
         when(userContext.getUserId()).thenReturn(currentUserId);
 
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skill1Id, userId));
+        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID));
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
         verify(userContext, times(1)).getUserId();
     }
 
     @Test
     public void acquireSkillFromOffers_throwsWhenUserAlreadyHasSkill() {
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
-        when(userContext.getUserId()).thenReturn(userId);
-        when(skillRepository.findUserSkill(skill1Id, userId)).thenReturn(Optional.of(mock(Skill.class)));
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mock(User.class)));
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(skillRepository.findUserSkill(SKILL1_ID, USER_ID)).thenReturn(Optional.of(mock(Skill.class)));
 
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skill1Id, userId));
+        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID));
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
         verify(userContext, times(1)).getUserId();
-        verify(skillRepository, times(1)).findUserSkill(skill1Id, userId);
+        verify(skillRepository, times(1)).findUserSkill(SKILL1_ID, USER_ID);
         verifyNoMoreInteractions(skillRepository);
         verifyNoMoreInteractions(userRepository);
         verifyNoMoreInteractions(skillOfferRepository);
@@ -263,74 +254,66 @@ public class SkillServiceImplTest {
 
     @Test
     public void acquireSkillFromOffers_throwsWhenSkillWasNotOffered() {
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
-        when(userContext.getUserId()).thenReturn(userId);
-        when(skillRepository.findUserSkill(skill1Id, userId)).thenReturn(Optional.empty());
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(Collections.emptyList());
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mock(User.class)));
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(skillRepository.findUserSkill(SKILL1_ID, USER_ID)).thenReturn(Optional.empty());
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(Collections.emptyList());
 
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skill1Id, userId));
+        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID));
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
         verify(userContext, times(1)).getUserId();
-        verify(skillRepository, times(1)).findUserSkill(skill1Id, userId);
-        verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
+        verify(skillRepository, times(1)).findUserSkill(SKILL1_ID, USER_ID);
+        verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
         verifyNoMoreInteractions(skillRepository);
         verifyNoMoreInteractions(userRepository);
     }
 
-    @BeforeEach
-    void setUpOne() {
-        ReflectionTestUtils.setField(skillService, "minSkillRecommendationsCount", 3);
-        when(skill1.getId()).thenReturn(skill1Id);
-        when(skill2.getId()).thenReturn(skill2Id);
-    }
-
     @Test
     public void acquireSkillFromOffers_throwsWhenRecommendationsAreLessThanMin() {
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
-        when(userContext.getUserId()).thenReturn(userId);
-        when(skillRepository.findUserSkill(skill1Id, userId)).thenReturn(Optional.empty());
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(List.of(skill1, skill2));
-        when(skillOfferRepository.countAllOffersOfSkill(skill1Id, userId)).thenReturn(2);
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mock(User.class)));
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(skillRepository.findUserSkill(SKILL1_ID, USER_ID)).thenReturn(Optional.empty());
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill1, skill2));
+        when(skillOfferRepository.countAllOffersOfSkill(SKILL1_ID, USER_ID)).thenReturn(2);
 
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skill1Id, userId));
+        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID));
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
         verify(userContext, times(1)).getUserId();
-        verify(skillRepository, times(1)).findUserSkill(skill1Id, userId);
-        verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
-        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(skill1Id, userId);
-        verify(skillRepository, never()).assignSkillToUser(skill1Id, userId);
-    }
-
-    @BeforeEach
-    void setUpTwo() {
-        ReflectionTestUtils.setField(skillService, "minSkillRecommendationsCount", 3);
-        when(skill1.getId()).thenReturn(skill1Id);
-        when(skill2.getId()).thenReturn(skill2Id);
+        verify(skillRepository, times(1)).findUserSkill(SKILL1_ID, USER_ID);
+        verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
+        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(SKILL1_ID, USER_ID);
+        verify(skillRepository, never()).assignSkillToUser(SKILL1_ID, USER_ID);
     }
 
     @Test
     public void acquireSkillFromOffers_assignsSkillToUserSuccessfully() {
-        when(skillRepository.findById(skill1Id)).thenReturn(Optional.of(skill1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mock(User.class)));
-        when(userContext.getUserId()).thenReturn(userId);
-        when(skillRepository.findUserSkill(skill1Id, userId)).thenReturn(Optional.empty());
-        when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(List.of(skill1, skill2));
-        when(skillOfferRepository.countAllOffersOfSkill(skill1Id, userId)).thenReturn(3);
+        when(skillRepository.findById(SKILL1_ID)).thenReturn(Optional.of(skill1));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(mock(User.class)));
+        when(userContext.getUserId()).thenReturn(USER_ID);
+        when(skillRepository.findUserSkill(SKILL1_ID, USER_ID)).thenReturn(Optional.empty());
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(List.of(skill1, skill2));
+        when(skillOfferRepository.countAllOffersOfSkill(SKILL1_ID, USER_ID)).thenReturn(3);
 
-        skillService.acquireSkillFromOffers(skill1Id, userId);
+        skillService.acquireSkillFromOffers(SKILL1_ID, USER_ID);
 
-        verify(skillRepository, times(1)).findById(skill1Id);
-        verify(userRepository, times(1)).findById(userId);
+        verify(skillRepository, times(1)).findById(SKILL1_ID);
+        verify(userRepository, times(1)).findById(USER_ID);
         verify(userContext, times(1)).getUserId();
-        verify(skillRepository, times(1)).findUserSkill(skill1Id, userId);
-        verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
-        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(skill1Id, userId);
-        verify(skillRepository, times(1)).assignSkillToUser(skill1Id, userId);
+        verify(skillRepository, times(1)).findUserSkill(SKILL1_ID, USER_ID);
+        verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
+        verify(skillOfferRepository, times(1)).countAllOffersOfSkill(SKILL1_ID, USER_ID);
+        verify(skillRepository, times(1)).assignSkillToUser(SKILL1_ID, USER_ID);
+    }
+
+    private CreateSkillDto prepareCreateSkillDto(boolean existsByTitle) {
+        CreateSkillDto dto = new CreateSkillDto("title");
+        when(skillRepository.existsByTitle(dto.title())).thenReturn(existsByTitle);
+        return dto;
     }
 }
