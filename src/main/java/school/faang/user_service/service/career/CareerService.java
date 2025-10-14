@@ -23,19 +23,19 @@ public class CareerService {
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
         CareerValidator.validateCareerDates(createCareerDto);
+
         long requesterId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(requesterId);
+
         Career career = careerMapper.toCareer(createCareerDto);
         career.setUser(user);
+
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
     }
 
     public CareerDto getById(long careerId) {
-        long requesterId = userContext.getUserId();
-        User user = userRepository.getByIdOrThrow(requesterId);
         Career career = careerRepository.getByIdOrThrow(careerId);
-        CareerValidator.validateOwner(career, user.getId());
         return CareerMapper.toCareerDtoWithUser(career);
     }
 
@@ -43,16 +43,21 @@ public class CareerService {
         long requesterId = userContext.getUserId();
         Career career = careerRepository.getByIdOrThrow(careerId);
         User user = userRepository.getByIdOrThrow(requesterId);
+
         CareerValidator.validateOwner(career, user.getId());
         careerRepository.delete(career);
     }
 
     public CareerDto updateCareer(long careerId, UpdateCareerDto updateCareerDto) {
         CareerValidator.validateCareerDates(updateCareerDto);
+
         long userId = userContext.getUserId();
         Career career = careerRepository.getByIdOrThrow(careerId);
+
         CareerValidator.validateOwner(career, userId);
+
         CareerMapper.update(updateCareerDto, career);
+
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
     }
