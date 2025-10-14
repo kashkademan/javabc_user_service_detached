@@ -40,3 +40,6 @@ user:
   password:
     min:
       length: 6
+
+goal:
+  max-active-goals: 2
