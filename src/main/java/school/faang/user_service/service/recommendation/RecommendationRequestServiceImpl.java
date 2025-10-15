@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -25,8 +24,6 @@ import school.faang.user_service.repository.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Service
@@ -65,16 +62,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 });
 
         log.debug("Validating users existence: requesterId={}, receiverId={}", dto.requesterId(), dto.receiverId());
-        User requester = userRepository.findById(dto.requesterId())
-                .orElseThrow(() -> {
-                    log.warn("Requester not found: requesterId={}", dto.requesterId());
-                    return new ResponseStatusException(BAD_REQUEST, "Requester not found");
-                });
-        User receiver = userRepository.findById(dto.receiverId())
-                .orElseThrow(() -> {
-                    log.warn("Receiver not found: receiverId={}", dto.receiverId());
-                    return new ResponseStatusException(BAD_REQUEST, "Receiver not found");
-                });
+
+        User requester = userRepository.getByIdOrThrow(dto.requesterId());
+        User receiver = userRepository.getByIdOrThrow(dto.receiverId());
 
         RecommendationRequest request = recommendationRequestMapper
                 .toRecommendationRequest(dto);
