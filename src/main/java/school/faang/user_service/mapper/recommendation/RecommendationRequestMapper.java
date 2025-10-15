@@ -14,7 +14,6 @@ import java.util.List;
 public interface RecommendationRequestMapper {
 
     @Mapping(target = "id", ignore = true)
-    //@Mapping(target = "message", ignore = true)
     @Mapping(source = "requesterId", target = "requester.id")
     @Mapping(source = "receiverId", target = "receiver.id")
     @Mapping(target = "status", ignore = true)
