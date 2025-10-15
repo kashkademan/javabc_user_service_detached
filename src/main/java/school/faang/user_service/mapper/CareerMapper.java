@@ -19,8 +19,8 @@ public interface CareerMapper {
         return CareerDto.builder()
                 .id(career.getId())
                 .userId(career.getUser().getId())
-                .to(career.getDateTo())
                 .from(career.getDateFrom())
+                .to(career.getDateTo())
                 .company(career.getCompany())
                 .position(career.getPosition())
                 .build();
