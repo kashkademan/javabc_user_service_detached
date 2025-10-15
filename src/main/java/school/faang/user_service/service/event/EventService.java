@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.User;
@@ -31,14 +31,14 @@ public class EventService {
     private final UserRepository userRepository;
     private final UserContext userContext;
 
-    public EventDto create(CreateEventDto createEventDto) {
+    public EventDto create(EventCreateDto eventCreateDto) {
         long ownerId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(ownerId);
 
-        EventValidator.validateEventCreation(createEventDto, owner);
-        EventValidator.validateEventDates(createEventDto.startDate(), createEventDto.endDate());
+        EventValidator.validateEventCreation(eventCreateDto, owner);
+        EventValidator.validateEventDates(eventCreateDto.startDate(), eventCreateDto.endDate());
 
-        Event event = EventMapper.toEvent(createEventDto);
+        Event event = EventMapper.toEvent(eventCreateDto);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
 
@@ -53,20 +53,20 @@ public class EventService {
         return EventMapper.toEventDto(event);
     }
 
-    public EventDto update(long eventId, UpdateEventDto updateEventDto) {
+    public EventDto update(long eventId, EventUpdateDto eventUpdateDto) {
         Event event = eventRepository.getByIdOrThrow(eventId);
 
         EventValidator.validateOwner(event, userContext.getUserId());
-        if (updateEventDto.startDate()
-                != null || updateEventDto.endDate() != null) {
-            LocalDateTime start = updateEventDto.startDate()
-                    != null ? updateEventDto.startDate() : event.getStartDate();
-            LocalDateTime end = updateEventDto.endDate()
-                    != null ? updateEventDto.endDate() : event.getEndDate();
+        if (eventUpdateDto.startDate()
+                != null || eventUpdateDto.endDate() != null) {
+            LocalDateTime start = eventUpdateDto.startDate()
+                    != null ? eventUpdateDto.startDate() : event.getStartDate();
+            LocalDateTime end = eventUpdateDto.endDate()
+                    != null ? eventUpdateDto.endDate() : event.getEndDate();
             EventValidator.validateEventDates(start, end);
         }
 
-        EventMapper.updateEvent(updateEventDto, event);
+        EventMapper.updateEvent(eventUpdateDto, event);
         eventRepository.save(event);
         log.info("Event updated: id={}, title='{}', ownerId={}, type={}, status={}",
                 event.getId(),

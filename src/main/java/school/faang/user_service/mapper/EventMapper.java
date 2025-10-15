@@ -1,10 +1,9 @@
 package school.faang.user_service.mapper;
 
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 public interface EventMapper {
 
-    static Event toEvent(CreateEventDto dto) {
+    static Event toEvent(EventCreateDto dto) {
         if (dto == null) {
             return null;
         }
@@ -29,13 +28,12 @@ public interface EventMapper {
         event.setStartDate(dto.startDate());
         event.setEndDate(dto.endDate());
         event.setType(dto.type());
-        event.setStatus(EventStatus.PLANNED);
         event.setRelatedSkills(mapSkills(dto.skillsId()));
 
         return event;
     }
 
-    static void updateEvent(UpdateEventDto dto, Event event) {
+    static void updateEvent(EventUpdateDto dto, Event event) {
         if (dto == null || event == null) {
             return;
         }

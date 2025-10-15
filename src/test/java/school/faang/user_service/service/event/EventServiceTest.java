@@ -5,14 +5,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -76,7 +78,7 @@ class EventServiceTest {
 
     @Test
     void testCreate_mapsAllFieldsCorrectly() {
-        CreateEventDto dto = CreateEventDto.builder()
+        EventCreateDto dto = EventCreateDto.builder()
                 .title("New Event")
                 .description("Desc")
                 .type(EventType.MEETING)
@@ -87,30 +89,28 @@ class EventServiceTest {
 
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(userRepository.getByIdOrThrow(OWNER_ID)).thenReturn(user);
-        when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> {
-            Event e = invocation.getArgument(0);
-            e.setId(EVENT_ID);
-            return e;
-        });
 
-        EventDto actualDto = eventService.create(dto);
+        // when
+        eventService.create(dto);
 
-        Event expectedEvent = EventMapper.toEvent(dto);
-        expectedEvent.setOwner(user);
-        expectedEvent.setStatus(EventStatus.PLANNED);
-        expectedEvent.setId(EVENT_ID);
+        // then
+        ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(eventRepository).save(captor.capture());
 
-        EventDto expectedDto = EventMapper.toEventDto(expectedEvent);
+        Event savedEvent = captor.getValue();
 
-        Assertions.assertThat(actualDto)
-                .usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(expectedDto);
+        assertThat(savedEvent.getTitle()).isEqualTo(dto.title());
+        assertThat(savedEvent.getDescription()).isEqualTo(dto.description());
+        assertThat(savedEvent.getType()).isEqualTo(dto.type());
+        assertThat(savedEvent.getStartDate()).isEqualTo(dto.startDate());
+        assertThat(savedEvent.getEndDate()).isEqualTo(dto.endDate());
+        assertThat(savedEvent.getOwner()).isEqualTo(user);
+        assertThat(savedEvent.getStatus()).isEqualTo(EventStatus.PLANNED);
     }
 
     @Test
     void testUpdate_mapsAllFieldsCorrectly() {
-        UpdateEventDto dto = UpdateEventDto.builder()
+        EventUpdateDto dto = EventUpdateDto.builder()
                 .title("Updated Title")
                 .description("Updated Desc")
                 .type(EventType.MEETING)
@@ -128,8 +128,7 @@ class EventServiceTest {
 
         EventDto expectedDto = EventMapper.toEventDto(event);
 
-        Assertions.assertThat(actualDto)
-                .usingRecursiveComparison()
+        assertThat(actualDto)
                 .isEqualTo(expectedDto);
     }
 
@@ -176,7 +175,7 @@ class EventServiceTest {
                 .map(EventMapper::toEventDto)
                 .toList();
 
-        Assertions.assertThat(result)
+        assertThat(result)
                 .hasSize(1)
                 .allMatch(dto -> dto.title().equals("Title"));
     }
@@ -205,7 +204,6 @@ class EventServiceTest {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(0);
 
-        org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class,
-                () -> eventService.delete(EVENT_ID));
+        assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
     }
 }

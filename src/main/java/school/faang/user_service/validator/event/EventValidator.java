@@ -1,6 +1,6 @@
 package school.faang.user_service.validator.event;
 
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -50,7 +50,7 @@ public class EventValidator {
         }
     }
 
-    public static void validateEventCreation(CreateEventDto dto, User owner) {
+    public static void validateEventCreation(EventCreateDto dto, User owner) {
         validateOwnerSkills(owner, dto.skillsId());
     }
 

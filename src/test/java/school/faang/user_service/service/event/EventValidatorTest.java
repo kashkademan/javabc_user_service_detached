@@ -2,12 +2,13 @@ package school.faang.user_service.service.event;
 
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.helpers.TestUtils;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
@@ -15,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EventValidatorTest {
@@ -39,10 +40,12 @@ public class EventValidatorTest {
         owner.setId(USER_ID);
         Event event = new Event();
         event.setOwner(owner);
-        long currentUserId = OWNER_ID;
 
-        assertThatThrownBy(() -> EventValidator.validateOwner(event, currentUserId))
-                .isInstanceOf(ForbiddenException.class);
+        ForbiddenException ex = assertThrows(
+                ForbiddenException.class,
+                () -> EventValidator.validateOwner(event, OWNER_ID)
+        );
+        assertEquals("Only owner can modify event", ex.getMessage());
     }
 
     @Test
@@ -103,9 +106,11 @@ public class EventValidatorTest {
         LocalDateTime start = null;
         LocalDateTime end = LocalDateTime.of(2025, 1, 1, 12, 0);
 
-        assertThatThrownBy(() -> EventValidator.validateEventDates(start, end))
-                .isInstanceOf(DataValidationException.class)
-                .hasMessage("Start and end dates cannot be null");
+        TestUtils.assertThrowsWithMessage(
+                DataValidationException.class,
+                "Start and end dates cannot be null",
+                () -> EventValidator.validateEventDates(start, end)
+        );
     }
 
     @Test
@@ -113,9 +118,11 @@ public class EventValidatorTest {
         LocalDateTime start = LocalDateTime.of(2025, 1, 1, 14, 0);
         LocalDateTime end = LocalDateTime.of(2025, 1, 1, 12, 0);
 
-        assertThatThrownBy(() -> EventValidator.validateEventDates(start, end))
-                .isInstanceOf(DataValidationException.class)
-                .hasMessage("Start date must be before end date");
+        TestUtils.assertThrowsWithMessage(
+                DataValidationException.class,
+                "Start date must be before end date",
+                () -> EventValidator.validateEventDates(start, end)
+        );
     }
 
     @Test
@@ -126,7 +133,7 @@ public class EventValidatorTest {
         User owner = new User();
         owner.setSkills(List.of(skill1));
 
-        CreateEventDto dto = CreateEventDto.builder()
+        EventCreateDto dto = EventCreateDto.builder()
                 .title("Title")
                 .description("Description")
                 .startDate(LocalDateTime.of(2025, 1, 1, 10, 0))

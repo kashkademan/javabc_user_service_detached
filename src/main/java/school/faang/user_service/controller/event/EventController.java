@@ -14,34 +14,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.controller.facade.event.EventFacade;
-import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.UpdateEventDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@RequestMapping("/events")
-@RestController
-@Validated
 @Slf4j
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/events")
+@Validated
 public class EventController {
 
     private final EventFacade eventFacade;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDto create(@Valid @RequestBody CreateEventDto createEventDto) {
-        log.info("Request to create event: {}", createEventDto.title());
-        return eventFacade.create(createEventDto);
+    public EventDto create(@Valid @RequestBody EventCreateDto eventCreateDto) {
+        log.info("Request to create event: {}", eventCreateDto.title());
+        return eventFacade.create(eventCreateDto);
     }
 
     @PatchMapping("/{eventId}")
     public EventDto update(@PathVariable long eventId,
-                           @Valid @RequestBody UpdateEventDto updateEventDto) {
+                           @Valid @RequestBody EventUpdateDto eventUpdateDto) {
         log.info("Request to update event with id={}", eventId);
-        return eventFacade.update(eventId, updateEventDto);
+        return eventFacade.update(eventId, eventUpdateDto);
     }
 
     @PostMapping("/filters")
