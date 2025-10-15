@@ -9,12 +9,11 @@ import school.faang.user_service.entity.user.Education;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface EducationMapper {
 
-    default Education toEducation(EducationCreateDto educationCreateDto) {
+    default  Education toEducation(EducationCreateDto educationCreateDto) {
         if (educationCreateDto == null) {
             return null;
         }
-        return Education
-                .builder()
+        return Education.builder()
                 .yearFrom(educationCreateDto.yearFrom())
                 .yearTo(educationCreateDto.yearTo())
                 .institution(educationCreateDto.institution())

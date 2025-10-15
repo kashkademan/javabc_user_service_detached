@@ -20,6 +20,8 @@ import school.faang.user_service.service.education.EducationService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
@@ -54,14 +56,14 @@ public class EducationServiceTest {
         user.setId(1L);
         user.setUsername("test_user");
 
-        education = new Education();
-        education.setId(10L);
-        education.setUser(user);
-        education.setYearFrom(2000);
-        education.setYearTo(2005);
-        education.setInstitution("University");
-        education.setEducationLevel("Bachelor");
-        education.setSpecialization("Computer Science");
+        education = new Education(
+                10L,
+                2000,
+                2005,
+                "University",
+                "Bachelor",
+                "Computer Science",
+                user);
 
         educationDto = new EducationDto(
                 10L,
@@ -91,9 +93,10 @@ public class EducationServiceTest {
 
         EducationDto result = educationService.addEducation(createDto);
 
-        assertThat(result).isNotNull();
-        assertThat(result.id()).isEqualTo(10L);
-        verify(educationRepository).save(education);
+        assertNotNull(result, "Результат не должен быть null");
+        assertEquals(educationDto, result, "Возвращенный DTO должен соответствовать ожидаемому");
+        verify(educationRepository).save(any(Education.class));
+        verify(educationMapper).toEducation(createDto);
         verify(educationMapper).toEducationDto(education);
     }
 

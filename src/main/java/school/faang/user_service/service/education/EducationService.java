@@ -15,7 +15,7 @@ import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import static school.faang.user_service.service.education.Validators.validateUserIsEducationOwner;
-import static school.faang.user_service.service.education.Validators.validateYearFrom;
+import static school.faang.user_service.service.education.Validators.validateYearFromYearTo;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,17 +28,15 @@ public class EducationService {
 
     public EducationDto addEducation(EducationCreateDto educationCreateDto) {
         long userId = userContext.getUserId();
-        log.info("Добавление образования для пользователя {} с ID: {}",
-                userRepository.getByIdOrThrow(userId).getUsername(), userId);
-
-        validateYearFrom(educationCreateDto.yearFrom());
 
         User user = userRepository.getByIdOrThrow(userId);
+        log.info("Добавление образования для пользователя {} с ID: {}",
+                user.getUsername(), userId);
+
+        validateYearFromYearTo(educationCreateDto.yearFrom(), educationCreateDto.yearTo());
 
         Education education = educationMapper.toEducation(educationCreateDto);
-
         education.setUser(user);
-
         Education saveEducation = educationRepository.save(education);
         log.info("Образование успешно добавлено для пользователя {} с ID: {}",
                 user.getUsername(), saveEducation.getId());
@@ -48,11 +46,12 @@ public class EducationService {
 
     public EducationDto updateEducation(long educationId, EducationUpdateDto educationUpdateDto) {
         long userId = userContext.getUserId();
-        log.info("Обновление образования с ID: {} для пользователя с ID: {}", educationId, userId);
-
-        validateYearFrom(educationUpdateDto.yearFrom());
 
         Education existingEducation = educationRepository.getByIdOrThrow(educationId);
+        log.info("Обновление образования с ID: {} для пользователя {}", educationId,
+                existingEducation.getUser().getUsername());
+
+        validateYearFromYearTo(educationUpdateDto.yearFrom(), educationUpdateDto.yearTo());
         validateUserIsEducationOwner(userId, existingEducation);
 
         educationMapper.updateEducationFromDto(educationUpdateDto, existingEducation);
@@ -78,8 +77,8 @@ public class EducationService {
         validateUserIsEducationOwner(userId, existingEducation);
 
         educationRepository.deleteById(educationId);
-        log.info("Образование Пользователя {} с ID: {} были удалены",
-                existingEducation.getUser().getUsername(), educationId);
+        log.info("Образование Пользователя {} с ID: {} было удалено", existingEducation.getUser().getUsername(),
+                educationId);
         return educationMapper.toEducationDto(existingEducation);
     }
 }
