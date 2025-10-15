@@ -5,6 +5,63 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+}
+
+val excludedPackages = listOf(
+        "**/client/**",
+        "**/mapper/**",
+        "**/entity/**",
+        "**/config/**",
+        "**/dto/**",
+        "**/model/**",
+        "**/repository**",
+        "**/**Test.class",
+        "**/PostServiceApp.class",
+        "**/**Impl",
+        "**.redis.**"
+)
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+    }
+
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it).apply {
+            exclude(excludedPackages)
+        }
+    }))
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "CLASS"
+            excludes = excludedPackages.map { it.replace("**/", "**.").replace("/**", ".**") }
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.7".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 group = "faang.school"
