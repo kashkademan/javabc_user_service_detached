@@ -1,5 +1,11 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +27,20 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/subscriptions")
+@Tag(name = "User Subscription Controller", description = "API endpoints for managing user subscriptions")
 public class UserSubscriptionController {
 
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
     @PostMapping("/follow/{followeeId}")
-    public ResponseEntity<String> followUser(@PathVariable long followeeId) {
+    @Operation(summary = "Follow a user by ID", description = "Allows a user to follow another user by their ID.")
+    @ApiResponse(responseCode = "200", description = "User successfully followed",
+        content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request",
+        content = @Content(schema = @Schema(implementation = String.class)))
+    public ResponseEntity<String> followUser(@Parameter(description = "ID of the user to follow", required = true)
+                                             @PathVariable long followeeId) {
         long followerId = userContext.getUserId();
         try {
             userSubscriptionService.followUser(followerId, followeeId);
@@ -38,7 +51,13 @@ public class UserSubscriptionController {
     }
 
     @PostMapping("/unfollow/{followeeId}")
-    public ResponseEntity<String> unfollowUser(@PathVariable long followeeId) {
+    @Operation(summary = "Unfollow a user by ID", description = "Allows a user to unfollow another user by their ID.")
+    @ApiResponse(responseCode = "200", description = "User successfully unfollowed",
+        content = @Content(schema = @Schema(implementation = String.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request",
+        content = @Content(schema = @Schema(implementation = String.class)))
+    public ResponseEntity<String> unfollowUser(@Parameter(description = "ID of the user to unfollow", required = true)
+                                               @PathVariable long followeeId) {
         long followerId = userContext.getUserId();
         try {
             userSubscriptionService.unfollowUser(followerId, followeeId);
@@ -49,22 +68,46 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/followers/count/{followeeId}")
-    public CountResponse getFollowersCount(@PathVariable long followeeId) {
+    @Operation(summary = "Get followers count by followee ID",
+        description = "Returns the count of followers for a given followee ID.")
+    @ApiResponse(responseCode = "200", description = "Followers count retrieved successfully",
+        content = @Content(schema = @Schema(implementation = CountResponse.class)))
+    public CountResponse getFollowersCount(@Parameter(description = "ID of the followee", required = true)
+                                           @PathVariable long followeeId) {
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
     @GetMapping("/followees/count/{followerId}")
-    public CountResponse getFolloweesCount(@PathVariable long followerId) {
+    @Operation(summary = "Get followees count by follower ID",
+        description = "Returns the count of followees for a given follower ID.")
+    @ApiResponse(responseCode = "200", description = "Followees count retrieved successfully",
+        content = @Content(schema = @Schema(implementation = CountResponse.class)))
+    public CountResponse getFolloweesCount(@Parameter(description = "ID of the follower", required = true)
+                                           @PathVariable long followerId) {
         return userSubscriptionService.getFolloweesCount(followerId);
     }
 
     @GetMapping("/followers/{followeeId}")
-    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestBody UserFiltersDto userFiltersDto) {
+    @Operation(summary = "Get followers by followee ID and filters",
+        description = "Returns a list of followers for a given followee ID with optional filters.")
+    @ApiResponse(responseCode = "200", description = "Followers retrieved successfully",
+        content = @Content(schema = @Schema(implementation = UserDto.class)))
+    public List<UserDto> getFollowers(@Parameter(description = "ID of the followee", required = true)
+                                      @PathVariable long followeeId,
+                                      @Parameter(description = "Filters for followers", required = true)
+                                      @RequestBody UserFiltersDto userFiltersDto) {
         return userSubscriptionService.getFollowers(followeeId, userFiltersDto);
     }
 
     @GetMapping("/followees/{followerId}")
-    public List<UserDto> getFollowees(@PathVariable long followerId, @RequestBody UserFiltersDto userFiltersDto) {
+    @Operation(summary = "Get followees by follower ID and filters",
+        description = "Returns a list of followees for a given follower ID with optional filters.")
+    @ApiResponse(responseCode = "200", description = "Followees retrieved successfully",
+        content = @Content(schema = @Schema(implementation = UserDto.class)))
+    public List<UserDto> getFollowees(@Parameter(description = "ID of the follower", required = true)
+                                      @PathVariable long followerId,
+                                      @Parameter(description = "Filters for followees", required = true)
+                                      @RequestBody UserFiltersDto userFiltersDto) {
         return userSubscriptionService.getFollowees(followerId, userFiltersDto);
     }
 }
