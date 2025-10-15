@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -22,7 +23,7 @@ import school.faang.user_service.filters.recommendation.RecommendationAuthorFilt
 import school.faang.user_service.filters.recommendation.RecommendationContentFilter;
 import school.faang.user_service.filters.recommendation.RecommendationFilter;
 import school.faang.user_service.filters.recommendation.RecommendationReceiverFilter;
-import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -107,7 +108,6 @@ class RecommendationServiceImplTest {
         return new FilterRecommendationRequestDto(content, authorId, receiverId);
     }
 
-    // ===== Mocks / SUT wiring =====
     @Spy
     private RecommendationContentFilter contentFilter;
     @Spy
@@ -123,7 +123,7 @@ class RecommendationServiceImplTest {
     private UserContext userContext;
 
     @Spy
-    private RecommendationMapperImpl recommendationMapper;
+    private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
 
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
@@ -134,8 +134,6 @@ class RecommendationServiceImplTest {
         List<RecommendationFilter> filters = List.of(contentFilter, receiverFilter, authorFilter);
         ReflectionTestUtils.setField(recommendationService, "recommendationFilters", filters);
     }
-
-    // ===== Tests =====
 
     @Test
     @DisplayName("should correctly map Recommendation entity to RecommendationResponseDto")
