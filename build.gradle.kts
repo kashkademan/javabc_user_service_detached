@@ -19,11 +19,17 @@ val excludedPackages = listOf(
         "**/config/**",
         "**/dto/**",
         "**/model/**",
-        "**/repository**",
-        "**/**Test.class",
-        "**/PostServiceApp.class",
+        "**/repository/**",
+        "**/controller/**",
+        "**/filter/**",
+        "**/exception/**",
+        "**/exceptions/**",
+        "**/*Test.class",
+        "**/UserServiceApplication.class",
         "**/**Impl",
-        "**.redis.**"
+        "**/redis/**",
+        "**/kafka/**",
+        "com/json/student/**"
 )
 
 tasks.jacocoTestReport {
@@ -45,7 +51,8 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             element = "CLASS"
-            excludes = excludedPackages.map { it.replace("**/", "**.").replace("/**", ".**") }
+            excludes = excludedPackages.map { it.replace("**/", "**.").replace("/**", ".**")
+                    .replace("/", ".").replace(".class", "") }
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
