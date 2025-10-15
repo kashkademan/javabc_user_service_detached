@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -22,7 +23,7 @@ import school.faang.user_service.filters.recommendation.RecommendationAuthorFilt
 import school.faang.user_service.filters.recommendation.RecommendationContentFilter;
 import school.faang.user_service.filters.recommendation.RecommendationFilter;
 import school.faang.user_service.filters.recommendation.RecommendationReceiverFilter;
-import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -107,7 +108,6 @@ class RecommendationServiceImplTest {
         return new FilterRecommendationRequestDto(content, authorId, receiverId);
     }
 
-    // ===== Mocks / SUT wiring =====
     @Spy
     private RecommendationContentFilter contentFilter;
     @Spy
@@ -123,7 +123,7 @@ class RecommendationServiceImplTest {
     private UserContext userContext;
 
     @Spy
-    private RecommendationMapperImpl recommendationMapper;
+    private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
 
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
@@ -134,8 +134,6 @@ class RecommendationServiceImplTest {
         List<RecommendationFilter> filters = List.of(contentFilter, receiverFilter, authorFilter);
         ReflectionTestUtils.setField(recommendationService, "recommendationFilters", filters);
     }
-
-    // ===== Tests =====
 
     @Test
     @DisplayName("should correctly map Recommendation entity to RecommendationResponseDto")
@@ -309,13 +307,9 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("update: throws ForbiddenException when user tries to update another user's recommendation")
     void update_fail_forbidden() {
-        Recommendation existing = Recommendation.builder()
-                .id(RECOMMENDATION_ID)
-                .content(OLD_CONTENT)
-                .author(user(AUTHOR_ID))
-                .build();
+        Recommendation existing = rec(RECOMMENDATION_ID, OLD_CONTENT, AUTHOR_ID, RECEIVER_ID);
 
-        when(userContext.getUserId()).thenReturn(RECEIVER_ID);
+        when(userContext.getUserId()).thenReturn(ANOTHER_AUTHOR_ID);
         when(recommendationRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.of(existing));
 
         UpdateRecommendationRequestDto input = updateReq(UPDATED_CONTENT, null);
@@ -407,7 +401,8 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("getByFilters: returns all recommendations when filters are empty")
     void getByFilters_emptyFilters() {
-        Recommendation r1 = rec(RECOMMENDATION_ID,
+        Recommendation r1 = rec(
+                RECOMMENDATION_ID,
                 "First recommendation",
                 AUTHOR_ID,
                 RECEIVER_ID);
@@ -422,7 +417,8 @@ class RecommendationServiceImplTest {
         FilterRecommendationRequestDto f = filters(null, null, null);
         List<RecommendationResponseDto> response = recommendationService.getByFilters(f);
 
-        RecommendationResponseDto dto1 = resp(RECOMMENDATION_ID,
+        RecommendationResponseDto dto1 = resp(
+                RECOMMENDATION_ID,
                 AUTHOR_ID,
                 RECEIVER_ID,
                 "First recommendation");
