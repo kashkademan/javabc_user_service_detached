@@ -123,15 +123,15 @@ class EventServiceTest {
 
         Event updated = eventService.update(EVENT_ID, dto);
 
+        assertEquals(OWNER_ID, updated.getOwner().getId());
+        assertEquals(event.getStatus(), updated.getStatus());
+        assertEquals(event.getLocation(), updated.getLocation());
+
         assertEquals("Updated Title", event.getTitle());
         assertEquals("Updated Desc", event.getDescription());
         assertEquals(EventType.MEETING, event.getType());
         assertEquals(LocalDateTime.of(2025, 10, 16, 9, 0), event.getStartDate());
         assertEquals(LocalDateTime.of(2025, 10, 16, 10, 0), event.getEndDate());
-
-        assertEquals(OWNER_ID, updated.getOwner().getId());
-        assertEquals(event.getStatus(), updated.getStatus());
-        assertEquals(event.getLocation(), updated.getLocation());
 
         verify(eventRepository).save(updated);
     }
@@ -142,7 +142,7 @@ class EventServiceTest {
 
         List<EventDto> result = eventService.getByFilters(null).stream()
                 .map(EventMapper::toEventDto)
-                .toList();;
+                .toList();
 
         assertEquals(1, result.size());
         assertEquals(EVENT_ID, result.get(0).id());

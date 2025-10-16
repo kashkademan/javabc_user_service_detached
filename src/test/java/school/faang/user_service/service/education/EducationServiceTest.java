@@ -1,4 +1,4 @@
-package school.faang.user_service.service.education_unittest;
+package school.faang.user_service.service.education;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EducationMapper;
 import school.faang.user_service.repository.user.EducationRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.education.EducationService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
