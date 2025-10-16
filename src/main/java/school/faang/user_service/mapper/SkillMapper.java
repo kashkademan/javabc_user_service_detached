@@ -13,12 +13,12 @@ public interface SkillMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "users", ignore = true)
-    @Mapping(target = "guarantees")
     @Mapping(target = "events", ignore = true)
     @Mapping(target = "goals", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Skill toSkill(CreateSkillDto dto);
 
+    @Mapping(target = "guarantors", ignore = true)
     SkillDto toSkillDto(Skill skill);
 }

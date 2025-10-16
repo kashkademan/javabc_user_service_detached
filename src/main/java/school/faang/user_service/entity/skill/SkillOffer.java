@@ -16,14 +16,14 @@ public class SkillOffer {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "skill_id")
+    @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
     @ManyToOne
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
     @ManyToOne
-    @JoinColumn(name = "offered_user_id")
+    @JoinColumn(name = "offered_user_id", nullable = false)
     private User offeredUser;
 }
