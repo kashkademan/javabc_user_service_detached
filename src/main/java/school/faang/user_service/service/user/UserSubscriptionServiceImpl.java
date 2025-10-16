@@ -83,7 +83,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         return getUsersByUserId(followerId, userFiltersDto, subscriptionRepository::findByFollowerId, FOLLOWEES);
     }
 
-    public List<UserDto> getUsersByUserId(long userId,
+    private List<UserDto> getUsersByUserId(long userId,
                                           UserFiltersDto userFiltersDto,
                                           Function<Long, Stream<User>> findUsersFunction,
                                           String usersType) {
