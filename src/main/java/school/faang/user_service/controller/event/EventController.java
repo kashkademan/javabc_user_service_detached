@@ -11,7 +11,6 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validation.ValidationGroups;
 
 import java.util.List;
 
@@ -22,13 +21,13 @@ public class EventController {
     private final EventService eventService;
 
     public EventDto create(
-            @RequestBody @Validated(ValidationGroups.OnCreate.class) CreateEventDto eventDto) {
+            @RequestBody @Valid CreateEventDto eventDto) {
         return eventService.create(eventDto);
     }
 
     public EventDto update(
             @PathVariable long eventId,
-            @RequestBody @Validated(ValidationGroups.OnUpdate.class) UpdateEventDto updateEventDto) {
+            @RequestBody @Valid UpdateEventDto updateEventDto) {
         return eventService.update(eventId, updateEventDto);
     }
 
