@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import school.faang.user_service.client.FeignConfig;
 import school.faang.user_service.client.dto.PaymentRequest;
 import school.faang.user_service.client.dto.PaymentResponse;
 
-
-@FeignClient(name = "payment-service", url = "${payment-service.url", configuration = FunctionalInterface.class)
+@FeignClient(name = "payment-service", url = "${payment-service.url}", configuration = FeignConfig.class)
 public interface PaymentServiceClient {
 
     @PostMapping("/api/payment")
