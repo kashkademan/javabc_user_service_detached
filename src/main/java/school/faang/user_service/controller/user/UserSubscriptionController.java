@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CountResponse;
@@ -21,6 +22,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class UserSubscriptionController {
+    private static final int MAX_EXPERIENCE = Integer.MAX_VALUE;
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
@@ -51,18 +53,24 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/{followeeId}/followers")
-    public List<UserDto> getFollowers(@PathVariable long followeeId) {
+    public List<UserDto> getFollowers(@PathVariable long followeeId,
+                                      @RequestParam(required = false) String namePattern,
+                                      @RequestParam(required = false) String phonePattern,
+                                      @RequestParam(defaultValue = "0") int experienceMin,
+                                      @RequestParam(defaultValue = "" + MAX_EXPERIENCE) int experienceMax) {
         log.debug("Requesting a list of subscribers for a user: {}", followeeId);
-        UserFiltersDto filters = new UserFiltersDto(null,
-                null, 0, Integer.MAX_VALUE);
+        UserFiltersDto filters = new UserFiltersDto(namePattern, phonePattern, experienceMin, experienceMax);
         return userSubscriptionService.getFollowers(followeeId, filters);
     }
 
     @GetMapping("/{followerId}/followees")
-    public List<UserDto> getFollowees(@PathVariable long followerId) {
+    public List<UserDto> getFollowees(@PathVariable long followerId,
+                                      @RequestParam(required = false) String namePattern,
+                                      @RequestParam(required = false) String phonePattern,
+                                      @RequestParam(defaultValue = "0") int experienceMin,
+                                      @RequestParam(defaultValue = "" + MAX_EXPERIENCE) int experienceMax) {
         log.debug("Requesting a list of subscriptions for a user: {}", followerId);
-        UserFiltersDto filters = new UserFiltersDto(null,
-                null, 0, Integer.MAX_VALUE);
+        UserFiltersDto filters = new UserFiltersDto(namePattern, phonePattern, experienceMin, experienceMax);
         return userSubscriptionService.getFollowees(followerId, filters);
     }
 }
