@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,7 +16,7 @@ import school.faang.user_service.filter.UserExperienceFilterTest;
 import school.faang.user_service.filter.UserFilter;
 import school.faang.user_service.filter.UserNameFilterTest;
 import school.faang.user_service.filter.UserPhoneFilterTest;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.user.UserSubscriptionService;
@@ -45,10 +46,11 @@ class UserSubscriptionServiceTest {
     UserFilter userPhoneName = new UserPhoneFilterTest();
 
     @Spy
-    private UserMapperImpl userMapper;
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
-    private User follower;
-    private User followee;
+    private final User follower = User.builder().id(1L).experience(2).phone("88888").username("follower").build();
+    private final User followee = User.builder().id(2L).experience(3).phone("99999").username("followee").build();
+
     private UserSubscriptionService userSubscriptionService;
 
     @BeforeEach
@@ -59,18 +61,6 @@ class UserSubscriptionServiceTest {
             userMapper,
             List.of(userFilterExperience, userFilterName, userPhoneName)
         );
-
-        follower = new User();
-        follower.setId(1L);
-        follower.setExperience(2);
-        follower.setPhone("88888");
-        follower.setUsername("follower");
-
-        followee = new User();
-        followee.setId(2L);
-        followee.setExperience(3);
-        followee.setPhone("99999");
-        followee.setUsername("followee");
     }
 
     @Test
@@ -122,20 +112,22 @@ class UserSubscriptionServiceTest {
 
     @Test
     void testGetFollowersCount_Success() {
-        when(subscriptionRepository.findFollowersAmountByFolloweeId(anyLong())).thenReturn(5);
+        int count = 5;
+        when(subscriptionRepository.findFollowersAmountByFolloweeId(anyLong())).thenReturn(count);
 
         CountResponse response = userSubscriptionService.getFollowersCount(followee.getId());
 
-        assertEquals(5, response.getCount());
+        assertEquals(count, response.getCount());
     }
 
     @Test
     void testGetFolloweesCount_Success() {
-        when(subscriptionRepository.findFolloweesAmountByFollowerId(anyLong())).thenReturn(3);
+        int count = 3;
+        when(subscriptionRepository.findFolloweesAmountByFollowerId(anyLong())).thenReturn(count);
 
         CountResponse response = userSubscriptionService.getFolloweesCount(follower.getId());
 
-        assertEquals(3, response.getCount());
+        assertEquals(count, response.getCount());
     }
 
     @Test
@@ -155,6 +147,12 @@ class UserSubscriptionServiceTest {
                         5)
         );
         assertEquals(1, result.size());
+        UserDto expectedUserDto = userMapper.toUserDto(follower1);
+        UserDto actualUserDto = result.get(0);
+
+        assertEquals(expectedUserDto.id(), actualUserDto.id());
+        assertEquals(expectedUserDto.username(), actualUserDto.username());
+        assertEquals(expectedUserDto.phone(), actualUserDto.phone());
     }
 
     @Test
@@ -165,7 +163,7 @@ class UserSubscriptionServiceTest {
 
         when(subscriptionRepository.findByFolloweeId(anyLong())).thenReturn(followersStream);
 
-        List<UserDto> result1 = userSubscriptionService.getFollowers(
+        List<UserDto> result = userSubscriptionService.getFollowers(
                 1L,
                 new UserFiltersDto(
                         follower.getUsername(),
@@ -173,6 +171,6 @@ class UserSubscriptionServiceTest {
                         1,
                         5)
         );
-        assertTrue(result1.isEmpty());
+        assertTrue(result.isEmpty());
     }
 }
