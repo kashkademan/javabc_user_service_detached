@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.EventCreateDto;
-import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
@@ -17,7 +16,6 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -31,7 +29,7 @@ public class EventService {
     private final UserRepository userRepository;
     private final UserContext userContext;
 
-    public EventDto create(EventCreateDto eventCreateDto) {
+    public Event create(EventCreateDto eventCreateDto) {
         long ownerId = userContext.getUserId();
         User owner = userRepository.getByIdOrThrow(ownerId);
 
@@ -50,33 +48,27 @@ public class EventService {
                 event.getType(),
                 event.getStatus());
 
-        return EventMapper.toEventDto(event);
+        return event;
     }
 
-    public EventDto update(long eventId, EventUpdateDto eventUpdateDto) {
+    public Event update(long eventId, EventUpdateDto eventUpdateDto) {
         Event event = eventRepository.getByIdOrThrow(eventId);
 
         EventValidator.validateOwner(event, userContext.getUserId());
-        if (eventUpdateDto.startDate()
-                != null || eventUpdateDto.endDate() != null) {
-            LocalDateTime start = eventUpdateDto.startDate()
-                    != null ? eventUpdateDto.startDate() : event.getStartDate();
-            LocalDateTime end = eventUpdateDto.endDate()
-                    != null ? eventUpdateDto.endDate() : event.getEndDate();
-            EventValidator.validateEventDates(start, end);
-        }
+        EventValidator.validateEventUpdate(eventUpdateDto, event);
 
         EventMapper.updateEvent(eventUpdateDto, event);
         eventRepository.save(event);
+
         log.info("Event updated: id={}, title='{}', ownerId={}, type={}, status={}",
                 event.getId(),
                 event.getTitle(),
                 event.getOwner().getId(),
                 event.getType(),
                 event.getStatus());
-        return EventMapper.toEventDto(event);
-    }
 
+        return event;
+    }
 
     public List<Event> getByFilters(EventFilterDto filters) {
         List<Event> allEvents = eventRepository.findAll();
@@ -92,9 +84,15 @@ public class EventService {
 
     public void delete(long eventId) {
         long currentUserId = userContext.getUserId();
-        Event event = eventRepository.findById(eventId).orElse(null);
 
-        int deletedCount = eventRepository.deleteById(currentUserId, eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        if (!event.getOwner().getId().equals(currentUserId)) {
+            throw new SecurityException("You don't have permission to delete this event");
+        }
+
+        int deletedCount = eventRepository.deleteById(eventId, currentUserId);
 
         if (deletedCount == 0) {
             log.warn("Failed to delete event: id={}, userId={} — not found or access denied",
@@ -102,9 +100,8 @@ public class EventService {
             throw new EntityNotFoundException("Event not found or access denied");
         }
 
-        String title = event != null ? event.getTitle() : "unknown";
         log.info("Event deleted: id={}, title='{}', deletedByUserId={}",
-                eventId, title, currentUserId);
+                eventId, event.getTitle(), currentUserId);
     }
 
     private boolean matchesFilters(Event event, EventFilterDto filters) {

@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -143,5 +144,35 @@ public class EventValidatorTest {
                 .build();
 
         assertDoesNotThrow(() -> EventValidator.validateEventCreation(dto, owner));
+    }
+
+    @Test
+    void validateEventUpdate_validDatesFromDto_shouldNotThrow() {
+        EventUpdateDto dto = EventUpdateDto.builder()
+                .startDate(LocalDateTime.of(2025, 10, 20, 10, 0))
+                .endDate(LocalDateTime.of(2025, 10, 21, 10, 0))
+                .build();
+
+        Event existing = Event.builder()
+                .startDate(LocalDateTime.of(2025, 9, 1, 10, 0))
+                .endDate(LocalDateTime.of(2025, 9, 2, 10, 0))
+                .build();
+
+        assertDoesNotThrow(() -> EventValidator.validateEventUpdate(dto, existing));
+    }
+
+    @Test
+    void validateEventUpdate_nullDatesInDto_shouldUseExistingDates() {
+        EventUpdateDto dto = EventUpdateDto.builder()
+                .startDate(null)
+                .endDate(null)
+                .build();
+
+        Event existing = Event.builder()
+                .startDate(LocalDateTime.of(2025, 9, 1, 10, 0))
+                .endDate(LocalDateTime.of(2025, 9, 2, 10, 0))
+                .build();
+
+        assertDoesNotThrow(() -> EventValidator.validateEventUpdate(dto, existing));
     }
 }

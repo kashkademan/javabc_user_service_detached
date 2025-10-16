@@ -1,6 +1,7 @@
 package school.faang.user_service.validator.event;
 
 import school.faang.user_service.dto.event.EventCreateDto;
+import school.faang.user_service.dto.event.EventUpdateDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -52,6 +53,7 @@ public class EventValidator {
 
     public static void validateEventCreation(EventCreateDto dto, User owner) {
         validateOwnerSkills(owner, dto.skillsId());
+        validateEventDates(dto.startDate(), dto.endDate());
     }
 
     public static void validateEventDates(LocalDateTime startDate, LocalDateTime endDate) {
@@ -61,5 +63,11 @@ public class EventValidator {
         if (startDate.isAfter(endDate)) {
             throw new DataValidationException("Start date must be before end date");
         }
+    }
+
+    public static void validateEventUpdate(EventUpdateDto dto, Event existingEvent) {
+        LocalDateTime start = dto.startDate() != null ? dto.startDate() : existingEvent.getStartDate();
+        LocalDateTime end = dto.endDate() != null ? dto.endDate() : existingEvent.getEndDate();
+        validateEventDates(start, end);
     }
 }

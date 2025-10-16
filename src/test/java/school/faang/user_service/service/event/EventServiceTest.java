@@ -1,7 +1,6 @@
 package school.faang.user_service.service.event;
 
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +52,6 @@ class EventServiceTest {
 
     private static final Long OWNER_ID = 1L;
     private static final Long EVENT_ID = 10L;
-    private static final String DEFAULT_LOCATION = "location";
 
     private User user;
     private Event event;
@@ -72,7 +73,7 @@ class EventServiceTest {
                 .description("Desc")
                 .status(EventStatus.PLANNED)
                 .type(EventType.MEETING)
-                .location(DEFAULT_LOCATION)
+                .location("location")
                 .build();
     }
 
@@ -89,11 +90,8 @@ class EventServiceTest {
 
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(userRepository.getByIdOrThrow(OWNER_ID)).thenReturn(user);
-
-        // when
         eventService.create(dto);
 
-        // then
         ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
         verify(eventRepository).save(captor.capture());
 
@@ -114,22 +112,28 @@ class EventServiceTest {
                 .title("Updated Title")
                 .description("Updated Desc")
                 .type(EventType.MEETING)
+                .startDate(LocalDateTime.of(2025, 10, 16, 9, 0))
+                .endDate(LocalDateTime.of(2025, 10, 16, 10, 0))
                 .build();
 
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.getByIdOrThrow(EVENT_ID)).thenReturn(event);
-        when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(eventRepository.save(any(Event.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        EventDto actualDto = eventService.update(EVENT_ID, dto);
+        Event updated = eventService.update(EVENT_ID, dto);
 
         assertEquals("Updated Title", event.getTitle());
         assertEquals("Updated Desc", event.getDescription());
         assertEquals(EventType.MEETING, event.getType());
+        assertEquals(LocalDateTime.of(2025, 10, 16, 9, 0), event.getStartDate());
+        assertEquals(LocalDateTime.of(2025, 10, 16, 10, 0), event.getEndDate());
 
-        EventDto expectedDto = EventMapper.toEventDto(event);
+        assertEquals(OWNER_ID, updated.getOwner().getId());
+        assertEquals(event.getStatus(), updated.getStatus());
+        assertEquals(event.getLocation(), updated.getLocation());
 
-        assertThat(actualDto)
-                .isEqualTo(expectedDto);
+        verify(eventRepository).save(updated);
     }
 
     @Test
@@ -171,39 +175,49 @@ class EventServiceTest {
 
         when(eventRepository.findAll()).thenReturn(List.of(event));
 
-        List<EventDto> result = eventService.getByFilters(filter).stream()
-                .map(EventMapper::toEventDto)
-                .toList();
+        List<Event> result = eventService.getByFilters(filter);
 
-        assertThat(result)
-                .hasSize(1)
-                .allMatch(dto -> dto.title().equals("Title"));
+        assertEquals(1, result.size());
+        assertEquals("Title", result.get(0).getTitle());
     }
 
     @Test
     void testDelete_success() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(1);
-        when(eventRepository.findById(EVENT_ID)).thenReturn(java.util.Optional.of(event));
+        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
+        when(eventRepository.deleteById(EVENT_ID, OWNER_ID)).thenReturn(1);
 
         eventService.delete(EVENT_ID);
 
-        verify(eventRepository).deleteById(OWNER_ID, EVENT_ID);
+        verify(eventRepository).deleteById(EVENT_ID, OWNER_ID);
     }
 
     @Test
     void testDelete_fails_throwsEntityNotFound() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(0);
+        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> eventService.delete(EVENT_ID));
+    }
+
+    @Test
+    void testDelete_deleteByIdReturnsZero_throwsEntityNotFoundException() {
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
+        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
+        when(eventRepository.deleteById(EVENT_ID, OWNER_ID)).thenReturn(0);
 
         assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
     }
 
     @Test
-    void testDelete_notFound_throwsException() {
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(0);
+    void testDelete_notOwner_throwsSecurityException() {
+        User anotherUser = User.builder().id(999L).build();
+        event.setOwner(anotherUser);
 
-        assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
+        when(userContext.getUserId()).thenReturn(OWNER_ID);
+        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
+
+        assertThrows(SecurityException.class, () -> eventService.delete(EVENT_ID));
+        verify(eventRepository, never()).deleteById(anyLong(), anyLong());
     }
 }

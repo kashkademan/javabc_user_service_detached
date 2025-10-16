@@ -21,16 +21,17 @@ public class EventFacade {
     private final EventService eventService;
 
     public EventDto create(EventCreateDto eventCreateDto) {
-        return eventService.create(eventCreateDto);
+        Event event = eventService.create(eventCreateDto);
+        return EventMapper.toEventDto(event);
     }
 
     public EventDto update(Long eventId, EventUpdateDto eventUpdateDto) {
-        return eventService.update(eventId, eventUpdateDto);
+        Event event = eventService.update(eventId, eventUpdateDto);
+        return EventMapper.toEventDto(event);
     }
 
     public List<EventDto> filters(EventFilterDto filters) {
         List<Event> events = eventService.getByFilters(filters);
-
         return events.stream()
                 .map(EventMapper::toEventDto)
                 .toList();
