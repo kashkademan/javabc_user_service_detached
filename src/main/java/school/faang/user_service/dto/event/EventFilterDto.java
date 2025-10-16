@@ -10,7 +10,6 @@ public record EventFilterDto(
         Long participantId,
         EventType type
 ) {
-
     @AssertTrue(message = "At least one filter criteria must be provided")
     public boolean isAtLeastOneFilterPresent() {
         return titleContains != null && !titleContains.trim().isEmpty()
