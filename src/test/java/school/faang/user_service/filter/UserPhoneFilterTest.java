@@ -1,17 +1,15 @@
 package school.faang.user_service.filter;
 
-import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 
 import java.util.stream.Stream;
 
-@Component
-public class UserPhonePatternFilter implements UserFilter {
+public class UserPhoneFilterTest implements UserFilter {
 
     @Override
     public boolean isApplicable(UserFiltersDto filtersDto) {
-        return filtersDto.phonePattern() != null && !filtersDto.phonePattern().isBlank();
+        return true;
     }
 
     @Override

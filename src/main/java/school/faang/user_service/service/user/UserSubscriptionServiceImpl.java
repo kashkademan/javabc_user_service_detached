@@ -84,9 +84,9 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     private List<UserDto> getUsersByUserId(long userId,
-                                           UserFiltersDto userFiltersDto,
-                                           Function<Long, Stream<User>> findUsersFunction,
-                                           String usersType) {
+                                          UserFiltersDto userFiltersDto,
+                                          Function<Long, Stream<User>> findUsersFunction,
+                                          String usersType) {
         Stream<User> usersStream = findUsersFunction.apply(userId);
 
         for (UserFilter filter : userFilters) {
