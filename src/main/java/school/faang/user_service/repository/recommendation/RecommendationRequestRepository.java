@@ -1,13 +1,15 @@
 package school.faang.user_service.repository.recommendation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.Optional;
 
-public interface RecommendationRequestRepository extends JpaRepository<RecommendationRequest, Long> {
+public interface RecommendationRequestRepository extends JpaRepository<RecommendationRequest, Long>,
+        JpaSpecificationExecutor<RecommendationRequest> {
 
     @Query(nativeQuery = true, value = """
             SELECT * FROM recommendation_request
