@@ -14,6 +14,7 @@ import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -32,8 +33,7 @@ public class SkillServiceImpl implements SkillService {
             throw new ForbiddenException("this skill already exists");
         }
         log.info("create skill {}", skillDto.getTitle());
-        skill = skillRepository.save(skill);
-        return skillMapper.toSkillDto(skill);
+        return skillMapper.toSkillDto(skillRepository.save(skill));
     }
 
     @Override
@@ -46,11 +46,15 @@ public class SkillServiceImpl implements SkillService {
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
         log.info("get offered skills from user {}", userId);
         return skillRepository.findSkillsOfferedToUser(userId).stream()
-                .map(skill -> {
-                    SkillDto skillDto = skillMapper.toSkillDto(skill);
-                    int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
-                    return new SkillCandidateDto(skillDto, offersAmount);
-                }).toList();
+                .map(getSkillCandidateDtoFunction(userId)).toList();
+    }
+
+    private Function<Skill, SkillCandidateDto> getSkillCandidateDtoFunction(long userId) {
+        return skill -> {
+            SkillDto skillDto = skillMapper.toSkillDto(skill);
+            int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
+            return new SkillCandidateDto(skillDto, offersAmount);
+        };
     }
 
     @Override
