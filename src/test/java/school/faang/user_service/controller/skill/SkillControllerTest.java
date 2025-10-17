@@ -2,9 +2,11 @@ package school.faang.user_service.controller.skill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,7 +18,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.skill.SkillService;
-import software.amazon.ion.impl.PrivateIonReaderFactory;
 
 @ExtendWith(MockitoExtension.class)
 public class SkillControllerTest {
