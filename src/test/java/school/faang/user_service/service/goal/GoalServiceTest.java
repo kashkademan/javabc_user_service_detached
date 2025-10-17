@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
@@ -20,14 +20,14 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.filter.goal.GoalDescriptionFilter;
 import school.faang.user_service.filter.goal.GoalFilter;
-import school.faang.user_service.mapper.GoalMapperImpl;
+import school.faang.user_service.filter.goal.GoalMentorFilter;
+import school.faang.user_service.filter.goal.GoalStatusFilter;
+import school.faang.user_service.filter.goal.GoalTitleFilter;
+import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.goal.filters.GoalDescriptionFilterForTest;
-import school.faang.user_service.service.goal.filters.GoalMentorFilterForTest;
-import school.faang.user_service.service.goal.filters.GoalStatusFilterForTest;
-import school.faang.user_service.service.goal.filters.GoalTitleFilterForTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,11 +44,21 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GoalServiceTest {
     private final long currentUserId = 7L;
-    private User currentUser;
-    private final String correctFilterTitle = "title";
-    private final String correctFilterDesc = "descr";
-    private final long correctFilterMentorId = 5L;
-    private final GoalStatus correctFilterStatus = GoalStatus.COMPLETED;
+    private final long menteeId = 1L;
+    private final User mentee = User.builder().id(menteeId).build();
+    private final User currentUser = User.builder()
+            .id(currentUserId)
+            .mentees(new ArrayList<>(List.of(mentee)))
+            .build();
+
+    private final GoalFilterDto goalFilterDto
+            = new GoalFilterDto("title", "descr", GoalStatus.COMPLETED, 5L);
+    private final GoalFilter goalDescriptionFilter = new GoalDescriptionFilter();
+    private final GoalFilter goalMentorFilter = new GoalMentorFilter();
+    private final GoalFilter goalStatusFilter = new GoalStatusFilter();
+    private final GoalFilter goalTitleFilter = new GoalTitleFilter();
+
+    private final GoalMapper goalMapper = Mappers.getMapper(GoalMapper.class);
 
     @Mock
     private GoalRepository goalRepository;
@@ -59,15 +69,8 @@ public class GoalServiceTest {
     @Mock
     private UserContext userContext;
 
-    @Spy
-    private GoalMapperImpl goalMapper;
 
     private GoalServiceImpl goalService;
-
-    private final GoalFilter goalDescriptionFilter = new GoalDescriptionFilterForTest();
-    private final GoalFilter goalMentorFilter = new GoalMentorFilterForTest();
-    private final GoalFilter goalStatusFilter = new GoalStatusFilterForTest();
-    private final GoalFilter goalTitleFilter = new GoalTitleFilterForTest();
 
     @BeforeEach
     void setUp() {
@@ -75,12 +78,6 @@ public class GoalServiceTest {
                 List.of(goalDescriptionFilter, goalMentorFilter, goalStatusFilter, goalTitleFilter));
 
         ReflectionTestUtils.setField(goalService, "maxActiveGoals", 2);
-        currentUser = User.builder()
-                .id(currentUserId)
-                .mentees(new ArrayList<>(List.of(
-                        User.builder().id(1L).build())
-                ))
-                .build();
     }
 
     @Test
@@ -321,46 +318,46 @@ public class GoalServiceTest {
 
     @Test
     public void testFiltersPositive() {
-        Goal correctGoal = getGoalForFilter(correctFilterTitle, correctFilterDesc,
-                correctFilterStatus, correctFilterMentorId);
-        Goal wrongTitleGoal = getGoalForFilter("adfg", correctFilterDesc,
-                correctFilterStatus, correctFilterMentorId);
-        Goal wrongDescGoal = getGoalForFilter(correctFilterTitle, "adsfgh",
-                correctFilterStatus, correctFilterMentorId);
-        Goal wrongStatusGoal = getGoalForFilter(correctFilterTitle, correctFilterDesc,
-                GoalStatus.ACTIVE, correctFilterMentorId);
-        Goal wrongMentorGoal = getGoalForFilter(correctFilterTitle, correctFilterDesc,
-                correctFilterStatus, 22L);
+        Goal correctGoal = getGoalForFilter(goalFilterDto.titleContains(), goalFilterDto.descriptionContains(),
+                goalFilterDto.status(), goalFilterDto.mentorId());
+        Goal wrongTitleGoal = getGoalForFilter("adfg", goalFilterDto.descriptionContains(),
+                goalFilterDto.status(), goalFilterDto.mentorId());
+        Goal wrongDescGoal = getGoalForFilter(goalFilterDto.titleContains(), "adsfgh",
+                goalFilterDto.status(), goalFilterDto.mentorId());
+        Goal wrongStatusGoal = getGoalForFilter(goalFilterDto.titleContains(), goalFilterDto.descriptionContains(),
+                GoalStatus.ACTIVE, goalFilterDto.mentorId());
+        Goal wrongMentorGoal = getGoalForFilter(goalFilterDto.titleContains(), goalFilterDto.descriptionContains(),
+                goalFilterDto.status(), 22L);
 
         when(goalRepository.findAll())
                 .thenReturn(List.of(correctGoal, wrongTitleGoal, wrongDescGoal, wrongStatusGoal, wrongMentorGoal));
 
         List<GoalDto> goalsByFilters
-                = goalService.getByFilters(new GoalFilterDto(null, null, null, null));
+                = goalService.getByFilters(goalFilterDto);
 
         GoalDto goalDto = goalsByFilters.get(0);
 
         Assertions.assertEquals(1, goalsByFilters.size());
-        Assertions.assertEquals(correctFilterTitle, goalDto.title());
-        Assertions.assertEquals(correctFilterDesc, goalDto.description());
-        Assertions.assertEquals(correctFilterMentorId, goalDto.mentorId());
-        Assertions.assertEquals(correctFilterStatus, goalDto.status());
+        Assertions.assertEquals(goalFilterDto.titleContains(), goalDto.title());
+        Assertions.assertEquals(goalFilterDto.descriptionContains(), goalDto.description());
+        Assertions.assertEquals(goalFilterDto.mentorId(), goalDto.mentorId());
+        Assertions.assertEquals(goalFilterDto.status(), goalDto.status());
     }
 
     @Test
     public void testFiltersContainsCorrectWords() {
-        Goal wrongTitleGoal = getGoalForFilter(correctFilterTitle + 2, correctFilterDesc,
-                correctFilterStatus, correctFilterMentorId);
-        Goal wrongDescGoal = getGoalForFilter(correctFilterTitle, correctFilterDesc + 2,
-                correctFilterStatus, correctFilterMentorId);
-        Goal wrongMentorGoal = getGoalForFilter(correctFilterTitle, correctFilterDesc,
-                correctFilterStatus, correctFilterMentorId + 50);
+        Goal wrongTitleGoal = getGoalForFilter(goalFilterDto.titleContains() + 2,
+                goalFilterDto.descriptionContains(), goalFilterDto.status(), goalFilterDto.mentorId());
+        Goal wrongDescGoal = getGoalForFilter(goalFilterDto.titleContains(),
+                goalFilterDto.descriptionContains() + 2, goalFilterDto.status(), goalFilterDto.mentorId());
+        Goal wrongMentorGoal = getGoalForFilter(goalFilterDto.titleContains(), goalFilterDto.descriptionContains(),
+                goalFilterDto.status(), goalFilterDto.mentorId() + 50);
 
         when(goalRepository.findAll())
                 .thenReturn(List.of(wrongTitleGoal, wrongDescGoal, wrongMentorGoal));
 
         List<GoalDto> goalsByFilters
-                = goalService.getByFilters(new GoalFilterDto(null, null, null, null));
+                = goalService.getByFilters(goalFilterDto);
 
         Assertions.assertEquals(0, goalsByFilters.size());
     }
