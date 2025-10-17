@@ -43,6 +43,10 @@ user:
     min:
       length: 6
 
+mentorship:
+  request:
+    limitation: 3
+
 recommendation:
   cooldown:
     months: 6
