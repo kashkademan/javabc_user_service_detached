@@ -66,17 +66,17 @@ public class PremiumService {
         return premiumMapper.toDto(premium);
     }
 
-    @Transactional
+     @Transactional
     public void cancelPremium(long userId) {
         log.info("Starting premium cancellation for user: {}", userId);
-
-        Premium premium = premiumRepository.findByUserId(userId)
+        
+        Premium premium = premiumRepository.findFirstByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Premium subscription not found for user: " + userId));
 
         LocalDateTime now = LocalDateTime.now();
-
+        
         if (premium.getEndDate().isBefore(now)) {
-            log.warn("Premium for user {} is already expired (endDate: {}), current time: {}",
+            log.warn("Premium for user {} is already expired (endDate: {}), current time: {}", 
                     userId, premium.getEndDate(), now);
             premiumCacheService.evict(userId);
             return;
@@ -84,9 +84,9 @@ public class PremiumService {
 
         LocalDateTime previousEndDate = premium.getEndDate();
         premium.setEndDate(now);
-
+        
         Premium savedPremium = premiumRepository.save(premium);
-        log.info("Premium cancelled for user: {}, previous end date: {}, new end date: {}",
+        log.info("Premium cancelled for user: {}, previous end date: {}, new end date: {}", 
                 userId, previousEndDate, savedPremium.getEndDate());
 
         premiumCacheService.evict(userId);
@@ -120,7 +120,7 @@ public class PremiumService {
     }
 
     private PremiumDto getExistingPremium(long userId) {
-        return premiumRepository.findByUser_Id(userId)
+        return premiumRepository.findFirstByUser_Id(userId)
                 .map(premiumMapper::toDto)
                 .orElseThrow(() -> new NotFoundException(
                         "Premium not found despite completed attempt for user: " + userId));
@@ -164,7 +164,7 @@ public class PremiumService {
                                           String paymentNumber, int verificationCode) {
         LocalDateTime now = LocalDateTime.now();
 
-        return premiumRepository.findByUser_IdAndEndDateAfter(user.getId(), now)
+        return premiumRepository.findFirstByUser_IdAndEndDateAfter(user.getId(), now)
                 .map(existing -> extendExistingPremium(existing, period, paymentNumber, verificationCode))
                 .orElseGet(() -> createNewPremium(user, period, paymentNumber, verificationCode, now));
     }

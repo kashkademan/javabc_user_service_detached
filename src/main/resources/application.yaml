@@ -28,6 +28,9 @@ logging:
   level:
     root: info
 
+project-service:
+  url: http://localhost:8082
+
 payment-service:
   url: http://localhost:9080
 

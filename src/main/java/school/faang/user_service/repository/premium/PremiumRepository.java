@@ -13,9 +13,9 @@ public interface PremiumRepository extends JpaRepository<Premium, Long> {
 
     List<Premium> findAllByEndDateBefore(LocalDateTime endDate);
 
-    Optional<Premium> findByUser_Id(long userId);
+    Optional<Premium> findFirstByUser_Id(long userId);
 
-    Optional<Premium> findByUser_IdAndEndDateAfter(long userId, LocalDateTime endDate);
+    Optional<Premium> findFirstByUser_IdAndEndDateAfter(long userId, LocalDateTime endDate);
 
-    Optional<Premium> findByUserId(long userId);
+    Optional<Premium> findFirstByUserId(long userId);
 }

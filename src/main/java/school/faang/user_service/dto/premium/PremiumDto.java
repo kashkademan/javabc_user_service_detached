@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class PremiumDto {
     long id;
     long userId;
-    PremiumPeriod period;
+    PremiumPeriod premiumPeriod;
     LocalDateTime startDate;
     LocalDateTime endDate;
     BigDecimal amount;
