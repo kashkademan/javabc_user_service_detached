@@ -1,4 +1,4 @@
-package school.faang.user_service.service.education_unittest;
+package school.faang.user_service.service.education;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,8 +83,12 @@ public class EducationMapperTest {
 
         assertEquals(updateDto.yearFrom(), education.getYearFrom(), "Год начала должен обновиться");
         assertEquals(updateDto.yearTo(), education.getYearTo(), "Год окончания должен обновиться");
-        assertEquals(updateDto.institution(), education.getInstitution(), "Название учреждения должно обновиться" );
-        assertEquals(updateDto.educationLevel(), education.getEducationLevel(), "Уровень образования должен обновиться");
+        assertEquals(updateDto.institution(), education.getInstitution(), "Название учреждения должно обновиться");
+        assertEquals(
+                updateDto.educationLevel(),
+                education.getEducationLevel(),
+                "Уровень образования должен обновиться"
+        );
         assertEquals(updateDto.specialization(), education.getSpecialization(), "Специализация должна обновиться");
     }
 
