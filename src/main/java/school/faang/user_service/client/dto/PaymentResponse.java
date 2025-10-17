@@ -4,6 +4,7 @@ import school.faang.user_service.enums.Currency;
 import school.faang.user_service.enums.PaymentStatus;
 
 import java.math.BigDecimal;
+
 public record PaymentResponse(
         PaymentStatus status,
         int verificationCode,

@@ -66,7 +66,7 @@ public class PremiumService {
         return premiumMapper.toDto(premium);
     }
 
-     @Transactional
+    @Transactional
     public void cancelPremium(long userId) {
         log.info("Starting premium cancellation for user: {}", userId);
         
@@ -169,7 +169,8 @@ public class PremiumService {
                 .orElseGet(() -> createNewPremium(user, period, paymentNumber, verificationCode, now));
     }
 
-    private Premium extendExistingPremium(Premium existing, PremiumPeriod period, String paymentNumber, int verificationCode) {
+    private Premium extendExistingPremium(Premium existing, PremiumPeriod period, 
+                                          String paymentNumber, int verificationCode) {
         LocalDateTime newEndDate = existing.getEndDate().plusDays(period.getDays());
 
         existing.setEndDate(newEndDate);
@@ -185,7 +186,8 @@ public class PremiumService {
         return saved;
     }
 
-    private Premium createNewPremium(User user, PremiumPeriod period, String paymentNumber, int verificationCode, LocalDateTime now) {
+    private Premium createNewPremium(User user, PremiumPeriod period, String paymentNumber, 
+                                     int verificationCode, LocalDateTime now) {
         LocalDateTime endDate = now.plusDays(period.getDays());
 
         Premium premium = Premium.builder()

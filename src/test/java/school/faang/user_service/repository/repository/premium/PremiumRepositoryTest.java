@@ -245,7 +245,8 @@ class PremiumRepositoryTest {
         LocalDateTime futureDate = leapYearDate.plusDays(30);
 
         
-        Optional<Premium> premium = premiumRepository.findFirstByUser_IdAndEndDateAfter(testUser1.getId(), leapYearDate);
+        Optional<Premium> premium = premiumRepository
+                .findFirstByUser_IdAndEndDateAfter(testUser1.getId(), leapYearDate);
 
         
         assertThat(premium).isPresent();
@@ -391,7 +392,8 @@ class PremiumRepositoryTest {
         premiumRepository.save(testPremium);
 
         
-        Optional<Premium> premium = premiumRepository.findFirstByUser_IdAndEndDateAfter(testUser1.getId(), exactEndDate);
+        Optional<Premium> premium = premiumRepository
+                .findFirstByUser_IdAndEndDateAfter(testUser1.getId(), exactEndDate);
 
         
         assertThat(premium).isEmpty();
@@ -419,7 +421,8 @@ class PremiumRepositoryTest {
         premiumRepository.save(testPremium);
 
         
-        Optional<Premium> premium = premiumRepository.findFirstByUser_IdAndEndDateAfter(testUser1.getId(), oneSecondAfter);
+        Optional<Premium> premium = premiumRepository
+                .findFirstByUser_IdAndEndDateAfter(testUser1.getId(), oneSecondAfter);
 
         
         // The testPremium should not be found because its end date is exactly one second before the search date
@@ -432,7 +435,8 @@ class PremiumRepositoryTest {
         LocalDateTime oneSecondBefore = activePremium.getEndDate().minusSeconds(1);
 
         
-        Optional<Premium> premium = premiumRepository.findFirstByUser_IdAndEndDateAfter(testUser1.getId(), oneSecondBefore);
+        Optional<Premium> premium = premiumRepository
+                .findFirstByUser_IdAndEndDateAfter(testUser1.getId(), oneSecondBefore);
 
         
         assertThat(premium).isPresent();

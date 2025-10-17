@@ -144,7 +144,8 @@ class PremiumServiceTest {
         verify(paymentClient).processPayment(any(PaymentRequest.class));
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumCacheService).setActiveUntil(eq(1L), any(LocalDateTime.class));
-        verify(attemptRepository, times(3)).save(any(PremiumPurchaseAttempt.class)); // Once in getOrCreateAttempt, once in processPayment, once in markAttemptCompleted
+        // Once in getOrCreateAttempt, once in processPayment, once in markAttemptCompleted
+        verify(attemptRepository, times(3)).save(any(PremiumPurchaseAttempt.class));
     }
 
     @Test

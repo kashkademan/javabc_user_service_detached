@@ -21,7 +21,6 @@ import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumPurchaseAttemptRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.premium.PremiumCacheService;
 import school.faang.user_service.service.premium.PremiumService;
 
 import java.math.BigDecimal;
@@ -41,16 +40,16 @@ class PremiumServiceEdgeCasesTest {
 
     @Mock
     private UserRepository userRepository;
-    
+
     @Mock
     private PremiumRepository premiumRepository;
-    
+
     @Mock
     private PremiumPurchaseAttemptRepository attemptRepository;
-    
+
     @Mock
     private PaymentServiceClient paymentClient;
-    
+
     @Mock
     private PremiumMapper premiumMapper;
 
@@ -321,10 +320,10 @@ class PremiumServiceEdgeCasesTest {
         });
         when(premiumMapper.toDto(any())).thenReturn(createPremiumDto());
 
-        
+
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-        
+
     }
 
     private PremiumPurchaseAttempt createAttempt() {

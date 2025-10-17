@@ -106,10 +106,10 @@ class PremiumServiceIntegrationTest {
 
     @Test
     void buyPremium_IntegrationTest_ShouldCreatePremiumAndAttempt() {
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(testUser.getId());
         assertThat(result.getPremiumPeriod()).isEqualTo(PremiumPeriod.MONTHLY);
@@ -124,7 +124,7 @@ class PremiumServiceIntegrationTest {
         // Verify attempt was saved
         List<PremiumPurchaseAttempt> allAttempts = attemptRepository.findAll();
         assertThat(allAttempts).isNotEmpty();
-        
+
         PremiumPurchaseAttempt savedAttempt = allAttempts.stream()
                 .filter(attempt -> attempt.getUserId().equals(String.valueOf(testUser.getId())))
                 .findFirst()
@@ -136,21 +136,21 @@ class PremiumServiceIntegrationTest {
     void buyPremium_WithLeapYear_ShouldCalculateCorrectEndDate() {
         // Given - Set up a leap year scenario
         LocalDateTime leapYearDate = LocalDateTime.of(2024, Month.FEBRUARY, 29, 12, 0, 0);
-        
-        
+
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
-        
+
         // Verify the premium was created with correct dates
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
-        
+
         // The end date should be 30 days after start date
         assertThat(endDate).isEqualTo(startDate.plusDays(30));
     }
@@ -159,21 +159,21 @@ class PremiumServiceIntegrationTest {
     void buyPremium_WithYearBoundary_ShouldHandleCorrectly() {
         // Given - Set up a year boundary scenario
         LocalDateTime yearEnd = LocalDateTime.of(2023, Month.DECEMBER, 31, 23, 59, 59);
-        
-        
+
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
-        
+
         // Verify the premium was created with correct dates
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
-        
+
         // The end date should be 30 days after start date, crossing year boundary
         assertThat(endDate).isEqualTo(startDate.plusDays(30));
         assertThat(endDate.getYear()).isEqualTo(2025);
@@ -183,31 +183,31 @@ class PremiumServiceIntegrationTest {
     void buyPremium_WithDSTTransition_ShouldHandleCorrectly() {
         // Given - Set up a DST transition scenario
         LocalDateTime dstDate = LocalDateTime.of(2024, Month.MARCH, 10, 2, 30, 0);
-        
-        
+
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
-        
+
         // Verify the premium was created with correct dates
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
-        
+
         // The end date should be 30 days after start date
         assertThat(endDate).isEqualTo(startDate.plusDays(30));
     }
 
     @Test
     void buyPremium_WithQuarterlyPeriod_ShouldCalculateCorrectEndDate() {
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.QUARTERLY);
 
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getPremiumPeriod()).isEqualTo(PremiumPeriod.QUARTERLY);
         assertThat(result.getAmount()).isEqualTo(new BigDecimal("25.00"));
@@ -215,21 +215,21 @@ class PremiumServiceIntegrationTest {
         // Verify premium was saved with correct period
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
-        
+
         // The end date should be 90 days after start date
         assertThat(endDate).isEqualTo(startDate.plusDays(90));
     }
 
     @Test
     void buyPremium_WithYearlyPeriod_ShouldCalculateCorrectEndDate() {
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.YEARLY);
 
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getPremiumPeriod()).isEqualTo(PremiumPeriod.YEARLY);
         assertThat(result.getAmount()).isEqualTo(new BigDecimal("80.00"));
@@ -237,11 +237,11 @@ class PremiumServiceIntegrationTest {
         // Verify premium was saved with correct period
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
-        
+
         // The end date should be 365 days after start date
         assertThat(endDate).isEqualTo(startDate.plusDays(365));
     }
@@ -251,7 +251,7 @@ class PremiumServiceIntegrationTest {
         // Given - Create an existing active premium
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime existingEndDate = now.plusDays(15);
-        
+
         Premium existingPremium = Premium.builder()
                 .user(testUser)
                 .premiumPeriod(PremiumPeriod.MONTHLY)
@@ -263,20 +263,20 @@ class PremiumServiceIntegrationTest {
                 .currency(Currency.USD)
                 .createdAt(now.minusDays(15))
                 .build();
-        
+
         premiumRepository.save(existingPremium);
 
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.QUARTERLY);
 
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getPremiumPeriod()).isEqualTo(PremiumPeriod.QUARTERLY);
 
         // Verify the existing premium was extended
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         assertThat(premium.getId()).isEqualTo(existingPremium.getId()); // Same premium extended
         assertThat(premium.getAmount()).isEqualTo(new BigDecimal("35.00")); // 10.00 + 25.00
@@ -288,7 +288,7 @@ class PremiumServiceIntegrationTest {
         // Given - Create an expired premium
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredDate = now.minusDays(1);
-        
+
         Premium expiredPremium = Premium.builder()
                 .user(testUser)
                 .premiumPeriod(PremiumPeriod.MONTHLY)
@@ -300,13 +300,13 @@ class PremiumServiceIntegrationTest {
                 .currency(Currency.USD)
                 .createdAt(now.minusDays(31))
                 .build();
-        
+
         premiumRepository.save(expiredPremium);
 
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
 
         // Verify a new premium was created (not extended)
@@ -314,7 +314,7 @@ class PremiumServiceIntegrationTest {
                 .filter(p -> p.getUser().getId().equals(testUser.getId()))
                 .toList();
         assertThat(savedPremiums).hasSize(2); // Original expired + new premium
-        
+
         Premium newPremium = savedPremiums.stream()
                 .filter(p -> p.getId() != expiredPremium.getId())
                 .findFirst()
@@ -329,7 +329,7 @@ class PremiumServiceIntegrationTest {
         // Given - Create an active premium
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime futureDate = now.plusDays(30);
-        
+
         Premium activePremium = Premium.builder()
                 .user(testUser)
                 .premiumPeriod(PremiumPeriod.MONTHLY)
@@ -341,16 +341,16 @@ class PremiumServiceIntegrationTest {
                 .currency(Currency.USD)
                 .createdAt(now)
                 .build();
-        
+
         premiumRepository.save(activePremium);
 
-        
+
         premiumService.cancelPremium(testUser.getId());
 
-        
+
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         assertThat(premium.getEndDate()).isBefore(futureDate);
         assertThat(premium.getEndDate()).isBefore(LocalDateTime.now().plusMinutes(1));
@@ -361,7 +361,7 @@ class PremiumServiceIntegrationTest {
         // Given - Create an expired premium
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredDate = now.minusDays(1);
-        
+
         Premium expiredPremium = Premium.builder()
                 .user(testUser)
                 .premiumPeriod(PremiumPeriod.MONTHLY)
@@ -373,16 +373,16 @@ class PremiumServiceIntegrationTest {
                 .currency(Currency.USD)
                 .createdAt(now.minusDays(31))
                 .build();
-        
+
         premiumRepository.save(expiredPremium);
 
-        
+
         premiumService.cancelPremium(testUser.getId());
 
-        
+
         Optional<Premium> savedPremium = premiumRepository.findFirstByUserId(testUser.getId());
         assertThat(savedPremium).isPresent();
-        
+
         Premium premium = savedPremium.get();
         assertThat(premium.getEndDate()).isEqualTo(expiredDate); // End date unchanged
     }
@@ -410,7 +410,7 @@ class PremiumServiceIntegrationTest {
                 .status(PurchaseStatus.COMPLETED)
                 .createdAt(LocalDateTime.now())
                 .build();
-        
+
         attemptRepository.save(completedAttempt);
 
         // Create the corresponding premium
@@ -425,13 +425,13 @@ class PremiumServiceIntegrationTest {
                 .currency(Currency.USD)
                 .createdAt(LocalDateTime.now())
                 .build();
-        
+
         premiumRepository.save(existingPremium);
 
-        
+
         PremiumDto result = premiumService.buyPremium(testUser.getId(), PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(testUser.getId());
 

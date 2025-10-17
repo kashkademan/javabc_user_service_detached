@@ -56,7 +56,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithValidDays_ShouldReturnOk() {
+    void buyPremiumWithValidDaysShouldReturnOk() {
         
         int days = 30;
         long userId = 1L;
@@ -74,7 +74,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithQuarterlyDays_ShouldReturnOk() {
+    void buyPremiumWithQuarterlyDaysShouldReturnOk() {
         
         int days = 90;
         long userId = 1L;
@@ -90,7 +90,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithYearlyDays_ShouldReturnOk() {
+    void buyPremiumWithYearlyDaysShouldReturnOk() {
         
         int days = 365;
         long userId = 1L;
@@ -107,7 +107,7 @@ class PremiumControllerTest {
 
     @ParameterizedTest
     @ValueSource(ints = {30, 90, 365})
-    void buyPremium_WithValidPeriods_ShouldCallServiceWithCorrectPeriod(int days) {
+    void buyPremiumWithValidPeriodsShouldCallServiceWithCorrectPeriod(int days) {
         
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
@@ -120,7 +120,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithInvalidDays_ShouldThrowException() {
+    void buyPremiumWithInvalidDaysShouldThrowException() {
         
         int invalidDays = 999;
         long userId = 1L;
@@ -133,7 +133,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithZeroDays_ShouldThrowException() {
+    void buyPremiumWithZeroDaysShouldThrowException() {
         
         int zeroDays = 0;
         long userId = 1L;
@@ -146,7 +146,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithNegativeDays_ShouldThrowException() {
+    void buyPremiumWithNegativeDaysShouldThrowException() {
         
         int negativeDays = -30;
         long userId = 1L;
@@ -159,7 +159,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithServiceException_ShouldPropagateException() {
+    void buyPremiumWithServiceExceptionShouldPropagateException() {
         
         int days = 30;
         long userId = 1L;
@@ -174,7 +174,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithUserContextException_ShouldPropagateException() {
+    void buyPremiumWithUserContextExceptionShouldPropagateException() {
         
         int days = 30;
         when(userContext.getUserId()).thenThrow(new RuntimeException("User context error"));
@@ -186,7 +186,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithMaxLongUserId_ShouldWork() {
+    void buyPremiumWithMaxLongUserIdShouldWork() {
         
         int days = 30;
         long maxUserId = Long.MAX_VALUE;
@@ -202,7 +202,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithMinLongUserId_ShouldWork() {
+    void buyPremiumWithMinLongUserIdShouldWork() {
         
         int days = 30;
         long minUserId = Long.MIN_VALUE;
@@ -218,7 +218,7 @@ class PremiumControllerTest {
     }
 
     @Test
-    void buyPremium_WithZeroUserId_ShouldWork() {
+    void buyPremiumWithZeroUserIdShouldWork() {
         
         int days = 30;
         long zeroUserId = 0L;
