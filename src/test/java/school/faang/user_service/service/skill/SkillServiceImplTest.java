@@ -133,7 +133,7 @@ public class SkillServiceImplTest {
         long userId = 1L;
         when(skillOfferRepository.countAllOffersOfSkill(skillId, userId)).thenReturn(minCountOffers - 1);
 
-        assertThrows(ForbiddenException.class,() -> skillService.acquireSkillFromOffers(skillId, userId));
+        assertThrows(ForbiddenException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
     }
 
     @Test
