@@ -3,6 +3,7 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -26,6 +27,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final List<UserFilter> userFilters;
 
     @Override
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
             log.warn("The user {} tried to subscribe to himself", followerId);
@@ -42,6 +44,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
             log.warn("The user {} tried to unsubscribe from himself", followerId);
@@ -70,6 +73,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowers(long followeeId, UserFiltersDto filters) {
         Stream<User> followersStream = subscriptionRepository.findByFolloweeId(followeeId);
 
@@ -84,6 +88,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getFollowees(long followerId, UserFiltersDto filters) {
         Stream<User> followeesStream = subscriptionRepository.findByFollowerId(followerId);
 
