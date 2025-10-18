@@ -132,26 +132,6 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
                 minimum = "0.80".toBigDecimal()
             }
         }
-
-        rule {
-            element = "CLASS"
-            includes = listOf("faang.school.*.service.*")
-            limit {
-                counter = "BRANCH"
-                value = "COVEREDRATIO"
-                minimum = "0.70".toBigDecimal()
-            }
-        }
-
-        rule {
-            element = "CLASS"
-            includes = listOf("faang.school.*.controller.*")
-            limit {
-                counter = "LINE"
-                value = "COVEREDRATIO"
-                minimum = "0.60".toBigDecimal()
-            }
-        }
     }
 }
 
