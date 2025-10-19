@@ -3,6 +3,9 @@ package school.faang.user_service.service.user;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFiltersDto;
+
+import java.util.List;
 
 /**
  * Сервис для управления пользователями.
@@ -39,7 +42,7 @@ public interface UserService {
      *         иначе выбрасывается {@code DataIntegrityViolationException}.</li>
      * </ul>
      *
-     * @param userId идентификатор пользователя, чьи данные необходимо обновить
+     * @param userId  идентификатор пользователя, чьи данные необходимо обновить
      * @param userDto объект {@link UpdateUserDto}, содержащий обновлённые данные пользователя
      * @return объект {@link UserDto}, представляющий обновлённого пользователя
      */
@@ -55,6 +58,11 @@ public interface UserService {
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
     UserDto getById(long userId);
+
+    /**
+     * Возвращает информацию о премиум пользователях с испльзованием фильтров.
+     */
+    List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto);
 }
 
 

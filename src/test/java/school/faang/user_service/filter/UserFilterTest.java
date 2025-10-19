@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.filter.user.UserExperienceFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
