@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class DataForTests {
-    public static final LocalDateTime FIXED_LOCAL_DATE_TIME = LocalDateTime.now();
+    protected static final LocalDateTime FIXED_LOCAL_DATE_TIME = LocalDateTime.now();
+    protected static final long FIXED_MENTORSHIP_REQUEST_ID = 1L;
     protected static final long MENTEE_ID_1 = 1L;
     protected static final long MENTEE_ID_2 = 2L;
     protected static final long MENTEE_ID_4 = 4L;
@@ -98,10 +99,9 @@ public abstract class DataForTests {
                                                         LocalDateTime createdAt) {
         User userReceiver = generateUser(mentorId);
         User userRequester = generateUser(menteeId);
-        long mentorshipRequestId = 1L;
 
         MentorshipRequest mentorshipRequestEntity = new MentorshipRequest();
-        mentorshipRequestEntity.setId(mentorshipRequestId);
+        mentorshipRequestEntity.setId(FIXED_MENTORSHIP_REQUEST_ID);
         mentorshipRequestEntity.setStatus(status);
         mentorshipRequestEntity.setCreatedAt(createdAt);
         mentorshipRequestEntity.setRequester(userRequester);

@@ -13,6 +13,7 @@ import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filters.mentorship.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 
@@ -64,39 +66,34 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     @Override
     public void accept(long requestId) {
-        Optional<MentorshipRequest> mentorshipRequest = getMentoringByIdMentee(requestId);
-        mentorshipRequest.ifPresent((res) -> {
-            res.setStatus(RequestStatus.ACCEPTED);
-            mentorshipRequestRepository.save(res);
-        });
+        changingMentoringRequest(requestId, (mentorshipRequestResult) ->
+                mentorshipRequestResult.setStatus(RequestStatus.ACCEPTED));
     }
 
     @Override
     public void reject(long requestId, RejectionDto rejectionDto) {
-        Optional<MentorshipRequest> mentorshipRequest = getMentoringByIdMentee(requestId);
-        mentorshipRequest.ifPresent((res) -> {
-            res.setStatus(RequestStatus.REJECTED);
-            res.setRejectionReason(rejectionDto.reason());
-            mentorshipRequestRepository.save(res);
+        changingMentoringRequest(requestId, (mentorshipRequestResult) -> {
+            mentorshipRequestResult.setStatus(RequestStatus.REJECTED);
+            mentorshipRequestResult.setRejectionReason(rejectionDto.reason());
         });
     }
 
-    private Optional<MentorshipRequest> getMentoringByIdMentee(Long requestId) {
-        MentorshipRequestFilterDto filter = new MentorshipRequestFilterDto(
-                requestId,
-                null,
-                RequestStatus.PENDING);
+    private void changingMentoringRequest(long requestId, Consumer<MentorshipRequest> fnChangingMentoringRequest) {
+        Optional<MentorshipRequest> mentorshipRequest = mentorshipRequestRepository.findById(requestId);
 
-        List<@Valid MentorshipRequestDto> mentorshipRequests = getByFilters(filter);
+        if (mentorshipRequest.isPresent()) {
+            MentorshipRequest mentorshipRequestResult = mentorshipRequest.get();
 
-        if (mentorshipRequests.isEmpty()) {
-            generateAnError("There is no mentoring request for the mentee ID that " + requestId);
+            if (mentorshipRequestResult.getStatus() != RequestStatus.PENDING) {
+                generateAnError("The mentoring request with ID "
+                        + requestId + " has a status other than "
+                        + RequestStatus.PENDING);
+            }
+            fnChangingMentoringRequest.accept(mentorshipRequestResult);
+            mentorshipRequestRepository.save(mentorshipRequestResult);
+        } else {
+            throw new EntityNotFoundException(String.format("Mentorship request %d not found", requestId));
         }
-
-        Long mentorshipRequestId = mentorshipRequests.get(0).id();
-
-        return mentorshipRequestRepository.findById(mentorshipRequestId);
-
     }
 
     private void generateAnError(String message) {
