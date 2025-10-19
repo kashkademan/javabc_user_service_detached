@@ -15,7 +15,7 @@ public interface CareerMapper {
     @Mapping(source = "dateFrom", target = "from")
     CareerDto toCareerDto(Career career);
 
-    static CareerDto toCareerDtoWithUser(Career career) {
+    default CareerDto toCareerDtoWithUser(Career career) {
         return CareerDto.builder()
                 .id(career.getId())
                 .userId(career.getUser().getId())
@@ -26,7 +26,7 @@ public interface CareerMapper {
                 .build();
     }
 
-    static void update(UpdateCareerDto dto, Career career) {
+    default void update(UpdateCareerDto dto, Career career) {
         if (dto == null) {
             return;
         }
