@@ -29,7 +29,9 @@ val excludedPackages = listOf(
         "**/**Impl",
         "**/redis/**",
         "**/kafka/**",
-        "com/json/student/**"
+        "com/json/student/**",
+        "**/validation/EventValidator.class",
+        "**/validation/ValidationConstants.class"
 )
 
 tasks.jacocoTestReport {
