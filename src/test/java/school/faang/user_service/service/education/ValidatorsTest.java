@@ -1,4 +1,4 @@
-package school.faang.user_service.service.education_unittest;
+package school.faang.user_service.service.education;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +7,6 @@ import school.faang.user_service.entity.user.Education;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.service.education.Validators;
 
 import java.time.Year;
 
