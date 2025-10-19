@@ -17,6 +17,6 @@ public class GoalDescriptionFilter implements GoalFilter {
     @Override
     public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filtersDto) {
         String pattern = filtersDto.descriptionContains();
-        return goals.filter(goal -> goal.getTitle().matches(pattern));
+        return goals.filter(goal -> goal.getDescription().matches(pattern));
     }
 }

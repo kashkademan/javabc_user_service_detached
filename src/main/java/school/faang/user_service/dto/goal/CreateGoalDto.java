@@ -3,10 +3,12 @@ package school.faang.user_service.dto.goal;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 public record CreateGoalDto(
         @NotBlank(message = "Title should be present")
         @Size(max = 255, message = "Title length cant be more than 255 character")
