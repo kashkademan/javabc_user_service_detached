@@ -8,5 +8,5 @@ import java.util.stream.Stream;
 public interface GoalFilter {
     boolean isApplicable(GoalFilterDto filtersDto);
 
-    Stream<Goal> apply(Stream<Goal> users, GoalFilterDto filtersDto);
+    Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filtersDto);
 }
