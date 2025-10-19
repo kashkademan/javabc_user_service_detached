@@ -36,7 +36,7 @@ public class CareerService {
 
     public CareerDto getById(long careerId) {
         Career career = careerRepository.getByIdOrThrow(careerId);
-        return CareerMapper.toCareerDtoWithUser(career);
+        return careerMapper.toCareerDtoWithUser(career);
     }
 
     public void deleteCareer(long careerId) {
@@ -56,7 +56,7 @@ public class CareerService {
 
         CareerValidator.validateOwner(career, userId);
 
-        CareerMapper.update(updateCareerDto, career);
+        careerMapper.update(updateCareerDto, career);
 
         career = careerRepository.save(career);
         return careerMapper.toCareerDto(career);
