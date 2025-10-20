@@ -1,7 +1,6 @@
 package school.faang.user_service.validation;
 
 import jakarta.validation.ValidationException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.context.UserContext;
