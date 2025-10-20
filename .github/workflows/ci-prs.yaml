@@ -40,6 +40,9 @@ jobs:
       - name: Checkstyle verification
         run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
 
+      - name: Verify Test Coverage
+        run: ./gradlew jacocoTestCoverageVerification --no-daemon
+
       - name: Test with Gradle
         run: ./gradlew test -x testClasses --no-daemon --continue
 
@@ -56,6 +59,13 @@ jobs:
         with:
           name: checkstyle_report
           path: build/reports/checkstyle
+
+      - name: Archive jacoco report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+           name: jacoco_report
+           path: build/reports/jacoco/test/html
 
       - name: Comment on Pull Request if build failed
         if: failure()

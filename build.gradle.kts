@@ -5,6 +5,72 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+}
+
+val excludedPackages = listOf(
+        "**/client/**",
+        "**/mapper/**",
+        "**/entity/**",
+        "**/config/**",
+        "**/dto/**",
+        "**/model/**",
+        "**/repository/**",
+        "**/controller/**",
+        "**/filter/**",
+        "**/exception/**",
+        "**/exceptions/**",
+        "**/*Test.class",
+        "**/UserServiceApplication.class",
+        "**/**Impl",
+        "**/redis/**",
+        "**/kafka/**",
+        "com/json/student/**",
+        "**/validation/EventValidator.class",
+        "**/validation/ValidationConstants.class"
+)
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+    }
+
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it).apply {
+            exclude(excludedPackages)
+        }
+    }))
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "CLASS"
+            excludes = excludedPackages.map { it.replace("**/", "**.").replace("/**", ".**")
+                    .replace("/", ".").replace(".class", "") }
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.7".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 group = "faang.school"
@@ -38,6 +104,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+
 
     /**
      * Amazon S3
