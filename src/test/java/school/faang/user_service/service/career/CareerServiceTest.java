@@ -55,13 +55,7 @@ class CareerServiceTest {
                 .company("Google")
                 .position("Software Engineer")
                 .build();
-        CareerDto expectedDto = CareerDto.builder()
-                .id(1L)
-                .from(from)
-                .to(to)
-                .company("Google")
-                .position("Software Engineer")
-                .build();
+
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.getByIdOrThrow(requesterId)).thenReturn(user);
@@ -73,6 +67,14 @@ class CareerServiceTest {
         when(careerRepository.save(any(Career.class))).thenReturn(career);
 
         CareerDto result = careerService.addCareer(createDto);
+
+        CareerDto expectedDto = CareerDto.builder()
+                .id(1L)
+                .from(from)
+                .to(to)
+                .company("Google")
+                .position("Software Engineer")
+                .build();
 
         assertEquals(expectedDto, result);
     }
@@ -137,13 +139,14 @@ class CareerServiceTest {
 
     @Test
     void deleteCareer_validId_shouldDeleteCareer() {
-        long careerId = 1L;
         long requesterId = 100L;
 
         User user = new User();
         Career career = new Career();
         career.setUser(user);
         user.setId(requesterId);
+
+        long careerId = 1L;
 
         when(userContext.getUserId()).thenReturn(requesterId);
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
@@ -187,6 +190,13 @@ class CareerServiceTest {
                         .id(100L)
                         .build())
                 .build();
+
+        when(userContext.getUserId()).thenReturn(userId);
+        when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
+        when(careerRepository.save(career)).thenReturn(career);
+
+        CareerDto result = careerService.updateCareer(careerId, updateDto);
+
         CareerDto expectedDto = CareerDto.builder()
                 .id(careerId)
                 .from(updateDto.getFrom())
@@ -194,12 +204,6 @@ class CareerServiceTest {
                 .company("Meta")
                 .position("Senior Engineer")
                 .build();
-
-        when(userContext.getUserId()).thenReturn(userId);
-        when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
-        when(careerRepository.save(career)).thenReturn(career);
-
-        CareerDto result = careerService.updateCareer(careerId, updateDto);
 
         assertEquals(expectedDto, result);
     }
