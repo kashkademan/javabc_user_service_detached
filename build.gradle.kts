@@ -4,6 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    jacoco
     checkstyle
 }
 
@@ -87,7 +88,23 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
+val test by tasks.getting(Test::class) {
+    testLogging.showStandardStreams = true
+    finalizedBy("jacocoTestReport")
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoHtml"))
+    }
+}
 
 tasks.bootJar {
     archiveFileName.set("service.jar")
