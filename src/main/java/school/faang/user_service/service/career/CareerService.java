@@ -18,7 +18,6 @@ import school.faang.user_service.validator.career.CareerValidator;
 public class CareerService {
     private final UserRepository userRepository;
     private final CareerRepository careerRepository;
-    private final CareerMapper careerMapper;
     private final UserContext userContext;
 
     public CareerDto addCareer(CreateCareerDto createCareerDto) {
@@ -27,16 +26,16 @@ public class CareerService {
         long requesterId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(requesterId);
 
-        Career career = careerMapper.toCareer(createCareerDto);
+        Career career = CareerMapper.toCareer(createCareerDto);
         career.setUser(user);
 
         career = careerRepository.save(career);
-        return careerMapper.toCareerDto(career);
+        return CareerMapper.toCareerDto(career);
     }
 
     public CareerDto getById(long careerId) {
         Career career = careerRepository.getByIdOrThrow(careerId);
-        return careerMapper.toCareerDtoWithUser(career);
+        return CareerMapper.toCareerDto(career);
     }
 
     public void deleteCareer(long careerId) {
@@ -56,9 +55,9 @@ public class CareerService {
 
         CareerValidator.validateOwner(career, userId);
 
-        careerMapper.update(updateCareerDto, career);
+        CareerMapper.update(updateCareerDto, career);
 
         career = careerRepository.save(career);
-        return careerMapper.toCareerDto(career);
+        return CareerMapper.toCareerDto(career);
     }
 }

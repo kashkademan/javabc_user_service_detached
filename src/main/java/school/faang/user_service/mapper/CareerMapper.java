@@ -1,24 +1,24 @@
 package school.faang.user_service.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import school.faang.user_service.dto.career.CareerDto;
 import school.faang.user_service.dto.career.CreateCareerDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface CareerMapper {
-    @Mapping(source = "from", target = "dateFrom")
-    Career toCareer(CreateCareerDto createCareerDto);
 
-    @Mapping(source = "dateFrom", target = "from")
-    CareerDto toCareerDto(Career career);
+    static Career toCareer(CreateCareerDto createCareerDto) {
+        return Career.builder()
+                .dateFrom(createCareerDto.getFrom())
+                .dateTo(createCareerDto.getTo())
+                .company(createCareerDto.getCompany())
+                .position(createCareerDto.getPosition())
+                .build();
+    }
 
-    default CareerDto toCareerDtoWithUser(Career career) {
+    static CareerDto toCareerDto(Career career) {
         return CareerDto.builder()
                 .id(career.getId())
-                .userId(career.getUser().getId())
                 .from(career.getDateFrom())
                 .to(career.getDateTo())
                 .company(career.getCompany())
@@ -26,7 +26,7 @@ public interface CareerMapper {
                 .build();
     }
 
-    default void update(UpdateCareerDto dto, Career career) {
+    static void update(UpdateCareerDto dto, Career career) {
         if (dto == null) {
             return;
         }

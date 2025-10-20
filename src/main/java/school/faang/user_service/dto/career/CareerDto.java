@@ -1,10 +1,12 @@
 package school.faang.user_service.dto.career;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
+@EqualsAndHashCode(callSuper = true)
 @Getter
 public class CareerDto extends BaseCareerDtoWithDates {
     private final long id;

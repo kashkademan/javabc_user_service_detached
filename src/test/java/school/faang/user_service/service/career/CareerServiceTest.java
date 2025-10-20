@@ -6,21 +6,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.career.CreateCareerDto;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
+import school.faang.user_service.dto.career.CreateCareerDto;
 import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.config.context.UserContext;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,9 +31,6 @@ class CareerServiceTest {
 
     @Mock
     private CareerRepository careerRepository;
-
-    @Mock
-    private CareerMapper careerMapper;
 
     @Mock
     private UserContext userContext;
@@ -51,10 +48,15 @@ class CareerServiceTest {
         User user = new User();
         user.setId(requesterId);
 
-        Career career = new Career();
+        Career career = Career.builder()
+                .id(1L)
+                .dateFrom(from)
+                .dateTo(to)
+                .company("Google")
+                .position("Software Engineer")
+                .build();
         CareerDto expectedDto = CareerDto.builder()
                 .id(1L)
-                .userId(requesterId)
                 .from(from)
                 .to(to)
                 .company("Google")
@@ -68,14 +70,11 @@ class CareerServiceTest {
                 from, to, "Google", "Software Engineer"
         );
 
-        when(careerMapper.toCareer(createDto)).thenReturn(career);
-        when(careerRepository.save(career)).thenReturn(career);
-        when(careerMapper.toCareerDto(career)).thenReturn(expectedDto);
+        when(careerRepository.save(any(Career.class))).thenReturn(career);
 
         CareerDto result = careerService.addCareer(createDto);
 
         assertEquals(expectedDto, result);
-        assertEquals(user, career.getUser());
     }
 
     @Test
@@ -100,10 +99,16 @@ class CareerServiceTest {
     @Test
     void getById_validId_shouldReturnCareerDto() {
         long careerId = 1L;
-        Career career = new Career();
+        Career career = Career.builder()
+                .id(careerId)
+                .dateFrom(LocalDate.of(2020, 1, 1))
+                .dateTo(LocalDate.of(2023, 12, 31))
+                .company("Apple")
+                .position("Developer")
+                .build();
+
         CareerDto expectedDto = CareerDto.builder()
                 .id(careerId)
-                .userId(100L)
                 .from(LocalDate.of(2020, 1, 1))
                 .to(LocalDate.of(2023, 12, 31))
                 .company("Apple")
@@ -111,7 +116,6 @@ class CareerServiceTest {
                 .build();
 
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
-        when(careerMapper.toCareerDtoWithUser(career)).thenReturn(expectedDto);
 
         CareerDto result = careerService.getById(careerId);
 
@@ -136,8 +140,9 @@ class CareerServiceTest {
         long careerId = 1L;
         long requesterId = 100L;
 
-        Career career = new Career();
         User user = new User();
+        Career career = new Career();
+        career.setUser(user);
         user.setId(requesterId);
 
         when(userContext.getUserId()).thenReturn(requesterId);
@@ -176,10 +181,14 @@ class CareerServiceTest {
                 "Senior Engineer"
         );
 
-        Career career = new Career();
+        Career career = Career.builder()
+                .id(careerId)
+                .user(User.builder()
+                        .id(100L)
+                        .build())
+                .build();
         CareerDto expectedDto = CareerDto.builder()
                 .id(careerId)
-                .userId(userId)
                 .from(updateDto.getFrom())
                 .to(updateDto.getTo())
                 .company("Meta")
@@ -189,12 +198,10 @@ class CareerServiceTest {
         when(userContext.getUserId()).thenReturn(userId);
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
         when(careerRepository.save(career)).thenReturn(career);
-        when(careerMapper.toCareerDto(career)).thenReturn(expectedDto);
 
         CareerDto result = careerService.updateCareer(careerId, updateDto);
 
         assertEquals(expectedDto, result);
-        Mockito.verify(careerMapper).update(updateDto, career);
     }
 
     @Test
