@@ -78,9 +78,10 @@ public class UserSubscriptionController {
     @GetMapping("/{followeeId}/followers")
     @Operation(summary = "Get followers list", description = "Returns list of followers with filtering options",
             responses = {
-            @ApiResponse(responseCode = "200", description = "Followers list returned successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
+                    @ApiResponse(responseCode = "200", description = "Followers list returned successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     public List<UserDto> getFollowers(@PathVariable long followeeId,
                                       @RequestParam(required = false) String namePattern,
                                       @RequestParam(required = false) String phonePattern,
@@ -94,9 +95,10 @@ public class UserSubscriptionController {
     @GetMapping("/{followerId}/followees")
     @Operation(summary = "Get followees list", description = "Returns list of followees with filtering options",
             responses = {
-            @ApiResponse(responseCode = "200", description = "Followees list returned successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
+                    @ApiResponse(responseCode = "200", description = "Followees list returned successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     public List<UserDto> getFollowees(@PathVariable long followerId,
                                       @RequestParam(required = false) String namePattern,
                                       @RequestParam(required = false) String phonePattern,
