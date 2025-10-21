@@ -59,12 +59,11 @@ public interface UserService {
      */
     UserDto getById(long userId);
 
+    List<UserDto> getUsersByIds(List<UserDto> ids);
     /**
      * Возвращает информацию о премиум пользователях с испльзованием фильтров.
      */
     List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto);
-
-    List<UserDto> getUsersByIds(List<Long> ids);
 }
 
 

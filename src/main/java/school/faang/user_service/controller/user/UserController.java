@@ -45,8 +45,8 @@ public class UserController {
     }
 
     @PostMapping
-    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
-        return userService.getUsersByIds(ids);
+    public List<UserDto> getUsersByIds(@RequestBody List<UserDto> userDtos) {
+        return userService.getUsersByIds(userDtos);
     }
 
     @GetMapping("/premium")

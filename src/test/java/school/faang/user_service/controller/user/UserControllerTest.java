@@ -76,15 +76,14 @@ public class UserControllerTest {
     @Test
     void testGetUsersByIds() throws Exception {
         List<UserDto> expectedUsers = List.of(firstUser, secondUser);
-        List<Long> usersIds = expectedUsers.stream().map(UserDto::id).toList();
 
-        when(userService.getUsersByIds(usersIds))
+        when(userService.getUsersByIds(expectedUsers))
                 .thenReturn(expectedUsers);
 
         String response = mockMvc.perform(MockMvcRequestBuilders
-                        .post("/users", usersIds)
+                        .post("/users", expectedUsers)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(usersIds)))
+                        .content(objectMapper.writeValueAsString(expectedUsers)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(expectedUsers.size())))
                 .andReturn()
