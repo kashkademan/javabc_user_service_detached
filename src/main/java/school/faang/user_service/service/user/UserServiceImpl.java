@@ -18,11 +18,9 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -35,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final List<UserFilter> userFilters;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -71,6 +70,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDto> getUsersByIds(List<UserDto> userDtos) {
+        if (userDtos == null || userDtos.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Long> ids = userDtos.stream().map(UserDto::id).toList();
+
+        return userRepository.findAllById(ids).stream()
+                .map(userMapper::toUserDto)
+                .toList();
+    }
+
+    @Override
     public List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto) {
         Stream<User> premiumUsers = userRepository.findPremiumUsers();
 
@@ -84,16 +96,5 @@ public class UserServiceImpl implements UserService {
             }
         }
         return premiumUsers.map(userMapper::toUserDto).toList();
-    }
-
-    @Override
-    public List<UserDto> getUsersByIds(List<Long> ids) {
-        if (ids.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return userRepository.findAllById(ids).stream()
-                .map(userMapper::toUserDto)
-                .toList();
     }
 }
