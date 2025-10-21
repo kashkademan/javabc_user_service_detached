@@ -63,6 +63,7 @@ public interface UserService {
     /**
      * Возвращает информацию о премиум пользователях с испльзованием фильтров.
      */
+
     List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto);
 }
 
