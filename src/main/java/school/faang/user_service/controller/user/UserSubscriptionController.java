@@ -74,6 +74,7 @@ public class UserSubscriptionController {
         log.debug("Requesting the number of subscriptions for a user: {}", followerId);
         return userSubscriptionService.getFolloweesCount(followerId);
     }
+
     @GetMapping("/{followeeId}/followers")
     @Operation(summary = "Get followers list", description = "Returns list of followers with filtering options", responses = {
             @ApiResponse(responseCode = "200", description = "Followers list returned successfully"),

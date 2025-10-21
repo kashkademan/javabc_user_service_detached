@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI openAPI() {
+    public OpenAPI openApi() {
         SecurityScheme headerAuth = new SecurityScheme()
                 .type(SecurityScheme.Type.APIKEY)
                 .name("x-user-id")
