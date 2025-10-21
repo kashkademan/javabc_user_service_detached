@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +41,6 @@ public class UserController {
     }
 
     @GetMapping("/premium")
-    @Operation(description = "Get premium users")
     public List<UserDto> getPremiumUsers(@ModelAttribute UserFiltersDto userFiltersDto) {
         return userService.getPremiumUsers(userFiltersDto);
     }

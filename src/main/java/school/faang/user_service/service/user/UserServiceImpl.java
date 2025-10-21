@@ -72,6 +72,10 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto) {
         Stream<User> premiumUsers = userRepository.findPremiumUsers();
 
+        if (userFiltersDto == null) {
+            return premiumUsers.map(userMapper::toUserDto).toList();
+        }
+
         for (UserFilter userFilter : userFilters) {
             if (userFilter.isApplicable(userFiltersDto)) {
                 premiumUsers = userFilter.apply(premiumUsers, userFiltersDto);
