@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class SkillServiceImpl implements SkillService{
+public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;

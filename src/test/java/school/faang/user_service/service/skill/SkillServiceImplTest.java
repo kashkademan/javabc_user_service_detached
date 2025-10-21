@@ -81,7 +81,6 @@ public class SkillServiceImplTest {
 
     @Test
     public void getByUserIdReturnsSkill() {
-        Long userId = 1L;
         Skill skill = new Skill();
         skill.setId(1L);
         skill.setTitle("title");
@@ -89,6 +88,7 @@ public class SkillServiceImplTest {
         Recommendation recommendation = new Recommendation();
         recommendation.setAuthor(new User());
         skillOffer.setRecommendation(recommendation);
+        long userId = 1L;
 
         when(skillRepository.findAllByUserId(userId)).thenReturn(List.of(skill));
         when(skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId)).thenReturn(List.of(skillOffer));
