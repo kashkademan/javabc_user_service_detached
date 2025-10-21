@@ -2,9 +2,10 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -14,12 +15,12 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/users")
+    @PostMapping("/")
     public UserDto create(CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
@@ -28,6 +29,7 @@ public class UserController {
         return userService.create(userDto);
     }
 
+    @PutMapping("/")
     public UserDto update(long userId, UpdateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
@@ -35,8 +37,8 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    @GetMapping("/users")
-    public UserDto getById(long userId) {
+    @GetMapping("/{id}")
+    public UserDto getById(@PathVariable("id") long userId) {
         return userService.getById(userId);
     }
 
