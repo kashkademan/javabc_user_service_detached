@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.career.CareerDto;
@@ -20,8 +19,10 @@ import school.faang.user_service.repository.user.UserRepository;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -135,7 +136,7 @@ class CareerServiceTest {
 
         careerService.deleteCareer(careerId);
 
-        Mockito.verify(careerRepository).delete(career);
+        verify(careerRepository).delete(career);
     }
 
     @Test
@@ -166,15 +167,15 @@ class CareerServiceTest {
                         .build())
                 .dateFrom(LocalDate.now().minusYears(1))
                 .dateTo(LocalDate.now())
-                .company("Meta")
-                .position("Senior Engineer")
+                .company("Google")
+                .position("Software Engineer")
                 .build();
 
         UpdateCareerDto updateDto = new UpdateCareerDto(
                 career.getDateFrom(),
                 null,
-                "Google",
-                "Software Engineer"
+                "Meta",
+                "Senior Engineer"
         );
 
         Career updateCareer = Career.builder()
@@ -188,13 +189,16 @@ class CareerServiceTest {
 
         when(userContext.getUserId()).thenReturn(userId);
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
-        when(careerRepository.save(career)).thenReturn(career);
+        when(careerRepository.save(any(Career.class))).thenReturn(updateCareer);
 
         CareerDto result = careerService.updateCareer(careerId, updateDto);
-        CareerDto expectedDto = CareerMapper.toCareerDto(career);
-
-
+        CareerDto expectedDto = CareerMapper.toCareerDto(updateCareer);
         assertEquals(expectedDto, result);
+
+        assertEquals("Meta", result.getCompany());
+        assertEquals("Senior Engineer", result.getPosition());
+        assertEquals(career.getDateFrom(), result.getFrom());
+        assertNull(result.getTo());
     }
 
     @Test
@@ -202,11 +206,14 @@ class CareerServiceTest {
         long careerId = 999L;
         long userId = 100L;
         UpdateCareerDto updateDto = new UpdateCareerDto(
-                LocalDate.now().minusYears(1), null, "Company", "Position"
+                LocalDate.now().minusYears(1),
+                null,
+                "Company",
+                "Position"
         );
 
-        Mockito.when(userContext.getUserId()).thenReturn(userId);
-        Mockito.when(careerRepository.getByIdOrThrow(careerId))
+        when(userContext.getUserId()).thenReturn(userId);
+        when(careerRepository.getByIdOrThrow(careerId))
                 .thenThrow(new EntityNotFoundException("Career not found"));
 
         EntityNotFoundException exception = assertThrows(
