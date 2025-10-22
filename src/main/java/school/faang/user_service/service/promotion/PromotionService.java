@@ -14,6 +14,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.ProjectSubscriptionRepository;
 import school.faang.user_service.repository.promoition.PromotionRepository;
 import school.faang.user_service.service.promotion.validator.PromotionValidator;
+import school.faang.user_service.service.redis.PromotionRedisService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class PromotionService {
     private final UserContext userContext;
     private final PromotionRepository promotionRepository;
     private final PaymentServiceClient paymentServiceClient;
+    private final PromotionRedisService promotionRedisService;
 
     private final ProjectSubscriptionRepository projectSubscriptionRepository;
 
@@ -40,8 +42,11 @@ public class PromotionService {
             throw new ForbiddenException("Unable to determine payment status! We're working on it!!");
         }
 
-        promotionRepository.save(promotion);
+        Promotion savedPromotion = promotionRepository.save(promotion);
         log.info("a new one was saved promotion {}", promotion.getId());
+
+        promotionRedisService.savePromotion(savedPromotion);
+        log.info("Promotion {} saved to Redis successfully", savedPromotion.getId());
         return promotion;
     }
 }

@@ -1,6 +1,8 @@
 package school.faang.user_service.entity.promotion;
 
-public enum Rate {
+import java.io.Serializable;
+
+public enum Rate implements Serializable {
     BASIC,
     ADVANCED,
     EXPERIENCE,

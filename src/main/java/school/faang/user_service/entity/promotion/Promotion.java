@@ -15,19 +15,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Builder
 @Entity
 @Table(name = "promotion")
-public class Promotion {
+public class Promotion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +47,7 @@ public class Promotion {
     private Rate rate;
 
     @Column(name = "number_of_impressions", nullable = false)
-    private int numberOfImpressions;
+    private Integer numberOfImpressions;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -53,4 +58,21 @@ public class Promotion {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_time")
     private LocalDateTime updateTime;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Promotion promotion = (Promotion) o;
+        return id != null && id.equals(promotion.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
