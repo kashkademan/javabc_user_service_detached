@@ -51,8 +51,6 @@ class GoalServiceImplTest {
 
     @Test
     void testCreateGoalSuccess() {
-        CreateGoalDto dto = new CreateGoalDto("Title", "Desc", LocalDateTime.now(), 1L, List.of(1L, 2L));
-
         User mentor = new User();
         mentor.setId(1L);
         mentor.setGoals(new ArrayList<>());
@@ -73,6 +71,9 @@ class GoalServiceImplTest {
         GoalDto goalDto = new GoalDto("Title", "Desc", LocalDateTime.now(),
                 1L, List.of(1L, 2L), GoalStatus.ACTIVE);
 
+        CreateGoalDto dto = new CreateGoalDto("Title", "Desc",
+                LocalDateTime.now(), 1L, List.of(1L, 2L));
+
         when(goalMapper.toGoal(dto)).thenReturn(goal);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.findAllByIdIn(any())).thenReturn(List.of(user1, user2));
@@ -87,8 +88,6 @@ class GoalServiceImplTest {
 
     @Test
     void testCreateGoalForbidden() {
-        CreateGoalDto dto = new CreateGoalDto("Title", "Desc",
-                LocalDateTime.now(), 1L, List.of(2L));
         User user = new User();
         user.setId(2L);
         user.setGoals(new ArrayList<>());
@@ -96,6 +95,9 @@ class GoalServiceImplTest {
         Goal goal = new Goal();
         goal.setUsers(new ArrayList<>(List.of(user)));
         goal.setStatus(GoalStatus.ACTIVE);
+
+        CreateGoalDto dto = new CreateGoalDto("Title", "Desc",
+                LocalDateTime.now(), 1L, List.of(2L));
 
         when(goalMapper.toGoal(dto)).thenReturn(goal);
         when(userContext.getUserId()).thenReturn(999L);
@@ -107,8 +109,6 @@ class GoalServiceImplTest {
 
     @Test
     void testUpdateGoalSuccess() {
-        UpdateGoalDto dto = new UpdateGoalDto("Title", "Desc", LocalDateTime.now(), 1L, GoalStatus.ACTIVE);
-
         User mentor = new User();
         mentor.setId(2L);
         mentor.setGoals(new ArrayList<>());
@@ -131,9 +131,12 @@ class GoalServiceImplTest {
         when(goalRepository.getByIdOrThrow(1L)).thenReturn(goal);
         when(userContext.getUserId()).thenReturn(2L);
         when(userRepository.findAllByIdIn(any())).thenReturn(List.of(user1, user2));
-        when(goalMapper.toGoalDto(goal)).
-                thenReturn(new GoalDto("Title", "Desc",
+        when(goalMapper.toGoalDto(goal))
+                .thenReturn(new GoalDto("Title", "Desc",
                         LocalDateTime.now(), 1L, List.of(2L, 3L), GoalStatus.ACTIVE));
+
+        UpdateGoalDto dto = new UpdateGoalDto("Title", "Desc",
+                LocalDateTime.now(), 1L, GoalStatus.ACTIVE);
 
         GoalDto result = goalService.update(1L, dto);
 
@@ -177,7 +180,9 @@ class GoalServiceImplTest {
         goal.setUsers(new ArrayList<>());
 
         when(goalRepository.findAll()).thenReturn(List.of(goal));
-        when(goalMapper.toGoalDto(goal)).thenReturn(new GoalDto("Test", "Desc", LocalDateTime.now(), 1L, List.of(), GoalStatus.ACTIVE));
+        when(goalMapper.toGoalDto(goal))
+                .thenReturn(new GoalDto("Test", "Desc",
+                        LocalDateTime.now(), 1L, List.of(), GoalStatus.ACTIVE));
 
         GoalFilterDto filter = new GoalFilterDto("Test", "Desc", GoalStatus.ACTIVE, 1L);
         var result = goalService.getByFilters(filter);

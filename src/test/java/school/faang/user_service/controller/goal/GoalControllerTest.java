@@ -1,6 +1,8 @@
 package school.faang.user_service.controller.goal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,18 +12,22 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.controller.goal.GoalController;
-import school.faang.user_service.dto.goal.*;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.service.goal.GoalService;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @WebMvcTest(GoalController.class)
 class GoalControllerTest {
@@ -37,9 +43,10 @@ class GoalControllerTest {
 
     @MockBean
     private UserContext userContext;
-
     private CreateGoalDto createGoalDto;
+
     private UpdateGoalDto updateGoalDto;
+
     private GoalDto goalDto;
     private GoalFilterDto filterDto;
 
