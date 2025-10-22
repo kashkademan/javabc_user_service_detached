@@ -13,7 +13,6 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -22,10 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.preparation.test.PreparationTest.CURRENT_USER_ID;
+import static school.faang.user_service.preparation.test.PreparationTest.EVENT_1;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_ID;
+import static school.faang.user_service.preparation.test.PreparationTest.MINUS_DAYS_1;
+import static school.faang.user_service.preparation.test.PreparationTest.NOW;
 import static school.faang.user_service.preparation.test.PreparationTest.OTHER_USER_ID;
-import static school.faang.user_service.preparation.test.PreparationTest.createEvent;
-import static school.faang.user_service.preparation.test.PreparationTest.createUser;
+import static school.faang.user_service.preparation.test.PreparationTest.OWNER_1;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_DAYS_1;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_DAYS_2;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -42,33 +45,28 @@ public class EventValidatorTest {
 
     @Test
     void validateEventNotInPast_ThrowsExceptionWhenStartDateInPast() {
-        LocalDateTime pastDate = LocalDateTime.now().minusDays(1);
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventNotInPast(pastDate));
+                () -> eventValidator.validateEventNotInPast(MINUS_DAYS_1));
     }
 
     @Test
     void validateEventDates_ThrowsExceptionWhenEndDateBeforeStartDate() {
-        LocalDateTime startDate = LocalDateTime.now().plusDays(2);
-        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventDates(startDate, endDate));
+                () -> eventValidator.validateEventDates(PLUS_DAYS_2, PLUS_DAYS_1));
     }
 
     @Test
     void validateAndGetUser_ThrowsExceptionWhenUserNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class,
-                () -> eventValidator.validateAndGetUser(1L));
+                () -> eventValidator.validateAndGetUser(CURRENT_USER_ID));
     }
 
     @Test
     void validateEventOwnership_ThrowsExceptionWhenUserNotOwner() {
-        Event event = createEvent(EVENT_ID, createUser(CURRENT_USER_ID));
-
         when(userContext.getUserId()).thenReturn(OTHER_USER_ID);
         assertThrows(ForbiddenException.class,
-                () -> eventValidator.validateEventOwnership(event));
+                () -> eventValidator.validateEventOwnership(EVENT_1));
     }
 
     @Test
@@ -80,46 +78,40 @@ public class EventValidatorTest {
 
     @Test
     void validateEventNotInPast_ThrowsExceptionWhenStartDateIsNow() {
-        LocalDateTime now = LocalDateTime.now();
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventNotInPast(now));
+                () -> eventValidator.validateEventNotInPast(NOW));
     }
 
     @Test
     void validateEventDates_ThrowsExceptionWhenEndDateEqualsStartDate() {
-        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventDates(startDate, startDate));
+                () -> eventValidator.validateEventDates(PLUS_DAYS_1, PLUS_DAYS_1));
     }
 
     @Test
     void validateEventNotInPast_DoesNotThrowWhenStartDateInFuture() {
-        LocalDateTime futureDate = LocalDateTime.now().plusDays(1);
-        assertDoesNotThrow(() -> eventValidator.validateEventNotInPast(futureDate));
+        assertDoesNotThrow(() -> eventValidator.validateEventNotInPast(PLUS_DAYS_1));
     }
 
     @Test
     void validateEventDates_DoesNotThrowWhenEndDateAfterStartDate() {
-        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
-        LocalDateTime endDate = LocalDateTime.now().plusDays(2);
-        assertDoesNotThrow(() -> eventValidator.validateEventDates(startDate, endDate));
+        assertDoesNotThrow(() -> eventValidator.validateEventDates(PLUS_DAYS_1, PLUS_DAYS_2));
     }
 
     @Test
     void validateAndGetUser_ReturnsUserWhenUserExists() {
-        User expectedUser = createUser(1L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
+        User expectedUser = OWNER_1;
 
-        User result = eventValidator.validateAndGetUser(1L);
+        when(userRepository.findById(CURRENT_USER_ID)).thenReturn(Optional.of(expectedUser));
+        User result = eventValidator.validateAndGetUser(CURRENT_USER_ID);
 
         assertEquals(expectedUser, result);
     }
 
     @Test
     void validateEventOwnership_DoesNotThrowWhenUserIsOwner() {
-        Event event = createEvent(EVENT_ID, createUser(CURRENT_USER_ID));
         when(userContext.getUserId()).thenReturn(CURRENT_USER_ID);
 
-        assertDoesNotThrow(() -> eventValidator.validateEventOwnership(event));
+        assertDoesNotThrow(() -> eventValidator.validateEventOwnership(EVENT_1));
     }
 }
