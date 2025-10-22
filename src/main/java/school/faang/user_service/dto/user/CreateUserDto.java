@@ -12,7 +12,8 @@ import jakarta.validation.constraints.Size;
 public record CreateUserDto(
         @NotBlank
         @Size(min = 1, max = 50)
-        @Pattern(regexp = "^[A-Za-z0-9._-]+$", message = "Username may contain letters, digits, dot, underscore, hyphen")
+        @Pattern(regexp = "^[A-Za-z0-9._-]+$"
+                , message = "Username may contain letters, digits, dot, underscore, hyphen")
         String username,
 
         @NotBlank @Email
@@ -24,4 +25,5 @@ public record CreateUserDto(
 
         @NotNull @Positive
         Long countryId
-) {}
+) {
+}

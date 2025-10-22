@@ -29,7 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -76,8 +79,6 @@ class UserServiceImplTest {
     @Test
     @DisplayName("create: ok -> maps with real mapper, resolves country, saves, returns dto")
     void create_ok() {
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
-
         Country country = new Country();
         country.setId(COUNTRY_ID);
 
@@ -88,6 +89,7 @@ class UserServiceImplTest {
             return u;
         });
 
+        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
         UserDto result = userService.create(input);
 
         assertNotNull(result);

@@ -17,6 +17,10 @@ configurations {
     }
 }
 
+configurations.configureEach {
+    exclude(group = "com.vaadin.external.google", module = "android-json")
+}
+
 repositories {
     mavenCentral()
 }
