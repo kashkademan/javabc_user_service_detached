@@ -9,8 +9,6 @@ public record PromotionCreateDto(
         Long userId,
         @NotNull(message = "You have not selected a subscription type.")
         Rate rate,
-        @NotNull(message = "The number of impressions was not specified.")
-        Integer numberOfImpressions,
         @NotNull
         PaymentRequest paymentRequest
 
