@@ -66,6 +66,11 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     @Override
     public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
+        if (filter.requesterId() == null && filter.receiverId() == null) {
+            log.error("neither the requester id nor the receiver id was specified");
+            throw new DataValidationException("Receiver id and requester id cant be both null");
+        }
+
         Stream<MentorshipRequest> mentorshipRequestStream = mentorshipRequestRepository.findAll().stream();
 
         for (MentorshipRequestFilter mentorshipRequestFilter : mentorshipRequestFilters) {

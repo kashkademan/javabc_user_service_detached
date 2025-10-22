@@ -16,7 +16,6 @@ import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
@@ -36,11 +35,6 @@ public class MentorshipRequestController {
 
     @GetMapping
     public List<MentorshipRequestDto> getByFilters(@ModelAttribute MentorshipRequestFilterDto filter) {
-        if (filter.requesterId() == null && filter.receiverId() == null) {
-            log.error("neither the requester id nor the receiver id was specified");
-            throw new DataValidationException("Receiver id and requester id cant be both null");
-        }
-
         return mentorshipRequestService.getByFilters(filter);
     }
 
