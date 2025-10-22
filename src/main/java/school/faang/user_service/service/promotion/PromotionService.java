@@ -1,5 +1,6 @@
 package school.faang.user_service.service.promotion;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,11 @@ import school.faang.user_service.dto.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.promoition.PromotionRepository;
+import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.promotion.validator.PromotionValidator;
 import school.faang.user_service.service.redis.PromotionRedisService;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,11 +29,20 @@ public class PromotionService {
     private final PromotionRepository promotionRepository;
     private final PaymentServiceClient paymentServiceClient;
     private final PromotionRedisService promotionRedisService;
+    private final UserRepository userRepository;
     private final PromotionConfig promotionConfig;
 
-    public Promotion crearePromotion(Promotion promotion, PaymentRequest paymentRequest) {
+    @PostConstruct
+    public void initDataPromotionToRedis() {
+        List<Promotion> promotions = promotionRepository.findAll();
+        promotionRedisService.saveAll(promotions);
+    }
 
+    public Promotion crearePromotion(Promotion promotion, PaymentRequest paymentRequest) {
+        Long userId = promotion.getUserId();
         PromotionValidator.validateUserOwnership(userContext.getUserId(), promotion.getUserId());
+
+        PromotionValidator.validateExistsByUserIdPromotion(promotionRepository.existsByUserId(userId), userId);
 
         ResponseEntity<PaymentResponse> responseEntity = paymentServiceClient.sendPayment(paymentRequest);
         PaymentResponse paymentResponse = responseEntity.getBody();

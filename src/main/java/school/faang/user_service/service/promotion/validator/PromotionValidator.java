@@ -1,6 +1,7 @@
 package school.faang.user_service.service.promotion.validator;
 
 import school.faang.user_service.dto.payment.PaymentStatus;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
 import java.util.Objects;
@@ -20,4 +21,11 @@ public class PromotionValidator {
             throw new ForbiddenException("Payment failed");
         }
     }
+
+    public static void validateExistsByUserIdPromotion(Boolean isValidate, Long userId) {
+        if (isValidate) {
+            throw new DataValidationException(String.format("User %d already has promotions", userId));
+        }
+    }
+
 }
