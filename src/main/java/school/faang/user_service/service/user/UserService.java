@@ -1,6 +1,7 @@
 package school.faang.user_service.service.user;
 
 import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -42,7 +43,7 @@ public interface UserService {
      *         иначе выбрасывается {@code DataIntegrityViolationException}.</li>
      * </ul>
      *
-     * @param userId идентификатор пользователя, чьи данные необходимо обновить
+     * @param userId  идентификатор пользователя, чьи данные необходимо обновить
      * @param userDto объект {@link UpdateUserDto}, содержащий обновлённые данные пользователя
      * @return объект {@link UserDto}, представляющий обновлённого пользователя
      */
@@ -59,7 +60,8 @@ public interface UserService {
      */
     UserDto getById(long userId);
 
-    List<UserDto> getUsersByIds(List<UserDto> ids);
+    List<UserDto> getUsersByIds(GetUsersDto getUsersDto);
+
     /**
      * Возвращает информацию о премиум пользователях с испльзованием фильтров.
      */
