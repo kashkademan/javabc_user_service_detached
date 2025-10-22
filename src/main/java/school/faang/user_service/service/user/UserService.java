@@ -1,6 +1,7 @@
 package school.faang.user_service.service.user;
 
 import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -59,9 +60,12 @@ public interface UserService {
      */
     UserDto getById(long userId);
 
+    List<UserDto> getUsersByIds(GetUsersDto getUsersDto);
+
     /**
      * Возвращает информацию о премиум пользователях с испльзованием фильтров.
      */
+
     List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto);
 }
 

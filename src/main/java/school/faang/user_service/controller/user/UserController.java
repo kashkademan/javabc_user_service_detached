@@ -4,9 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -36,8 +40,14 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    public UserDto getById(long userId) {
+    @GetMapping("/{userId}")
+    public UserDto getUser(@PathVariable long userId) {
         return userService.getById(userId);
+    }
+
+    @PostMapping
+    public List<UserDto> getUsersByIds(@RequestBody GetUsersDto getUsersDto) {
+        return userService.getUsersByIds(getUsersDto);
     }
 
     @GetMapping("/premium")

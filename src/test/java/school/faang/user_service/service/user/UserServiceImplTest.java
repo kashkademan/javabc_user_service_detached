@@ -4,28 +4,34 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.user.UserExperienceFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNamePatternFilter;
 import school.faang.user_service.filter.user.UserPhonePatternFilter;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
 
     private final UserFiltersDto userFiltersDto
             = new UserFiltersDto("Anton", "89991231213", 3, 7);
@@ -33,12 +39,21 @@ public class UserServiceTest {
     private final UserFilter userNamePatternFilter = new UserNamePatternFilter();
     private final UserFilter userPhonePatternFilter = new UserPhonePatternFilter();
 
+    private final User firstUser = User.builder()
+            .id(22L)
+            .username("antony")
+            .build();
+    private final User secondUser = User.builder()
+            .id(23L)
+            .username("bobik")
+            .build();
+
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     @Mock
     private UserRepository userRepository;
     @Mock
     private CountryRepository countryRepository;
-    @Spy
-    private UserMapperImpl userMapper;
     @Mock
     private UserContext userContext;
     @Mock
@@ -51,6 +66,56 @@ public class UserServiceTest {
         userService = new UserServiceImpl(userRepository, countryRepository, userMapper, userContext,
                 List.of(userExperienceFilter, userNamePatternFilter, userPhonePatternFilter));
     }
+
+    @Test
+    void testGetUserThrowsEntityNotFound() {
+        when(userRepository.getByIdOrThrow(anyLong())).thenThrow(EntityNotFoundException.class);
+
+        Assertions.assertThrows(EntityNotFoundException.class, () -> userService.getById(1L));
+    }
+
+    @Test
+    void testGetUser() {
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+
+        UserDto actualUser = userService.getById(firstUser.getId());
+
+        Assertions.assertNotNull(actualUser);
+        Assertions.assertEquals(firstUser.getId(), actualUser.id());
+        Assertions.assertEquals(firstUser.getUsername(), actualUser.username());
+    }
+
+    @Test
+    void testGetUsersByIdsReturnEmptyListIfEmptyArgument() {
+        Assertions.assertTrue(userService.getUsersByIds(null).isEmpty());
+    }
+
+    @Test
+    void testGetUsersByIdsReturnEmptyListIfUsersNotFound() {
+        Assertions.assertTrue(userService.getUsersByIds(GetUsersDto.builder()
+                        .ids(new ArrayList<>(List.of(1L, 2L)))
+                        .build())
+                .isEmpty());
+    }
+
+    @Test
+    void testGetUsersByIds() {
+        final GetUsersDto getUsersDto = GetUsersDto.builder()
+                .ids(new ArrayList<>(List.of(firstUser.getId(), secondUser.getId())))
+                .build();
+
+        when(userRepository.findAllById(getUsersDto.ids())).thenReturn(List.of(firstUser, secondUser));
+
+        List<UserDto> actualUsers = userService.getUsersByIds(getUsersDto);
+        List<UserDto> expectedUsers = new ArrayList<>(List.of(firstUser, secondUser)).stream()
+                .map(userMapper::toUserDto)
+                .toList();
+
+        Assertions.assertNotNull(actualUsers);
+        Assertions.assertFalse(actualUsers.isEmpty());
+        Assertions.assertTrue(actualUsers.containsAll(expectedUsers));
+    }
+
 
     @Test
     void testGetPremiumUsersPositive() {

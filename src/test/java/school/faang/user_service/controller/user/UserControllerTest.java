@@ -9,13 +9,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.service.user.UserServiceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -70,5 +73,40 @@ public class UserControllerTest {
                 objectMapper.getTypeFactory().constructCollectionType(List.class, UserDto.class));
 
         Assertions.assertTrue(actualUsers.containsAll(expectedUsers));
+    }
+
+    @Test
+    void testGetUsersByIds() throws Exception {
+        GetUsersDto getUsersDto = GetUsersDto.builder()
+                .ids(new ArrayList<>(List.of(firstUser.id(), secondUser.id())))
+                .build();
+        List<UserDto> expectedUsers = List.of(firstUser, secondUser);
+
+        when(userService.getUsersByIds(getUsersDto)).thenReturn(expectedUsers);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders
+                        .post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getUsersDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", Matchers.hasSize(expectedUsers.size())))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<UserDto> actualUsers = objectMapper.readValue(response,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, UserDto.class));
+
+        Assertions.assertTrue(actualUsers.containsAll(expectedUsers));
+    }
+
+    @Test
+    void testGetUser() throws Exception {
+        when(userService.getById(firstUser.id())).thenReturn(firstUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/{userId}", firstUser.id()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", Matchers.is(firstUser.id().intValue())))
+                .andExpect(jsonPath("username", Matchers.is(firstUser.username())));
     }
 }
