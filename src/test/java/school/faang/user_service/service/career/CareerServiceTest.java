@@ -13,6 +13,7 @@ import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -42,9 +43,7 @@ class CareerServiceTest {
     void addCareer_validDto_shouldReturnCareerDto() {
         LocalDate from = LocalDate.now().minusYears(2);
         LocalDate to = LocalDate.now().minusMonths(1);
-
         long requesterId = 100L;
-
         User user = new User();
         user.setId(requesterId);
 
@@ -56,25 +55,15 @@ class CareerServiceTest {
                 .position("Software Engineer")
                 .build();
 
-
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.getByIdOrThrow(requesterId)).thenReturn(user);
+        when(careerRepository.save(any(Career.class))).thenReturn(career);
 
         CreateCareerDto createDto = new CreateCareerDto(
                 from, to, "Google", "Software Engineer"
         );
-
-        when(careerRepository.save(any(Career.class))).thenReturn(career);
-
         CareerDto result = careerService.addCareer(createDto);
-
-        CareerDto expectedDto = CareerDto.builder()
-                .id(1L)
-                .from(from)
-                .to(to)
-                .company("Google")
-                .position("Software Engineer")
-                .build();
+        CareerDto expectedDto = CareerMapper.toCareerDto(career);
 
         assertEquals(expectedDto, result);
     }
@@ -109,18 +98,10 @@ class CareerServiceTest {
                 .position("Developer")
                 .build();
 
-        CareerDto expectedDto = CareerDto.builder()
-                .id(careerId)
-                .from(LocalDate.of(2020, 1, 1))
-                .to(LocalDate.of(2023, 12, 31))
-                .company("Apple")
-                .position("Developer")
-                .build();
-
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
 
         CareerDto result = careerService.getById(careerId);
-
+        CareerDto expectedDto = CareerMapper.toCareerDto(career);
         assertEquals(expectedDto, result);
     }
 
@@ -177,18 +158,32 @@ class CareerServiceTest {
     void updateCareer_validIdAndDto_shouldReturnCareerDto() {
         long careerId = 1L;
         long userId = 100L;
-        UpdateCareerDto updateDto = new UpdateCareerDto(
-                LocalDate.now().minusYears(1),
-                null,
-                "Meta",
-                "Senior Engineer"
-        );
 
         Career career = Career.builder()
                 .id(careerId)
                 .user(User.builder()
-                        .id(100L)
+                        .id(userId)
                         .build())
+                .dateFrom(LocalDate.now().minusYears(1))
+                .dateTo(LocalDate.now())
+                .company("Meta")
+                .position("Senior Engineer")
+                .build();
+
+        UpdateCareerDto updateDto = new UpdateCareerDto(
+                career.getDateFrom(),
+                null,
+                "Google",
+                "Software Engineer"
+        );
+
+        Career updateCareer = Career.builder()
+                .id(careerId)
+                .user(career.getUser())
+                .dateFrom(career.getDateFrom())
+                .dateTo(null)
+                .company("Meta")
+                .position("Senior Engineer")
                 .build();
 
         when(userContext.getUserId()).thenReturn(userId);
@@ -196,14 +191,8 @@ class CareerServiceTest {
         when(careerRepository.save(career)).thenReturn(career);
 
         CareerDto result = careerService.updateCareer(careerId, updateDto);
+        CareerDto expectedDto = CareerMapper.toCareerDto(career);
 
-        CareerDto expectedDto = CareerDto.builder()
-                .id(careerId)
-                .from(updateDto.getFrom())
-                .to(updateDto.getTo())
-                .company("Meta")
-                .position("Senior Engineer")
-                .build();
 
         assertEquals(expectedDto, result);
     }
