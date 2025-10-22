@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -70,14 +71,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsersByIds(List<UserDto> userDtos) {
-        if (userDtos == null || userDtos.isEmpty()) {
+    public List<UserDto> getUsersByIds(GetUsersDto getUsersDto) {
+        if (getUsersDto == null) {
             return new ArrayList<>();
         }
 
-        List<Long> ids = userDtos.stream().map(UserDto::id).toList();
-
-        return userRepository.findAllById(ids).stream()
+        return userRepository.findAllById(getUsersDto.ids()).stream()
                 .map(userMapper::toUserDto)
                 .toList();
     }

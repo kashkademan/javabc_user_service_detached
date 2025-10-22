@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
@@ -86,26 +87,26 @@ public class UserServiceImplTest {
 
     @Test
     void testGetUsersByIdsReturnEmptyListIfEmptyArgument() {
-        Assertions.assertTrue(userService.getUsersByIds(new ArrayList<>()).isEmpty());
+        Assertions.assertTrue(userService.getUsersByIds(null).isEmpty());
     }
 
     @Test
     void testGetUsersByIdsReturnEmptyListIfUsersNotFound() {
-        Assertions.assertTrue(userService.getUsersByIds(
-                        new ArrayList<>(List.of(UserDto.builder().id(1L).build(), UserDto.builder().id(2L).build())))
+        Assertions.assertTrue(userService.getUsersByIds(GetUsersDto.builder()
+                        .ids(new ArrayList<>(List.of(1L, 2L)))
+                        .build())
                 .isEmpty());
     }
 
     @Test
     void testGetUsersByIds() {
-        final List<UserDto> userDtoList = Stream.of(firstUser, secondUser)
-                .map(userMapper::toUserDto)
-                .toList();
-        final List<Long> usersIds = userDtoList.stream().map(UserDto::id).toList();
-        when(userRepository.findAllById(usersIds))
-                .thenReturn(List.of(firstUser, secondUser));
+        final GetUsersDto getUsersDto = GetUsersDto.builder()
+                .ids(new ArrayList<>(List.of(firstUser.getId(), secondUser.getId())))
+                .build();
 
-        List<UserDto> actualUsers = userService.getUsersByIds(userDtoList);
+        when(userRepository.findAllById(getUsersDto.ids())).thenReturn(List.of(firstUser, secondUser));
+
+        List<UserDto> actualUsers = userService.getUsersByIds(getUsersDto);
         List<UserDto> expectedUsers = new ArrayList<>(List.of(firstUser, secondUser)).stream()
                 .map(userMapper::toUserDto)
                 .toList();
