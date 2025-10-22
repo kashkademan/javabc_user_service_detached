@@ -23,7 +23,11 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -115,8 +119,6 @@ class UserServiceImplTest {
     @Test
     @DisplayName("create: password length exactly min -> ok")
     void create_passwordAtBoundary_ok() {
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_MIN_OK, COUNTRY_ID);
-
         Country country = new Country();
         country.setId(COUNTRY_ID);
 
@@ -127,6 +129,7 @@ class UserServiceImplTest {
             return u;
         });
 
+        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_MIN_OK, COUNTRY_ID);
         UserDto result = userService.create(input);
 
         assertEquals(USER_ID, result.id());
@@ -152,8 +155,6 @@ class UserServiceImplTest {
     @Test
     @DisplayName("create: sets country on entity saved to repository")
     void create_setsCountryOnEntity() {
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
-
         Country country = new Country();
         country.setId(COUNTRY_ID);
 
@@ -164,6 +165,7 @@ class UserServiceImplTest {
             return u;
         });
 
+        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
         userService.create(input);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
@@ -176,8 +178,6 @@ class UserServiceImplTest {
     @Test
     @DisplayName("update: ok -> requester matches, real mapper updates fields, country resolved, saved, returns dto")
     void update_ok() {
-        UpdateUserDto input = buildUpdateUserDto();
-
         Country newCountry = new Country();
         newCountry.setId(OTHER_COUNTRY_ID);
 
@@ -191,6 +191,7 @@ class UserServiceImplTest {
         when(countryRepository.getByIdOrThrow(OTHER_COUNTRY_ID)).thenReturn(newCountry);
         when(userRepository.save(existing)).thenAnswer(inv -> inv.getArgument(0, User.class));
 
+        UpdateUserDto input = buildUpdateUserDto();
         UserDto result = userService.update(USER_ID, input);
 
         assertEquals(USER_ID, result.id());
@@ -224,8 +225,6 @@ class UserServiceImplTest {
     @Test
     @DisplayName("update: invalid country -> propagates exception, save not called")
     void update_invalidCountry_propagates() {
-        UpdateUserDto input = buildUpdateUserDto();
-
         User existing = new User();
         existing.setId(USER_ID);
 
@@ -234,6 +233,7 @@ class UserServiceImplTest {
         when(countryRepository.getByIdOrThrow(OTHER_COUNTRY_ID))
                 .thenThrow(new RuntimeException("Country not found"));
 
+        UpdateUserDto input = buildUpdateUserDto();
         RuntimeException ex = assertThrows(RuntimeException.class, () -> userService.update(USER_ID, input));
         assertEquals("Country not found", ex.getMessage());
 

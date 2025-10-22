@@ -1,7 +1,10 @@
 package school.faang.user_service.dto.user;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Size;
 
 @Builder
 public record UpdateUserDto(
