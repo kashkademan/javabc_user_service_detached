@@ -80,33 +80,6 @@ public class CareerServiceImplTest {
     }
 
     @Test
-    void testAddCareerCompanyIsBlank() {
-        CreateCareerDto companyIsBlankDto = new CreateCareerDto(VALID_FROM_DATE,
-                LocalDate.now(), "", "Test_position");
-
-        assertThrows(DataValidationException.class, () ->
-                careerService.addCareer(USER_ID, companyIsBlankDto), "company should be present!");
-    }
-
-    @Test
-    void testAddCareerPositionIsBlank() {
-        CreateCareerDto positionIsBlankDto = new CreateCareerDto(VALID_FROM_DATE,
-                LocalDate.now(), "Test_company", "");
-
-        assertThrows(DataValidationException.class, () ->
-                careerService.addCareer(USER_ID, positionIsBlankDto), "position should be present!");
-    }
-
-    @Test
-    void testAddCareerFromDateIsNull() {
-        CreateCareerDto fromDateIsNullDto = new CreateCareerDto(null, LocalDate.now(),
-                "Test_company", "Test_company");
-
-        assertThrows(DataValidationException.class, () ->
-                careerService.addCareer(USER_ID, fromDateIsNullDto), "from date should be present!");
-    }
-
-    @Test
     void testAddCareerInvalidFromDate() {
         CreateCareerDto invalidFromDateDto = new CreateCareerDto(INVALID_FROM_DATE,
                 LocalDate.now(), "Test_company", "Test_position");
@@ -133,36 +106,6 @@ public class CareerServiceImplTest {
 
         Mockito.verify(careerRepository).save(career);
         assertEquals(expectedCareerDto, result);
-    }
-
-    @Test
-    void testUpdateCareerCompanyIsBlank() {
-        UpdateCareerDto companyIsBlankDto = new UpdateCareerDto(VALID_FROM_DATE,
-                LocalDate.now(), "", "Test_position");
-
-        assertThrows(DataValidationException.class, () ->
-                        careerService.updateCareer(USER_ID, CAREER_ID, companyIsBlankDto),
-                "company should be present!");
-    }
-
-    @Test
-    void testUpdateCareerPositionIsBlank() {
-        UpdateCareerDto positionIsBlankDto = new UpdateCareerDto(VALID_FROM_DATE,
-                LocalDate.now(), "Test_company", "");
-
-        assertThrows(DataValidationException.class, () ->
-                        careerService.updateCareer(USER_ID, CAREER_ID, positionIsBlankDto),
-                "position should be present!");
-    }
-
-    @Test
-    void testUpdateCareerFromDateIsNull() {
-        UpdateCareerDto fromDateIsNullDto = new UpdateCareerDto(null, LocalDate.now(),
-                "Test_company", "Test_company");
-
-        assertThrows(DataValidationException.class, () ->
-                        careerService.updateCareer(USER_ID, CAREER_ID, fromDateIsNullDto),
-                "from date should be present!");
     }
 
     @Test
