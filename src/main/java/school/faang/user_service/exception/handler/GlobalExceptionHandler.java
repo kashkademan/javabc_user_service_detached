@@ -2,13 +2,13 @@ package school.faang.user_service.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 
 import java.util.HashMap;
@@ -16,109 +16,94 @@ import java.util.Map;
 
 /**
  * Глобальный обработчик исключений для всех REST-контроллеров.
- * Перехватывает внутренние исключения и возвращает единый JSON-ответ клиенту.
- * Позволяет централизованно управлять кодами ошибок и логикой отображения.
  */
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Обработка ошибок валидации (аннотации @Valid, @NotBlank, @Email и т.д.).
-     * Spring автоматически выбрасывает MethodArgumentNotValidException,
-     * если DTO не проходит проверку Bean Validation.
+     * Обработка ошибок валидации входных данных.
+     * Возвращает JSON с полями, которые не прошли валидацию и сообщениями из аннотаций.
      * Пример ответа:
      * {
-     *   "status": 400,
-     *   "error": "Validation failed",
-     *   "fields": { "email": "must be a valid email" }
+     *   "description": "should not be blank",
+     *   "email": "must be a valid email address"
      * }
      */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, String> fieldErrors = new HashMap<>();
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = error instanceof FieldError fe ? fe.getField() : error.getObjectName();
-            fieldErrors.put(fieldName, error.getDefaultMessage());
+            String fieldName = error instanceof FieldError fieldError
+                    ? fieldError.getField() : error.getObjectName();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
         });
 
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation failed");
-        response.put("fields", fieldErrors);
-
-        log.warn("Validation error: {}", fieldErrors);
-        return ResponseEntity.badRequest().body(response);
+        log.warn("Validation failed for fields: {}", errors.keySet());
+        return errors;
     }
 
     /**
-     * Обработка бизнес-ошибок, связанных с неверными данными.
-     * Например: неправильная длина пароля, дублирующийся email и т.п.
-     *
-     * Исключение выбрасывается вручную как DataValidationException.
+     * Обработка бизнес-ошибок валидации данных.
      */
     @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataValidation(DataValidationException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Invalid request data");
-        body.put("message", ex.getMessage());
-
-        log.warn("Business validation error: {}", ex.getMessage());
-        return ResponseEntity.badRequest().body(body);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDataValidationException(DataValidationException ex) {
+        log.warn("Data validation error: {}", ex.getMessage());
+        return new ErrorResponse("data_validation_error", ex.getMessage());
     }
 
     /**
-     * Обработка ошибок доступа — когда пользователь пытается изменить чужой профиль.
-     * Возвращает 403 Forbidden.
+     * Обработка ошибок "сущность не найдена".
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex) {
+        log.warn("Entity not found: {}", ex.getMessage());
+        return new ErrorResponse("entity_not_found", ex.getMessage());
+    }
+
+    /**
+     * Обработка ошибок доступа (403 Forbidden).
      */
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<Map<String, Object>> handleForbidden(ForbiddenException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", "Access denied");
-        body.put("message", ex.getMessage());
-
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(ForbiddenException ex) {
         log.warn("Access denied: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return new ErrorResponse("forbidden", ex.getMessage());
     }
 
     /**
-     * Обработка ошибок, связанных с отсутствием данных.
-     * Например: "User not found", "Country not found" и т.д.
-     * Возвращает 404 Not Found, если в сообщении содержится "not found",
-     * иначе 400 Bad Request для других RuntimeException.
+     * Обработка некорректных аргументов.
      */
-    @ExceptionHandler({ RuntimeException.class, IllegalArgumentException.class })
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
-        HttpStatus status = ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found")
-                ? HttpStatus.NOT_FOUND
-                : HttpStatus.BAD_REQUEST;
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", status.value());
-        body.put("error", status == HttpStatus.NOT_FOUND ? "Not Found" : "Bad Request");
-        body.put("message", ex.getMessage());
-
-        log.error("Runtime exception: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        return new ErrorResponse("illegal_argument", ex.getMessage());
     }
 
     /**
-     * Обработка всех остальных неожиданных исключений.
-     * Используется как "страховка" на случай ошибок, не предусмотренных выше.
-     * Возвращает 500 Internal Server Error.
+     * Обработка всех непредвиденных исключений.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal server error");
-        body.put("message", ex.getMessage());
-
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGenericException(Exception ex) {
         log.error("Unhandled exception: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+        return new ErrorResponse("internal_server_error", "An unexpected error occurred");
+    }
+
+    /**
+     * Обработка Runtime исключений.
+     * Возвращает 400 Bad Request.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleRuntimeException(RuntimeException ex) {
+        log.error("Runtime exception: {}", ex.getMessage(), ex);
+        return new ErrorResponse("runtime_error", ex.getMessage());
     }
 }
