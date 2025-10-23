@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest(GoalController.class)
 class GoalControllerTest {
 
@@ -43,11 +42,13 @@ class GoalControllerTest {
 
     @MockBean
     private UserContext userContext;
+
     private CreateGoalDto createGoalDto;
 
     private UpdateGoalDto updateGoalDto;
 
     private GoalDto goalDto;
+
     private GoalFilterDto filterDto;
 
     @BeforeEach
@@ -92,7 +93,7 @@ class GoalControllerTest {
         mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createGoalDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Title"))
                 .andExpect(jsonPath("$.mentorId").value(1));
     }
@@ -112,7 +113,7 @@ class GoalControllerTest {
     @Test
     void testDeleteGoal() throws Exception {
         mockMvc.perform(delete("/api/v1/goals/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(goalService).deleteGoal(1L);
     }
@@ -120,7 +121,7 @@ class GoalControllerTest {
     @Test
     void testDeleteGoalFromUser() throws Exception {
         mockMvc.perform(delete("/api/v1/goals/users/1/2"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(goalService).deleteGoalFromUser(1L, 2L);
     }

@@ -64,7 +64,7 @@ public class GoalServiceImpl implements GoalService {
         goalRepository.deleteUserFromGoal(userId, goalId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<GoalDto> getByFilters(GoalFilterDto filters) {
         return goalRepository.findAll().stream()
