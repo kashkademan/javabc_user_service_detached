@@ -112,6 +112,7 @@ fun FileTree.excludeCommon(): FileTree = this.matching {
         "**/MentorshipRequestFilterMentor.*",   // Денис
         "**/MentorshipRequestFilterMentorStatus.*", // Денис
         "**/service/mentorship/MentorshipRequestService*.*", // Денис
+        "**/MentorshipRequestFilterMentee.*", //Денис
         "**/exception/**",     // Эльза
         "**/client/**"    // Эльза
     )
