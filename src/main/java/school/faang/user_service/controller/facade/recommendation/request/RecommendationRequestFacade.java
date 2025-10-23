@@ -35,15 +35,13 @@ public class RecommendationRequestFacade {
     public RecommendationRequestDto create(CreateRecommendationRequestDto createRecommendationRequestDto,
                                            BindingResult bindingResult) {
         RecommendationRequestValidator.handleValidationError(bindingResult);
-        RecommendationRequest createdRecommendationRequest = recommendationRequestMapper
+        RecommendationRequest recommendationRequestForCreation = recommendationRequestMapper
                 .toRecommendationRequest(createRecommendationRequestDto);
-        return recommendationRequestMapper.toRecommendationRequestDto(
-                recommendationRequestService.create(
-                        createdRecommendationRequest,
-                        createRecommendationRequestDto.getSkillIds(),
-                        createRecommendationRequestDto.getReceiverId()
-                )
+        RecommendationRequest createdRequestForCreation = recommendationRequestService.create(
+                recommendationRequestForCreation,
+                createRecommendationRequestDto.getSkillIds(), createRecommendationRequestDto.getReceiverId()
         );
+        return recommendationRequestMapper.toRecommendationRequestDto(createdRequestForCreation);
     }
 
     public void reject(long id, RejectionDto rejectionDto, BindingResult bindingResult) {

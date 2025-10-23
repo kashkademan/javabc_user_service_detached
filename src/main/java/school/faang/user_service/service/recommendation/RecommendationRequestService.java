@@ -2,6 +2,7 @@ package school.faang.user_service.service.recommendation;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class RecommendationRequestService {
 
     private final RecommendationRequestRepository recommendationRequestRepository;
@@ -49,7 +51,11 @@ public class RecommendationRequestService {
         recommendationRequestForSaving.setStatus(RequestStatus.PENDING);
         setSkillRequestBySkillIds(recommendationRequestForSaving, skillsId);
 
-        return recommendationRequestRepository.save(recommendationRequestForSaving);
+        recommendationRequestForSaving = recommendationRequestRepository.save(recommendationRequestForSaving);
+
+        log.info("RecommendationRequest was created with id {}", recommendationRequestForSaving.getId());
+
+        return recommendationRequestForSaving;
     }
 
     @Transactional(readOnly = true)
@@ -70,6 +76,8 @@ public class RecommendationRequestService {
                 userContext.getUserId(), updated.getReceiver().getId(), updated.getStatus());
         updated.setStatus(RequestStatus.ACCEPTED);
         recommendationRequestRepository.save(updated);
+
+        log.info("RecommendationRequest was accepted {} at {}", id, updated.getUpdatedAt());
     }
 
     @Transactional
@@ -80,6 +88,8 @@ public class RecommendationRequestService {
         updated.setStatus(RequestStatus.REJECTED);
         updated.setRejectionReason(rejection.getReason());
         recommendationRequestRepository.save(updated);
+
+        log.info("RecommendationRequest was rejected {} at {}", id, updated.getUpdatedAt());
     }
 
     private Stream<RecommendationRequest> buildFilterStream(List<RecommendationRequest> allRequests,
