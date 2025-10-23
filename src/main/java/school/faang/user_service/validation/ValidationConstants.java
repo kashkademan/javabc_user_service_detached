@@ -1,4 +1,4 @@
-package school.faang.user_service.validation.event;
+package school.faang.user_service.validation;
 
 public class ValidationConstants {
     public static final int TITLE_MAX_LENGTH = 255;

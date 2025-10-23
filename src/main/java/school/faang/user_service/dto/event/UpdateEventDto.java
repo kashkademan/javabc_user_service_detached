@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
-import school.faang.user_service.validation.event.ValidationConstants;
+import school.faang.user_service.validation.ValidationConstants;
 
 import java.time.LocalDateTime;
 
