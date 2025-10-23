@@ -106,14 +106,14 @@ fun FileTree.excludeCommon(): FileTree = this.matching {
         "com/json/student/**",
         "**/*Application*",
         // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
-        "**/RecommendationServiceImpl.*",           //Андрей
-//"**/MentorshipRequestService*.*",         // Денис - РАСКОММЕНТИРОВАТЬ для проверки
-        "**/MentorshipRequestFilter.*",             // Денис
-        "**/MentorshipRequestFilterMentor.*",       // Денис
+        "**/RecommendationServiceImpl.*",  //Андрей
+        "**/MentorshipRequestService*.*",  // Денис
+        "**/MentorshipRequestFilter.*",    // Денис
+        "**/MentorshipRequestFilterMentor.*",   // Денис
         "**/MentorshipRequestFilterMentorStatus.*", // Денис
-//"**/service/mentorship/MentorshipRequestService*.*", // Денис - РАСКОММЕНТИРОВАТЬ для проверки
-        "**/exception/**",                          // Эльза
-        "**/client/**"                              // Эльза
+        "**/service/mentorship/MentorshipRequestService*.*", // Денис
+        "**/exception/**",     // Эльза
+        "**/client/**"    // Эльза
     )
 }
 
@@ -130,7 +130,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn(tasks.jacocoTestReport) //скорректировала
+    dependsOn(tasks.jacocoTestReport)
 
     val filtered = files(sourceSets.main.get().output.classesDirs.files.map {
         fileTree(it).excludeCommon()
@@ -147,10 +147,6 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
         }
     }
 }
-//
-// tasks.test {
-// finalizedBy(tasks.named("jacocoTestReport"))
-// } убрала
 
 tasks.check {
     dependsOn(tasks.named("jacocoTestCoverageVerification"))
@@ -165,7 +161,6 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    // finalizedBy(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification) //добавила
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
