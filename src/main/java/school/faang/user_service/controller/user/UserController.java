@@ -20,7 +20,7 @@ import school.faang.user_service.service.user.UserService;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/")
+    @PostMapping
     public UserDto create(CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
@@ -29,7 +29,7 @@ public class UserController {
         return userService.create(userDto);
     }
 
-    @PutMapping("/")
+    @PutMapping
     public UserDto update(long userId, UpdateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
