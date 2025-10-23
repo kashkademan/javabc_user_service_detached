@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -14,34 +15,17 @@ import school.faang.user_service.service.user.UserService;
 public class UserController {
     private final UserService userService;
 
-    public UserDto create(CreateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateString(userDto.password(), "password");
-        validateNotNull(userDto.countryId(), "country");
+    public UserDto create(@Valid CreateUserDto userDto) {
+
         return userService.create(userDto);
     }
 
-    public UserDto update(long userId, UpdateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateNotNull(userDto.countryId(), "country");
+    public UserDto update(long userId, @Valid UpdateUserDto userDto) {
+
         return userService.update(userId, userDto);
     }
 
     public UserDto getById(long userId) {
         return userService.getById(userId);
-    }
-
-    private void validateString(String value, String paramName) {
-        if (StringUtils.isNotBlank(value)) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
-    }
-
-    private void validateNotNull(Object value, String paramName) {
-        if (value == null) {
-            throw new DataValidationException(paramName + " should be present!");
-        }
     }
 }
