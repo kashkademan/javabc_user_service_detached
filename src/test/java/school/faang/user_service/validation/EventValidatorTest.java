@@ -27,8 +27,8 @@ import static school.faang.user_service.preparation.test.PreparationTest.MINUS_D
 import static school.faang.user_service.preparation.test.PreparationTest.NOW;
 import static school.faang.user_service.preparation.test.PreparationTest.OTHER_USER_ID;
 import static school.faang.user_service.preparation.test.PreparationTest.OWNER_1;
-import static school.faang.user_service.preparation.test.PreparationTest.PLUS_DAYS_1;
-import static school.faang.user_service.preparation.test.PreparationTest.PLUS_DAYS_2;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_ONE_DAY;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_TWO_DAYS;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +52,7 @@ public class EventValidatorTest {
     @Test
     void validateEventDates_ThrowsExceptionWhenEndDateBeforeStartDate() {
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventDates(PLUS_DAYS_2, PLUS_DAYS_1));
+                () -> eventValidator.validateEventDates(PLUS_TWO_DAYS, PLUS_ONE_DAY));
     }
 
     @Test
@@ -85,17 +85,17 @@ public class EventValidatorTest {
     @Test
     void validateEventDates_ThrowsExceptionWhenEndDateEqualsStartDate() {
         assertThrows(ValidationException.class,
-                () -> eventValidator.validateEventDates(PLUS_DAYS_1, PLUS_DAYS_1));
+                () -> eventValidator.validateEventDates(PLUS_ONE_DAY, PLUS_ONE_DAY));
     }
 
     @Test
     void validateEventNotInPast_DoesNotThrowWhenStartDateInFuture() {
-        assertDoesNotThrow(() -> eventValidator.validateEventNotInPast(PLUS_DAYS_1));
+        assertDoesNotThrow(() -> eventValidator.validateEventNotInPast(PLUS_ONE_DAY));
     }
 
     @Test
     void validateEventDates_DoesNotThrowWhenEndDateAfterStartDate() {
-        assertDoesNotThrow(() -> eventValidator.validateEventDates(PLUS_DAYS_1, PLUS_DAYS_2));
+        assertDoesNotThrow(() -> eventValidator.validateEventDates(PLUS_ONE_DAY, PLUS_TWO_DAYS));
     }
 
     @Test

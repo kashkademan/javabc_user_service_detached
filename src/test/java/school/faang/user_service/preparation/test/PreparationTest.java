@@ -14,12 +14,10 @@ public class PreparationTest {
     public static final long EVENT_ID = 100L;
     public static final long OTHER_USER_ID = 2L;
     public static final LocalDateTime NOW = LocalDateTime.now();
-    public static final LocalDateTime START_DATE = NOW.plusDays(1);
-    public static final LocalDateTime END_DATE = NOW.plusDays(2);
+    public static final LocalDateTime PLUS_ONE_DAY = NOW.plusDays(1);
+    public static final LocalDateTime PLUS_TWO_DAYS = NOW.plusDays(2);
     public static final String TITLE = "Тестовое событие";
     public static final String DESCRIPTION = "Описание тестового события";
-    public static final LocalDateTime PLUS_DAYS_1 = NOW.plusDays(1);
-    public static final LocalDateTime PLUS_DAYS_2 = NOW.plusDays(2);
     public static final LocalDateTime MINUS_DAYS_1 = NOW.minusDays(1);
 
     public static final User OWNER_1 = createUser(CURRENT_USER_ID);
@@ -28,7 +26,7 @@ public class PreparationTest {
     public static final Event EVENT_2 = createEvent(EVENT_ID, OWNER_2);
 
     public static CreateEventDto createEventDto() {
-        return new CreateEventDto(TITLE, DESCRIPTION, START_DATE, END_DATE, EventType.WEBINAR);
+        return new CreateEventDto(TITLE, DESCRIPTION, PLUS_ONE_DAY, PLUS_TWO_DAYS, EventType.WEBINAR);
     }
 
     public static User createUser(Long id) {
@@ -40,8 +38,8 @@ public class PreparationTest {
                 .id(id)
                 .title(TITLE)
                 .description(DESCRIPTION)
-                .startDate(START_DATE)
-                .endDate(END_DATE)
+                .startDate(PLUS_ONE_DAY)
+                .endDate(PLUS_TWO_DAYS)
                 .type(EventType.WEBINAR)
                 .owner(owner)
                 .status(EventStatus.PLANNED)

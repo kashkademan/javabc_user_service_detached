@@ -38,13 +38,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.preparation.test.PreparationTest.CURRENT_USER_ID;
-import static school.faang.user_service.preparation.test.PreparationTest.END_DATE;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_TWO_DAYS;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_1;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_2;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_ID;
 import static school.faang.user_service.preparation.test.PreparationTest.OTHER_USER_ID;
 import static school.faang.user_service.preparation.test.PreparationTest.OWNER_1;
-import static school.faang.user_service.preparation.test.PreparationTest.START_DATE;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_ONE_DAY;
 import static school.faang.user_service.preparation.test.PreparationTest.createEvent;
 import static school.faang.user_service.preparation.test.PreparationTest.createEventDto;
 
@@ -85,8 +85,8 @@ public class EventServiceImplTest {
         EventDto result = eventService.create(createEventDto);
 
         assertNotNull(result);
-        verify(eventValidator).validateEventNotInPast(START_DATE);
-        verify(eventValidator).validateEventDates(START_DATE, END_DATE);
+        verify(eventValidator).validateEventNotInPast(PLUS_ONE_DAY);
+        verify(eventValidator).validateEventDates(PLUS_ONE_DAY, PLUS_TWO_DAYS);
         verify(eventRepository).save(eventCaptor.capture());
 
         Event capturedEvent = eventCaptor.getValue();
@@ -110,7 +110,7 @@ public class EventServiceImplTest {
     @Test
     void update_ShouldUpdateEventWhenUserIsOwnerAndDataValid() {
         UpdateEventDto updateEventDto = new UpdateEventDto("New Title", "New Desc",
-                START_DATE.plusDays(1), END_DATE.plusDays(1), EventType.WEBINAR, EventStatus.CANCELED);
+                PLUS_ONE_DAY.plusDays(1), PLUS_TWO_DAYS.plusDays(1), EventType.WEBINAR, EventStatus.CANCELED);
         Event existingEvent = EVENT_1;
 
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(existingEvent));
@@ -128,7 +128,7 @@ public class EventServiceImplTest {
     @Test
     void update_ShouldThrowExceptionWhenEventNotFound() {
         UpdateEventDto updateEventDto = new UpdateEventDto("Title", "Desc",
-                START_DATE, END_DATE, EventType.WEBINAR, EventStatus.CANCELED);
+                PLUS_ONE_DAY, PLUS_TWO_DAYS, EventType.WEBINAR, EventStatus.CANCELED);
 
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.empty());
 
@@ -139,7 +139,7 @@ public class EventServiceImplTest {
     @Test
     void update_ShouldThrowExceptionWhenUserNotOwner() {
         UpdateEventDto updateEventDto = new UpdateEventDto("Title", "Desc",
-                START_DATE, END_DATE, EventType.WEBINAR, EventStatus.CANCELED);
+                PLUS_ONE_DAY, PLUS_TWO_DAYS, EventType.WEBINAR, EventStatus.CANCELED);
         Event existingEvent = createEvent(EVENT_ID, OWNER_1);
 
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(existingEvent));
