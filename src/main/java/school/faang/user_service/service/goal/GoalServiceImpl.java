@@ -68,15 +68,15 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public List<GoalDto> getByFilters(GoalFilterDto filters) {
         return goalRepository.findAll().stream()
-                .filter(goal -> filters.titleContains() == null ||
-                        goal.getTitle().toLowerCase().contains(filters.titleContains().toLowerCase()))
-                .filter(goal -> filters.descriptionContains() == null ||
-                        goal.getDescription().toLowerCase()
+                .filter(goal -> filters.titleContains() == null
+                        || goal.getTitle().toLowerCase().contains(filters.titleContains().toLowerCase()))
+                .filter(goal -> filters.descriptionContains() == null
+                        || goal.getDescription().toLowerCase()
                                 .contains(filters.descriptionContains().toLowerCase()))
-                .filter(goal -> filters.status() == null ||
-                        goal.getStatus() == filters.status())
-                .filter(goal -> filters.mentorId() == null ||
-                        goal.getMentor().getId().equals(filters.mentorId()))
+                .filter(goal -> filters.status() == null
+                        || goal.getStatus() == filters.status())
+                .filter(goal -> filters.mentorId() == null
+                        || goal.getMentor().getId().equals(filters.mentorId()))
                 .map(goalMapper::toGoalDto)
                 .toList();
     }
