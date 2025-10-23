@@ -30,7 +30,7 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public GoalDto create(@Valid @RequestBody CreateGoalDto createGoalDto) {
         log.info("Goal with title {} was created successfully", createGoalDto.title());
         return goalService.create(createGoalDto);
@@ -44,17 +44,20 @@ public class GoalController {
     }
 
     @DeleteMapping("/{goalId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGoal(@PathVariable long goalId) {
         log.info("Goal with id {} was deleted", goalId);
         goalService.deleteGoal(goalId);
     }
 
     @DeleteMapping("users/{goalId}/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGoalFromUser(@PathVariable long goalId, @PathVariable long userId) {
         goalService.deleteGoalFromUser(goalId, userId);
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<GoalDto> getByFilters(@Valid @ModelAttribute GoalFilterDto filters) {
         return goalService.getByFilters(filters);
     }
