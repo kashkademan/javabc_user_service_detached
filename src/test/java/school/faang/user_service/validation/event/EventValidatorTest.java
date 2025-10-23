@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validation.event;
 
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;

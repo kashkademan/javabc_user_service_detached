@@ -15,7 +15,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validation.EventValidator;
+import school.faang.user_service.validation.event.EventValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
