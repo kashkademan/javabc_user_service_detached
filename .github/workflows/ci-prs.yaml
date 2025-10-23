@@ -35,7 +35,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build testClasses -x test -x check -x checkstyleMain -x checkstyleTest --no-daemon
+        run: ./gradlew build testClasses -x test -x checkstyleMain -x checkstyleTest --no-daemon
 
       - name: Checkstyle verification
         run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
@@ -44,7 +44,7 @@ jobs:
         run: ./gradlew test -x testClasses --no-daemon --continue
 
       - name: Generate Jacoco Report
-        run: ./gradlew jacocoTestReport --no-daemon --continue
+        run: ./gradlew jacocoTestCoverageVerification --no-daemon --continue
 
       - name: Archive test report
         if: always()
