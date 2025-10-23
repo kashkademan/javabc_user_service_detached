@@ -39,7 +39,7 @@ public class SkillServiceImpl implements SkillService {
     public SkillDto create(CreateSkillDto createSkillDto) {
         if (skillRepository.existsByTitle(createSkillDto.title())) {
             log.error("Скилл с названием {} уже существует.", createSkillDto.title());
-            throw new DataValidationException("");
+            throw new DataValidationException("Скилл с таким названием уже существует.");
         }
         Skill createdSkill = skillRepository.save(skillMapper.toSkill(createSkillDto));
         log.info("Скилл с названием {} успешно создан.", createSkillDto.title());
@@ -53,7 +53,7 @@ public class SkillServiceImpl implements SkillService {
         for (Skill skill : allUserSkills) {
             List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId);
             List<UserDto> garantors = new ArrayList<>();
-            for (int i = 0; i < allUserSkills.size(); i++) {
+            for (int i = 0; i < skillOffers.size(); i++) {
                 garantors.add(userMapper.toUserDto(skillOffers.get(i).getRecommendation().getAuthor()));
             }
             allUserSkillDtos.add(skillMapper.toSkillDto(skill));
@@ -67,7 +67,7 @@ public class SkillServiceImpl implements SkillService {
         List<SkillCandidateDto> skillCandidateDtos = new ArrayList<>();
         if (offeredSkills.isEmpty()) {
             log.warn("У пользователя с id: {} нет никаких предложений скиллов.", userId);
-            throw new EntityNotFoundException("");
+            throw new EntityNotFoundException("Нет никаких скиллов.");
         }
         for (Skill skill : offeredSkills) {
             long offeresAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
@@ -82,7 +82,7 @@ public class SkillServiceImpl implements SkillService {
         if (skillOfferRepository.countAllOffersOfSkill(skillId, userId) < minRequiredRecommendation) {
             log.error("Пользователь с id: {} не может присвоить скилл c id: {}, рекомендаций должно быть не менее 3.",
                     userId, skillId);
-            throw new ForbiddenException("");
+            throw new ForbiddenException("Для присвоения скилла должно быть не менее 3 рекомендаций.");
         }
         skillRepository.assignSkillToUser(skillId, userId);
         User requester = userRepository.getByIdOrThrow(userId);
@@ -94,6 +94,7 @@ public class SkillServiceImpl implements SkillService {
             userSkillGuarantee.setUser(requester);
             userSkillGuarantee.setSkill(skill);
             userSkillGuarantee.setGuarantor(skillOffer.getRecommendation().getAuthor());
+            userSkillGuarantees.add(userSkillGuarantee);
         }
         userSkillGuaranteeRepository.saveAll(userSkillGuarantees);
         log.info("Скилл c id: {} успешно присвоен пользователю c id: {}", skillId, userId);

@@ -25,13 +25,13 @@ public class SkillController {
     private final SkillService skillService;
     private final UserContext userContext;
 
-    @PostMapping("/")
+    @PostMapping
     public SkillDto create(@Valid CreateSkillDto createSkillDto) {
         return skillService.create(createSkillDto);
     }
 
-    @GetMapping("/user/{id}")
-    public List<SkillDto> getByUserId(@PathVariable("id") Long userId) {
+    @GetMapping("/user/{userId}")
+    public List<SkillDto> getByUserId(@PathVariable long userId) {
         return skillService.getByUserId(userId);
     }
 
