@@ -1,6 +1,7 @@
 package school.faang.user_service.dto.recommendation;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class CreateRecommendationRequestDto {
     @NotBlank(message = "Message must not be blank")
     private String message;
 
-    @NotBlank(message = "ReceiverId must not be blank")
+    @NotNull(message = "ReceiverId must not be blank")
     private Long receiverId;
 
     private List<Long> skillIds;

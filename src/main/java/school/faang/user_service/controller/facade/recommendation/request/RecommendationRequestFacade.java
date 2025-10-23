@@ -37,11 +37,11 @@ public class RecommendationRequestFacade {
         RecommendationRequestValidator.handleValidationError(bindingResult);
         RecommendationRequest recommendationRequestForCreation = recommendationRequestMapper
                 .toRecommendationRequest(createRecommendationRequestDto);
-        RecommendationRequest createdRequestForCreation = recommendationRequestService.create(
+        RecommendationRequest createdRequest = recommendationRequestService.create(
                 recommendationRequestForCreation,
                 createRecommendationRequestDto.getSkillIds(), createRecommendationRequestDto.getReceiverId()
         );
-        return recommendationRequestMapper.toRecommendationRequestDto(createdRequestForCreation);
+        return recommendationRequestMapper.toRecommendationRequestDto(createdRequest);
     }
 
     public void reject(long id, RejectionDto rejectionDto, BindingResult bindingResult) {
