@@ -46,4 +46,13 @@ user:
     recommendation:
       min: 3
 
+
 max-active-goals: 2
+
+recommendation:
+  request:
+    timeForRequest: 6
+
+mentorship:
+  request:
+   periodForRequest: 3

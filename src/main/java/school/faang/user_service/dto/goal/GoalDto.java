@@ -1,14 +1,16 @@
 package school.faang.user_service.dto.goal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import school.faang.user_service.entity.goal.GoalStatus;
 
-@Getter
-@AllArgsConstructor
-public class GoalDto {
-    private final Long id;
-    private final String title;
-    private final GoalStatus status;
-    private final String description;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record GoalDto(
+        String title,
+        String description,
+        LocalDateTime deadline,
+        Long mentorId,
+        List<Long> userIds,
+        GoalStatus status
+) {
 }
