@@ -11,8 +11,7 @@ public class CreateCareerDto extends BaseCareerDtoWithDates {
     private final String company;
     private final String position;
 
-    public CreateCareerDto(@NotNull LocalDate from,
-                           LocalDate to,
+    public CreateCareerDto(@NotNull LocalDate from, LocalDate to,
                            @NotBlank String company,
                            @NotBlank String position) {
         super(from, to);

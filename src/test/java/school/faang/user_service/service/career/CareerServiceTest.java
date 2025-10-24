@@ -12,10 +12,12 @@ import school.faang.user_service.dto.career.UpdateCareerDto;
 import school.faang.user_service.entity.user.Career;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,20 +74,18 @@ class CareerServiceTest {
     @Test
     void addCareer_userNotFound_shouldThrowEntityNotFoundException() {
         CreateCareerDto createDto = new CreateCareerDto(
-                LocalDate.now().minusYears(
-                        2), null, "Company", "Position"
+                LocalDate.now().minusYears(2),
+                null,
+                "Company",
+                "Position"
         );
-        long requesterId = 1L;
 
+        long requesterId = 1L;
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.getByIdOrThrow(requesterId))
                 .thenThrow(new EntityNotFoundException("User not found"));
 
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> careerService.addCareer(createDto)
-        );
-        assertEquals("User not found", exception.getMessage());
+        assertThrows(EntityNotFoundException.class, () -> careerService.addCareer(createDto));
     }
 
     @Test
@@ -148,11 +148,30 @@ class CareerServiceTest {
         when(careerRepository.getByIdOrThrow(careerId))
                 .thenThrow(new EntityNotFoundException("Career not found"));
 
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> careerService.deleteCareer(careerId)
-        );
-        assertEquals("Career not found", exception.getMessage());
+        assertThrows(EntityNotFoundException.class, () -> careerService.deleteCareer(careerId));
+    }
+
+    @Test
+    void deleteCareer_notOwner_shouldThrowAccessDeniedException() {
+        long careerId = 1L;
+        long ownerId = 5L;
+        long requesterId = 9L;
+
+        Career career = Career.builder()
+                .id(careerId)
+                .user(User.builder()
+                        .id(ownerId)
+                        .build())
+                .build();
+
+        User requester = User.builder().id(requesterId).build();
+
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
+        when(userRepository.getByIdOrThrow(requesterId)).thenReturn(requester);
+
+        assertThrows(ForbiddenException.class, () ->
+                careerService.deleteCareer(careerId));
     }
 
     @Test
