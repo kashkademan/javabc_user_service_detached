@@ -38,16 +38,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex,
-                                                                   HttpServletRequest request) {
-        log.error("Request validation failed", ex);
-        Map<String, String> errors = ex.getBindingResult().getAllErrors().stream()
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
-                        err -> ((FieldError) err).getField(),
+                        FieldError::getField,
                         err -> Objects.requireNonNullElse(err.getDefaultMessage(), "")
                 ));
-        String errorMessage = "Validation failed for fields: " + errors;
-        return buildResponse(HttpStatus.BAD_REQUEST, errorMessage, getFullPath(request));
+        log.error("Validation failed for fields: {}", errors, ex);
+        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(Exception.class)
