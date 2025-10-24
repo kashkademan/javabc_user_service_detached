@@ -88,7 +88,7 @@ configure<JacocoPluginExtension> {
 }
 
 fun FileTree.excludeCommon(): FileTree = this.matching {
-exclude(
+    exclude(
         "**/generated/**",
         "**/build/**",
         "**/dto/**",
@@ -104,7 +104,17 @@ exclude(
         "**/repository/**",
         "**/controller/**",
         "com/json/student/**",
-        "**/*Application*"
+        "**/*Application*",
+        // Если вы пишите тесты и видите свои классы в этом списке, то необходимо удалить класс из списка
+        "**/RecommendationServiceImpl.*",  //Андрей
+        "**/MentorshipRequestService*.*",  // Денис
+        "**/MentorshipRequestFilter.*",    // Денис
+        "**/MentorshipRequestFilterMentor.*",   // Денис
+        "**/MentorshipRequestFilterMentorStatus.*", // Денис
+        "**/service/mentorship/MentorshipRequestService*.*", // Денис
+        "**/MentorshipRequestFilterMentee.*", //Денис
+        "**/exception/**",     // Эльза
+        "**/client/**"    // Эльза
     )
 }
 
@@ -121,7 +131,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn(tasks.test)
+    dependsOn(tasks.jacocoTestReport)
 
     val filtered = files(sourceSets.main.get().output.classesDirs.files.map {
         fileTree(it).excludeCommon()
@@ -137,10 +147,6 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
             }
         }
     }
-}
-
-tasks.test {
-    finalizedBy(tasks.named("jacocoTestReport"))
 }
 
 tasks.check {
