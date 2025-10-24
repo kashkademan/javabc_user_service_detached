@@ -17,33 +17,32 @@ import school.faang.user_service.dto.workschedule.WorkScheduleCreateDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 
-@Tag(name = "Work Schedule Controller", description = "APIs for managing work schedules")
 @RequiredArgsConstructor
-@RequestMapping("/work-schedules")
+@RequestMapping("/api/v1/work-schedules")
 @RestController
-public class WorkScheduleController {
+public class WorkScheduleController implements WorkScheduleApi {
     private final WorkScheduleFacade workScheduleFacade;
 
-    @Operation(summary = "Add work schedule")
+    @Override
     @PostMapping
     public WorkScheduleDto addWorkSchedule(@Valid @RequestBody WorkScheduleCreateDto workScheduleCreateDto) {
         return workScheduleFacade.addWorkSchedule(workScheduleCreateDto);
     }
 
-    @Operation(summary = "Update work schedule")
+    @Override
     @PatchMapping("/{id}")
     public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId,
                                               @RequestBody WorkScheduleUpdateDto workScheduleUpdateDto) {
         return workScheduleFacade.updateWorkSchedule(workScheduleId, workScheduleUpdateDto);
     }
 
-    @Operation(summary = "Get work schedule by ID")
+    @Override
     @GetMapping("/{id}")
     public WorkScheduleDto getById(@PathVariable("id") long workScheduleId) {
         return workScheduleFacade.getById(workScheduleId);
     }
 
-    @Operation(summary = "Delete work schedule")
+    @Override
     @DeleteMapping("/{id}")
     public void deleteWorkSchedule(@PathVariable("id") long workScheduleId) {
         workScheduleFacade.deleteWorkSchedule(workScheduleId);
