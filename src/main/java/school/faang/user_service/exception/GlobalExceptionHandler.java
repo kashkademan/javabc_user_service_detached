@@ -62,12 +62,12 @@ public class GlobalExceptionHandler {
     }
 
     private String getFullPath(HttpServletRequest request) {
-        StringBuffer requestURL = request.getRequestURL();
+        StringBuffer requestUrl = request.getRequestURL();
         String queryString = request.getQueryString();
 
         if (queryString != null) {
-            return requestURL.append('?').append(queryString).toString();
+            return requestUrl.append('?').append(queryString).toString();
         }
-        return requestURL.toString();
+        return requestUrl.toString();
     }
 }
