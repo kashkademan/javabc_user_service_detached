@@ -111,6 +111,9 @@ public class UserServiceImpl implements UserService {
     public void deactivateUser(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         List<Goal> goalsToDelete = new ArrayList<>();
+        List<Goal> goalsToSave = new ArrayList<>();
+        List<Event> eventsToDelete = new ArrayList<>();
+        List<Event> eventsToSave = new ArrayList<>();
 
         if (!user.isActive()) {
             throw new IllegalArgumentException("User %d already deactivated".formatted(userId));
@@ -132,9 +135,6 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        List<Event> eventsToSave = new ArrayList<>();
-        List<Event> eventsToDelete = new ArrayList<>();
-
         for (Event ownedEvent : user.getOwnedEvents()) {
             if (ownedEvent.getStatus().equals(EventStatus.PLANNED)
                     || ownedEvent.getStatus().equals(EventStatus.IN_PROGRESS)) {
@@ -151,8 +151,6 @@ public class UserServiceImpl implements UserService {
             participatedEvent.setAttendees(attendees);
             eventsToSave.add(participatedEvent);
         }
-
-        List<Goal> goalsToSave = new ArrayList<>();
 
         for (User mentee : user.getMentees()) {
             mentorshipService.deleteMentorship(mentee.getId(), user.getId());
