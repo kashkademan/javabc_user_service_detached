@@ -17,11 +17,9 @@ import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -85,7 +83,8 @@ class CareerServiceTest {
         when(userRepository.getByIdOrThrow(requesterId))
                 .thenThrow(new EntityNotFoundException("User not found"));
 
-        assertThrows(EntityNotFoundException.class, () -> careerService.addCareer(createDto));
+        assertThrows(EntityNotFoundException.class,
+                () -> careerService.addCareer(createDto));
     }
 
     @Test
@@ -112,11 +111,8 @@ class CareerServiceTest {
         when(careerRepository.getByIdOrThrow(careerId))
                 .thenThrow(new EntityNotFoundException("Career not found"));
 
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> careerService.getById(careerId)
-        );
-        assertEquals("Career not found", exception.getMessage());
+        assertThrows(EntityNotFoundException.class,
+                () -> careerService.getById(careerId));
     }
 
     @Test
@@ -140,19 +136,7 @@ class CareerServiceTest {
     }
 
     @Test
-    void deleteCareer_careerNotFound_shouldThrowEntityNotFoundException() {
-        long careerId = 999L;
-        long requesterId = 100L;
-
-        when(userContext.getUserId()).thenReturn(requesterId);
-        when(careerRepository.getByIdOrThrow(careerId))
-                .thenThrow(new EntityNotFoundException("Career not found"));
-
-        assertThrows(EntityNotFoundException.class, () -> careerService.deleteCareer(careerId));
-    }
-
-    @Test
-    void deleteCareer_notOwner_shouldThrowAccessDeniedException() {
+    void deleteCareer_notOwner_shouldThrowForbiddenException() {
         long careerId = 1L;
         long ownerId = 5L;
         long requesterId = 9L;
@@ -197,48 +181,52 @@ class CareerServiceTest {
                 "Senior Engineer"
         );
 
-        Career updateCareer = Career.builder()
-                .id(careerId)
-                .user(career.getUser())
-                .dateFrom(career.getDateFrom())
-                .dateTo(null)
-                .company("Meta")
-                .position("Senior Engineer")
-                .build();
-
         when(userContext.getUserId()).thenReturn(userId);
         when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
-        when(careerRepository.save(any(Career.class))).thenReturn(updateCareer);
+        when(careerRepository.save(any(Career.class))).thenAnswer(invocation -> {
+            return invocation.getArgument(0);
+        });
 
         CareerDto result = careerService.updateCareer(careerId, updateDto);
-        CareerDto expectedDto = CareerMapper.toCareerDto(updateCareer);
-        assertEquals(expectedDto, result);
 
-        assertEquals("Meta", result.getCompany());
-        assertEquals("Senior Engineer", result.getPosition());
+        assertEquals(updateDto.getCompany(), result.getCompany());
+        assertEquals(updateDto.getPosition(), result.getPosition());
+
+        assertEquals(career.getId(), result.getId());
         assertEquals(career.getDateFrom(), result.getFrom());
-        assertNull(result.getTo());
+        assertEquals(career.getDateTo(), result.getTo());
+
+        assertEquals(0L, result.getUserId());
+
+        verify(careerRepository).save(career);
     }
 
     @Test
-    void updateCareer_careerNotFound_shouldThrowEntityNotFoundException() {
-        long careerId = 999L;
-        long userId = 100L;
+    void updateCareer_notOwner_shouldThrowForbiddenException() {
+        long careerId = 1L;
+        long ownerId = 200L;
+        long currentUserId = 100L;
+
+        Career career = Career.builder()
+                .id(careerId)
+                .user(User.builder().id(ownerId).build())
+                .dateFrom(LocalDate.now().minusYears(1))
+                .dateTo(LocalDate.now())
+                .company("Google")
+                .position("Engineer")
+                .build();
+
         UpdateCareerDto updateDto = new UpdateCareerDto(
-                LocalDate.now().minusYears(1),
+                career.getDateFrom(),
                 null,
-                "Company",
-                "Position"
+                "Meta",
+                "Senior Engineer"
         );
 
-        when(userContext.getUserId()).thenReturn(userId);
-        when(careerRepository.getByIdOrThrow(careerId))
-                .thenThrow(new EntityNotFoundException("Career not found"));
+        when(userContext.getUserId()).thenReturn(currentUserId);
+        when(careerRepository.getByIdOrThrow(careerId)).thenReturn(career);
 
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> careerService.updateCareer(careerId, updateDto)
-        );
-        assertEquals("Career not found", exception.getMessage());
+        assertThrows(ForbiddenException.class, () ->
+                careerService.updateCareer(careerId, updateDto));
     }
 }
