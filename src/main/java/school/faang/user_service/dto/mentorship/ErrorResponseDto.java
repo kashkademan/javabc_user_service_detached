@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.mentorship.dto;
+package school.faang.user_service.dto.mentorship;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

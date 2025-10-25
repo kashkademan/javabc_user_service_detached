@@ -1,10 +1,10 @@
-package school.faang.user_service.repository.mentorship.service;
+package school.faang.user_service.service.mentorship;
 
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.repository.mentorship.dto.MentorshipDto;
+import school.faang.user_service.dto.mentorship.MentorshipDto;
 
 import java.util.List;
 
