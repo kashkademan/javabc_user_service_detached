@@ -23,6 +23,7 @@ import school.faang.user_service.repository.user.UserSkillGuaranteeRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -54,7 +55,10 @@ public class SkillServiceImpl implements SkillService {
             List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skill.getId(), userId);
             List<UserDto> garantors = new ArrayList<>();
             for (int i = 0; i < skillOffers.size(); i++) {
-                garantors.add(userMapper.toUserDto(skillOffers.get(i).getRecommendation().getAuthor()));
+                garantors.add(userMapper.toUserDto(skillOffers
+                                .get(i)
+                                .getRecommendation()
+                                .getAuthor()));
             }
             allUserSkillDtos.add(skillMapper.toSkillDto(skill));
         }
@@ -85,8 +89,18 @@ public class SkillServiceImpl implements SkillService {
             throw new ForbiddenException("Для присвоения скилла должно быть не менее 3 рекомендаций.");
         }
         skillRepository.assignSkillToUser(skillId, userId);
+        saveUserSkiilGaranteeListToDB(skillId, userId);
+        log.info("Скилл c id: {} успешно присвоен пользователю c id: {}", skillId, userId);
+    }
+
+    private void saveUserSkiilGaranteeListToDB(long skillId, long userId) {
         User requester = userRepository.getByIdOrThrow(userId);
-        Skill skill = skillRepository.findById(skillId).get();
+        Optional<Skill> optionalSkill = skillRepository.findById(skillId);
+        if (optionalSkill.isEmpty()) {
+            log.warn("Скилла с id: {}, который запросил пользователь с id: {} не существует.", skillId, userId);
+            throw new EntityNotFoundException("Этот скилл присвоить нельзя, его не существует.");
+        }
+        Skill skill = optionalSkill.get();
         List<UserSkillGuarantee> userSkillGuarantees = new ArrayList<>();
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         for (SkillOffer skillOffer : skillOffers) {
@@ -97,6 +111,5 @@ public class SkillServiceImpl implements SkillService {
             userSkillGuarantees.add(userSkillGuarantee);
         }
         userSkillGuaranteeRepository.saveAll(userSkillGuarantees);
-        log.info("Скилл c id: {} успешно присвоен пользователю c id: {}", skillId, userId);
     }
 }

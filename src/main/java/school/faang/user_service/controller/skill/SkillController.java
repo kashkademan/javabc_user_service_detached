@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
@@ -18,7 +19,7 @@ import school.faang.user_service.service.skill.SkillService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/skills")
+@RequestMapping("/api/v1")
 @Validated
 @RequiredArgsConstructor
 public class SkillController {
@@ -26,22 +27,22 @@ public class SkillController {
     private final UserContext userContext;
 
     @PostMapping
-    public SkillDto create(@Valid CreateSkillDto createSkillDto) {
+    public SkillDto create(@RequestBody @Valid CreateSkillDto createSkillDto) {
         return skillService.create(createSkillDto);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}/skills")
     public List<SkillDto> getByUserId(@PathVariable long userId) {
         return skillService.getByUserId(userId);
     }
 
-    @GetMapping("/offered")
+    @GetMapping("/skills/offered")
     public List<SkillCandidateDto> getOfferedSkills() {
         return skillService.getOfferedSkills(userContext.getUserId());
     }
 
-    @PutMapping("/acquire-from-offers")
-    void acquireSkillFromOffers(long skillId) {
+    @PutMapping("/skills/{skillId}/acquire-from-offers")
+    void acquireSkillFromOffers(@PathVariable long skillId) {
         skillService.acquireSkillFromOffers(skillId, userContext.getUserId());
     }
 }
