@@ -19,6 +19,9 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.mentorship.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipReceiverFilter;
+import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipRequesterFilter;
+import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipStatusFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,7 +70,8 @@ public class MentorshipRequestServiceTest {
             MentorshipRequest request = MentorshipRequest.builder()
                     .createdAt(LocalDateTime.now().minusMonths(2))
                     .build();
-            when(mentorshipRequestRepository.findLatestRequest(anyLong(), anyLong())).thenReturn(Optional.ofNullable(request));
+            when(mentorshipRequestRepository.findLatestRequest(anyLong(), anyLong()))
+                    .thenReturn(Optional.ofNullable(request));
 
             assertThrows(ForbiddenException.class, () -> mentorshipRequestService.create(dto));
         }
@@ -77,7 +81,8 @@ public class MentorshipRequestServiceTest {
             MentorshipRequest request = MentorshipRequest.builder()
                     .createdAt(LocalDateTime.now().minusMonths(4))
                     .build();
-            when(mentorshipRequestRepository.findLatestRequest(anyLong(), anyLong())).thenReturn(Optional.ofNullable(request));
+            when(mentorshipRequestRepository.findLatestRequest(anyLong(), anyLong()))
+                    .thenReturn(Optional.ofNullable(request));
 
             mentorshipRequestService.create(dto);
 
@@ -87,16 +92,15 @@ public class MentorshipRequestServiceTest {
 
     @Nested
     class SetupFilters {
-
         MentorshipRequestFilterDto dto;
         List<MentorshipRequestFilter> requestFilters1;
         List<MentorshipRequestFilter> requestFilters2;
         List<MentorshipRequest> requests;
         MentorshipRequestServiceImpl requestService1;
         MentorshipRequestServiceImpl requestService2;
+
         @BeforeEach
         public void setUp() {
-
             User user1 = User.builder().id(1L).build();
             User user2 = User.builder().id(2L).build();
             User user3 = User.builder().id(3L).build();
@@ -178,11 +182,5 @@ public class MentorshipRequestServiceTest {
 
             verify(mentorshipRequestRepository).save(any());
         }
-
     }
-
-
-
-
-
 }

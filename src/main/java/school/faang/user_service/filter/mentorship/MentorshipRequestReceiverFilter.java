@@ -1,20 +1,19 @@
-package school.faang.user_service.service.mentorship;
+package school.faang.user_service.filter.mentorship;
 
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
-import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
-import school.faang.user_service.filter.mentorship.MentorshipRequestFilter;
 
 import java.util.stream.Stream;
 
-public class ForTestMentorshipStatusFilter implements MentorshipRequestFilter {
+public class MentorshipRequestReceiverFilter implements MentorshipRequestFilter {
     @Override
     public boolean isApplicable(MentorshipRequestFilterDto filter) {
-        return true;
+        return filter.requesterId() != null;
     }
 
     @Override
     public Stream<MentorshipRequest> apply(Stream<MentorshipRequest> stream, MentorshipRequestFilterDto filter) {
-        return stream.filter(r -> r.getStatus().equals(RequestStatus.ACCEPTED));
+        return isApplicable(filter)
+                ? stream.filter(r -> r.getReceiver().getId().equals(filter.receiverId())) : stream;
     }
 }
