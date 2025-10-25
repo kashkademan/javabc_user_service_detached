@@ -2,12 +2,15 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
@@ -53,6 +56,18 @@ public class UserController {
     @GetMapping("/premium")
     public List<UserDto> getPremiumUsers(@ModelAttribute UserFiltersDto userFiltersDto) {
         return userService.getPremiumUsers(userFiltersDto);
+    }
+
+    @PutMapping("/{userId}/deactivate")
+    @ResponseStatus(HttpStatus.OK)
+    public void deactivateUser(@PathVariable long userId) {
+        userService.deactivateUser(userId);
+    }
+
+    @PutMapping("/{userId}/activate")
+    @ResponseStatus(HttpStatus.OK)
+    public void activateUser(@PathVariable long userId) {
+        userService.activateUser(userId);
     }
 
     private void validateString(String value, String paramName) {

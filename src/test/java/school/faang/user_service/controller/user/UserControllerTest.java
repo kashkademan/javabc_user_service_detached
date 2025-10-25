@@ -21,6 +21,8 @@ import school.faang.user_service.service.user.UserServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,5 +110,29 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", Matchers.is(firstUser.id().intValue())))
                 .andExpect(jsonPath("username", Matchers.is(firstUser.username())));
+    }
+
+    @Test
+    void testDeactivateUser() throws Exception {
+        long id = 1L;
+
+        doNothing().when(userService).deactivateUser(id);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/deactivate", id))
+                .andExpect(status().isOk());
+
+        verify(userService).deactivateUser(id);
+    }
+
+    @Test
+    void testActivateUser() throws Exception {
+        long id = 1L;
+
+        doNothing().when(userService).activateUser(id);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}/activate", id))
+                .andExpect(status().isOk());
+
+        verify(userService).activateUser(id);
     }
 }

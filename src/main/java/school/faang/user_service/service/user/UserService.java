@@ -67,6 +67,10 @@ public interface UserService {
      */
 
     List<UserDto> getPremiumUsers(UserFiltersDto userFiltersDto);
+
+    void deactivateUser(long userId);
+
+    void activateUser(long userId);
 }
 
 
