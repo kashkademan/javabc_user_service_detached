@@ -68,7 +68,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
             filtered = requestFilter.apply(filtered, filter);
         }
 
-       return mentorshipRequestMapper.toDtoList(filtered.toList());
+        return mentorshipRequestMapper.toDtoList(filtered.toList());
     }
 
     @Override
