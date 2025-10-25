@@ -167,7 +167,7 @@ public class EventServiceImplTest {
 
     @Test
     void getByFilters_ShouldApplyFilters() {
-        EventFilterDto filterDto = new EventFilterDto("test", "desc", CURRENT_USER_ID,
+        final EventFilterDto filterDto = new EventFilterDto("test", "desc", CURRENT_USER_ID,
                 OTHER_USER_ID, EventType.WEBINAR);
 
         Event eventFirstOwner = createEvent(CURRENT_USER_ID, OWNER_1);
@@ -196,7 +196,7 @@ public class EventServiceImplTest {
 
     @Test
     void getByFilters_ShouldReturnFilteredEvents() {
-        EventFilterDto filterDto = new EventFilterDto("test",
+        final EventFilterDto filterDto = new EventFilterDto("test",
                 null,
                 null,
                 null,
