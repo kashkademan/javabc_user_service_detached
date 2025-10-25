@@ -18,7 +18,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.user.EventParticipationServiceImpl;
+import school.faang.user_service.service.events.EventParticipationServiceImpl;
 
 import java.util.List;
 
