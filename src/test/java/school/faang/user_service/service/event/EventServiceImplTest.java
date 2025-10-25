@@ -1,12 +1,13 @@
 package school.faang.user_service.service.event;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.CreateEventDto;
@@ -19,7 +20,7 @@ import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.event.EventFilter;
-import school.faang.user_service.mapper.EventMapperImpl;
+import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validation.event.EventValidator;
 
@@ -31,9 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,8 +54,7 @@ public class EventServiceImplTest {
     @Mock
     private EventRepository eventRepository;
 
-    @Spy
-    private EventMapperImpl eventMapper;
+    private final EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
 
     @Mock
     private EventValidator eventValidator;
@@ -64,8 +62,19 @@ public class EventServiceImplTest {
     @Mock
     private UserContext userContext;
 
-    @Mock
-    private List<EventFilter> eventFilters;
+    private final List<EventFilter> eventFilters = List.of(
+            new EventFilter() {
+                @Override
+                public boolean isApplicable(EventFilterDto filters) {
+                    return filters.titleContains() != null;
+                }
+
+                @Override
+                public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+                    return events.filter(event -> event.getTitle().contains(filters.titleContains()));
+                }
+            }
+    );
 
     @Captor
     private ArgumentCaptor<Event> eventCaptor;
@@ -73,6 +82,10 @@ public class EventServiceImplTest {
     @InjectMocks
     private EventServiceImpl eventService;
 
+    @BeforeEach
+    void setUp() {
+        eventService = new EventServiceImpl(eventRepository, eventMapper, eventValidator, userContext, eventFilters);
+    }
 
     @Test
     void create_ShouldValidDataWhenEventCreatedSuccessfully() {
@@ -156,21 +169,18 @@ public class EventServiceImplTest {
     void getByFilters_ShouldApplyFilters() {
         EventFilterDto filterDto = new EventFilterDto("test", "desc", CURRENT_USER_ID,
                 OTHER_USER_ID, EventType.WEBINAR);
-        Event eventFirstOwner = createEvent(CURRENT_USER_ID, OWNER_1);
-        Event eventSecondOwner = createEvent(OTHER_USER_ID, OWNER_1);
 
-        EventFilter mockFilter = mock(EventFilter.class);
-        when(mockFilter.isApplicable(filterDto)).thenReturn(true);
-        when(mockFilter.apply(any(), eq(filterDto))).thenReturn(Stream.of(eventFirstOwner));
+        Event eventFirstOwner = createEvent(CURRENT_USER_ID, OWNER_1);
+        eventFirstOwner.setTitle("test event");
+        Event eventSecondOwner = createEvent(OTHER_USER_ID, OWNER_1);
+        eventSecondOwner.setTitle("other event");
 
         when(eventRepository.findAll()).thenReturn(List.of(eventFirstOwner, eventSecondOwner));
-        when(eventFilters.iterator()).thenReturn(List.of(mockFilter).iterator());
 
         List<EventDto> result = eventService.getByFilters(filterDto);
 
         assertEquals(1, result.size());
-        verify(mockFilter).isApplicable(filterDto);
-        verify(mockFilter).apply(any(), eq(filterDto));
+        assertEquals("test event", result.get(0).title());
     }
 
     @Test
@@ -178,7 +188,6 @@ public class EventServiceImplTest {
         EventFilterDto filterDto = new EventFilterDto(null, null, null, null, null);
 
         when(eventRepository.findAll()).thenReturn(List.of(EVENT_1));
-        when(eventFilters.iterator()).thenReturn(List.<EventFilter>of().iterator());
 
         List<EventDto> result = eventService.getByFilters(filterDto);
 
@@ -193,14 +202,16 @@ public class EventServiceImplTest {
                 null,
                 null);
 
-        when(eventRepository.findAll()).thenReturn(List.of(EVENT_1, EVENT_2));
-        when(eventFilters.iterator()).thenReturn(List.<EventFilter>of().iterator());
+        Event event1 = EVENT_1;
+        event1.setTitle("test event");
+        Event event2 = EVENT_2;
+        event2.setTitle("another test");
+
+        when(eventRepository.findAll()).thenReturn(List.of(event1, event2));
 
         List<EventDto> result = eventService.getByFilters(filterDto);
 
-        assertNotNull(result);
         assertEquals(2, result.size());
-        verify(eventRepository).findAll();
     }
 
     @Test
