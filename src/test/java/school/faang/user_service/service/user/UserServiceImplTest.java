@@ -36,7 +36,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 
-
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
@@ -88,8 +87,8 @@ public class UserServiceImplTest {
     @Test
     void uploadAvatar_whenNewAvatarProvided_shouldCreateProfilePic() throws IOException {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", outputStream);
 
         when(userContext.getUserId()).thenReturn(1L);
         User user = new User();
@@ -97,7 +96,7 @@ public class UserServiceImplTest {
         when(imageProcessing.resizeImage(any(), anyInt())).thenReturn(image);
         when(s3AvatarService.uploadImage(any(), anyString(), anyString())).thenReturn("s3-key");
 
-        byte[] imageBytes = baos.toByteArray();
+        byte[] imageBytes = outputStream.toByteArray();
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "file.png",
@@ -117,8 +116,8 @@ public class UserServiceImplTest {
     @Test
     void uploadAvatar_whenExistingAvatarProvided_shouldDeleteOldAvatar() throws IOException {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", outputStream);
 
         when(userContext.getUserId()).thenReturn(1L);
 
@@ -132,7 +131,7 @@ public class UserServiceImplTest {
         when(imageProcessing.resizeImage(any(), anyInt())).thenReturn(image);
         when(s3AvatarService.uploadImage(any(), anyString(), anyString())).thenReturn("newKey");
 
-        byte[] imageBytes = baos.toByteArray();
+        byte[] imageBytes = outputStream.toByteArray();
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "file.png",
