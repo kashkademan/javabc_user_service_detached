@@ -30,7 +30,7 @@ public interface EventMapper {
     @Mapping(target = "status", source = "updateEventDto.eventStatus")
     Event update(UpdateEventDto updateEventDto, Event event);
 
-    default List<Long> mapSkillToIds(List<Skill> skillList){
+    default List<Long> mapSkillToIds(List<Skill> skillList) {
         return skillList.stream()
                 .map(Skill::getId)
                 .toList();

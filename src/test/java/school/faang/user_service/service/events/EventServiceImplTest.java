@@ -80,10 +80,7 @@ class EventServiceImplTest {
 
     @Test
     public void createEvent_authorAlreadyHaveEvent_shouldThrowForbiddenException() {
-        EventCreateDto dto = EventCreateDto.builder()
-                .relatedSkillsId(new ArrayList<>(List.of(1L)))
-                .title("Test")
-                .build();
+
         Event event = new Event();
         event.setTitle("Test");
         event.setOwner(User.builder().id(4L).build());
@@ -94,24 +91,19 @@ class EventServiceImplTest {
 
         when(userContext.getUserId()).thenReturn(4L);
         when(userRepository.getByIdOrThrow(4L)).thenReturn(user);
-
+        EventCreateDto dto = EventCreateDto.builder()
+                .relatedSkillsId(new ArrayList<>(List.of(1L)))
+                .title("Test")
+                .build();
         Assert.assertThrows(ForbiddenException.class,
                 () -> service.createEvent(dto));
     }
 
     @Test
     public void createEvent_responseDto_shouldReturnEventResponseDto() {
-        EventCreateDto dto = EventCreateDto.builder()
-                .relatedSkillsId(new ArrayList<>(List.of(1L)))
-                .title("Test")
-                .build();
         Event event = new Event();
         event.setTitle("TestTest");
         event.setOwner(User.builder().id(4L).build());
-        User user = User.builder()
-                .id(4L)
-                .ownedEvents(new ArrayList<>(List.of(event)))
-                .build();
 
         Event savedEvent = new Event();
         savedEvent.setTitle("TestTest");
@@ -121,8 +113,16 @@ class EventServiceImplTest {
                 .title("TestTest")
                 .build();
         when(userContext.getUserId()).thenReturn(4L);
+        User user = User.builder()
+                .id(4L)
+                .ownedEvents(new ArrayList<>(List.of(event)))
+                .build();
         when(userRepository.getByIdOrThrow(4L)).thenReturn(user);
         when(skillRepository.findSkillByIds(anyList())).thenReturn(new ArrayList<>());
+        EventCreateDto dto = EventCreateDto.builder()
+                .relatedSkillsId(new ArrayList<>(List.of(1L)))
+                .title("Test")
+                .build();
         when(eventMapper.toEntityCreate(dto)).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(captorEvent.capture());
         when(eventMapper.toDto(savedEvent)).thenReturn(response);
@@ -151,9 +151,6 @@ class EventServiceImplTest {
 
     @Test
     public void updateEvent_authorNotHaveSkill_shouldThrowForbiddenException() {
-        UpdateEventDto dto = UpdateEventDto.builder()
-                .relatedSkillsId(new ArrayList<>(List.of(6L, 7L, 9L)))
-                .build();
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -164,16 +161,15 @@ class EventServiceImplTest {
         when(eventRepository.getByIdOrThrow(1L)).thenReturn(event);
         when(userContext.getUserId()).thenReturn(1L);
         when(skillService.getByUserId(1L)).thenReturn(skillDtoList);
-
+        UpdateEventDto dto = UpdateEventDto.builder()
+                .relatedSkillsId(new ArrayList<>(List.of(6L, 7L, 9L)))
+                .build();
         assertThrows(ForbiddenException.class,
                 () -> service.updateEvent(1L, dto));
     }
 
     @Test
     public void updateEvent_updateEvent_shouldUpdateEvent() {
-        UpdateEventDto dto = UpdateEventDto.builder()
-                .relatedSkillsId(new ArrayList<>(List.of(1L)))
-                .build();
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -186,6 +182,9 @@ class EventServiceImplTest {
         when(eventRepository.getByIdOrThrow(1L)).thenReturn(event);
         when(userContext.getUserId()).thenReturn(1L);
         when(skillService.getByUserId(1L)).thenReturn(skillDtoList);
+        UpdateEventDto dto = UpdateEventDto.builder()
+                .relatedSkillsId(new ArrayList<>(List.of(1L)))
+                .build();
         when(eventMapper.update(dto, event)).thenReturn(updateEvent);
         when(skillRepository.findSkillByIds(dto.relatedSkillsId())).thenReturn(new ArrayList<>());
         when(eventRepository.save(captorEvent.capture())).thenReturn(updateEvent);
@@ -201,6 +200,12 @@ class EventServiceImplTest {
 
     @Test
     public void getAllByFilter_responseList_shouldListEventResponseDto() {
+        Event event = new Event();
+        List<Event> events = new ArrayList<>(List.of(event));
+        EventResponseDto response = EventResponseDto.builder()
+                .title("Test")
+                .build();
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "startDate"));
         AllEventByFilterDto dto = AllEventByFilterDto.builder()
                 .titleContains("Test")
                 .descriptionContains("TestDescription")
@@ -208,13 +213,8 @@ class EventServiceImplTest {
                 .ownerId(1L)
                 .participantId(2L)
                 .build();
-        Event event = new Event();
-        List<Event> events = new ArrayList<>(List.of(event));
-        EventResponseDto response = EventResponseDto.builder()
-                .title("Test")
-                .build();
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "startDate"));
-        when(eventRepository.findEventsByFilters(dto.titleContains(), dto.descriptionContains(), dto.type(), dto.ownerId(),
+        when(eventRepository.findEventsByFilters(dto.titleContains(), dto.descriptionContains(), dto.type(),
+                dto.ownerId(),
                 dto.participantId(), pageable)).thenReturn(events);
         when(eventMapper.toDto(event)).thenReturn(response);
 

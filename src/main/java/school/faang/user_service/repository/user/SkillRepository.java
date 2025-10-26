@@ -50,8 +50,8 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
 
 
     @Query("""
-    SELECT s FROM Skill s
-    WHERE s.id IN :skillIds
-""")
+                SELECT s FROM Skill s
+                WHERE s.id IN :skillIds
+            """)
     List<Skill> findSkillByIds(@Param("skillIds") List<Long> skillIds);
 }
