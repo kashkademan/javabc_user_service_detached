@@ -1,6 +1,5 @@
 package school.faang.user_service.mapper;
 
-import ch.qos.logback.core.model.ComponentModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -17,11 +16,18 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
 
-    @Mapping(target = "skillIds", expression = "java(mapSkillToIds(relatedSkills))")
+    @Mapping(target = "skillIds", expression = "java(mapSkillToIds(event.getRelatedSkills()))")
     EventResponseDto toDto(Event event);
 
+    @Mapping(target = "type", source = "eventType")
     Event toEntityCreate(EventCreateDto eventCreateDto);
 
+    @Mapping(target = "title", source = "updateEventDto.title")
+    @Mapping(target = "description", source = "updateEventDto.description")
+    @Mapping(target = "startDate", source = "updateEventDto.startDate")
+    @Mapping(target = "endDate", source = "updateEventDto.endDate")
+    @Mapping(target = "maxAttendees", source = "updateEventDto.maxAttendees")
+    @Mapping(target = "status", source = "updateEventDto.eventStatus")
     Event update(UpdateEventDto updateEventDto, Event event);
 
     default List<Long> mapSkillToIds(List<Skill> skillList){

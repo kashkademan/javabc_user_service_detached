@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.events;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +18,6 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.events.EventParticipationServiceImpl;
 
 import java.util.List;
 

@@ -13,7 +13,7 @@ public interface EventService {
 
     EventResponseDto updateEvent(Long eventId, UpdateEventDto updateEventDto);
 
-    List<EventResponseDto> getAllByFilter(AllEventByFilterDto allEventByFilterDto, int limit, int offset);
+    List<EventResponseDto> getAllByFilter(AllEventByFilterDto allEventByFilterDto, int page, int size);
 
     void deleteEvent(Long eventId);
 }

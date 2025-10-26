@@ -13,12 +13,15 @@ import school.faang.user_service.dto.events.EventResponseDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.entity.user.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.SkillRepository;
+import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ public class EventServiceImpl implements EventService {
     private final SkillServiceImpl skillService;
     private final SkillRepository skillRepository;
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final UserContext userContext;
     private final EventMapper eventMapper;
 
@@ -37,11 +41,21 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventResponseDto createEvent(EventCreateDto eventCreateDto) {
         validateSkillAuthor(eventCreateDto.relatedSkillsId());
+        User user = userRepository.getByIdOrThrow(userContext.getUserId());
+        boolean existOwnerEvent = user.getOwnedEvents().stream()
+                .anyMatch(event -> event.getTitle().equals(eventCreateDto.title())
+                        && event.getOwner().getId() == userContext.getUserId());
+        if (existOwnerEvent) {
+            throw new ForbiddenException("You already have this event!");
+        }
         List<Skill> skillEvent = skillRepository.findSkillByIds(eventCreateDto.relatedSkillsId());
         Event event = eventMapper.toEntityCreate(eventCreateDto);
         event.setRelatedSkills(skillEvent);
         event.setAttendees(new ArrayList<>());
-        return eventMapper.toDto(event);
+        event.setStatus(EventStatus.PLANNED);
+        event.setOwner(user);
+        Event savedEvent = eventRepository.save(event);
+        return eventMapper.toDto(savedEvent);
     }
 
     @Override

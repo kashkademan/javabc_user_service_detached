@@ -41,13 +41,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     }
 
     @Query("""
-    SELECT e FROM Event e
-    LEFT JOIN User u
+    SELECT DISTINCT e FROM Event e
+    LEFT JOIN e.attendees a
     WHERE e.title LIKE %:titleContains%
       AND e.description LIKE %:descriptionContains%
       AND e.type = :type
       AND (:ownerId IS NULL OR e.owner.id = :ownerId)
-      AND (:participantId IS NULL OR u.id = :participantId)
+      AND (:participantId IS NULL OR a.id = :participantId)
 """)
     List<Event> findEventsByFilters(@Param("titleContains") String titleContains,
                                     @Param("descriptionContains") String descriptionContains,

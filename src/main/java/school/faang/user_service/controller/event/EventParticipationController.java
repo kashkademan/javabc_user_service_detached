@@ -24,13 +24,13 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(value = "api/v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "api/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
-    @GetMapping("/{eventId}")
+    @GetMapping("/events/{eventId}/participants")
     public List<UserDto> getAllParticipantsByEventId(@PathVariable
                                                      @NotNull(message = "Event cannot be empty")
                                                      @Positive(message = "Event cannot be negative")
@@ -39,12 +39,12 @@ public class EventParticipationController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping("events/participants")
     public void registerParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
         eventParticipationService.registerParticipant(eventRequestDto.eventId(), eventRequestDto.userId());
     }
 
-    @GetMapping("/{eventId}/participants/count")
+    @GetMapping("/events/{eventId}/participants/count")
     public CountResponseDto countParticipantsByEventId(@PathVariable
                                                        @NotNull(message = "Event cannot be empty")
                                                        @Positive(message = "Event cannot be negative")
@@ -52,8 +52,15 @@ public class EventParticipationController {
         return eventParticipationService.countParticipantsByEventId(eventId);
     }
 
-    @PutMapping
-    public void unregisterParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
-        eventParticipationService.unregisteredParticipation(eventRequestDto.eventId(), eventRequestDto.userId());
+    @PutMapping("/event/{eventId}/participants/{participantId}")
+    public void unregisterParticipant(@PathVariable
+                                      @NotNull(message = "Event cannot be empty")
+                                      @Positive(message = "Event cannot be negative")
+                                      Long eventId,
+                                      @PathVariable
+                                      @NotNull(message = "Participant cannot be empty")
+                                      @Positive(message = "Participant cannot be negative")
+                                      Long participantId) {
+        eventParticipationService.unregisteredParticipation(eventId, participantId);
     }
 }
