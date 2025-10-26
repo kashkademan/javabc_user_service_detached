@@ -1,8 +1,11 @@
 package school.faang.user_service.repository.recommendation;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.util.List;
@@ -14,7 +17,8 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
             INSERT INTO recommendation (author_id, receiver_id, content)
             VALUES (?1, ?2, ?3) RETURNING id
             """)
-    Long create(long authorId, long receiverId, String content);
+    @Modifying
+    Long create(Long authorId, Long receiverId, String content);
 
     @Query(nativeQuery = true, value = """
             UPDATE recommendation SET content = :content, updated_at = NOW()
@@ -24,11 +28,34 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     void update(long authorId, long receiverId, String content);
 
     @Modifying
-    int deleteByIdAndAuthor_id(long id, long authorId);
+    int deleteByIdAndAuthor_id(Long id, Long authorId);
 
     List<Recommendation> findAllByReceiverId(long receiverId);
 
     List<Recommendation> findAllByAuthorId(long authorId);
 
-    Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId);
+    Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(Long authorId, Long receiverId);
+
+    @EntityGraph(attributePaths = {"author", "receiver"})
+    Optional<Recommendation> findById(Long id);
+
+    Optional<Long> findAuthorIdById(Long id);
+
+    @Query("""
+        select r.id as id,
+            r.content as content,
+            receiver.id as receiverId,
+            author.id as authorId
+        from Recommendation as r
+        join r.author as author
+        join r.receiver as receiver
+        where :contentContains is null or lower(content) LIKE %:contentContains%
+            and :receiverId is null or receiver.id = :receiverId
+            and :authorId is null or author.id = :authorId
+    """)
+    List<RecommendationDto> getByFilters(
+            @Param("contentContains") String contentContains,
+            @Param("receiverId") Long receiverId,
+            @Param("authorId") Long authorId
+    );
 }

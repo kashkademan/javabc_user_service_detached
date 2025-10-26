@@ -1,20 +1,39 @@
 package school.faang.user_service.exception;
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import school.faang.user_service.dto.MessageDto;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Hidden
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<MessageDto> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        var message = "Invalid JSON format: " + ex.getLocalizedMessage();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new MessageDto(message));
+    }
+
+    @Hidden
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<MessageDto> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        var message = new MessageDto("Parameter " + ex.getName() + " is of incorrect type.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
