@@ -99,11 +99,43 @@ jacoco {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+
     reports {
         xml.required.set(true)
+        html.required.set(true)
         csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoHtml"))
     }
+}
+
+val jacocoExcludes = listOf(
+    "faang.school.postservice.client.*",
+    "faang.school.postservice.config.*",
+    "faang.school.postservice.dto.*",
+    "faang.school.postservice.repository.*",
+    "faang.school.postservice.controller.*",
+    "faang.school.postservice.entity.*",
+    "faang.school.postservice.mapper.*",
+    "faang.school.postservice.exception.*",
+)
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+
+    violationRules {
+        rule {
+            element = "CLASS"
+            excludes = jacocoExcludes
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification)
 }
 
 tasks.bootJar {
