@@ -19,14 +19,18 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.filter.event.EventDescriptionContainsFilter;
 import school.faang.user_service.filter.event.EventFilter;
+import school.faang.user_service.filter.event.EventOwnerIdFilter;
+import school.faang.user_service.filter.event.EventParticipantIdFilter;
+import school.faang.user_service.filter.event.EventTitleContainsFilter;
+import school.faang.user_service.filter.event.EventTypeFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validation.event.EventValidator;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -63,17 +67,11 @@ public class EventServiceImplTest {
     private UserContext userContext;
 
     private final List<EventFilter> eventFilters = List.of(
-            new EventFilter() {
-                @Override
-                public boolean isApplicable(EventFilterDto filters) {
-                    return filters.titleContains() != null;
-                }
-
-                @Override
-                public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
-                    return events.filter(event -> event.getTitle().contains(filters.titleContains()));
-                }
-            }
+            new EventTitleContainsFilter(),
+            new EventDescriptionContainsFilter(),
+            new EventOwnerIdFilter(),
+            new EventTypeFilter(),
+            new EventParticipantIdFilter()
     );
 
     @Captor
@@ -167,8 +165,8 @@ public class EventServiceImplTest {
 
     @Test
     void getByFilters_ShouldApplyFilters() {
-        final EventFilterDto filterDto = new EventFilterDto("test", "desc", CURRENT_USER_ID,
-                OTHER_USER_ID, EventType.WEBINAR);
+        final EventFilterDto filterDto = new EventFilterDto("test", null, CURRENT_USER_ID,
+                null, null);
 
         Event eventFirstOwner = createEvent(CURRENT_USER_ID, OWNER_1);
         eventFirstOwner.setTitle("test event");
