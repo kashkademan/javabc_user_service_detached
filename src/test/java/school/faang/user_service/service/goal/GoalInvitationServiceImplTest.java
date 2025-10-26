@@ -58,7 +58,6 @@ public class GoalInvitationServiceImplTest {
     @Test
     public void testSuccessCreation() {
         Long invitedUserId = 1L;
-        Long goalId = 2L;
 
         User invitedUser = new User();
         invitedUser.setId(invitedUserId);
@@ -74,6 +73,8 @@ public class GoalInvitationServiceImplTest {
         savedInvitation.setInvited(invitedUser);
         savedInvitation.setStatus(RequestStatus.PENDING);
         savedInvitation.setGoal(goal);
+
+        Long goalId = 2L;
 
         CreateGoalInvitationDto invitationDto =
                 new CreateGoalInvitationDto(invitedUserId, goalId);
