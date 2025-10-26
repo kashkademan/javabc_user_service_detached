@@ -1,5 +1,6 @@
 package school.faang.user_service.repository.user;
 
+import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.user.User;
@@ -33,4 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
     }
+
+    @Query(value = "SELECT id FROM users ORDER BY id LIMIT :limit", nativeQuery = true)
+    List<Long> findFirstUserIdsNative(@Param("limit") int limit);
 }

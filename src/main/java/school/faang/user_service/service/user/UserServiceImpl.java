@@ -15,6 +15,10 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.redis.PromotionRedisService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final PromotionRedisService promotionRedisService;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -60,5 +65,17 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
+    }
+
+    public List<Long> getFirstPromotionUser(int countRow) {
+        List<Long> redisUsers = promotionRedisService.decrementFirstPromotions(countRow);
+        List<Long> userIds = new ArrayList<>();
+        int sizeRedisList = redisUsers.size();
+        if (sizeRedisList < countRow) {
+            int currencyUserFromPromotion = countRow - sizeRedisList;
+            userIds = userRepository.findFirstUserIdsNative(currencyUserFromPromotion);
+        }
+        redisUsers.addAll(userIds);
+        return redisUsers;
     }
 }

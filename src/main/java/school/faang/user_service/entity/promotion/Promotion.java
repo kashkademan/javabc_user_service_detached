@@ -49,6 +49,9 @@ public class Promotion implements Serializable {
     @Column(name = "number_of_impressions", nullable = false)
     private Integer numberOfImpressions;
 
+    @Column(name = "remaining_impressions", nullable = false)
+    private Integer remainingImpressions;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "activation_time")

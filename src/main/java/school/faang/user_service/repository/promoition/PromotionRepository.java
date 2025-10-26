@@ -7,6 +7,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     boolean existsByUserId(Long userId);
 
+    void deleteByUserId(Long userId);
+
 }
 
 

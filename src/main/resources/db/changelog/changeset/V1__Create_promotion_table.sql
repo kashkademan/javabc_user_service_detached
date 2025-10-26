@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS promotion (
     user_id               BIGINT    NOT NULL,
     rate                  INTEGER   NOT NULL,
     number_of_impressions INTEGER   NOT NULL,
+    remaining_impressions INTEGER   NOT NULL,
     activation_time       TIMESTAMP,
     update_time           TIMESTAMP
 );
