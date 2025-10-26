@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipControllerTest {
+public class MentorshipRequestControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final MentorshipRequestDto mentorshipRequestDto = MentorshipRequestDto.builder()
