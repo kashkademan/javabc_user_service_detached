@@ -59,8 +59,6 @@ public class GoalInvitationServiceImplTest {
     public void testSuccessCreation() {
         Long invitedUserId = 1L;
         Long goalId = 2L;
-        CreateGoalInvitationDto invitationDto =
-                new CreateGoalInvitationDto(invitedUserId, goalId);
 
         User invitedUser = new User();
         invitedUser.setId(invitedUserId);
@@ -77,17 +75,19 @@ public class GoalInvitationServiceImplTest {
         savedInvitation.setStatus(RequestStatus.PENDING);
         savedInvitation.setGoal(goal);
 
-        GoalInvitationDto expectedDto = new GoalInvitationDto(
-                10L,
-                new UserDto(1L, "John", "qwer@123.ru", "12212323", "lalal"),
-                RequestStatus.PENDING,
-                2L);
+        CreateGoalInvitationDto invitationDto =
+                new CreateGoalInvitationDto(invitedUserId, goalId);
 
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
         when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(savedInvitation);
         when(userRepository.getByIdOrThrow(invitedUserId)).thenReturn(invitedUser);
 
         GoalInvitationDto goalInvitationDto = service.create(goalId, invitationDto);
+        GoalInvitationDto expectedDto = new GoalInvitationDto(
+                10L,
+                new UserDto(1L, "John", "qwer@123.ru", "12212323", "lalal"),
+                RequestStatus.PENDING,
+                2L);
 
         assertNotNull(goalInvitationDto);
         assertEquals(expectedDto.status(), goalInvitationDto.status());
@@ -103,8 +103,6 @@ public class GoalInvitationServiceImplTest {
         long goalId = 1L;
         long invitedUserId = 2L;
 
-        CreateGoalInvitationDto dto = new CreateGoalInvitationDto(invitedUserId, goalId);
-
         User invitedUser = new User();
         invitedUser.setId(invitedUserId);
 
@@ -112,6 +110,8 @@ public class GoalInvitationServiceImplTest {
         goal.setId(goalId);
         goal.setUsers(List.of(invitedUser));
         goal.setInvitations(new ArrayList<>());
+
+        CreateGoalInvitationDto dto = new CreateGoalInvitationDto(invitedUserId, goalId);
 
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
 
@@ -122,7 +122,6 @@ public class GoalInvitationServiceImplTest {
 
     @Test
     public void testAcceptSuccess() {
-        long invitationId = 1L;
         long userId = 10L;
 
         User invitedUser = new User();
@@ -135,6 +134,8 @@ public class GoalInvitationServiceImplTest {
         Goal goal = new Goal();
         goal.setId(2L);
         goal.setUsers(new ArrayList<>());
+
+        long invitationId = 1L;
 
         GoalInvitation invitation = new GoalInvitation();
         invitation.setId(invitationId);
@@ -159,7 +160,6 @@ public class GoalInvitationServiceImplTest {
     @Test
     public void testAcceptForbidden() {
         long invitationId = 1L;
-        long userId = 10L;
         long anotherUserId = 99L;
 
         User invitedUser = new User();
@@ -173,6 +173,8 @@ public class GoalInvitationServiceImplTest {
         invitation.setGoal(goal);
         invitation.setInvited(invitedUser);
         invitation.setStatus(RequestStatus.PENDING);
+
+        long userId = 10L;
 
         when(goalInvitationRepository.getByIdOrThrow(invitationId)).thenReturn(invitation);
         when(userContext.getUserId()).thenReturn(userId);
@@ -207,7 +209,6 @@ public class GoalInvitationServiceImplTest {
     @Test
     public void testRejectForbidden() {
         long invitationId = 1L;
-        long userId = 10L;
         long anotherUserId = 99L;
 
         User invitedUser = new User();
@@ -217,6 +218,8 @@ public class GoalInvitationServiceImplTest {
         invitation.setId(invitationId);
         invitation.setInvited(invitedUser);
         invitation.setStatus(RequestStatus.PENDING);
+
+        long userId = 10L;
 
         when(goalInvitationRepository.getByIdOrThrow(invitationId)).thenReturn(invitation);
         when(userContext.getUserId()).thenReturn(userId);

@@ -41,11 +41,12 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         validateCreation(goal, invitationDto);
 
         GoalInvitation goalInvitation = createGoalInvitationMapper.toGoalInvitation(invitationDto);
-        List<GoalInvitation> invitations = goal.getInvitations();
 
         goalInvitation.setInvited(userRepository.getByIdOrThrow(invitationDto.invitedUserId()));
         goalInvitation.setGoal(goal);
         goalInvitation.setStatus(RequestStatus.PENDING);
+
+        List<GoalInvitation> invitations = goal.getInvitations();
 
         GoalInvitation savedInvitation = goalInvitationRepository.save(goalInvitation);
         log.info("Goal invitation created: id={}, goalId={}, invitedUserId={}",
