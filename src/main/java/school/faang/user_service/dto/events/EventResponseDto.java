@@ -14,6 +14,6 @@ public record EventResponseDto(
         EventType eventType,
         String location,
         EventStatus eventStatus,
-        List<Long> attendeesId
+        List<Long> skillIds
 ) {
 }

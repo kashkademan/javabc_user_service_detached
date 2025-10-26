@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface EventService {
 
-    EventCreateDto createEvent(EventCreateDto eventCreateDto);
+    EventResponseDto createEvent(EventCreateDto eventCreateDto);
 
-    EventResponseDto updateEvent(UpdateEventDto updateEventDto);
+    EventResponseDto updateEvent(Long eventId, UpdateEventDto updateEventDto);
 
-    List<EventResponseDto> getAllByFilter(AllEventByFilterDto allEventByFilterDto);
+    List<EventResponseDto> getAllByFilter(AllEventByFilterDto allEventByFilterDto, int limit, int offset);
 
     void deleteEvent(Long eventId);
 }
