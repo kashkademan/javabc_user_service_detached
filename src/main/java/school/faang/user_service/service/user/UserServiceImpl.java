@@ -175,11 +175,14 @@ public class UserServiceImpl implements UserService {
             throw new DataValidationException("User has no avatar");
         }
 
-        String objectKey = switch (size.toLowerCase()) {
-            case "small" -> profilePic.getSmallFileId();
-            case "big" -> profilePic.getFileId();
-            default -> throw new DataValidationException("Invalid size parameter: " + size);
-        };
+        String objectKey;
+        if ("small".equalsIgnoreCase(size)) {
+            objectKey = profilePic.getSmallFileId();
+        } else if ("big".equalsIgnoreCase(size)) {
+            objectKey = profilePic.getFileId();
+        } else {
+            throw new DataValidationException("Invalid size parameter: " + size);
+        }
 
         byte[] imageBytes = s3AvatarService.downloadImage(objectKey);
         String contentType = s3AvatarService.getContentType(objectKey);
