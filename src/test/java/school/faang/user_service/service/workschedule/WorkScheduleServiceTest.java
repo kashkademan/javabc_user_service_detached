@@ -1,20 +1,21 @@
 package school.faang.user_service.service.workschedule;
 
-
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.TimeZone;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.WorkSchedule;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.mapper.WorkScheduleMapperImpl;
+import school.faang.user_service.mapper.WorkScheduleMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.WorkScheduleRepository;
 
@@ -38,11 +39,17 @@ public class WorkScheduleServiceTest {
     @Mock
     private WorkScheduleRepository workScheduleRepository;
 
-    @Spy
-    private WorkScheduleMapperImpl workScheduleMapper;
+    @Mock
+    private WorkScheduleMapper workScheduleMapper;
 
     @InjectMocks
     private WorkScheduleServiceImpl workScheduleService;
+
+    @BeforeAll
+    static void setTimezone() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        System.out.println("Running tests in timezone: " + ZoneId.systemDefault());
+    }
 
     @Test
     public void shouldAddWorkScheduleSuccessfully() {
@@ -50,6 +57,10 @@ public class WorkScheduleServiceTest {
         User user = createUser(USER_ID);
         WorkSchedule savedSchedule = createWorkScheduleEntity(scheduleDto, user);
 
+        when(workScheduleMapper.toWorkSchedule(any(WorkScheduleDto.class)))
+                .thenReturn(savedSchedule);
+        when(workScheduleMapper.toWorkScheduleDto(any(WorkSchedule.class)))
+                .thenReturn(scheduleDto);
         when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(user);
         when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(savedSchedule);
 
@@ -76,6 +87,10 @@ public class WorkScheduleServiceTest {
 
         when(workScheduleRepository.getByIdOrThrow(WORK_SCHEDULE_ID)).thenReturn(existingSchedule);
         when(workScheduleRepository.save(any(WorkSchedule.class))).thenReturn(updatedSchedule);
+        when(workScheduleMapper.toWorkSchedule(any(WorkScheduleDto.class)))
+                .thenReturn(updatedSchedule);
+        when(workScheduleMapper.toWorkScheduleDto(any(WorkSchedule.class)))
+                .thenReturn(updatedScheduleDto);
 
         WorkScheduleDto result = workScheduleService.updateWorkSchedule(USER_ID, WORK_SCHEDULE_ID, updatedScheduleDto);
 
