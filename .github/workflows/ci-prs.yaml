@@ -12,6 +12,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      MINIO_ENDPOINT: localhost
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: test
+      MINIO_SECRET_KEY: test
+      MINIO_BUCKET_NAME: test-bucket
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
