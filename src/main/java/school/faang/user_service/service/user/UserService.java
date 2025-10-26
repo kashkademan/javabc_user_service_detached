@@ -1,7 +1,9 @@
 package school.faang.user_service.service.user;
 
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
+import school.faang.user_service.dto.user.UserAvatarUploadDto;
 import school.faang.user_service.dto.user.UserDto;
 
 /**
@@ -55,6 +57,12 @@ public interface UserService {
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
     UserDto getById(long userId);
+
+    void uploadAvatar(UserAvatarUploadDto userAvatarUploadDto);
+
+    void deleteAvatar();
+
+    ResponseEntity<byte[]> getAvatar(Long userId, String size);
 }
 
 
