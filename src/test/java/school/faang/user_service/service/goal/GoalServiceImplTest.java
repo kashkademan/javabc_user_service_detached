@@ -1,5 +1,8 @@
 package school.faang.user_service.service.goal;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,15 +21,12 @@ import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,103 +46,89 @@ class GoalServiceImplTest {
     @Mock
     private UserContext userContext;
 
+    @Mock
+    private ValidationService validationService;
+
     @InjectMocks
     private GoalServiceImpl goalService;
 
+
     @Test
     void testCreateGoalSuccess() {
-        User mentor = new User();
-        mentor.setId(1L);
-        mentor.setGoals(new ArrayList<>());
-
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setGoals(new ArrayList<>());
-
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setGoals(new ArrayList<>());
-
+        CreateGoalDto dto =
+                new CreateGoalDto("Title", "Desc", LocalDateTime.now(), 1L, List.of(1L, 2L));
         Goal goal = new Goal();
-        goal.setUsers(new ArrayList<>(List.of(user1, user2)));
-        goal.setStatus(GoalStatus.ACTIVE);
-        goal.setMentor(mentor);
-
-        GoalDto goalDto = new GoalDto("Title", "Desc", LocalDateTime.now(),
-                1L, List.of(1L, 2L), GoalStatus.ACTIVE);
-
-        CreateGoalDto dto = new CreateGoalDto("Title", "Desc",
-                LocalDateTime.now(), 1L, List.of(1L, 2L));
+        GoalDto goalDto =
+                new GoalDto("Title", "Desc", LocalDateTime.now(), 1L,
+                        List.of(1L, 2L), GoalStatus.ACTIVE);
 
         when(goalMapper.toGoal(dto)).thenReturn(goal);
-        when(userContext.getUserId()).thenReturn(1L);
-        when(userRepository.findAllByIdIn(any())).thenReturn(List.of(user1, user2));
         when(goalMapper.toGoalDto(goal)).thenReturn(goalDto);
+
+        doNothing().when(validationService).validatePossibleToCreateOrUpdate(goal);
 
         GoalDto result = goalService.create(dto);
 
         assertEquals(goalDto, result);
         verify(goalRepository).save(goal);
+        verify(validationService).validatePossibleToCreateOrUpdate(goal);
     }
-
 
     @Test
     void testCreateGoalForbidden() {
-        User user = new User();
-        user.setId(2L);
-        user.setGoals(new ArrayList<>());
-
+        CreateGoalDto dto =
+                new CreateGoalDto("Title", "Desc", LocalDateTime.now(), 1L, List.of(1L, 2L));
         Goal goal = new Goal();
-        goal.setUsers(new ArrayList<>(List.of(user)));
-        goal.setStatus(GoalStatus.ACTIVE);
-
-        CreateGoalDto dto = new CreateGoalDto("Title", "Desc",
-                LocalDateTime.now(), 1L, List.of(2L));
 
         when(goalMapper.toGoal(dto)).thenReturn(goal);
-        when(userContext.getUserId()).thenReturn(999L);
-        when(userRepository.findAllByIdIn(any())).thenReturn(List.of(user));
+
+        doThrow(new ForbiddenException("You cannot create or update this goal"))
+                .when(validationService).validatePossibleToCreateOrUpdate(goal);
 
         assertThrows(ForbiddenException.class, () -> goalService.create(dto));
         verify(goalRepository, never()).save(any());
+        verify(validationService).validatePossibleToCreateOrUpdate(goal);
     }
 
     @Test
     void testUpdateGoalSuccess() {
-        User mentor = new User();
-        mentor.setId(2L);
-        mentor.setGoals(new ArrayList<>());
-
+        long goalId = 1L;
+        UpdateGoalDto dto =
+                new UpdateGoalDto("Title", "Desc", LocalDateTime.now(), 1L, GoalStatus.ACTIVE);
         Goal goal = new Goal();
-        goal.setId(1L);
-        goal.setStatus(GoalStatus.ACTIVE);
-        goal.setMentor(mentor);
+        GoalDto goalDto =
+                new GoalDto("Title", "Desc", LocalDateTime.now(), 1L,
+                        List.of(1L, 2L), GoalStatus.ACTIVE);
 
-        User user1 = new User();
-        user1.setId(2L);
-        user1.setGoals(new ArrayList<>());
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        doNothing().when(validationService).validatePossibleToCreateOrUpdate(goal);
+        when(goalMapper.toGoalDto(goal)).thenReturn(goalDto);
 
-        User user2 = new User();
-        user2.setId(3L);
-        user2.setGoals(new ArrayList<>());
+        GoalDto result = goalService.update(goalId, dto);
 
-        goal.setUsers(new ArrayList<>(List.of(user1, user2)));
+        assertEquals(goalDto, result);
+        verify(goalMapper).update(dto, goal);
+        verify(validationService).validatePossibleToCreateOrUpdate(goal);
+        verify(goalRepository, never()).save(any());
+    }
 
-        when(goalRepository.getByIdOrThrow(1L)).thenReturn(goal);
-        when(userContext.getUserId()).thenReturn(2L);
-        when(userRepository.findAllByIdIn(any())).thenReturn(List.of(user1, user2));
-        when(goalMapper.toGoalDto(goal))
-                .thenReturn(new GoalDto("Title", "Desc",
-                        LocalDateTime.now(), 1L, List.of(2L, 3L), GoalStatus.ACTIVE));
-
+    @Test
+    void testUpdateGoalForbidden() {
+        long goalId = 1L;
         UpdateGoalDto dto = new UpdateGoalDto("Title", "Desc",
                 LocalDateTime.now(), 1L, GoalStatus.ACTIVE);
+        Goal goal = new Goal();
 
-        GoalDto result = goalService.update(1L, dto);
+        when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        doThrow(new ForbiddenException("You cannot create or update this goal"))
+                .when(validationService).validatePossibleToCreateOrUpdate(goal);
 
-        assertNotNull(result);
-        verify(goalMapper).update(dto, goal);
+        assertThrows(ForbiddenException.class, () -> goalService.update(goalId, dto));
+        verify(goalMapper, never()).update(any(), any());
+        verify(goalRepository, never()).save(any());
+        verify(validationService).validatePossibleToCreateOrUpdate(goal);
     }
+
 
     @Test
     void testDeleteGoal() {
@@ -184,7 +170,8 @@ class GoalServiceImplTest {
                 .thenReturn(new GoalDto("Test", "Desc",
                         LocalDateTime.now(), 1L, List.of(), GoalStatus.ACTIVE));
 
-        GoalFilterDto filter = new GoalFilterDto("Test", "Desc", GoalStatus.ACTIVE, 1L);
+        GoalFilterDto filter = new GoalFilterDto("Test", "Desc",
+                GoalStatus.ACTIVE, 1L);
         var result = goalService.getByFilters(filter);
 
         assertEquals(1, result.size());
