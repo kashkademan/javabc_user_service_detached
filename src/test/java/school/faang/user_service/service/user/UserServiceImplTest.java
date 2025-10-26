@@ -59,10 +59,10 @@ public class UserServiceImplTest {
 
     @Test
     void uploadAvatar_whenFileIsEmpty_shouldThrowDataValidationException() {
-        MockMultipartFile file = new MockMultipartFile("file", new byte[0]);
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
 
+        MockMultipartFile file = new MockMultipartFile("file", new byte[0]);
         UserAvatarUploadDto dto = new UserAvatarUploadDto(file);
 
         assertThrows(DataValidationException.class, () -> userService.uploadAvatar(dto));
@@ -70,6 +70,9 @@ public class UserServiceImplTest {
 
     @Test
     void uploadAvatar_whenFileIsInvalidImage_shouldThrowDataValidationException() {
+        when(userContext.getUserId()).thenReturn(1L);
+        when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
+
         byte[] bytes = "not-an-image".getBytes();
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -77,10 +80,6 @@ public class UserServiceImplTest {
                 "image/png",
                 bytes
         );
-
-        when(userContext.getUserId()).thenReturn(1L);
-        when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
-
         UserAvatarUploadDto dto = new UserAvatarUploadDto(file);
 
         assertThrows(DataValidationException.class, () -> userService.uploadAvatar(dto));
@@ -91,12 +90,6 @@ public class UserServiceImplTest {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "file.png",
-                "image/png",
-                baos.toByteArray()
-        );
 
         when(userContext.getUserId()).thenReturn(1L);
         User user = new User();
@@ -104,6 +97,13 @@ public class UserServiceImplTest {
         when(imageProcessing.resizeImage(any(), anyInt())).thenReturn(image);
         when(s3AvatarService.uploadImage(any(), anyString(), anyString())).thenReturn("s3-key");
 
+        byte[] imageBytes = baos.toByteArray();
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file.png",
+                "image/png",
+                imageBytes
+        );
         UserAvatarUploadDto dto = new UserAvatarUploadDto(file);
 
         userService.uploadAvatar(dto);
@@ -119,12 +119,6 @@ public class UserServiceImplTest {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "file.png",
-                "image/png",
-                baos.toByteArray()
-        );
 
         when(userContext.getUserId()).thenReturn(1L);
 
@@ -138,6 +132,13 @@ public class UserServiceImplTest {
         when(imageProcessing.resizeImage(any(), anyInt())).thenReturn(image);
         when(s3AvatarService.uploadImage(any(), anyString(), anyString())).thenReturn("newKey");
 
+        byte[] imageBytes = baos.toByteArray();
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file.png",
+                "image/png",
+                imageBytes
+        );
         UserAvatarUploadDto dto = new UserAvatarUploadDto(file);
 
         userService.uploadAvatar(dto);
