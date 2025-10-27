@@ -1,5 +1,9 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +25,19 @@ import java.util.List;
 @RequestMapping("/subscriptions")
 @Slf4j
 @RequiredArgsConstructor
+@SecurityRequirement(name = "userIdAuth")
+@Tag(name = "User Subscriptions", description = "API для управления подписками пользователей")
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
     private static final String DEFAULT_MAX_EXPERIENCE = "2147483647";
 
     @PostMapping("/follow/{followeeId}")
+    @Operation(summary = "Follow user", description = "Creates a subscription", responses = {
+            @ApiResponse(responseCode = "200", description = "Subscription successfully created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public void followUser(@PathVariable long followeeId) {
         long followerId = userContext.getUserId();
         log.info("The user {} subscribes to {}", followerId, followeeId);
@@ -34,6 +45,10 @@ public class UserSubscriptionController {
     }
 
     @DeleteMapping("/unfollow/{followeeId}")
+    @Operation(summary = "Unfollow user", description = "Removes subscription", responses = {
+            @ApiResponse(responseCode = "200", description = "Subscription successfully removed"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public void unfollowUser(@PathVariable long followeeId) {
         long followerId = userContext.getUserId();
         log.info("The user {} unsubscribes from {}", followerId, followeeId);
@@ -41,18 +56,32 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/{followeeId}/followers/count")
+    @Operation(summary = "Get followers count", description = "Returns number of followers", responses = {
+            @ApiResponse(responseCode = "200", description = "Followers count returned successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public CountResponse getFollowersCount(@PathVariable long followeeId) {
         log.debug("Requesting the number of subscribers for a user: {}", followeeId);
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
     @GetMapping("/{followerId}/followees/count")
+    @Operation(summary = "Get followees count", description = "Returns number of users", responses = {
+            @ApiResponse(responseCode = "200", description = "Followees count returned successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public CountResponse getFolloweesCount(@PathVariable long followerId) {
         log.debug("Requesting the number of subscriptions for a user: {}", followerId);
         return userSubscriptionService.getFolloweesCount(followerId);
     }
 
     @GetMapping("/{followeeId}/followers")
+    @Operation(summary = "Get followers list", description = "Returns list of followers with filtering options",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Followers list returned successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     public List<UserDto> getFollowers(@PathVariable long followeeId,
                                       @RequestParam(required = false) String namePattern,
                                       @RequestParam(required = false) String phonePattern,
@@ -64,6 +93,12 @@ public class UserSubscriptionController {
     }
 
     @GetMapping("/{followerId}/followees")
+    @Operation(summary = "Get followees list", description = "Returns list of followees with filtering options",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Followees list returned successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     public List<UserDto> getFollowees(@PathVariable long followerId,
                                       @RequestParam(required = false) String namePattern,
                                       @RequestParam(required = false) String phonePattern,
