@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +49,8 @@ public class GoalInvitationServiceImplTest {
     private GoalInvitationMapper goalInvitationMapper = Mappers.getMapper(GoalInvitationMapper.class);
     @Mock
     private UserContext userContext;
+    @Mock
+    private ValidationService validationService;
     @Spy
     private CreateGoalInvitationMapper createGoalInvitationMapper = Mappers.getMapper(CreateGoalInvitationMapper.class);
 
@@ -115,6 +118,8 @@ public class GoalInvitationServiceImplTest {
         CreateGoalInvitationDto dto = new CreateGoalInvitationDto(invitedUserId, goalId);
 
         when(goalRepository.getByIdOrThrow(goalId)).thenReturn(goal);
+        doThrow(new ForbiddenException("Invited User is already working on this goal!"))
+                .when(validationService).validateCreation(goal, dto);
 
         assertThrows(ForbiddenException.class, () -> service.create(goalId, dto));
 
@@ -179,6 +184,8 @@ public class GoalInvitationServiceImplTest {
 
         when(goalInvitationRepository.getByIdOrThrow(invitationId)).thenReturn(invitation);
         when(userContext.getUserId()).thenReturn(userId);
+        doThrow(new ForbiddenException("Accept the invitation can invited user only!"))
+                .when(validationService).canAcceptOrReject(invitedUser.getId());
 
         assertThrows(ForbiddenException.class, () -> service.accept(invitationId));
 
@@ -224,6 +231,8 @@ public class GoalInvitationServiceImplTest {
 
         when(goalInvitationRepository.getByIdOrThrow(invitationId)).thenReturn(invitation);
         when(userContext.getUserId()).thenReturn(userId);
+        doThrow(new ForbiddenException("Reject the invitation can invited user only!"))
+                .when(validationService).canAcceptOrReject(invitedUser.getId());
 
         assertThrows(ForbiddenException.class, () -> service.reject(invitationId));
         verify(goalInvitationRepository, never()).save(any());
