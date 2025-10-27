@@ -1,8 +1,9 @@
 package school.faang.user_service.controller.mentorship;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,24 +29,27 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    public MentorshipRequestDto toMentorshipRequestDto(
+    public ResponseEntity<MentorshipRequestDto> toMentorshipRequestDto(
             @Valid @RequestBody CreateMentorshipRequestDto createMentorshipRequestDto) {
-        return mentorshipRequestService.create(createMentorshipRequestDto);
+        return ResponseEntity.ok(mentorshipRequestService.create(createMentorshipRequestDto));
     }
 
     @GetMapping
-    public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
-        return mentorshipRequestService.getByFilters(filter);
+    public ResponseEntity<List<MentorshipRequestDto>> getByFilters(MentorshipRequestFilterDto filter) {
+        return ResponseEntity.ok(mentorshipRequestService.getByFilters(filter));
+
 
     }
 
     @PutMapping("/{requestId}")
-    public void accept(@PathVariable @NotNull Long requestId) {
+    public ResponseEntity<Void> accept(@PathVariable @NotNull Long requestId) {
         mentorshipRequestService.accept(requestId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{requestId}/reject")
-    public void reject(@PathVariable @NotNull Long requestId, @Valid RejectionDto rejectionDto) {
+    public ResponseEntity<Void> reject(@PathVariable @NotNull Long requestId, @Valid RejectionDto rejectionDto) {
         mentorshipRequestService.reject(requestId, rejectionDto);
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -37,6 +38,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private int monthsLimit;
 
     @Override
+    @Transactional
     public MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
         long userId = userContext.getUserId();
         Optional<MentorshipRequest> latestRequest = mentorshipRequestRepository
@@ -61,6 +63,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
         Stream<MentorshipRequest> filtered = mentorshipRequestRepository.findAll().stream();
 
@@ -72,11 +75,12 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
+    @Transactional
     public void accept(long requestId) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow();
 
         if (mentorshipRequest.getReceiver().getId().equals(userContext.getUserId())) {
-            String message = "You can't accept your own request";
+            String message = String.format("self-mentorship is forbidden: requestId=%d", requestId);
             log.warn(message);
             throw new ForbiddenException(message);
         }
@@ -88,8 +92,15 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
+    @Transactional
     public void reject(long requestId, RejectionDto rejectionDto) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow();
+        long userId = userContext.getUserId();
+        if (requestId != userId) {
+            String message = String.format("You can't reject request with id %d", requestId);
+            log.warn(message);
+            throw new ForbiddenException(message);
+        }
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejectionDto.reason());
         log.info("For user with id {} rejected request", requestId);
