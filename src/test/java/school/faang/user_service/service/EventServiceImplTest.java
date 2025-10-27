@@ -3,7 +3,8 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.CreateEventDto;
@@ -62,7 +63,8 @@ class EventServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        owner = new User(); owner.setId(requesterId);
+        owner = new User();
+        owner.setId(requesterId);
         s1 = new Skill();
         s1.setId(1L);
         s2 = new Skill();
