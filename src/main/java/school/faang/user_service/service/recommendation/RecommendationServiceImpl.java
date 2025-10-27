@@ -32,6 +32,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         long authorId = userContext.getUserId();
         Long receiverId = recommendationDto.receiverId();
         validateRecommendationCreationRights(authorId, receiverId);
+        log.info("Creating new recommendation");
         Long newRecommendationId = recommendationRepository.create(authorId, receiverId, recommendationDto.content());
         Recommendation recommendation = recommendationRepository.findById(newRecommendationId)
                 .orElseThrow(() -> new DataValidationException("Recommendation has not been created"));
@@ -41,6 +42,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public RecommendationDto update(long recommendationId, UpdateRecommendationDto recommendationDto) {
         Recommendation recommendation = validateRecommendationEditingRights(recommendationId);
+        log.info("Updating recommendation");
         recommendationMapper.update(recommendationDto, recommendation);
         recommendationRepository.save(recommendation);
         return recommendationMapper.toRecommendationDto(recommendation);
@@ -49,11 +51,13 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public void delete(long recommendationId) {
         Recommendation recommendation = validateRecommendationEditingRights(recommendationId);
+        log.info("Deleting recommendation");
         recommendationRepository.deleteByIdAndAuthor_id(recommendationId, recommendation.getAuthor().getId());
     }
 
     @Override
     public List<RecommendationDto> getByFilters(RecommendationFilterDto filters) {
+        log.info("Performing recommendation search using provided filter(s)");
         return recommendationRepository.findAll().stream()
                 .filter(rec -> rec.getAuthor().getId().equals(filters.authorId()))
                 .filter(rec -> rec.getReceiver().getId().equals(filters.receiverId()))
