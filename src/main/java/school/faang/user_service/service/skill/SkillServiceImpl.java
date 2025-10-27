@@ -89,11 +89,11 @@ public class SkillServiceImpl implements SkillService {
             throw new ForbiddenException("Для присвоения скилла должно быть не менее 3 рекомендаций.");
         }
         skillRepository.assignSkillToUser(skillId, userId);
-        saveUserSkiilGaranteeListToDB(skillId, userId);
+        saveUserSkillGaranteeListToDb(skillId, userId);
         log.info("Скилл c id: {} успешно присвоен пользователю c id: {}", skillId, userId);
     }
 
-    private void saveUserSkiilGaranteeListToDB(long skillId, long userId) {
+    private void saveUserSkillGaranteeListToDb(long skillId, long userId) {
         User requester = userRepository.getByIdOrThrow(userId);
         Optional<Skill> optionalSkill = skillRepository.findById(skillId);
         if (optionalSkill.isEmpty()) {
