@@ -93,7 +93,9 @@ public class EventServiceImpl implements EventService {
                 .filter(e -> f.ownerId() == null
                         || (e.getOwner() != null && Objects.equals(e.getOwner().getId(), f.ownerId())))
                 .filter(e -> {
-                    if (f.participantId() == null) return true;
+                    if (f.participantId() == null) {
+                        return true;
+                    }
                     return e.getAttendees() != null && e.getAttendees()
                             .stream()
                             .anyMatch(u -> Objects.equals(u.getId(), f.participantId()));
@@ -148,7 +150,7 @@ public class EventServiceImpl implements EventService {
     private void ensureOwnerHasAllSkills(User owner, List<Skill> eventSkills) {
         if (eventSkills.isEmpty()) {
             return;
-        };
+        }
         Set<Long> ownerSkillIds = owner.getSkills() == null ? Set.of()
                 : owner.getSkills().stream().map(Skill::getId).collect(Collectors.toSet());
         List<Long> missing = eventSkills.stream()

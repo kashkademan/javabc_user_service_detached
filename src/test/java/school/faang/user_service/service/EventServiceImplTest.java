@@ -6,7 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.event.*;
+import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
@@ -52,22 +55,25 @@ class EventServiceImplTest {
     @InjectMocks
     private EventServiceImpl service;
 
-    private final long REQUESTER_ID = 42L;
+    private final long requesterId = 42L;
     private User owner;
-    private Skill s1, s2;
+    private Skill s1;
+    private Skill s2;
 
     @BeforeEach
     void setUp() {
-        owner = new User(); owner.setId(REQUESTER_ID);
-        s1 = new Skill(); s1.setId(1L);
-        s2 = new Skill(); s2.setId(2L);
+        owner = new User(); owner.setId(requesterId);
+        s1 = new Skill();
+        s1.setId(1L);
+        s2 = new Skill();
+        s2.setId(2L);
         owner.setSkills(List.of(s1, s2));
     }
 
     @Test
     void create_ok_whenOwnerHasAllSkills() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
-        when(userRepository.getByIdOrThrow(REQUESTER_ID)).thenReturn(owner);
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.getByIdOrThrow(requesterId)).thenReturn(owner);
         CreateEventDto dto = new CreateEventDto(
                 "Title",
                 "Desc",
@@ -100,7 +106,7 @@ class EventServiceImplTest {
                 100L, "Title", "Desc",
                 dto.startDate(), dto.endDate(),
                 dto.type(), "TLV", 50,
-                REQUESTER_ID, EventStatus.PLANNED,
+                requesterId, EventStatus.PLANNED,
                 LocalDateTime.now(),
                 List.of(1L, 2L), 0
         );
@@ -115,15 +121,15 @@ class EventServiceImplTest {
         assertThat(result.id()).isEqualTo(100L);
         verify(mapper).toEvent(dto);
         verify(eventRepository).save(argThat(e ->
-                e.getOwner().getId() == REQUESTER_ID &&
-                        e.getRelatedSkills().size() == 2 &&
-                        e.getTitle().equals("Title")
+                e.getOwner().getId() == requesterId
+                        && e.getRelatedSkills().size() == 2
+                        && e.getTitle().equals("Title")
         ));
     }
 
     @Test
     void create_throwsWhenEndBeforeStart() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         CreateEventDto dto = new CreateEventDto(
                 "Title", "Desc",
                 LocalDateTime.now().plusDays(2),
@@ -139,7 +145,7 @@ class EventServiceImplTest {
 
     @Test
     void create_throwsWhenSkillNotFound() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         CreateEventDto dto = new CreateEventDto(
                 "Title", "Desc",
                 LocalDateTime.now().plusDays(1),
@@ -156,8 +162,8 @@ class EventServiceImplTest {
 
     @Test
     void create_throwsWhenOwnerLacksRequiredSkill() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
-        when(userRepository.getByIdOrThrow(REQUESTER_ID)).thenReturn(owner);
+        when(userContext.getUserId()).thenReturn(requesterId);
+        when(userRepository.getByIdOrThrow(requesterId)).thenReturn(owner);
         owner.setSkills(List.of(s1));
 
         CreateEventDto dto = new CreateEventDto(
@@ -177,7 +183,7 @@ class EventServiceImplTest {
 
     @Test
     void update_ok_whenOwnerAndDatesValid() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 777L;
         Event existing = new Event();
         existing.setId(eventId);
@@ -209,7 +215,7 @@ class EventServiceImplTest {
                 eventId, "New", "NewDesc",
                 dto.startDate(), dto.endDate(),
                 dto.type(), "Dimona", 10,
-                REQUESTER_ID, dto.status(),
+                requesterId, dto.status(),
                 LocalDateTime.now(), List.of(1L), 0
         );
 
@@ -231,7 +237,7 @@ class EventServiceImplTest {
 
     @Test
     void update_throwsWhenRequesterNotOwner() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 7L;
         Event existing = new Event();
         existing.setId(eventId);
@@ -258,7 +264,7 @@ class EventServiceImplTest {
 
     @Test
     void update_throwsWhenDatesInvalid() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 7L;
         Event existing = new Event();
         existing.setId(eventId);
@@ -283,7 +289,7 @@ class EventServiceImplTest {
 
     @Test
     void update_throwsWhenOwnerLacksNewSkill() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 7L;
         Event existing = new Event();
         existing.setId(eventId);
@@ -350,7 +356,7 @@ class EventServiceImplTest {
 
     @Test
     void delete_ok_whenOwner() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 5L;
         Event e = new Event();
         e.setId(eventId);
@@ -362,7 +368,7 @@ class EventServiceImplTest {
 
     @Test
     void delete_throwsWhenNotOwner() {
-        when(userContext.getUserId()).thenReturn(REQUESTER_ID);
+        when(userContext.getUserId()).thenReturn(requesterId);
         long eventId = 5L;
         Event e = new Event();
         e.setId(eventId);
