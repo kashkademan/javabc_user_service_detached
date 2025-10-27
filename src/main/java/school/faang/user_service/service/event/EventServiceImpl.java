@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.event.*;
+import school.faang.user_service.dto.event.CreateEventDto;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -81,13 +84,19 @@ public class EventServiceImpl implements EventService {
         List<Event> all = eventRepository.findAll();
 
         return all.stream()
-                .filter(e -> f.titleContains() == null || containsIgnoreCase(e.getTitle(), f.titleContains()))
-                .filter(e -> f.descriptionContains() == null || containsIgnoreCase(e.getDescription(), f.descriptionContains()))
-                .filter(e -> f.type() == null || e.getType() == f.type())
-                .filter(e -> f.ownerId() == null || (e.getOwner() != null && Objects.equals(e.getOwner().getId(), f.ownerId())))
+                .filter(e -> f.titleContains() == null
+                        || containsIgnoreCase(e.getTitle(), f.titleContains()))
+                .filter(e -> f.descriptionContains() == null
+                        || containsIgnoreCase(e.getDescription(), f.descriptionContains()))
+                .filter(e -> f.type() == null
+                        || e.getType() == f.type())
+                .filter(e -> f.ownerId() == null
+                        || (e.getOwner() != null && Objects.equals(e.getOwner().getId(), f.ownerId())))
                 .filter(e -> {
                     if (f.participantId() == null) return true;
-                    return e.getAttendees() != null && e.getAttendees().stream().anyMatch(u -> Objects.equals(u.getId(), f.participantId()));
+                    return e.getAttendees() != null && e.getAttendees()
+                            .stream()
+                            .anyMatch(u -> Objects.equals(u.getId(), f.participantId()));
                 })
                 .map(mapper::toEventDto)
                 .collect(Collectors.toList());
@@ -125,7 +134,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<Skill> loadSkills(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) return List.of();
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
         List<Skill> skills = skillRepository.findAllById(ids);
         if (skills.size() != new HashSet<>(ids).size()) {
             log.warn("Some skills not found by ids: {}", ids);
@@ -135,7 +146,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private void ensureOwnerHasAllSkills(User owner, List<Skill> eventSkills) {
-        if (eventSkills.isEmpty()) return;
+        if (eventSkills.isEmpty()) {
+            return;
+        };
         Set<Long> ownerSkillIds = owner.getSkills() == null ? Set.of()
                 : owner.getSkills().stream().map(Skill::getId).collect(Collectors.toSet());
         List<Long> missing = eventSkills.stream()
