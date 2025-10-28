@@ -71,10 +71,11 @@ dependencies {
     /**
      * Tests
      */
-    implementation("org.springframework:spring-test:5.3.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework:spring-web:6.0.9")
+    testImplementation("org.springframework:spring-test:6.0.9")
 }
 
 jsonSchema2Pojo {
