@@ -2,18 +2,22 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-@Component
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/users")
+@RestController
 public class UserController {
     private final UserService userService;
 
+    @PostMapping("/create")
     public UserDto create(CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
