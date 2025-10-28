@@ -3,7 +3,9 @@ package school.faang.user_service.dto.mentorship;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
+@Builder
 public record CreateMentorshipRequestDto(
 
         @NotBlank(message = "Description should be present")
