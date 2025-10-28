@@ -46,3 +46,11 @@ user:
 
 goal:
   max-active-goals: 2
+
+services:
+  s3:
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    isMocked: false
