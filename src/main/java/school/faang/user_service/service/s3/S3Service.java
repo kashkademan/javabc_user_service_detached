@@ -5,10 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +29,6 @@ public class S3Service {
     private String bucketName;
 
     private final S3Client amazonS3;
-
 
     public void saveToFileStorage(MultipartFile multipartFile, String key) {
         try {
@@ -44,8 +48,45 @@ public class S3Service {
         }
     }
 
-    public MultipartFile downloadAvatar(String key) {
-        S3Object s3Object  = amazonS3.getObject(bucketName, key);
-        return s3
+    public byte[] downloadAvatarAsBytes(String key) {
+        return downloadFileAsBytes(key);
+    }
+
+    public byte[] downloadFileAsBytes(String key) {
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            ResponseBytes<GetObjectResponse> objectBytes = amazonS3.getObjectAsBytes(getObjectRequest);
+            return objectBytes.asByteArray();
+
+        } catch (S3Exception e) {
+            throw new RuntimeException("File not found in S3: " + key, e);
+        }
+    }
+
+    public HeadObjectResponse getFileMetadata(String key) {
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            return amazonS3.headObject(headObjectRequest);
+
+        } catch (S3Exception e) {
+            throw new RuntimeException("File not found in S3: " + key, e);
+        }
+    }
+
+    public String getFileContentType(String key) {
+        try {
+            HeadObjectResponse metadata = getFileMetadata(key);
+            return metadata.contentType();
+        } catch (Exception e) {
+            return "image/svg+xml"; // fallback для аватаров
+        }
     }
 }
