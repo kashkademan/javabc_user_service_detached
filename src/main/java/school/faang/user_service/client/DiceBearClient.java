@@ -2,7 +2,7 @@ package school.faang.user_service.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.mock.web.MockMultipartFile;
+import school.faang.user_service.service.s3.SimpleMultipartFile;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -40,7 +40,7 @@ public class DiceBearClient {
             if (response.statusCode() == 200) {
                 byte[] avatarData = response.body();
 
-                return new MockMultipartFile(
+                return new SimpleMultipartFile(
                         "avatar",
                         "avatar_" + randomSeed + ".svg",
                         "image/svg+xml",
