@@ -16,6 +16,7 @@ import school.faang.user_service.exception.ForbiddenException;
 public class ValidationService {
 
     private final UserContext userContext;
+
     public void validateCreation(Goal goal, CreateGoalInvitationDto invitationDto) {
         boolean inviterIsInvitedUser = invitationDto.invitedUserId().equals(userContext.getUserId());
         boolean invitedUserAlreadyWorkOnThisGoal = goal.getUsers().stream()
@@ -33,7 +34,8 @@ public class ValidationService {
     public void validateAccept(User user, long goalId) {
         userContext.getUserId();
         long activeGoals = user.getGoals().stream().filter(goal -> goal.getStatus().equals(GoalStatus.ACTIVE)).count();
-        boolean alreadyJoin = user.getGoals().stream().anyMatch(goal -> goal.getId().equals(goalId));
+        boolean alreadyJoin = user.getGoals().stream()
+                .anyMatch(goal -> goal.getId().equals(goalId));
 
         if (activeGoals >= 3 || alreadyJoin) {
             log.warn("User {} cannot accept goal {}: activeGoals={}, alreadyJoin={}",
