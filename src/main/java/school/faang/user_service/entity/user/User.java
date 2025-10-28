@@ -124,6 +124,7 @@ public class User {
     @OneToMany(mappedBy = "mentor")
     private List<Goal> setGoals;
 
+    @Builder.Default
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals = new ArrayList<>();
 
