@@ -20,8 +20,6 @@ public class UserController {
 
     @PostMapping("/create")
     public UserDto create(@RequestBody CreateUserDto userDto) {
-        System.out.println(userDto.countryId());
-        System.out.println(userDto);
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateString(userDto.password(), "password");

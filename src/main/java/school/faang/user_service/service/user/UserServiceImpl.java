@@ -21,6 +21,8 @@ import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.s3.S3Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,9 +47,7 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
-        MultipartFile multipartFile = DiceBearClient.generateRandomAvatar();
         String key = String.format("%s %s", user.getUsername(), user.getEmail());
-        s3Service.saveToFileStorage(multipartFile, key);
 
         UserProfilePic userProfilePic = new UserProfilePic();
         userProfilePic.setSmallFileId(key);
@@ -56,6 +56,13 @@ public class UserServiceImpl implements UserService {
 
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
+
+        CompletableFuture.supplyAsync(() -> {
+            MultipartFile multipartFile = DiceBearClient.generateRandomAvatar();
+            s3Service.saveToFileStorage(multipartFile, key);
+            return multipartFile;
+        });
+
         return userMapper.toUserDto(user);
     }
 

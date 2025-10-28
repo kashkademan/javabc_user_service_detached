@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.exception.FileException;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -44,7 +45,7 @@ public class S3Service {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException();
+            throw new FileException(String.format("Error generating random avatar for user!Key - %s", key));
         }
     }
 
@@ -63,7 +64,7 @@ public class S3Service {
             return objectBytes.asByteArray();
 
         } catch (S3Exception e) {
-            throw new RuntimeException("File not found in S3: " + key, e);
+            throw new FileException(String.format("Error downloading profile picture for user! Key -", key));
         }
     }
 
