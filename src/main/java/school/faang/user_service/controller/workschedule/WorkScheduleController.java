@@ -16,27 +16,31 @@ import school.faang.user_service.dto.workschedule.WorkScheduleDto;
 import school.faang.user_service.dto.workschedule.WorkScheduleUpdateDto;
 
 @RequiredArgsConstructor
-@RequestMapping("/work-schedules")
+@RequestMapping("/api/v1/work-schedules")
 @RestController
-public class WorkScheduleController {
+public class WorkScheduleController implements WorkScheduleApi {
     private final WorkScheduleFacade workScheduleFacade;
 
+    @Override
     @PostMapping
     public WorkScheduleDto addWorkSchedule(@Valid @RequestBody WorkScheduleCreateDto workScheduleCreateDto) {
         return workScheduleFacade.addWorkSchedule(workScheduleCreateDto);
     }
 
+    @Override
     @PatchMapping("/{id}")
     public WorkScheduleDto updateWorkSchedule(@PathVariable("id") long workScheduleId,
                                               @RequestBody WorkScheduleUpdateDto workScheduleUpdateDto) {
         return workScheduleFacade.updateWorkSchedule(workScheduleId, workScheduleUpdateDto);
     }
 
+    @Override
     @GetMapping("/{id}")
     public WorkScheduleDto getById(@PathVariable("id") long workScheduleId) {
         return workScheduleFacade.getById(workScheduleId);
     }
 
+    @Override
     @DeleteMapping("/{id}")
     public void deleteWorkSchedule(@PathVariable("id") long workScheduleId) {
         workScheduleFacade.deleteWorkSchedule(workScheduleId);
