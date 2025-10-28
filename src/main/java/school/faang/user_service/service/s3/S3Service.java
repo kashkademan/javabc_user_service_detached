@@ -78,7 +78,7 @@ public class S3Service {
             return amazonS3.headObject(headObjectRequest);
 
         } catch (S3Exception e) {
-            throw new RuntimeException("File not found in S3: " + key, e);
+            throw new FileException(String.format("File not found in S3: {}", key));
         }
     }
 
@@ -87,7 +87,7 @@ public class S3Service {
             HeadObjectResponse metadata = getFileMetadata(key);
             return metadata.contentType();
         } catch (Exception e) {
-            return "image/svg+xml"; // fallback для аватаров
+            return "image/svg+xml";
         }
     }
 }
