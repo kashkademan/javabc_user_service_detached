@@ -14,6 +14,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  profiles:
+    active: local
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
