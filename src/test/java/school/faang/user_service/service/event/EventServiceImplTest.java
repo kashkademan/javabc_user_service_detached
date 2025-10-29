@@ -17,6 +17,7 @@ import school.faang.user_service.dto.event.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.event.EventDescriptionContainsFilter;
@@ -29,6 +30,9 @@ import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validation.event.EventValidator;
 
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,8 +40,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.preparation.test.PreparationTest.CURRENT_USER_ID;
@@ -80,9 +87,49 @@ public class EventServiceImplTest {
     @InjectMocks
     private EventServiceImpl eventService;
 
+    private User testUser;
+    private Event pastEvent1;
+    private Event pastEvent2;
+    private Event futureEvent1;
+    private Event futureEvent2;
+
     @BeforeEach
     void setUp() {
         eventService = new EventServiceImpl(eventRepository, eventMapper, eventValidator, userContext, eventFilters);
+
+        testUser = User.builder().id(1L).username("testUser").build();
+
+        pastEvent1 = Event.builder()
+                .id(1L)
+                .owner(testUser)
+                .startDate(LocalDateTime.now().minusDays(5))
+                .endDate(LocalDateTime.now().minusDays(3))
+                .status(EventStatus.PLANNED)
+                .build();
+
+        pastEvent2 = Event.builder()
+                .id(2L)
+                .owner(testUser)
+                .startDate(LocalDateTime.now().minusDays(10))
+                .endDate(LocalDateTime.now().minusDays(8))
+                .status(EventStatus.PLANNED)
+                .build();
+
+        futureEvent1 = Event.builder()
+                .id(3L)
+                .owner(testUser)
+                .startDate(LocalDateTime.now().plusDays(5))
+                .endDate(LocalDateTime.now().plusDays(7))
+                .status(EventStatus.PLANNED)
+                .build();
+
+        futureEvent2 = Event.builder()
+                .id(4L)
+                .owner(testUser)
+                .startDate(LocalDateTime.now().plusDays(10))
+                .endDate(LocalDateTime.now().plusDays(12))
+                .status(EventStatus.PLANNED)
+                .build();
     }
 
     @Test
@@ -245,8 +292,40 @@ public class EventServiceImplTest {
     @Test
     void delete_ShouldThrowExceptionWhenEventNotFound() {
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.empty());
-
         assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
         verify(eventRepository, never()).delete(any());
+    }
+
+    @Test
+    void clearPassedEvents_WithPassedEvents() throws IllegalAccessException, NoSuchFieldException {
+        List<Event> allEvents = Arrays.asList(pastEvent1, pastEvent2);
+
+        when(eventRepository.findAll()).thenReturn(allEvents);
+
+        Field batchSizeField = EventServiceImpl.class.getDeclaredField("batchSize");
+        batchSizeField.setAccessible(true);
+        batchSizeField.set(eventService, 100);
+
+        eventService.clearPassedEvents();
+        timeout(10000);
+
+        verify(eventRepository, times(1)).deleteAllById(anyCollection());
+        verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    void clearPassedEvents_WithNoPassedEvents() throws IllegalAccessException, NoSuchFieldException {
+        List<Event> allEvents = Arrays.asList(futureEvent1, futureEvent2);
+
+        when(eventRepository.findAll()).thenReturn(allEvents);
+
+        Field batchSizeField = EventServiceImpl.class.getDeclaredField("batchSize");
+        batchSizeField.setAccessible(true);
+        batchSizeField.set(eventService, 100);
+
+        eventService.clearPassedEvents();
+
+        verify(eventRepository, never()).deleteAllById(anyCollection());
+        verify(eventRepository, times(1)).findAll();
     }
 }
