@@ -2,6 +2,10 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +22,8 @@ import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -49,18 +55,28 @@ public class UserController {
     }
 
     @PostMapping("/avatars")
-    public UserDto setUserAvatar(@RequestParam("avatar") MultipartFile avatar) {
+    public UserDto setUserAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
         return userService.setUserAvatar(userContext.getUserId(), avatar);
     }
 
-    @PutMapping("/avatars")
-    public UserDto changeUserAvatar(@RequestParam("avatar") MultipartFile avatar) {
-        return userService.changeUserAvatar(userContext.getUserId(), avatar);
+    @GetMapping(path = "/avatars", produces = "application/octet-stream")
+    public ResponseEntity<byte[]> getUserAvatar() {
+        byte[] imageBytes = null;
+        try {
+            imageBytes = userService.getUserAvatar(userContext.getUserId()).readAllBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
     @DeleteMapping("/avatars")
-    public UserDto deleteUserAvatar() {
-        return userService.deleteUserAvatar(userContext.getUserId());
+    public ResponseEntity<String> deleteUserAvatar() {
+        userService.deleteUserAvatar(userContext.getUserId());
+        return ResponseEntity.ok("Аватар успешно удален.");
+
     }
 
     private void validateString(String value, String paramName) {

@@ -1,6 +1,5 @@
 package school.faang.user_service.service.user;
 
-import com.amazonaws.auth.policy.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +17,10 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+
+import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 @Service
@@ -68,38 +71,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto setUserAvatar(long userId, MultipartFile avatar) {
+    public UserDto setUserAvatar(long userId, MultipartFile avatar) throws IOException {
+        int maxAvatarWidthAndLength = 1080;
+        int maxSmallCopyAvatarWidthAndLength = 170;
         if (avatar.getSize() > MAX_IMG_SIZE_IN_BYTES) {
-            log.error("Пользователь с id: {} пытается загрузить фото размером больше 5мб.", userId);
+            log.error("Пользователь с id: {} пытается загрузить фото размером более 5мб.", userId);
             throw new DataValidationException("Нельзя загрузить фото размером более 5мб.");
         }
         User user = userRepository.getByIdOrThrow(userId);
         String folder = userId + user.getUsername();
-        //String avatarKeyInDB = s3Service.uploadFile(userId, avatar, folder);
-
-        String smallAvatarKeyInDB = s3Service.uploadFile(userId, avatar, folder, smallSize);
-        String bigAvatarKeyInDB = s3Service.uploadFile(userId, avatar, folder, bigSize);
-
-
-
-
-
-        //большое фото (перед сохранением оно должно ужиматься так, чтобы самая большая сторона была не более 1080 px) и
-        //маленькое фото (перед сохранением оно должно ужиматься так,чтобы самая большая сторона была не более 170 px).
-
-
-
-        return null;
-
+        user.getUserProfilePic()
+                .setFileId(s3Service.uploadFile(userId, avatar, folder, maxAvatarWidthAndLength));
+        user.getUserProfilePic()
+                .setSmallFileId(s3Service.uploadFile(userId, avatar, folder, maxSmallCopyAvatarWidthAndLength));
+        return userMapper.toUserDto(user);
     }
 
     @Override
-    public UserDto changeUserAvatar(long userId, MultipartFile avatar) {
-        return null;
+    public InputStream getUserAvatar(long userId) {
+        User user = userRepository.getByIdOrThrow(userId);
+        return s3Service.downloadFile(user.getUserProfilePic().getFileId());
     }
 
     @Override
-    public UserDto deleteUserAvatar(long userId) {
-        return null;
+    public void deleteUserAvatar(long userId) {
+        User user = userRepository.getByIdOrThrow(userId);
+        s3Service.deleteFile(user.getUserProfilePic().getFileId());
+        s3Service.deleteFile(user.getUserProfilePic().getSmallFileId());
+        user.getUserProfilePic().setFileId(null);
+        user.getUserProfilePic().setSmallFileId(null);
     }
 }

@@ -4,9 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.util.DateUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.imgscalr.Scalr;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,18 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.exception.FileException;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Iterator;
 
 @Service
 @Slf4j
@@ -33,20 +28,20 @@ import java.util.Iterator;
 @ConditionalOnProperty(value = "services.s3.isMocked", havingValue = "false")
 public class S3ServiceImpl implements S3Service {
     private final AmazonS3 s3Client;
-
-    @Value("${services.s3.bucketName}")
-    private String bucketName;
+    private final String bucketName = "amazonBucket";
 
     @Override
-    public String uploadFile(long userId, MultipartFile file, String folder) {
+    @Transactional
+    public String uploadFile(long userId, MultipartFile file, String folder, int maxWidthAndLength) throws IOException {
         long fileSize = file.getSize();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(fileSize);
         objectMetadata.setContentType(file.getContentType());
         String key = String.format("%s/%d%suser_id=%d", folder, System.currentTimeMillis(), file.getOriginalFilename(), userId);
         try {
+            InputStream scaledImageInputStream = scaleImage(file, maxWidthAndLength);
             PutObjectRequest putObjectRequest = new PutObjectRequest(
-                    bucketName, key, file.getInputStream(), objectMetadata);
+                    bucketName, key, scaledImageInputStream, objectMetadata);
             s3Client.putObject(putObjectRequest);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -67,5 +62,18 @@ public class S3ServiceImpl implements S3Service {
             log.error(e.getMessage());
             throw new FileException("Во время загрузки файла произошла ошибка.");
         }
+    }
+
+    private InputStream scaleImage(MultipartFile image, int maxWidthAndLength) throws IOException {
+        BufferedImage originalImage = ImageIO.read(image.getInputStream());
+        if (originalImage.getWidth() > maxWidthAndLength && originalImage.getWidth() > originalImage.getHeight()) {
+            Scalr.resize(originalImage, Scalr.Mode.FIT_TO_WIDTH, maxWidthAndLength);
+        }
+        if (originalImage.getHeight() > maxWidthAndLength && originalImage.getHeight() > originalImage.getWidth()) {
+            Scalr.resize(originalImage, Scalr.Mode.FIT_TO_HEIGHT, maxWidthAndLength);
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(originalImage, "jpg", baos);
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 }

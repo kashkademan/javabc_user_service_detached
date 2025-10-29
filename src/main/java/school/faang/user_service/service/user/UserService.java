@@ -1,10 +1,12 @@
 package school.faang.user_service.service.user;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Сервис для управления пользователями.
@@ -58,15 +60,11 @@ public interface UserService {
      */
     UserDto getById(long userId);
 
-    UserDto setUserAvatar(long userId, MultipartFile avatar);
+    UserDto setUserAvatar(long userId, MultipartFile avatar) throws IOException;
 
-    UserDto changeUserAvatar(long userId, MultipartFile avatar);
+    InputStream getUserAvatar(long userId);
 
-    UserDto deleteUserAvatar(long userId);
-
-
-
-
+    void deleteUserAvatar(long userId);
 }
 
 
