@@ -16,7 +16,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.awt.*;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertNull;

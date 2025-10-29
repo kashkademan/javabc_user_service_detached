@@ -18,7 +18,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 

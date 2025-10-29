@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.exception.FileException;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,12 +31,18 @@ public class S3ServiceImpl implements S3Service {
 
     @Override
     @Transactional
-    public String uploadFile(long userId, MultipartFile file, String folder, int maxWidthAndLength) throws IOException {
+    public String uploadFile(long userId, MultipartFile file, String folder, int maxWidthAndLength) {
         long fileSize = file.getSize();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(fileSize);
         objectMetadata.setContentType(file.getContentType());
-        String key = String.format("%s/%d%suser_id=%d", folder, System.currentTimeMillis(), file.getOriginalFilename(), userId);
+        String key = String.format(
+                "%s/%d%suser_id=%d",
+                folder,
+                System.currentTimeMillis(),
+                file.getOriginalFilename(),
+                userId
+        );
         try {
             InputStream scaledImageInputStream = scaleImage(file, maxWidthAndLength);
             PutObjectRequest putObjectRequest = new PutObjectRequest(
@@ -51,7 +56,9 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public void deleteFile(String key) { s3Client.deleteObject(bucketName, key); }
+    public void deleteFile(String key) {
+        s3Client.deleteObject(bucketName, key);
+    }
 
     @Override
     public InputStream downloadFile(String key) {
