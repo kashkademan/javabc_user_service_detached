@@ -7,7 +7,6 @@ import school.faang.user_service.dto.skill.CreateSkillDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.user.Skill;
 
-
 @Mapper(componentModel = "spring")
 public interface SkillMapper {
 

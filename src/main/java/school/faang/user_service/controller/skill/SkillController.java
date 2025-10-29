@@ -1,5 +1,8 @@
 package school.faang.user_service.controller.skill;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import school.faang.user_service.config.context.UserContext;
@@ -19,8 +22,9 @@ public class SkillController {
     private final UserContext userContext;
 
     @PostMapping
-    public SkillDto create(@RequestBody CreateSkillDto dto) {
-        return skillService.create(dto);
+    public ResponseEntity<SkillDto> create(@Valid @RequestBody CreateSkillDto skillDto) {
+        SkillDto created = skillService.create(skillDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
     @GetMapping("/my")
     public List<SkillDto> getMySkills() {

@@ -10,7 +10,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.UserSkillGuarantee;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.repository.skill.SkillOfferRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.repository.skill.UserSkillGuaranteeRepository;
 import school.faang.user_service.config.context.UserContext;
@@ -37,11 +37,6 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public SkillDto create(CreateSkillDto skillDto) {
         log.info("Create new skill: {}", skillDto.title());
-
-        if (skillDto.title() == null || skillDto.title().isBlank()) {
-            throw new DataValidationException("Skill name cannot be empty");
-        }
-
         if (skillRepository.existsByTitle(skillDto.title())) {
             throw new DataValidationException("A skill with this name already exists");
         }
@@ -55,7 +50,9 @@ public class SkillServiceImpl implements SkillService {
     public List<SkillDto> getByUserId(Long userId) {
         log.info("Getting a list of skills for user id={}", userId);
         List<Skill> skills = skillRepository.findAllByUserId(userId);
-        return skills.stream().map(skillMapper::toSkillDto).collect(Collectors.toList());
+        return skills.stream()
+                .map(skillMapper::toSkillDto)
+                .toList();
     }
 
     @Override
@@ -67,7 +64,7 @@ public class SkillServiceImpl implements SkillService {
                     int offersAmount = skillOfferRepository.countAllOffersOfSkill(skill.getId(), userId);
                     return new SkillCandidateDto(skillMapper.toSkillDto(skill), offersAmount);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -89,7 +86,7 @@ public class SkillServiceImpl implements SkillService {
         var offers = skillOfferRepository.findAllBySkillIdAndOfferedUserId(skillId, userId);
         List<UserSkillGuarantee> guarantees = offers.stream()
                 .map(offer -> new UserSkillGuarantee(null, offer.getOfferedBy(), offer.getSkill(), offer.getAuthor()))
-                .collect(Collectors.toList());
+                .toList();
 
         userSkillGuaranteeRepository.saveAll(guarantees);
 

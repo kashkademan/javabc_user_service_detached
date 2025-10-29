@@ -1,3 +1,22 @@
 package school.faang.user_service.dto.skill;
 
-public record CreateSkillDto(String title) { }
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+/**
+ * DTO для передачи данных при создании нового навыка пользователя.
+ * Используется на уровне контроллера для валидации входных данных.
+ */
+@Data
+public class CreateSkillDto {
+
+    /**
+     * Название навыка.
+     * <p>
+     * Не может быть пустым. Максимальная длина — 100 символов.
+     */
+    @NotBlank(message = "Skill name cannot be empty")
+    @Size(max = 100, message = "Skill name cannot exceed 100 characters")
+    private String title;
+}
