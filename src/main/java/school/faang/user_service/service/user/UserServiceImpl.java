@@ -1,6 +1,7 @@
 package school.faang.user_service.service.user;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.FileStorageException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
@@ -51,12 +53,8 @@ public class UserServiceImpl implements UserService {
     private static final int BYTES_IN_KB = 1024;
     private static final int BIG_SIDE_PX = 1080;
     private static final int SMALL_SIDE_PX = 170;
-    private static final List<String> ALLOWED_IMAGE_TYPES = List.of(
-            "image/png",
-            "image/jpeg",
-            "image/jpg",
-            "image/webp"
-    );
+    @Value("#{'${user.avatar.allowed.types}'.split(',')}")
+    private List<String> allowedImageTypes;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -163,8 +161,8 @@ public class UserServiceImpl implements UserService {
 
             user.setUserProfilePic(null);
             userRepository.save(user);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delete avatar", e);
+        } catch (AmazonS3Exception e) {
+            throw new FileStorageException("Failed to delete avatar", e);
         }
     }
 
@@ -207,7 +205,7 @@ public class UserServiceImpl implements UserService {
 
         String contentType = file.getContentType();
 
-        if (!ALLOWED_IMAGE_TYPES.contains(contentType)) {
+        if (!allowedImageTypes.contains(contentType)) {
             throw new DataValidationException("Unsupported file type: %s".formatted(contentType));
         }
 

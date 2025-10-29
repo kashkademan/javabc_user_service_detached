@@ -46,6 +46,8 @@ user:
   avatar:
     max:
       sizeMb: 5
+    allowed:
+      types: "image/png,image/jpeg,image/jpg,image/webp"
   password:
     min:
       length: 6

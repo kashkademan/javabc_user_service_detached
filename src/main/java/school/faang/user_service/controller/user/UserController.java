@@ -1,10 +1,12 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,7 @@ import school.faang.user_service.service.user.UserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -48,7 +51,7 @@ public class UserController {
 
     @PostMapping("/avatars")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadAvatar(@ModelAttribute UserAvatarUploadDto userAvatarUploadDto) {
+    public void uploadAvatar(@Valid @ModelAttribute UserAvatarUploadDto userAvatarUploadDto) {
         userService.uploadAvatar(userAvatarUploadDto);
     }
 

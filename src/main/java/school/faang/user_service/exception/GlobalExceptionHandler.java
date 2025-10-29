@@ -1,5 +1,6 @@
 package school.faang.user_service.exception;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,18 @@ public class GlobalExceptionHandler {
             errors.put(field, violation.getMessage());
         });
         return errors;
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<Map<String, String>> handleFileStorageException(FileStorageException ex) {
+        Map<String, String> error = Map.of("error", "Ошибка при работе с файловым хранилищем: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(AmazonS3Exception.class)
+    public ResponseEntity<Map<String, String>> handleAmazonS3Exception(AmazonS3Exception ex) {
+        Map<String, String> error = Map.of("error", "Ошибка при работе с Amazon S3: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

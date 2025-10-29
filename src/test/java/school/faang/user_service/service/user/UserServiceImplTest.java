@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -54,6 +55,8 @@ public class UserServiceImplTest {
     @BeforeEach
     void setup() {
         ReflectionTestUtils.setField(userService, "avatarMaxSizeMb", 5);
+        ReflectionTestUtils.setField(userService, "allowedImageTypes",
+                List.of("image/png", "image/jpeg", "image/jpg", "image/webp"));
     }
 
     @Test
