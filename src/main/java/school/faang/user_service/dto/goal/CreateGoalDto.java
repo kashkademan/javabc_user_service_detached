@@ -1,17 +1,22 @@
 package school.faang.user_service.dto.goal;
 
-import school.faang.user_service.entity.goal.GoalStatus;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record GoalDto(
+public record CreateGoalDto(
+        @NotBlank
         String title,
+        @NotBlank
         String description,
+        @NotNull
+        @Future
         LocalDateTime deadline,
         Long mentorId,
         List<Long> userIds,
-        GoalStatus status,
         List<Long> skillIds
 ) {
 }
