@@ -76,7 +76,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     @Override
     @Transactional
-    public void accept(long requestId) {
+    public MentorshipRequestDto accept(long requestId) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow();
 
         if (mentorshipRequest.getReceiver().getId().equals(userContext.getUserId())) {
@@ -88,12 +88,12 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
         log.info("For user with id {} accepted request", requestId);
 
-        mentorshipRequestRepository.save(mentorshipRequest);
+        return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(mentorshipRequest));
     }
 
     @Override
     @Transactional
-    public void reject(long requestId, RejectionDto rejectionDto) {
+    public MentorshipRequestDto reject(long requestId, RejectionDto rejectionDto) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(requestId).orElseThrow();
         long userId = userContext.getUserId();
         if (requestId != userId) {
@@ -105,7 +105,6 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         mentorshipRequest.setRejectionReason(rejectionDto.reason());
         log.info("For user with id {} rejected request", requestId);
 
-        mentorshipRequestRepository.save(mentorshipRequest);
-
+        return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(mentorshipRequest));
     }
 }

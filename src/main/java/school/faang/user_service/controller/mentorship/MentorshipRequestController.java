@@ -29,27 +29,23 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    public ResponseEntity<MentorshipRequestDto> toMentorshipRequestDto(
+    public MentorshipRequestDto toMentorshipRequestDto(
             @Valid @RequestBody CreateMentorshipRequestDto createMentorshipRequestDto) {
-        return ResponseEntity.ok(mentorshipRequestService.create(createMentorshipRequestDto));
+        return mentorshipRequestService.create(createMentorshipRequestDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<MentorshipRequestDto>> getByFilters(MentorshipRequestFilterDto filter) {
-        return ResponseEntity.ok(mentorshipRequestService.getByFilters(filter));
-
-
+    public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
+        return mentorshipRequestService.getByFilters(filter);
     }
 
-    @PutMapping("/{requestId}")
-    public ResponseEntity<Void> accept(@PathVariable @NotNull Long requestId) {
-        mentorshipRequestService.accept(requestId);
-        return ResponseEntity.ok().build();
+    @PutMapping("/{requestId}/accept")
+    public MentorshipRequestDto accept(@PathVariable @NotNull Long requestId) {
+        return mentorshipRequestService.accept(requestId);
     }
 
     @PutMapping("/{requestId}/reject")
-    public ResponseEntity<Void> reject(@PathVariable @NotNull Long requestId, @Valid RejectionDto rejectionDto) {
-        mentorshipRequestService.reject(requestId, rejectionDto);
-        return ResponseEntity.ok().build();
+    public MentorshipRequestDto reject(@PathVariable @NotNull Long requestId, @Valid RejectionDto rejectionDto) {
+        return mentorshipRequestService.reject(requestId, rejectionDto);
     }
 }

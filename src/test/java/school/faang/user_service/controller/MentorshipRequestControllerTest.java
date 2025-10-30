@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.controller.mentorship.MentorshipRequestController;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.RejectionDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
@@ -85,8 +87,11 @@ public class MentorshipRequestControllerTest {
     @Test
     public void testAccept() {
         long requestId = 1L;
-        doNothing().when(mentorshipRequestService).accept(requestId);
-
+        when(mentorshipRequestService.accept(requestId))
+                .thenReturn(MentorshipRequestDto.builder()
+                        .id(requestId)
+                        .status(RequestStatus.ACCEPTED)
+                        .build());
         assertDoesNotThrow(() -> mentorshipRequestController.accept(requestId));
 
         verify(mentorshipRequestService, times(1)).accept(requestId);
@@ -94,9 +99,15 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testReject() {
-        doNothing().when(mentorshipRequestService).reject(anyLong(), any());
+        long requestId = 1L;
+        RejectionDto rejectRequestDto = new RejectionDto("test");
+        when(mentorshipRequestService.reject(requestId, rejectRequestDto))
+                .thenReturn(MentorshipRequestDto.builder()
+                        .id(requestId)
+                        .status(RequestStatus.REJECTED)
+                        .build());
 
-        assertDoesNotThrow(() -> mentorshipRequestController.reject(anyLong(), any()));
+        assertDoesNotThrow(() -> mentorshipRequestController.reject(requestId, rejectRequestDto));
 
         verify(mentorshipRequestService, times(1)).reject(anyLong(), any());
     }

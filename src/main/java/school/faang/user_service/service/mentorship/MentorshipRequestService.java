@@ -12,7 +12,7 @@ public interface MentorshipRequestService {
 
     List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter);
 
-    void accept(long requestId);
+    MentorshipRequestDto accept(long requestId);
 
-    void reject(long requestId, RejectionDto rejectionDto);
+    MentorshipRequestDto reject(long requestId, RejectionDto rejectionDto);
 }
