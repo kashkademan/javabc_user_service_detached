@@ -1,0 +1,19 @@
+package school.faang.user_service.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.skill.CreateSkillDto;
+import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.user.Skill;
+
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
+public interface SkillMapper {
+    Skill toSkill(CreateSkillDto skillDto);
+
+    SkillDto toSkillDto(Skill skill);
+}
