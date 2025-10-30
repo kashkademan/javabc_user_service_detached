@@ -65,21 +65,23 @@ public class PromotionRedisService {
                     countRow));
         }
 
-        List<RedisPromotionEntity> promotionValues = redisPromotionTemplate.opsForList()
+        List<Object> promotionKeys = redisTemplate.opsForList()
                 .range("promotions:queue", 0, countRow - 1);
 
-        promotionValues.stream()
-                .forEach(promotion -> {
+        promotionKeys.stream()
+                .forEach(keyObj -> {
+                    String key = keyObj.toString();
                     HashOperations<String, String, Object> hashOps = redisPromotionTemplate.opsForHash();
-                    String key = getKeyForRedis(promotion.getPromotionId());
                     Long newRemainingImpressions = hashOps.increment(key, "remainingImpressions", -1);
-                    deleteFromRedis(key, newRemainingImpressions, promotion.getPromotionId());
+                    deleteFromRedis(key, newRemainingImpressions);
                 });
 
         return null;
     }
 
-    private void deleteFromRedis(String key, Long value, Long promotionId) {
+    private void deleteFromRedis(String key, Long value) {
+        RedisPromotionEntity promotionRedis = redisPromotionTemplate.opsForValue().get(key);
+        Long promotionId = promotionRedis.getPromotionId();
         if (value <= 0) {
             redisPromotionTemplate.delete(key);
             promotionRepository.deleteById(promotionId);
