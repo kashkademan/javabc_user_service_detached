@@ -1,63 +1,46 @@
 package school.faang.user_service.service.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.redis.RedisPromotionEntity;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.promoition.PromotionRepository;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Service
 public class PromotionRedisService {
+    private static final String PROMOTION_KEY_PREFIX = "promotion: ";
 
-    private final ValueOperations<String, Object> valueOperations;
+    private final RedisTemplate<String, RedisPromotionEntity> redisPromotionTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
     private final PromotionRepository promotionRepository;
-    private static final String PROMOTION_KEY_PREFIX = "promotion:";
-    private static final String PROMOTIONS_BY_USER_KEY = "promotions:user:";
-    private static final Duration PROMOTION_TTL = Duration.ofDays(7);
 
-    public PromotionRedisService(RedisTemplate<String, Object> redisTemplate,
-                                 ObjectMapper objectMapper,
+
+    public PromotionRedisService(RedisTemplate<String, RedisPromotionEntity> redisPromotionTemplate,
+                                 RedisTemplate<String, Object> redisTemplate,
                                  PromotionRepository promotionRepository) {
-        this.redisTemplate = redisTemplate;
-        this.valueOperations = redisTemplate.opsForValue();
-        this.objectMapper = objectMapper;
+        this.redisPromotionTemplate = redisPromotionTemplate;
         this.promotionRepository = promotionRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     public void savePromotion(Promotion promotion) {
-        try {
-            String key = getPromotionKey(promotion.getId());
-            ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
 
-            valueOperations.set(key, promotion, PROMOTION_TTL);
+        RedisPromotionEntity redisPromotionEntity = mappingFromPromotionToRedisEntity(promotion);
 
-            String userPromotionsKey = PROMOTIONS_BY_USER_KEY + promotion.getUserId();
-            redisTemplate.opsForSet().add(userPromotionsKey, promotion.getId().toString());
-            redisTemplate.expire(userPromotionsKey, PROMOTION_TTL);
+        String key = getKeyForRedis(promotion.getId());
 
-            String sortedByImpressionsKey = getSortedByImpressionsKey();
-            Double score = (double) promotion.getNumberOfImpressions();
+        redisPromotionTemplate.opsForValue().set(key, redisPromotionEntity);
 
-            redisTemplate.opsForZSet().add(sortedByImpressionsKey, promotion.getId().toString(), score);
-            redisTemplate.expire(sortedByImpressionsKey, PROMOTION_TTL);
+        redisTemplate.opsForZSet().add("promotions:sorted", key, promotion.getNumberOfImpressions());
+        log.debug("Promotion {} saved to Redis. key redis - {}", promotion.getId(), key);
 
-            log.debug("Promotion {} saved to Redis", promotion.getId());
-        } catch (Exception e) {
-            log.error("Error saving promotion {} to Redis: {}", promotion.getId(), e.getMessage());
-        }
     }
 
     public void saveAll(List<Promotion> promotions) {
@@ -76,63 +59,51 @@ public class PromotionRedisService {
 
     }
 
-    public List<Long> decrementFirstPromotions(int n) {
-        Set<String> keys = redisTemplate.keys("promotion:*");
-        if (keys == null || keys.isEmpty()) {
-            return Collections.emptyList();
+    public List<Long> decrementRemainingImpressionsForPromotions(int countRow) {
+        if (countRow <= 0) {
+            throw new DataValidationException(String.format("You have entered a negative or zero value %d.",
+                    countRow));
         }
 
-        List<Long> processedUserIds = new ArrayList<>();
-        int count = 0;
+        List<RedisPromotionEntity> promotionValues = redisPromotionTemplate.opsForList()
+                .range("promotions:queue", 0, countRow - 1);
 
-        for (String key : keys) {
-            if (count >= n) {
-                break;
-            }
+        promotionValues.stream()
+                .forEach(promotion -> {
+                    HashOperations<String, String, Object> hashOps = redisPromotionTemplate.opsForHash();
+                    String key = getKeyForRedis(promotion.getPromotionId());
+                    Long newRemainingImpressions = hashOps.increment(key, "remainingImpressions", -1);
+                    deleteFromRedis(key, newRemainingImpressions, promotion.getPromotionId());
+                });
 
-            Promotion promotion = getPromotionFromRedis(key);
-            if (promotion == null || promotion.getRemainingImpressions() <= 0) {
-                continue;
-            }
-
-            promotion.setRemainingImpressions(promotion.getRemainingImpressions() - 1);
-            valueOperations.set(key, promotion);
-
-            processedUserIds.add(promotion.getUserId());
-            count++;
-
-            if (promotion.getRemainingImpressions() <= 0) {
-                promotionRepository.deleteById(promotion.getId());
-                redisTemplate.delete(key);
-                log.info("was deleted from the database PromotionRepository with the promotionId ID",
-                        promotion.getId());
-            }
-        }
-
-        return processedUserIds;
+        return null;
     }
 
-    private Promotion getPromotionFromRedis(String key) {
-        try {
-            Object value = valueOperations.get(key);
-            if (value instanceof Promotion) {
-                return (Promotion) value;
-            } else if (value instanceof Map) {
-                return objectMapper.convertValue(value, Promotion.class);
-            }
-            return null;
-        } catch (Exception e) {
-            log.error("Error converting Redis value to Promotion for key: {}", key);
-            return null;
+    private void deleteFromRedis(String key, Long value, Long promotionId) {
+        if (value <= 0) {
+            redisPromotionTemplate.delete(key);
+            promotionRepository.deleteById(promotionId);
+            log.info("The promotion {} was removed", promotionId);
+        } else {
+            promotionRepository.decrementRemainingImpressions(promotionId);
         }
     }
 
-
-    private String getPromotionKey(Long promotionId) {
-        return PROMOTION_KEY_PREFIX + promotionId.toString();
+    private String getKeyForRedis(Long id) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(PROMOTION_KEY_PREFIX)
+                .append(id);
+        return sb.toString();
     }
 
-    private String getSortedByImpressionsKey() {
-        return "promotions:sorted:by_impressions";
+
+    private RedisPromotionEntity mappingFromPromotionToRedisEntity(Promotion promotion) {
+        return RedisPromotionEntity.builder()
+                .promotionId(promotion.getId())
+                .userId(promotion.getUserId())
+                .tarif(promotion.getTarif())
+                .remainingImpressions(promotion.getRemainingImpressions())
+                .build();
     }
+
 }

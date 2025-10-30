@@ -19,7 +19,6 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -30,7 +29,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "promotion")
-public class Promotion implements Serializable {
+public class Promotion {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,8 +42,8 @@ public class Promotion implements Serializable {
     private Long userId;
 
     @Column(name = "rate", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private Rate rate;
+    @Enumerated(EnumType.STRING)
+    private Tarif tarif;
 
     @Column(name = "number_of_impressions", nullable = false)
     private Integer numberOfImpressions;

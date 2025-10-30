@@ -1,10 +1,10 @@
 package school.faang.user_service.dto.promotion;
 
-import school.faang.user_service.entity.promotion.Rate;
+import school.faang.user_service.entity.promotion.Tarif;
 
 public record PromotionDto(
         Long userId,
-        Rate rate,
+        Tarif tarif,
         Integer numberOfImpressions
 ) {
 }

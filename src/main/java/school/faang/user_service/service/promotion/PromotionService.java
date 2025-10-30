@@ -55,7 +55,7 @@ public class PromotionService {
         } else {
             throw new ForbiddenException("Unable to determine payment status! We're working on it!!");
         }
-        Integer numberOfImpressions = promotionConfig.getImpressionsForRate(promotion.getRate());
+        Integer numberOfImpressions = promotionConfig.getImpressionsForTarif(promotion.getTarif());
         promotion.setNumberOfImpressions(numberOfImpressions);
         promotion.setRemainingImpressions(numberOfImpressions);
         Promotion savedPromotion = promotionRepository.save(promotion);

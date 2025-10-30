@@ -189,7 +189,7 @@ CREATE TABLE rating (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     user_id bigint NOT NULL,
     event_id bigint NOT NULL,
-    rate smallint NOT NULL,
+    tarif smallint NOT NULL,
     comment varchar(4096),
     created_at timestamptz DEFAULT current_timestamp,
     updated_at timestamptz DEFAULT current_timestamp,

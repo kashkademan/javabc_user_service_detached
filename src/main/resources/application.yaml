@@ -23,15 +23,14 @@ spring:
     redis:
       port: 6379
       host: localhost
-      password:
-        database: 0
-        timeout: 2000ms
-        jedis:
-          pool:
-            max-active: 8
-            max-idle: 8
-            min-idle: 0
-            max-wait: -1ms
+
+promotion-redis:
+  ttl: 1d
+  promotions:
+    BASIC: 5
+    ADVANCED: 10
+    EXPERIENCE: 50
+    LEGEND: 100
 
 server:
   port: 8080
