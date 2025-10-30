@@ -21,7 +21,7 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     Long create(Long authorId, Long receiverId, String content);
 
     @Query(nativeQuery = true, value = """
-            UPDATE recommendation SET content = :content, updated_at = NOW()
+            UPDATE recommendation SET content = :content
             WHERE author_id = :authorId AND receiver_id = :receiverId
             """)
     @Modifying

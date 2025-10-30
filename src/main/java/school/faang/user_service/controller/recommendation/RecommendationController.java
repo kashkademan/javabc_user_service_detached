@@ -6,9 +6,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.MessageDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -20,8 +31,9 @@ import java.util.List;
 
 @Tag(name = "recommendation (v1)", description = "Controller for recommendations")
 @RestController
-@RequestMapping(value = "api/v1/recommendation")
+@RequestMapping(value = "api/v1/recommendations")
 @RequiredArgsConstructor
+@Validated
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
@@ -35,7 +47,7 @@ public class RecommendationController {
     })
     @Operation(summary = "Create a recommendation")
     @PostMapping
-    public RecommendationDto createRecommendation(@RequestBody CreateRecommendationDto dto) {
+    public RecommendationDto createRecommendation(@RequestBody @Valid CreateRecommendationDto dto) {
         return recommendationService.create(dto);
     }
 
@@ -50,8 +62,8 @@ public class RecommendationController {
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
     @Operation(summary = "Update a recommendation")
-    @PutMapping
-    public RecommendationDto updateRecommendation(@RequestBody UpdateRecommendationDto dto) {
+    @PutMapping()
+    public RecommendationDto updateRecommendation(@RequestBody @Valid UpdateRecommendationDto dto) {
         return recommendationService.update(dto);
     }
 
@@ -67,7 +79,7 @@ public class RecommendationController {
     })
     @Operation(summary = "Delete a recommendation")
     @DeleteMapping("/{id}")
-    public void deleteRecommendation(@PathVariable Long id) {
+    public void deleteRecommendation(@PathVariable @Positive Long id) {
         recommendationService.delete(id);
     }
 

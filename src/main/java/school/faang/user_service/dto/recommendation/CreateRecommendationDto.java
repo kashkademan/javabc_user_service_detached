@@ -1,6 +1,7 @@
 package school.faang.user_service.dto.recommendation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateRecommendationDto(
@@ -10,6 +11,7 @@ public record CreateRecommendationDto(
 
         @Schema(description = "description of recommendation")
         @NotNull
+        @NotBlank
         String content
 )
 {}
