@@ -30,22 +30,22 @@ public class EventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventDto create(@Valid @RequestBody CreateEventDto dto) {
-        return eventService.create(dto);
+        return eventService.createEvent(dto);
     }
 
     @PutMapping("/{eventId}")
     public EventDto update(@PathVariable long eventId, @Valid @RequestBody UpdateEventDto dto) {
-        return eventService.update(eventId, dto);
+        return eventService.updateEvent(eventId, dto);
     }
 
     @GetMapping
     public List<EventDto> getByFilters(@Valid EventFilterDto filters) {
-        return eventService.getByFilters(filters);
+        return eventService.getEventByFilters(filters);
     }
 
     @DeleteMapping("/{eventId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long eventId) {
-        eventService.delete(eventId);
+        eventService.deleteEvent(eventId);
     }
 }

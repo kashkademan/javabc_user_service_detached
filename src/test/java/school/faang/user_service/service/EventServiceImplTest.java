@@ -20,9 +20,9 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.event.EventServiceImpl;
+import school.faang.user_service.service.event.EventValidator;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -42,16 +44,11 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
 
-    @Mock
-    private EventRepository eventRepository;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private SkillRepository skillRepository;
-    @Mock
-    private EventMapper mapper;
-    @Mock
-    private UserContext userContext;
+    @Mock private EventRepository eventRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private EventMapper mapper;
+    @Mock private UserContext userContext;
+    @Mock private EventValidator validator;
 
     @InjectMocks
     private EventServiceImpl service;
@@ -76,16 +73,17 @@ class EventServiceImplTest {
     void create_ok_whenOwnerHasAllSkills() {
         when(userContext.getUserId()).thenReturn(requesterId);
         when(userRepository.getByIdOrThrow(requesterId)).thenReturn(owner);
+
         CreateEventDto dto = new CreateEventDto(
-                "Title",
-                "Desc",
+                "Title", "Desc",
                 LocalDateTime.now().plusDays(1),
                 LocalDateTime.now().plusDays(2),
-                EventType.MEETING,
-                "TLV",
-                50,
-                List.of(1L, 2L)
+                EventType.MEETING, "TLV", 50, List.of(1L, 2L)
         );
+
+        doNothing().when(validator).validateDates(dto.startDate(), dto.endDate());
+        when(validator.loadAndValidateSkills(List.of(1L, 2L))).thenReturn(List.of(s1, s2));
+        doNothing().when(validator).ensureOwnerHasAllSkills(owner, List.of(s1, s2));
 
         Event mapped = new Event();
         mapped.setTitle(dto.title());
@@ -113,12 +111,11 @@ class EventServiceImplTest {
                 List.of(1L, 2L), 0
         );
 
-        when(skillRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(s1, s2));
         when(mapper.toEvent(dto)).thenReturn(mapped);
         when(eventRepository.save(any(Event.class))).thenReturn(saved);
         when(mapper.toEventDto(saved)).thenReturn(out);
 
-        EventDto result = service.create(dto);
+        EventDto result = service.createEvent(dto);
 
         assertThat(result.id()).isEqualTo(100L);
         verify(mapper).toEvent(dto);
@@ -127,6 +124,9 @@ class EventServiceImplTest {
                         && e.getRelatedSkills().size() == 2
                         && e.getTitle().equals("Title")
         ));
+        verify(validator).validateDates(dto.startDate(), dto.endDate());
+        verify(validator).loadAndValidateSkills(List.of(1L, 2L));
+        verify(validator).ensureOwnerHasAllSkills(owner, List.of(s1, s2));
     }
 
     @Test
@@ -139,7 +139,10 @@ class EventServiceImplTest {
                 EventType.MEETING, null, null, List.of()
         );
 
-        assertThatThrownBy(() -> service.create(dto))
+        doThrow(new DataValidationException("endDate must be after startDate."))
+                .when(validator).validateDates(dto.startDate(), dto.endDate());
+
+        assertThatThrownBy(() -> service.createEvent(dto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("endDate must be after startDate");
         verifyNoInteractions(eventRepository);
@@ -154,9 +157,12 @@ class EventServiceImplTest {
                 LocalDateTime.now().plusDays(2),
                 EventType.MEETING, null, null, List.of(1L, 99L)
         );
-        when(skillRepository.findAllById(List.of(1L, 99L))).thenReturn(List.of(s1));
 
-        assertThatThrownBy(() -> service.create(dto))
+        doNothing().when(validator).validateDates(dto.startDate(), dto.endDate());
+        doThrow(new DataValidationException("Some skills not found by ids: [1, 99]"))
+                .when(validator).loadAndValidateSkills(List.of(1L, 99L));
+
+        assertThatThrownBy(() -> service.createEvent(dto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("Some skills not found");
         verifyNoInteractions(eventRepository);
@@ -175,9 +181,12 @@ class EventServiceImplTest {
                 EventType.MEETING, null, null, List.of(1L, 2L)
         );
 
-        when(skillRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(s1, s2));
+        doNothing().when(validator).validateDates(dto.startDate(), dto.endDate());
+        when(validator.loadAndValidateSkills(List.of(1L, 2L))).thenReturn(List.of(s1, s2));
+        doThrow(new DataValidationException("Owner lacks required skills: [2]"))
+                .when(validator).ensureOwnerHasAllSkills(owner, List.of(s1, s2));
 
-        assertThatThrownBy(() -> service.create(dto))
+        assertThatThrownBy(() -> service.createEvent(dto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("Owner lacks required skills");
         verify(eventRepository, never()).save(any());
@@ -222,11 +231,16 @@ class EventServiceImplTest {
         );
 
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(existing);
-        when(skillRepository.findAllById(List.of(1L))).thenReturn(List.of(s1));
+
+        doNothing().when(validator).ensureOwner(existing, requesterId);
+        doNothing().when(validator).validateDates(dto.startDate(), dto.endDate());
+        when(validator.loadAndValidateSkills(List.of(1L))).thenReturn(List.of(s1));
+        doNothing().when(validator).ensureOwnerHasAllSkills(owner, List.of(s1));
+
         when(eventRepository.save(existing)).thenReturn(saved);
         when(mapper.toEventDto(saved)).thenReturn(out);
 
-        EventDto result = service.update(eventId, dto);
+        EventDto result = service.updateEvent(eventId, dto);
 
         assertThat(result.id()).isEqualTo(eventId);
         assertThat(result.title()).isEqualTo("New");
@@ -235,6 +249,10 @@ class EventServiceImplTest {
         verify(eventRepository).getByIdOrThrow(eventId);
         verify(mapper).update(eq(existing), eq(dto));
         verify(eventRepository).save(existing);
+        verify(validator).ensureOwner(existing, requesterId);
+        verify(validator).validateDates(dto.startDate(), dto.endDate());
+        verify(validator).loadAndValidateSkills(List.of(1L));
+        verify(validator).ensureOwnerHasAllSkills(owner, List.of(s1));
     }
 
     @Test
@@ -258,7 +276,10 @@ class EventServiceImplTest {
                 null, null, List.of()
         );
 
-        assertThatThrownBy(() -> service.update(eventId, dto))
+        doThrow(new ForbiddenException("Only owner can modify/delete the event."))
+                .when(validator).ensureOwner(existing, requesterId);
+
+        assertThatThrownBy(() -> service.updateEvent(eventId, dto))
                 .isInstanceOf(ForbiddenException.class)
                 .hasMessageContaining("Only owner");
         verify(eventRepository, never()).save(any());
@@ -283,7 +304,11 @@ class EventServiceImplTest {
                 null, null, List.of()
         );
 
-        assertThatThrownBy(() -> service.update(eventId, dto))
+        doNothing().when(validator).ensureOwner(existing, requesterId);
+        doThrow(new DataValidationException("endDate must be after startDate."))
+                .when(validator).validateDates(dto.startDate(), dto.endDate());
+
+        assertThatThrownBy(() -> service.updateEvent(eventId, dto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("endDate must be after startDate");
         verify(eventRepository, never()).save(any());
@@ -311,14 +336,17 @@ class EventServiceImplTest {
                 null, null, List.of(999L)
         );
 
-        when(skillRepository.findAllById(List.of(999L))).thenReturn(List.of(s999));
+        doNothing().when(validator).ensureOwner(existing, requesterId);
+        doNothing().when(validator).validateDates(dto.startDate(), dto.endDate());
+        when(validator.loadAndValidateSkills(List.of(999L))).thenReturn(List.of(s999));
+        doThrow(new DataValidationException("Owner lacks required skills: [999]"))
+                .when(validator).ensureOwnerHasAllSkills(owner, List.of(s999));
 
-        assertThatThrownBy(() -> service.update(eventId, dto))
+        assertThatThrownBy(() -> service.updateEvent(eventId, dto))
                 .isInstanceOf(DataValidationException.class)
                 .hasMessageContaining("Owner lacks required skills");
         verify(eventRepository, never()).save(any());
     }
-
 
     @Test
     void getByFilters_appliesAllFilters() {
@@ -331,30 +359,25 @@ class EventServiceImplTest {
 
         when(eventRepository.findAll()).thenReturn(List.of(e1, e2, e3));
 
-        EventFilterDto f = new EventFilterDto(
-                "Java",
-                "Reactive",
-                99L,
-                10L,
-                EventType.WEBINAR
-        );
+        EventFilterDto f = new EventFilterDto("Java", "Reactive", 99L, 10L, EventType.WEBINAR);
 
-        when(mapper.toEventDto(e3)).thenReturn(new EventDto(3L, "Java webinar", "Reactive",
-                LocalDateTime.now(), LocalDateTime.now(), EventType.WEBINAR,
-                "TLV", 0, 99L, EventStatus.PLANNED, LocalDateTime.now(),
-                List.of(), 1));
+        when(mapper.toEventDto(e3)).thenReturn(new EventDto(
+                3L, "Java webinar", "Reactive",
+                LocalDateTime.now(), LocalDateTime.now(),
+                EventType.WEBINAR, "TLV", 0, 99L,
+                EventStatus.PLANNED, LocalDateTime.now(), List.of(), 1
+        ));
 
-        List<EventDto> result = service.getByFilters(f);
+        List<EventDto> result = service.getEventByFilters(f);
         assertThat(result.get(0).id()).isEqualTo(3L);
     }
 
     @Test
     void getByFilters_returnsEmptyWhenNoMatch() {
         when(eventRepository.findAll()).thenReturn(List.of());
-        List<EventDto> result = service.getByFilters(new EventFilterDto("x", "y", 1L, 2L, EventType.MEETING));
+        List<EventDto> result = service.getEventByFilters(new EventFilterDto("x", "y", 1L, 2L, EventType.MEETING));
         assertTrue(result.isEmpty());
     }
-
 
     @Test
     void delete_ok_whenOwner() {
@@ -364,7 +387,10 @@ class EventServiceImplTest {
         e.setId(eventId);
         e.setOwner(owner);
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(e);
-        service.delete(eventId);
+
+        doNothing().when(validator).ensureOwner(e, requesterId);
+
+        service.deleteEvent(eventId);
         verify(eventRepository).delete(e);
     }
 
@@ -374,13 +400,14 @@ class EventServiceImplTest {
         long eventId = 5L;
         Event e = new Event();
         e.setId(eventId);
-        User someone = new User();
-        someone.setId(777L);
+        User someone = new User(); someone.setId(777L);
         e.setOwner(someone);
 
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(e);
+        doThrow(new ForbiddenException("Only owner can modify/delete the event."))
+                .when(validator).ensureOwner(e, requesterId);
 
-        assertThatThrownBy(() -> service.delete(eventId))
+        assertThatThrownBy(() -> service.deleteEvent(eventId))
                 .isInstanceOf(ForbiddenException.class);
         verify(eventRepository, never()).delete(any());
     }

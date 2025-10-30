@@ -8,11 +8,11 @@ import school.faang.user_service.dto.event.UpdateEventDto;
 import java.util.List;
 
 public interface EventService {
-    EventDto create(CreateEventDto dto);
+    EventDto createEvent(CreateEventDto dto);
 
-    EventDto update(long eventId, UpdateEventDto dto);
+    EventDto updateEvent(long eventId, UpdateEventDto dto);
 
-    List<EventDto> getByFilters(EventFilterDto filters);
+    List<EventDto> getEventByFilters(EventFilterDto filters);
 
-    void delete(long eventId);
+    void deleteEvent(long eventId);
 }
