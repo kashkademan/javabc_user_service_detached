@@ -45,8 +45,8 @@ public class RecommendationServiceImpl implements RecommendationService {
                         recommendationDto.receiverId())
                 .ifPresent(recommendation -> {
                     if (recommendation.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(limit))) {
-                        throw new DataValidationException("You can't send a recommendation more often: " +
-                                limit + " months");
+                        throw new DataValidationException("You can't send a recommendation more often: "
+                                + limit + " months");
                     }
                 });
 
