@@ -3,6 +3,7 @@ package school.faang.user_service.entity.redis;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import school.faang.user_service.entity.promotion.Tarif;
@@ -10,6 +11,7 @@ import school.faang.user_service.entity.promotion.Tarif;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @ToString
 public class RedisPromotionEntity {

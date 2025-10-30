@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PromotionConfig {
 
     private static String KEY_PREFIX = "promotion:";
-    private static String USER_KEY_PREFIX = "promotions:user:";
 
     private Map<String, Integer> promotions = new ConcurrentHashMap<>();
     @Value("${promotion-redis.ttl}")

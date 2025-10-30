@@ -68,7 +68,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<Long> getFirstPromotionUser(int countRow) {
-        List<Long> redisUsers = promotionRedisService.decrementRemainingImpressionsForPromotions(countRow);
+        List<Long> redisUsers = new ArrayList<>();
+        redisUsers.addAll(promotionRedisService.decrementRemainingImpressionsForPromotions(countRow));
         List<Long> userIds = new ArrayList<>();
         int sizeRedisList = redisUsers.size();
         if (sizeRedisList < countRow) {
