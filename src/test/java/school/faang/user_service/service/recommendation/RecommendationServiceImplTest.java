@@ -27,7 +27,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationServiceImplTest {
@@ -48,7 +48,9 @@ class RecommendationServiceImplTest {
             var f = RecommendationServiceImpl.class.getDeclaredField("limit");
             f.setAccessible(true);
             f.setInt(service, 6);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -106,9 +108,12 @@ class RecommendationServiceImplTest {
     void update_success() {
         given(userContext.getUserId()).willReturn(1L);
         Recommendation rec = new Recommendation();
-        User author = new User(); author.setId(1L);
-        User receiver = new User(); receiver.setId(2L);
-        rec.setAuthor(author); rec.setReceiver(receiver);
+        User author = new User();
+        author.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+        rec.setAuthor(author);
+        rec.setReceiver(receiver);
         given(recommendationRepository.findById(10L)).willReturn(Optional.of(rec));
 
         var dto = service.update(new UpdateRecommendationDto(10L, "updated"));
@@ -124,7 +129,8 @@ class RecommendationServiceImplTest {
     void update_forbidden_error() {
         given(userContext.getUserId()).willReturn(9L);
         Recommendation rec = new Recommendation();
-        User author = new User(); author.setId(1L);
+        User author = new User();
+        author.setId(1L);
         rec.setAuthor(author);
         given(recommendationRepository.findById(10L)).willReturn(Optional.of(rec));
 
