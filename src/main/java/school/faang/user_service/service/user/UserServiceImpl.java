@@ -20,6 +20,7 @@ import school.faang.user_service.repository.user.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final AvatarGenerationService avatarGenerationService;
 
     @Value("${user.password.min.length}")
     private int minPasswordLength;
@@ -34,6 +35,13 @@ public class UserServiceImpl implements UserService {
             throw new DataValidationException("Password should be more than " + minPasswordLength + " symbols!");
         }
         User user = userMapper.toUser(userDto);
+        String generatedAvatarUrl = avatarGenerationService.generateAvatarUrl();
+        int requiredSizeForBigAvatar = 1080;
+        int requiredSizeForSmallAvatar = 170;
+        user.getUserProfilePic().setGeneratedFileUrl(
+                avatarGenerationService.setSizeToGeneratedAvatar(generatedAvatarUrl, requiredSizeForBigAvatar));
+        user.getUserProfilePic().setSmallGeneratedFileUrl(
+                avatarGenerationService.setSizeToGeneratedAvatar(generatedAvatarUrl, requiredSizeForSmallAvatar));
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
         user = userRepository.save(user);
