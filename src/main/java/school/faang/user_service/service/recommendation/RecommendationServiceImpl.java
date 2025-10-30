@@ -45,7 +45,8 @@ public class RecommendationServiceImpl implements RecommendationService {
                         recommendationDto.receiverId())
                 .ifPresent(recommendation -> {
                     if (recommendation.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(limit))) {
-                        throw new DataValidationException("You can't send a recommendation more often: " + limit + " months");
+                        throw new DataValidationException("You can't send a recommendation more often: " +
+                                limit + " months");
                     }
                 });
 
@@ -95,6 +96,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Transactional(readOnly = true)
     @Override
     public List<RecommendationDto> getByFilters(RecommendationFilterDto filters) {
-        return recommendationRepository.getByFilters(filters.contentContains(), filters.receiverId(), filters.authorId());
+        return recommendationRepository.getByFilters(filters.contentContains(),
+                filters.receiverId(), filters.authorId());
     }
 }

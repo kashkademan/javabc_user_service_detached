@@ -13,5 +13,5 @@ public record CreateRecommendationDto(
         @NotNull
         @NotBlank
         String content
-)
-{}
+) {
+}

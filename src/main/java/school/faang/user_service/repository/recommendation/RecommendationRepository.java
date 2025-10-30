@@ -42,17 +42,17 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     Optional<Long> findAuthorIdById(Long id);
 
     @Query("""
-        select r.id as id,
-            r.content as content,
-            receiver.id as receiverId,
-            author.id as authorId
-        from Recommendation as r
-        join r.author as author
-        join r.receiver as receiver
-        where :contentContains is null or lower(content) LIKE %:contentContains%
-            and :receiverId is null or receiver.id = :receiverId
-            and :authorId is null or author.id = :authorId
-    """)
+                select r.id as id,
+                    r.content as content,
+                    receiver.id as receiverId,
+                    author.id as authorId
+                from Recommendation as r
+                join r.author as author
+                join r.receiver as receiver
+                where :contentContains is null or lower(content) LIKE %:contentContains%
+                    and :receiverId is null or receiver.id = :receiverId
+                    and :authorId is null or author.id = :authorId
+            """)
     List<RecommendationDto> getByFilters(
             @Param("contentContains") String contentContains,
             @Param("receiverId") Long receiverId,
