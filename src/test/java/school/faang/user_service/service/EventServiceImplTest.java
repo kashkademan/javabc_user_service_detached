@@ -400,7 +400,8 @@ class EventServiceImplTest {
         long eventId = 5L;
         Event e = new Event();
         e.setId(eventId);
-        User someone = new User(); someone.setId(777L);
+        User someone = new User();
+        someone.setId(777L);
         e.setOwner(someone);
 
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(e);
