@@ -5,6 +5,7 @@ import school.faang.user_service.entity.promotion.Tarif;
 public record PromotionDto(
         Long userId,
         Tarif tarif,
-        Integer numberOfDisplay
+        Integer numberOfDisplay,
+        Integer remainingDisplay
 ) {
 }
