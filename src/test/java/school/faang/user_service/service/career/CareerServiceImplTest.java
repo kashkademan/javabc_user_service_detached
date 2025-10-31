@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.career;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.CareerMapper;
 import school.faang.user_service.repository.user.CareerRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.career.CareerServiceImpl;
 
 import java.time.LocalDate;
 

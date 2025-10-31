@@ -44,3 +44,7 @@ user:
 mentorship:
   months:
     limit: 3
+
+cleanup:
+  cron: "0 0 0 * * *"
+  chunk-size: 1000
