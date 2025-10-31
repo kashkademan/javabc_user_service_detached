@@ -43,13 +43,13 @@ public class EventServiceTest {
         ReflectionTestUtils.setField(eventService, "chunkSize", 1000);
 
         List<Event> testEventList = List.of(event1, event2, event3, event4, event5);
-        List<Long> testEventIds = List.of(event1.getId(), event2.getId(), event3.getId(), event4.getId(), event5.getId());
         testEventList.forEach((e) -> e.setStatus(EventStatus.COMPLETED));
 
         Mockito.when(eventRepository.findAll()).thenReturn(testEventList);
-
         eventService.clearPastEvents();
 
+        List<Long> testEventIds = List
+                .of(event1.getId(), event2.getId(), event3.getId(), event4.getId(), event5.getId());
         Mockito.verify(eventRepository).deleteAllById(testEventIds);
     }
 
