@@ -3,6 +3,7 @@ package school.faang.user_service.dto.skill;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * DTO для передачи данных при создании нового навыка пользователя.
@@ -18,5 +19,6 @@ public class CreateSkillDto {
      */
     @NotBlank(message = "Skill name cannot be empty")
     @Size(max = 100, message = "Skill name cannot exceed 100 characters")
-    private String title;
+    @Getter
+    public String title;
 }

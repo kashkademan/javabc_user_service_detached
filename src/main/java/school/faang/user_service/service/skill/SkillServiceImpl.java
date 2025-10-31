@@ -36,8 +36,8 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public SkillDto create(CreateSkillDto skillDto) {
-        log.info("Create new skill: {}", skillDto.title());
-        if (skillRepository.existsByTitle(skillDto.title())) {
+        log.info("Create new skill: {}", skillDto.getTitle());
+        if (skillRepository.existsByTitle(skillDto.getTitle())) {
             throw new DataValidationException("A skill with this name already exists");
         }
 
@@ -56,7 +56,7 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public List<SkillCandidateDto> getOfferedSkills(long userId) {
+    public List<SkillCandidateDto> getOfferedSkills(Long userId) {
         log.info("Getting offered skills for user id={}", userId);
 
         return skillOfferRepository.findSkillsOfferedToUser(userId).stream()
@@ -69,7 +69,7 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     @Transactional
-    public void acquireSkillFromOffers(long skillId, long userId) {
+    public void acquireSkillFromOffers(Long skillId, Long userId) {
         log.info("User id={} is trying to add skill id={}", userId, skillId);
 
         if (skillRepository.existsByUserIdAndSkillId(userId, skillId)) {
