@@ -23,4 +23,10 @@ public class PromotionFacade {
         return promotionMapper.toPromotionDto(result);
     }
 
+    public PromotionDto getPromotionByUserId() {
+        Promotion result = promotionService.getPromotionByUserId();
+        return promotionMapper.toPromotionDto(result);
+    }
+
+
 }

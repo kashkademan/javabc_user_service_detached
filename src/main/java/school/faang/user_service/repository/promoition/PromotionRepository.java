@@ -26,6 +26,9 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
          WHERE p.id = :id AND p.remainingDisplay <= 1
          """)
     int deleteIfNoRemainingImpressions(@Param("id") Long id);
+
+    Promotion getPromotionByUserId(Long userId);
+
 }
 
 

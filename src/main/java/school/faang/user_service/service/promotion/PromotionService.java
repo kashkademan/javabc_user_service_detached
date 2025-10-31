@@ -10,10 +10,13 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.payment.PaymentRequest;
 import school.faang.user_service.dto.payment.PaymentResponse;
 import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.promoition.PromotionRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.promotion.validator.PromotionValidator;
 import school.faang.user_service.service.redis.PromotionRedisService;
+
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,4 +56,17 @@ public class PromotionService {
         log.info("Promotion {} saved to Redis successfully", savedPromotion.getId());
         return promotion;
     }
+
+
+    public Promotion getPromotionByUserId() {
+        Long userId = userContext.getUserId();
+        Promotion result = promotionRepository.getPromotionByUserId(userId);
+        if (Objects.isNull(result)) {
+            throw new EntityNotFoundException(String
+                    .format("The user %s currently has no promotion! Now is the time to register", userId));
+        }
+        System.out.println(result);
+        return result;
+    }
+
 }
