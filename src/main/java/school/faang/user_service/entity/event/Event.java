@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -69,9 +71,11 @@ public class Event {
     private User owner;
 
     @ManyToMany
-    @JoinTable(name = "event_skill",
+    @JoinTable(
+            name = "event_skill",
             joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id"))
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
     private List<Skill> relatedSkills;
 
     @Column(name = "type")
