@@ -55,7 +55,7 @@ public class EventService {
         exec.shutdown();
 
         try {
-            if (!exec.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (!exec.awaitTermination(5, TimeUnit.MINUTES)) {
                 log.warn("Deletion task is taking too long ...");
                 exec.shutdownNow();
             }
