@@ -62,3 +62,5 @@ services:
     bucketName: corpbucket
     isMocked: false
 
+goal:
+  max-active-goals: 2
