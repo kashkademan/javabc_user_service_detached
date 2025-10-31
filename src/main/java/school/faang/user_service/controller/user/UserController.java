@@ -2,6 +2,9 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,12 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.entity.redis.RedisPromotionEntity;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.service.user.UserServiceImpl;
-
-import java.util.List;
 
 @RequestMapping("/api/v1/users")
 @RestController
@@ -50,8 +50,9 @@ public class UserController {
     }
 
     @GetMapping("/promotion/{countRow}")
-    public List<RedisPromotionEntity> getFirstPromotionUser(@PathVariable Integer countRow) {
-        List<RedisPromotionEntity> results = userServiceImpl.getFirstPromotionUser(countRow);
+    public Page<UserDto> getFirstPromotionUser(@PathVariable Integer countRow,
+                                               @PageableDefault Pageable pageable) {
+        Page<UserDto> results = userServiceImpl.getFirstPromotionUser(countRow, pageable);
         return results;
     }
 

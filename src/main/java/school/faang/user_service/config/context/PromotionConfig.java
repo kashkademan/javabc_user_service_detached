@@ -17,11 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "promotion-redis")
 @Configuration
+@ConfigurationProperties(prefix = "promotion-redis")
 public class PromotionConfig {
 
-    private static String KEY_PREFIX = "promotion:";
+    private static final String KEY_PREFIX = "promotion:";
 
     private Map<String, Integer> promotions = new ConcurrentHashMap<>();
     @Value("${promotion-redis.ttl}")
@@ -47,7 +47,7 @@ public class PromotionConfig {
         }
     }
 
-    public Integer getImpressionsForTarif(Tarif tarif) {
+    public Integer getDisplayForTarif(Tarif tarif) {
         return promotions.get(tarif.name());
     }
 }

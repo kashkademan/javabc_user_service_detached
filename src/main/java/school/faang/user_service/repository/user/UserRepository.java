@@ -35,6 +35,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
     }
 
-    @Query(value = "SELECT id FROM users ORDER BY id LIMIT :limit", nativeQuery = true)
-    List<Long> findFirstUserIdsNative(@Param("limit") int limit);
+    @Query(value = """
+            SELECT * FROM users 
+            WHERE id NOT IN :userIds
+            ORDER BY id LIMIT :limit
+            """,
+            nativeQuery = true)
+    List<User> findFirstUserIdsNative(@Param("limit") int limit,  @Param("userIds") List<Long> userIds);
 }

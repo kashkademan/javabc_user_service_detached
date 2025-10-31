@@ -45,11 +45,11 @@ public class Promotion {
     @Enumerated(EnumType.STRING)
     private Tarif tarif;
 
-    @Column(name = "number_of_impressions", nullable = false)
-    private Integer numberOfImpressions;
+    @Column(name = "number_of_display", nullable = false)
+    private Integer numberOfDisplay;
 
-    @Column(name = "remaining_impressions", nullable = false)
-    private Integer remainingImpressions;
+    @Column(name = "remaining_display", nullable = false)
+    private Integer remainingDisplay;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

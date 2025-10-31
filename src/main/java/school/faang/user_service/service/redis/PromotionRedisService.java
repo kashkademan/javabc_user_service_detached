@@ -46,7 +46,7 @@ public class PromotionRedisService {
         RedisPromotionEntity redisPromotionEntity = new RedisPromotionEntity(userDto, promotion.getId());
 
         redisTemplate.opsForZSet().add(PROMOTION_SORTED_KEY_PREFIX, redisPromotionEntity,
-                promotion.getNumberOfImpressions() * (-1));
+                promotion.getNumberOfDisplay() * (-1));
         log.debug("Promotion {} saved to Redis. member redis - {}", promotion.getId(), redisPromotionEntity);
 
     }
@@ -74,19 +74,19 @@ public class PromotionRedisService {
     }
 
     @Transactional
-    public List<RedisPromotionEntity> decrementRemainingImpressionsForPromotions(int countRow) {
+    public List<UserDto> decrementRemainingImpressionsForPromotions(int countRow) {
         if (countRow <= 0) {
             throw new DataValidationException(String.format("You have entered a negative or zero value %d.",
                     countRow));
         }
-        List<RedisPromotionEntity> resultPromotion = new ArrayList<>();
+        List<UserDto> resultPromotion = new ArrayList<>();
         Set<Object> promotionKeys = redisTemplate.opsForZSet()
                 .range(PROMOTION_SORTED_KEY_PREFIX, 0, countRow - 1);
         promotionKeys.stream()
                 .forEach(valueObj -> {
                     RedisPromotionEntity redisPromotionEntity = objectMapper
                             .convertValue(valueObj, RedisPromotionEntity.class);
-                    resultPromotion.add(redisPromotionEntity);
+                    resultPromotion.add(redisPromotionEntity.getUserDto());
                     updatePromotionAfterView(redisPromotionEntity.getPromotionId());
                 });
 

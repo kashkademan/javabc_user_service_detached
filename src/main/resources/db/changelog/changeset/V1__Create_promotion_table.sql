@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS promotion (
     id                    BIGSERIAL PRIMARY KEY,
     user_id               BIGINT    NOT NULL,
     tarif                  INTEGER   NOT NULL,
-    number_of_impressions INTEGER   NOT NULL,
-    remaining_impressions INTEGER   NOT NULL,
+    number_of_display INTEGER   NOT NULL,
+    remaining_display INTEGER   NOT NULL,
     activation_time       TIMESTAMP,
     update_time           TIMESTAMP
 );
