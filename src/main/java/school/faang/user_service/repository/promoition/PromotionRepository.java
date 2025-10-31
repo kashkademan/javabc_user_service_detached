@@ -16,9 +16,16 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Query(value = """
             UPDATE Promotion p
             SET p.remainingImpressions = p.remainingImpressions - 1 
-            WHERE p.id = :id        
+            WHERE p.id = :id AND p.remainingImpressions >= 1      
             """)
-    void decrementRemainingImpressions(@Param("id") Long id);
+    int decrementRemainingImpressions(@Param("id") Long id);
+
+    @Modifying
+    @Query(value = """
+         DELETE FROM Promotion p 
+         WHERE p.id = :id AND p.remainingImpressions <= 1
+         """)
+    int deleteIfNoRemainingImpressions(@Param("id") Long id);
 }
 
 

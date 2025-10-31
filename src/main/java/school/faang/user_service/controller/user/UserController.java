@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.redis.RedisPromotionEntity;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.service.user.UserServiceImpl;
@@ -49,8 +50,8 @@ public class UserController {
     }
 
     @GetMapping("/promotion/{countRow}")
-    public List<Long> getFirstPromotionUser(@PathVariable Integer countRow) {
-        List<Long> results = userServiceImpl.getFirstPromotionUser(countRow);
+    public List<RedisPromotionEntity> getFirstPromotionUser(@PathVariable Integer countRow) {
+        List<RedisPromotionEntity> results = userServiceImpl.getFirstPromotionUser(countRow);
         return results;
     }
 

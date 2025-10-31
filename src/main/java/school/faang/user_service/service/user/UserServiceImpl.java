@@ -8,6 +8,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.redis.RedisPromotionEntity;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -67,8 +68,8 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-    public List<Long> getFirstPromotionUser(int countRow) {
-        List<Long> redisUsers = new ArrayList<>();
+    public List<RedisPromotionEntity> getFirstPromotionUser(int countRow) {
+        List<RedisPromotionEntity> redisUsers = new ArrayList<>();
         redisUsers.addAll(promotionRedisService.decrementRemainingImpressionsForPromotions(countRow));
         List<Long> userIds = new ArrayList<>();
         int sizeRedisList = redisUsers.size();
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
             int currencyUserFromPromotion = countRow - sizeRedisList;
             userIds = userRepository.findFirstUserIdsNative(currencyUserFromPromotion);
         }
-        redisUsers.addAll(userIds);
+        //   redisUsers.addAll(userIds);
         return redisUsers;
     }
 }

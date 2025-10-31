@@ -10,12 +10,6 @@ import static school.faang.user_service.dto.payment.PaymentStatus.SUCCESS;
 
 public class PromotionValidator {
 
-    public static void validateUserOwnership(Long userIdContext, Long userId) {
-        if (!Objects.equals(userIdContext, userId)) {
-            throw new ForbiddenException("The user is trying to purchase a subscription for someone else.");
-        }
-    }
-
     public static void validatePaymentStatus(PaymentStatus status) {
         if (!Objects.equals(status, SUCCESS)) {
             throw new ForbiddenException("Payment failed");

@@ -16,6 +16,7 @@ import school.faang.user_service.dto.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.repository.promoition.PromotionRepository;
+import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.promotion.validator.PromotionValidator;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
@@ -28,6 +29,7 @@ import java.util.Set;
 public class PromotionService {
 
     private final UserContext userContext;
+    private final UserRepository userRepository;
     private final PromotionRepository promotionRepository;
     private final PaymentServiceClient paymentServiceClient;
     private final PromotionRedisService promotionRedisService;
@@ -41,8 +43,11 @@ public class PromotionService {
     }
 
     public Promotion crearePromotion(Promotion promotion, PaymentRequest paymentRequest) {
-        Long userId = promotion.getUserId();
-        PromotionValidator.validateUserOwnership(userContext.getUserId(), promotion.getUserId());
+
+        Long userId = userContext.getUserId();
+        userRepository.getByIdOrThrow(userId);
+
+        promotion.setUserId(userId);
 
         PromotionValidator.validateExistsByUserIdPromotion(promotionRepository.existsByUserId(userId), userId);
 
@@ -55,6 +60,7 @@ public class PromotionService {
         } else {
             throw new ForbiddenException("Unable to determine payment status! We're working on it!!");
         }
+
         Integer numberOfImpressions = promotionConfig.getImpressionsForTarif(promotion.getTarif());
         promotion.setNumberOfImpressions(numberOfImpressions);
         promotion.setRemainingImpressions(numberOfImpressions);

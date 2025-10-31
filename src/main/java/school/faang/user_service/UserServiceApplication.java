@@ -7,19 +7,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-
-import java.util.Optional;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
+@EnableScheduling
 public class UserServiceApplication {
 
     public static void main(String[] args) {
-        System.out.println("erwewwewe");
-
-        Optional<String> optionalS = Optional.empty();
-
-        optionalS.ifPresent(System.out::println);
         SpringApplication.run(UserServiceApplication.class, args);
     }
 

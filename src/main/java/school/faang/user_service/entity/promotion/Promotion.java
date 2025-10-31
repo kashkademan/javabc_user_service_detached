@@ -60,21 +60,4 @@ public class Promotion {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_time")
     private LocalDateTime updateTime;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Promotion promotion = (Promotion) o;
-        return id != null && id.equals(promotion.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }
