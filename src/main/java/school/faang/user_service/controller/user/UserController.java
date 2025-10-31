@@ -29,14 +29,12 @@ public class UserController {
         validateString(userDto.email(), "email");
         validateString(userDto.password(), "password");
         validateNotNull(userDto.countryId(), "country");
-        UserDto createdUser = userService.create(userDto);
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(userService.create(userDto));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Long> delete(@PathVariable Long userId) {
-        Long deletedId = userService.delete(userId);
-        return ResponseEntity.ok(deletedId);
+        return ResponseEntity.ok(userService.delete(userId));
     }
 
     @PutMapping("/{userId}")
