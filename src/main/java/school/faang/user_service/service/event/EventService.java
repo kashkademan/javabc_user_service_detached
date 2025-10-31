@@ -43,8 +43,8 @@ public class EventService {
         gracefulShutdown(executor);
     }
 
-    private static <T> List<List<T>> partitionList(List<T> list, int chunkSize) {
-        List<List<T>> parts = new ArrayList<>((list.size() + chunkSize - 1) / chunkSize);
+    private List<List<Long>> partitionList(List<Long> list, int chunkSize) {
+        List<List<Long>> parts = new ArrayList<>((list.size() + chunkSize - 1) / chunkSize);
         for (int i = 0; i < list.size(); i += chunkSize) {
             parts.add(list.subList(i, Math.min(list.size(), i + chunkSize)));
         }
