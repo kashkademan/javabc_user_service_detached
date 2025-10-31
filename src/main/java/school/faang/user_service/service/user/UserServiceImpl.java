@@ -49,7 +49,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Long delete(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DataValidationException("User with id " + userId + " not found!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataValidationException("User with id " + userId + " not found!"));
         userRepository.delete(user);
         log.info("User {} deleted", user.getId());
         return user.getId();
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-    private void createValidation(CreateUserDto userDto, int minPasswordLength){
+    private void createValidation(CreateUserDto userDto, int minPasswordLength) {
         if (userRepository.existsByUsername(userDto.username())) {
             throw new DataValidationException("User with username " + userDto.username() + " already exists!");
         }

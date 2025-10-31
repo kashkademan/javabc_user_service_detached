@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String username);
+
     boolean existsByEmail(String email);
+
     boolean existsByPhone(String phone);
 
     @Query(nativeQuery = true, value = """
