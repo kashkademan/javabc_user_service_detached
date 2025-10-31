@@ -26,6 +26,8 @@ public interface UserService {
      */
     UserDto create(CreateUserDto userDto);
 
+    Long delete(Long userId);
+
     /**
      * Обновляет информацию о существующем пользователе.
      * <p>

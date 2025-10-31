@@ -4,6 +4,10 @@ public record CreateUserDto(
         String username,
         String email,
         String password,
-        Long countryId
+        Long countryId,
+        String phone,
+        String aboutMe,
+        String city,
+        Integer experience
 ) {
 }
