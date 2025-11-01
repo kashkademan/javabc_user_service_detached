@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
         List<Event> eventsToSave = new ArrayList<>();
 
         if (!user.isActive()) {
-            throw new IllegalArgumentException("User %d already deactivated".formatted(userId));
+            throw new ForbiddenException("User %d already deactivated".formatted(userId));
         }
 
         for (Goal goal : user.getGoals()) {
@@ -185,7 +185,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getByIdOrThrow(userId);
 
         if (user.isActive()) {
-            throw new IllegalArgumentException("User %d already activated".formatted(userId));
+            throw new ForbiddenException("User %d already activated".formatted(userId));
         }
 
         user.setActive(true);

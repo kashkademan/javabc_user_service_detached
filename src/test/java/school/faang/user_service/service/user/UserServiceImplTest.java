@@ -19,6 +19,7 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.user.UserExperienceFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNamePatternFilter;
@@ -247,10 +248,10 @@ public class UserServiceImplTest {
 
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
 
-        IllegalArgumentException illegalArgumentException = Assertions.assertThrows(IllegalArgumentException.class,
+        ForbiddenException forbiddenException = Assertions.assertThrows(ForbiddenException.class,
                 () -> userService.deactivateUser(firstUser.getId()));
         Assertions.assertEquals("User %d already deactivated".formatted(firstUser.getId()),
-                illegalArgumentException.getMessage());
+                forbiddenException.getMessage());
     }
 
     @Test
@@ -284,10 +285,10 @@ public class UserServiceImplTest {
 
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
 
-        IllegalArgumentException illegalArgumentException = Assertions.assertThrows(IllegalArgumentException.class,
+        ForbiddenException forbiddenException = Assertions.assertThrows(ForbiddenException.class,
                 () -> userService.activateUser(firstUser.getId()));
         Assertions.assertEquals("User %d already activated".formatted(firstUser.getId()),
-                illegalArgumentException.getMessage());
+                forbiddenException.getMessage());
     }
 
     @Test
