@@ -111,9 +111,6 @@ public class UserServiceImpl implements UserService {
     public void deactivateUser(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         List<Goal> goalsToDelete = new ArrayList<>();
-        List<Goal> goalsToSave = new ArrayList<>();
-        List<Event> eventsToDelete = new ArrayList<>();
-        List<Event> eventsToSave = new ArrayList<>();
 
         if (!user.isActive()) {
             throw new ForbiddenException("User %d already deactivated".formatted(userId));
@@ -135,6 +132,8 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        List<Event> eventsToSave = new ArrayList<>();
+        List<Event> eventsToDelete = new ArrayList<>();
         for (Event ownedEvent : user.getOwnedEvents()) {
             if (ownedEvent.getStatus().equals(EventStatus.PLANNED)
                     || ownedEvent.getStatus().equals(EventStatus.IN_PROGRESS)) {
@@ -152,6 +151,7 @@ public class UserServiceImpl implements UserService {
             eventsToSave.add(participatedEvent);
         }
 
+        List<Goal> goalsToSave = new ArrayList<>();
         for (User mentee : user.getMentees()) {
             mentorshipService.deleteMentorship(mentee.getId(), user.getId());
 
@@ -171,13 +171,29 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setActive(false);
-        user.setUpdatedAt(LocalDateTime.now());
 
         userRepository.save(user);
-        goalRepository.saveAll(goalsToSave);
+        log.info("User {} has been deactivated", user.getId());
+
+        List<Goal> updatedGoals = goalRepository.saveAll(goalsToSave);
+        if (!updatedGoals.isEmpty()) {
+            log.info("Removed mentors from goals {}", updatedGoals.stream().map(Goal::getId).toList());
+        }
+
         goalRepository.deleteAll(goalsToDelete);
-        eventRepository.saveAll(eventsToSave);
+        if (!goalsToDelete.isEmpty()) {
+            log.info("Removed goals {}", goalsToDelete.stream().map(Goal::getId).toList());
+        }
+
+        List<Event> canceledEvents = eventRepository.saveAll(eventsToSave);
+        if (!canceledEvents.isEmpty()) {
+            log.info("Canceled events {}", canceledEvents.stream().map(Event::getId).toList());
+        }
+
         eventRepository.deleteAll(eventsToDelete);
+        if (!eventsToDelete.isEmpty()) {
+            log.info("Removed events {}", eventsToDelete.stream().map(Event::getId).toList());
+        }
     }
 
     @Override
@@ -190,5 +206,6 @@ public class UserServiceImpl implements UserService {
 
         user.setActive(true);
         userRepository.save(user);
+        log.info("User {} has been activated", user.getId());
     }
 }
