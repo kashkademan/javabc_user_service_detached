@@ -34,12 +34,12 @@ public class EventController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    EventResponseDto createEvent(@RequestBody @Valid EventCreateDto eventCreateDto) {
+    public EventResponseDto createEvent(@RequestBody @Valid EventCreateDto eventCreateDto) {
         return eventService.createEvent(eventCreateDto);
     }
 
     @PutMapping("/{eventId}")
-    EventResponseDto updateEvent(
+    public EventResponseDto updateEvent(
             @NotNull(message = "Event cannot be empty")
             @Positive(message = "Event cannot be negative")
             @PathVariable
@@ -51,7 +51,7 @@ public class EventController {
     }
 
     @GetMapping
-    List<EventResponseDto> getAllByFilter(@RequestBody AllEventByFilterDto allEventByFilterDto,
+    public List<EventResponseDto> getAllByFilter(@RequestBody AllEventByFilterDto allEventByFilterDto,
                                           @RequestParam
                                           @DefaultValue(value = "0")
                                           int page,
@@ -63,7 +63,7 @@ public class EventController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{eventId}")
-    void deleteEvent(
+    public void deleteEvent(
             @NotNull(message = "Event cannot be empty")
             @Positive(message = "Event cannot be negative")
             @PathVariable

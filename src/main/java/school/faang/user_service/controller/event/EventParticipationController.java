@@ -39,9 +39,14 @@ public class EventParticipationController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("events/participants")
-    public void registerParticipant(@RequestBody @Valid EventRequestDto eventRequestDto) {
-        eventParticipationService.registerParticipant(eventRequestDto.eventId(), eventRequestDto.userId());
+    @PostMapping("events/{eventId}/participants")
+    public void registerParticipant(
+            @NotNull(message = "Event cannot be empty")
+            @Positive(message = "Event must be positive")
+            @PathVariable
+            Long eventId,
+            @RequestBody @Valid EventRequestDto eventRequestDto) {
+        eventParticipationService.registerParticipant(eventId, eventRequestDto.userId());
     }
 
     @GetMapping("/events/{eventId}/participants/count")
