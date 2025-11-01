@@ -108,7 +108,6 @@ public class EventServiceTest {
         );
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Test
     public void create_Success() {
         long userId = 12345L;
@@ -117,13 +116,11 @@ public class EventServiceTest {
         List<Skill> skills = List.of(new Skill());
         user.setSkills(skills);
 
-
-        EventStatus eventStatus = EventStatus.PLANNED;
-
         Event eventToSave = new Event();
         eventToSave.setStartDate(LocalDateTime.now().plusDays(1));
         eventToSave.setEndDate(LocalDateTime.now().plusDays(2));
 
+        EventStatus eventStatus = EventStatus.PLANNED;
         Event savedEvent = eventToSave;
         savedEvent.setOwner(user);
         savedEvent.setStatus(eventStatus);
@@ -134,38 +131,31 @@ public class EventServiceTest {
         when(skillRepository.findAllById(anyList())).thenReturn(skills);
 
 
+        Event event = eventService.create(eventToSave, anyList());
+
         assertEquals(
                 savedEvent,
-                assertDoesNotThrow(() -> eventService.create(eventToSave, anyList()))
+                assertDoesNotThrow(() -> event)
         );
         verify(eventRepository).save(eq(savedEvent));
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Test
     public void update_success() {
         long eventId = 123L;
-        String title = "Test title";
-        String description = "Test description";
-        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
-        LocalDateTime endDate = LocalDateTime.now().plusDays(2);
-        EventType eventType = EventType.PRESENTATION;
-        EventStatus eventStatus = EventStatus.IN_PROGRESS;
-
-        UpdateEventDto updateEventDto = new UpdateEventDto(title,
-                description,
-                startDate,
-                endDate,
-                eventType,
-                eventStatus,
-                null);
-
         long requesterId = 456L;
         Event expectingEvent = new Event();
         expectingEvent.setId(eventId);
         User user = new User();
         user.setId(requesterId);
         expectingEvent.setOwner(user);
+        UpdateEventDto updateEventDto = new UpdateEventDto("Test title",
+                "Test description",
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                EventType.PRESENTATION,
+                EventStatus.IN_PROGRESS,
+                null);
 
         when(eventRepository.getByIdOrThrow(eventId)).thenReturn(expectingEvent);
         when(userContext.getUserId()).thenReturn(requesterId);
