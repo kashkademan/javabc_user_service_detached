@@ -12,7 +12,6 @@ public class RedisConfig {
 
     StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();

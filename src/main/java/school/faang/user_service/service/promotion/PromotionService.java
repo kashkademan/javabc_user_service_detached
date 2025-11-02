@@ -18,6 +18,8 @@ import school.faang.user_service.service.redis.PromotionRedisService;
 
 import java.util.Objects;
 
+import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -48,11 +50,11 @@ public class PromotionService {
         Integer numberOfDisplay = promotionConfig.getDisplayForTarif(promotion.getTarif());
         promotion.setNumberOfDisplay(numberOfDisplay);
         promotion.setRemainingDisplay(numberOfDisplay);
-
+        promotion.setPromotionStatus(ACTIVE);
         Promotion savedPromotion = promotionRepository.save(promotion);
         log.info("a new one was saved promotion {}", promotion.getId());
 
-        promotionRedisService.savePromotion(savedPromotion);
+        promotionRedisService.savePromotionByUser(savedPromotion, savedPromotion.getUserId());
         log.info("Promotion {} saved to Redis successfully", savedPromotion.getId());
         return promotion;
     }
@@ -65,7 +67,6 @@ public class PromotionService {
             throw new EntityNotFoundException(String
                     .format("The user %s currently has no promotion! Now is the time to register", userId));
         }
-        System.out.println(result);
         return result;
     }
 

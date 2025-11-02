@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -50,9 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/promotion/{countRow}")
-    public Page<UserDto> getFirstPromotionUser(@PathVariable Integer countRow,
-                                               @PageableDefault Pageable pageable) {
-        Page<UserDto> results = userServiceImpl.getFirstPromotionUser(countRow, pageable);
+    public Page<UserDto> getUser(@PageableDefault Pageable pageable) {
+        Page<UserDto> results = userServiceImpl.getUser(pageable);
         return results;
     }
 

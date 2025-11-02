@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import school.faang.user_service.entity.promotion.Tarif;
@@ -24,7 +23,6 @@ public class PromotionConfig {
     private static final String KEY_PREFIX = "promotion:";
 
     private Map<String, Integer> promotions = new ConcurrentHashMap<>();
-    @Value("${promotion-redis.ttl}")
     private Duration ttl;
 
 

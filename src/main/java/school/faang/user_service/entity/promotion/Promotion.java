@@ -41,8 +41,8 @@ public class Promotion {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "rate", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "rate", nullable = false)
     private Tarif tarif;
 
     @Column(name = "number_of_display", nullable = false)
@@ -60,4 +60,8 @@ public class Promotion {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_time")
     private LocalDateTime updateTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "promotion_status")
+    private PromotionStatus promotionStatus;
 }
