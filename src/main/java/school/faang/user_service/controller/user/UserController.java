@@ -1,16 +1,32 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
+import school.faang.user_service.dto.user.UserAvatarUploadDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-@Component
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/users")
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -31,6 +47,29 @@ public class UserController {
 
     public UserDto getById(long userId) {
         return userService.getById(userId);
+    }
+
+    @PostMapping("/avatars")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void uploadAvatar(@Valid @ModelAttribute UserAvatarUploadDto userAvatarUploadDto) {
+        userService.uploadAvatar(userAvatarUploadDto);
+    }
+
+    @DeleteMapping("/avatars")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAvatar() {
+        userService.deleteAvatar();
+    }
+
+    @GetMapping("/{userId}/avatars")
+    public ResponseEntity<byte[]> getAvatar(
+            @PathVariable
+            @Positive
+            Long userId,
+            @RequestParam(defaultValue = "big")
+            String size
+    ) {
+        return userService.getAvatar(userId, size);
     }
 
     private void validateString(String value, String paramName) {

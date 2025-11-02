@@ -1,11 +1,14 @@
 spring:
+
   config:
     import: optional:classpath:application.properties
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -40,9 +43,21 @@ payment-service:
   port: 9080
 
 user:
+  avatar:
+    max:
+      sizeMb: 5
+    allowed:
+      types: "image/png,image/jpeg,image/jpg,image/webp"
   password:
     min:
       length: 6
 
 skills:
   min-offers-for-acquire: 3
+
+services:
+  s3:
+    endpoint: ${MINIO_ENDPOINT}:${MINIO_PORT}
+    accessKey: ${MINIO_ACCESS_KEY}
+    secretKey: ${MINIO_SECRET_KEY}
+    bucketName: ${MINIO_BUCKET_NAME}
