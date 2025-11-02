@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,13 +19,13 @@ import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
 @RestController
-@RequestMapping("/api/v1/goals")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class GoalInvitationController {
 
     private final GoalInvitationService service;
 
-    @PostMapping("/{goalId}/invitations")
+    @PostMapping("/goals/{goalId}/invitations")
     public ResponseEntity<GoalInvitationDto> create(@PathVariable long goalId,
                                                     @Valid @RequestBody CreateGoalInvitationDto invitationDto) {
         GoalInvitationDto goalInvitationDto = service.create(goalId, invitationDto);
@@ -36,10 +37,9 @@ public class GoalInvitationController {
         service.accept(invitationId);
     }
 
-    @PostMapping("/invitations/{invitationId}/reject")
-    public ResponseEntity<Void> reject(@PathVariable long invitationId) {
+    @PutMapping("/invitations/{invitationId}/reject")
+    public void reject(@PathVariable long invitationId) {
         service.reject(invitationId);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/invitations")
