@@ -54,6 +54,7 @@ public class UserServiceImpl implements UserService {
         return user.getId();
     }
 
+    @Transactional
     @Override
     public UserDto update(long userId, UpdateUserDto userDto) {
         long requesterId = userContext.getUserId();
@@ -68,6 +69,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto getUserById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
