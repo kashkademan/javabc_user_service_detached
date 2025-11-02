@@ -47,7 +47,7 @@ public class GoalController {
         goalService.deleteGoal(goalId);
     }
 
-    @DeleteMapping("/users/{userId}/goals/{goalId}")
+    @DeleteMapping("/{goalId}/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGoalFromUser(@PathVariable long goalId, @PathVariable long userId) {
         goalService.deleteGoalFromUser(goalId, userId);
