@@ -42,6 +42,7 @@ public class GoalServiceImpl implements GoalService {
     @Transactional
     public GoalDto create(CreateGoalDto createGoalDto) {
         Goal goal = goalMapper.toGoal(createGoalDto);
+        goal.setStatus(GoalStatus.ACTIVE);
         List<User> users = userRepository.findAllById(createGoalDto.userIds());
         validateAllUsersExist(users, createGoalDto.userIds());
         goal.setUsers(new ArrayList<>(users));
