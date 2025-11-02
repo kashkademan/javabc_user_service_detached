@@ -1,9 +1,12 @@
 package school.faang.user_service.repository.event;
 
+import feign.Param;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import java.util.List;
@@ -36,4 +39,21 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                         () -> new EntityNotFoundException(String.format("Event %d not found", eventId))
                 );
     }
+
+    @Query("""
+                SELECT DISTINCT e FROM Event e
+                LEFT JOIN e.attendees a
+                WHERE e.title LIKE %:titleContains%
+                  AND e.description LIKE %:descriptionContains%
+                  AND e.type = :type
+                  AND (:ownerId IS NULL OR e.owner.id = :ownerId)
+                  AND (:participantId IS NULL OR a.id = :participantId)
+            """)
+    List<Event> findEventsByFilters(@Param("titleContains") String titleContains,
+                                    @Param("descriptionContains") String descriptionContains,
+                                    @Param("type") EventType type,
+                                    @Param("ownerId") Long ownerId,
+                                    @Param("participantId") Long participantId,
+                                    Pageable pageable);
+
 }
