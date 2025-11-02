@@ -11,7 +11,6 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
