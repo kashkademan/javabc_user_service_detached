@@ -2,6 +2,7 @@ package school.faang.user_service.service.events;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -9,6 +10,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,9 +37,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
@@ -64,6 +70,13 @@ class EventServiceImplTest {
 
     @Captor
     ArgumentCaptor<Event> captorEvent;
+
+    @BeforeEach
+    void setup() {
+        setField(service, "batchSize", 2);
+        setField(service, "countThreads", 2);
+        setField(service, "awaitTerminationHours", 1);
+    }
 
     @Test
     public void createEvent_authorNotSkill_shouldThrowForbiddenException() {
@@ -245,6 +258,25 @@ class EventServiceImplTest {
         verify(eventRepository).delete(event);
     }
 
+    @Test
+    void clearExpiredEvents_shouldDeleteBatches() {
+        int batchSize = 2;
+
+        Page<Long> firstPage = new PageImpl<>(List.of(1L, 2L), PageRequest.of(0, batchSize), 4);
+        Page<Long> secondPage = new PageImpl<>(List.of(3L, 4L), PageRequest.of(1, batchSize), 4);
+        Page<Long> lastPage = new PageImpl<>(List.of(), PageRequest.of(2, batchSize), 4);
+
+        when(eventRepository.findExpiredEventIds(any(Pageable.class), any(LocalDateTime.class)))
+                .thenReturn(firstPage)
+                .thenReturn(secondPage)
+                .thenReturn(lastPage);
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository).deleteAllByIdInBatch(List.of(1L, 2L));
+        verify(eventRepository).deleteAllByIdInBatch(List.of(3L, 4L));
+        verify(eventRepository, never()).deleteAllByIdInBatch(List.of());
+    }
 
     private List<SkillDto> preparingSkillDtoList() {
         SkillDto skillDto =

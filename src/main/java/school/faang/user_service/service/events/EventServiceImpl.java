@@ -1,6 +1,9 @@
 package school.faang.user_service.service.events;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,11 +27,16 @@ import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class EventServiceImpl implements EventService {
     private final SkillServiceImpl skillService;
     private final SkillRepository skillRepository;
@@ -36,6 +44,12 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final EventMapper eventMapper;
+    @Value("${scheduler.clear-events.batch-size}")
+    private int batchSize;
+    @Value("${scheduler.clear-events.threads}")
+    private int countThreads;
+    @Value("${scheduler.clear-events.await-termination-hours}")
+    private int awaitTerminationHours;
 
     @Transactional
     @Override
@@ -90,6 +104,42 @@ public class EventServiceImpl implements EventService {
         eventRepository.delete(event);
     }
 
+    @Override
+    @Transactional
+    public void clearExpiredEvents() {
+        LocalDateTime now = LocalDateTime.now();
+        ExecutorService executorService = Executors.newFixedThreadPool(countThreads);
+        boolean hasMore = true;
+        int pageNumber = 0;
+
+        while(hasMore) {
+            Page<Long> page = eventRepository.findExpiredEventIds(PageRequest.of(pageNumber, batchSize), now);
+            List<Long> ids = page.getContent();
+            hasMore = page.hasNext() && !ids.isEmpty();
+
+            if (ids.isEmpty()) {
+                break;
+            }
+
+            executorService.submit(() -> {
+                eventRepository.deleteAllByIdInBatch(ids);
+                log.info("Deleted batch of {} events", ids.size());
+            });
+
+            pageNumber++;
+        }
+
+        executorService.shutdown();
+
+        try {
+            executorService.awaitTermination(awaitTerminationHours, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Event cleanup interrupted", e);
+        }
+
+        log.info("Event cleanup finished");
+    }
 
     private void validateSkillAuthor(List<Long> skillList) {
         List<SkillDto> ownerSkills = skillService.getByUserId(userContext.getUserId());

@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_event_end_date ON event(end_date);

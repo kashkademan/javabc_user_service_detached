@@ -16,4 +16,6 @@ public interface EventService {
     List<EventResponseDto> getAllByFilter(AllEventByFilterDto allEventByFilterDto, int page, int size);
 
     void deleteEvent(Long eventId);
+
+    void clearExpiredEvents();
 }
