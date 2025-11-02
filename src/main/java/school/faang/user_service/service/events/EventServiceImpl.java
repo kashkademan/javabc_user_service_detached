@@ -112,7 +112,7 @@ public class EventServiceImpl implements EventService {
         boolean hasMore = true;
         int pageNumber = 0;
 
-        while(hasMore) {
+        while (hasMore) {
             Page<Long> page = eventRepository.findExpiredEventIds(PageRequest.of(pageNumber, batchSize), now);
             List<Long> ids = page.getContent();
             hasMore = page.hasNext() && !ids.isEmpty();
