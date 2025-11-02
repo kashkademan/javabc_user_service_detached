@@ -39,8 +39,7 @@ public class UserServiceImpl implements UserService {
         createValidation(userDto, minPasswordLength);
         User user = userMapper.toUser(userDto);
         user.setActive(true);
-        Country country = countryRepository.getByIdOrThrow(userDto.countryId());
-        user.setCountry(country);
+        user.setCountry(countryRepository.getByIdOrThrow(userDto.countryId()));
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
@@ -64,8 +63,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.getByIdOrThrow(userId);
         userMapper.update(userDto, user);
-        Country country = countryRepository.getByIdOrThrow(userDto.countryId());
-        user.setCountry(country);
+        user.setCountry(countryRepository.getByIdOrThrow(userDto.countryId()));
         user = userRepository.save(user);
         log.info("User {} updated", user.getId());
         return userMapper.toUserDto(user);
