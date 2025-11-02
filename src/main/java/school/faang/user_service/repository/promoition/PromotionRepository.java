@@ -22,7 +22,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
             WITH locked_row AS (
                 SELECT id FROM promotions WHERE id = :id FOR UPDATE
             )
-            UPDATE promotions 
+            UPDATE promotion 
             SET remaining_display = remaining_display - 1 
             WHERE id = :id AND remaining_display >= 1
             """, nativeQuery = true)

@@ -26,7 +26,7 @@ public class PromotionController {
         return promotionFacade.createPromotion(promotionCreateDto);
     }
 
-    @GetMapping()
+    @GetMapping
     public PromotionDto getPromotionByUserId() {
         return promotionFacade.getPromotionByUserId();
     }
