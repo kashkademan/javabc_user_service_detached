@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,32 +18,31 @@ import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
 @RestController
-@RequestMapping("/api/v1/invitations")
+@RequestMapping("/api/v1/goals")
 @RequiredArgsConstructor
 public class GoalInvitationController {
 
     private final GoalInvitationService service;
 
-    @PostMapping("/{goalId}")
+    @PostMapping("/{goalId}/invitations")
     public ResponseEntity<GoalInvitationDto> create(@PathVariable long goalId,
                                                     @Valid @RequestBody CreateGoalInvitationDto invitationDto) {
         GoalInvitationDto goalInvitationDto = service.create(goalId, invitationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(goalInvitationDto);
     }
 
-    @PostMapping("/{invitationId}/accept")
-    public ResponseEntity<Void> accept(@PathVariable long invitationId) {
+    @PatchMapping("/invitations/{invitationId}/accept")
+    public void accept(@PathVariable long invitationId) {
         service.accept(invitationId);
-        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{invitationId}/reject")
+    @PostMapping("/invitations/{invitationId}/reject")
     public ResponseEntity<Void> reject(@PathVariable long invitationId) {
         service.reject(invitationId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping("/invitations")
     public ResponseEntity<List<GoalInvitationDto>> getByFilters(@Valid GoalInvitationFilterDto filters) {
         List<GoalInvitationDto> listOfGoalInvitation = service.getByFilters(filters);
         return ResponseEntity.status(HttpStatus.OK).body(listOfGoalInvitation);

@@ -20,9 +20,11 @@ public class ValidationService {
     public void validateCreation(Goal goal, CreateGoalInvitationDto invitationDto) {
         boolean inviterIsInvitedUser = invitationDto.invitedUserId().equals(userContext.getUserId());
         boolean invitedUserAlreadyWorkOnThisGoal = goal.getUsers().stream()
-                .anyMatch(user -> invitationDto.invitedUserId().equals(user.getId()));
+                .anyMatch(user -> invitationDto.invitedUserId()
+                        .equals(user.getId()));
         boolean invitedUserIsMentor = goal.getMentor() != null
-                && invitationDto.invitedUserId().equals(goal.getMentor().getId());
+                && invitationDto.invitedUserId()
+                .equals(goal.getMentor().getId());
 
         if (inviterIsInvitedUser || invitedUserAlreadyWorkOnThisGoal || invitedUserIsMentor) {
             log.warn("User {} cannot be invited to goal {}: already involved",
@@ -33,7 +35,10 @@ public class ValidationService {
 
     public void validateAccept(User user, long goalId) {
         userContext.getUserId();
-        long activeGoals = user.getGoals().stream().filter(goal -> goal.getStatus().equals(GoalStatus.ACTIVE)).count();
+        long activeGoals = user.getGoals().stream()
+                .filter(goal -> goal.getStatus()
+                        .equals(GoalStatus.ACTIVE))
+                .count();
         boolean alreadyJoin = user.getGoals().stream()
                 .anyMatch(goal -> goal.getId().equals(goalId));
 
