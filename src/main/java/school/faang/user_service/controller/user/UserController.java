@@ -2,7 +2,6 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,30 +23,30 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody CreateUserDto userDto) {
+    public UserDto create(@RequestBody CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateString(userDto.password(), "password");
         validateNotNull(userDto.countryId(), "country");
-        return ResponseEntity.ok(userService.create(userDto));
+        return userService.create(userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Long> delete(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.delete(userId));
+    public Long delete(@PathVariable Long userId) {
+        return userService.delete(userId);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@PathVariable long userId, @RequestBody UpdateUserDto userDto) {
+    public UserDto update(@PathVariable long userId, @RequestBody UpdateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateNotNull(userDto.countryId(), "country");
-        return ResponseEntity.ok(userService.update(userId, userDto));
+        return userService.update(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getById(long userId) {
-        return ResponseEntity.ok(userService.getById(userId));
+    public UserDto getById(long userId) {
+        return userService.getById(userId);
     }
 
     private void validateString(String value, String paramName) {
