@@ -46,7 +46,7 @@ public class MentorshipRequestFilterMentorTest extends DataForTests {
                 REQUEST_STATUS_NULL);
 
         List<MentorshipRequest> resultMentorshipRequest = List.of(
-                mentReqR23,
+                mentReqP23,
                 mentReqP43,
                 mentReqR13
         );

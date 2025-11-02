@@ -107,22 +107,22 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
         verify(mentorshipRequestRepository, never()).create(anyLong(), anyLong(), anyString());
     }
 
-    Stream<Arguments> validArgs() {
+    Stream<Arguments> invalidCreateArgs() {
         return Stream.of(
                 Arguments.of(
                         FIXED_CREATE_MENTORSHIP_REQUEST_DTO,
-                        LocalDateTime.now(),
+                        FIXED_LOCAL_DATE_TIME,
                         RequestStatus.ACCEPTED,
                         "MentorCannotAcceptRequestFromUserIfHeIsAlreadyTheirMentor"),
                 Arguments.of(
                         FIXED_CREATE_MENTORSHIP_REQUEST_DTO,
-                        LocalDateTime.now(),
+                        FIXED_LOCAL_DATE_TIME,
                         RequestStatus.PENDING,
                         "RequestForMentoringCanOnlyBeMadeOncePer"
                                 + MENTORING_REQUEST_LIMITATION.toTotalMonths() + " months"),
                 Arguments.of(
                         FIXED_CREATE_MENTORSHIP_REQUEST_DTO,
-                        LocalDateTime.now().plus(MENTORING_REQUEST_LIMITATION),
+                        FIXED_LOCAL_DATE_TIME.plus(MENTORING_REQUEST_LIMITATION),
                         RequestStatus.PENDING,
                         "MentoringRequestAlreadyExistsAndIsInTheStatus"
                                 + RequestStatus.PENDING)
@@ -130,7 +130,7 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
     }
 
     @ParameterizedTest(name = "create_Error. {3}")
-    @MethodSource("validArgs")
+    @MethodSource("invalidCreateArgs")
     void create_Error(CreateMentorshipRequestDto requestDto,
                       LocalDateTime createdAt,
                       RequestStatus status,
@@ -168,10 +168,10 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
                 FIXED_CREATE_MENTORSHIP_REQUEST_DTO.mentorId())).thenReturn(mentorshipRequest);
 
         MentorshipRequest createMentorshipRequest = createMentorshipRequest(
-                RequestStatus.ACCEPTED,
+                RequestStatus.PENDING,
                 MENTEE_ID_1,
                 FIXED_CREATE_MENTORSHIP_REQUEST_DTO.mentorId(),
-                LocalDateTime.now());
+                FIXED_LOCAL_DATE_TIME);
 
         when(mentorshipRequestRepository.create(
                 args.menteeId(),
@@ -188,6 +188,7 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
         MentorshipRequestDto createMentorshipRequestDto = mentorshipRequestMapper
                 .toMentorshipRequestDto(createMentorshipRequest);
         assertEquals(createMentorshipRequestDto, resultCreateMentorshipRequestDto);
+        assertEquals(createMentorshipRequestDto.status(), RequestStatus.PENDING);
     }
 
     Stream<Arguments> validArgsGetByFilters() {
@@ -229,7 +230,7 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
                         new MentorshipRequestFilterDto(null, MENTOR_ID_3, RequestStatus.REJECTED),
                         "AllMentorId3MentoringRefusals"),
                 Arguments.of(
-                        List.of(mentReqR23, mentReqP43),
+                        List.of(mentReqP23, mentReqP43),
                         new MentorshipRequestFilterDto(null, MENTOR_ID_3, RequestStatus.PENDING),
                         "All mentoring requests to MentorId3")
         );

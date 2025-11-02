@@ -33,7 +33,7 @@ public abstract class DataForTests {
     protected static final RequestStatus REQUEST_STATUS_NULL = null;
     protected List<MentorshipRequest> mentorshipRequestAll;
     protected MentorshipRequest mentReqA12;
-    protected MentorshipRequest mentReqR23;
+    protected MentorshipRequest mentReqP23;
     protected MentorshipRequest mentReqP43;
     protected MentorshipRequest mentReqR13;
     protected MentorshipRequest mentReqR14;
@@ -62,13 +62,12 @@ public abstract class DataForTests {
                                 arg.status,
                                 arg.menteeId,
                                 arg.mentorId,
-                                arg.createdAt),
-                        (v1, v2) -> v1
+                                arg.createdAt)
                 ));
 
         mentReqA12 = mentorshipRequests.get(
                 new ArgsMentorshipRequest(RequestStatus.ACCEPTED, MENTEE_ID_1, MENTOR_ID_2, FIXED_LOCAL_DATE_TIME));
-        mentReqR23 = mentorshipRequests.get(
+        mentReqP23 = mentorshipRequests.get(
                 new ArgsMentorshipRequest(RequestStatus.PENDING, MENTEE_ID_2, MENTOR_ID_3, FIXED_LOCAL_DATE_TIME));
         mentReqP43 = mentorshipRequests.get(
                 new ArgsMentorshipRequest(RequestStatus.PENDING, MENTEE_ID_4, MENTOR_ID_3, FIXED_LOCAL_DATE_TIME));

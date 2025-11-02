@@ -1,10 +1,8 @@
 package school.faang.user_service.service.mentorship;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
@@ -27,9 +25,8 @@ import java.util.stream.Stream;
 
 
 @Slf4j
-@Service
+@Service()
 @RequiredArgsConstructor
-@Validated
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
@@ -38,7 +35,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final Period mentoringRequestLimitation;
 
     @Override
-    public @Valid MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
+    public MentorshipRequestDto create(CreateMentorshipRequestDto requestDto) {
         businessRule(requestDto.mentorId());
 
         MentorshipRequest createMentorshipRequest = mentorshipRequestRepository
@@ -50,7 +47,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
-    public List<@Valid MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
+    public List<MentorshipRequestDto> getByFilters(MentorshipRequestFilterDto filter) {
         Stream<MentorshipRequest> mentorshipRequestAll = mentorshipRequestRepository.findAll().stream();
 
         for (MentorshipRequestFilter itemFilter : mentorshipRequestFilter) {
