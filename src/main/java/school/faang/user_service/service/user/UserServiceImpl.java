@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -24,6 +26,7 @@ import school.faang.user_service.service.redis.PromotionRedisService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +81,7 @@ public class UserServiceImpl implements UserService {
     public Page<UserDto> getUser(Pageable pageable) {
         int countRow = (pageable.getPageNumber() + 1) * pageable.getPageSize();
         List<UserDto> redisUsers = new ArrayList<>();
-        redisUsers.addAll(promotionRedisService.fetchPromotionsAndUpdateViews(countRow));
+        redisUsers.addAll(callingMethodToGetUsersFromRedis(countRow));
 
         if (redisUsers.size() >= countRow) {
             List<UserDto> result = redisUsers.subList(0, countRow);
@@ -106,6 +109,13 @@ public class UserServiceImpl implements UserService {
         allUsers.addAll(dbUserDtos);
         return getPageFromList(allUsers, pageable);
     }
+
+    @Retryable(value = {ConcurrentModificationException.class},
+            maxAttempts = 4, backoff = @Backoff(delay = 1000, multiplier = 2))
+    private List<UserDto> callingMethodToGetUsersFromRedis(int countRow) {
+        return promotionRedisService.fetchPromotionsAndUpdateViews(countRow);
+    }
+
 
     private Page<UserDto> getPageFromList(List<UserDto> list, Pageable pageable) {
         int start = (int) pageable.getOffset();
