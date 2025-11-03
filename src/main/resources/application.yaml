@@ -24,6 +24,19 @@ spring:
       port: 6379
       host: localhost
 
+
+promotion-redis:
+  ttl: 1d
+  time:
+    fixedRate: 600000  #милисекунды
+    initialDelay: 50  #милисекунды
+  promotions:
+    BASIC: 5
+    ADVANCED: 10
+    EXPERIENCE: 50
+    LEGEND: 100
+
+
 server:
   port: 8081
 
@@ -54,3 +67,9 @@ services:
     secretKey: password
     bucketName: corpbucket
     isMocked: false
+
+dice:
+  bear:
+    client:
+      baseUrl: https://api.dicebear.com/7.x
+

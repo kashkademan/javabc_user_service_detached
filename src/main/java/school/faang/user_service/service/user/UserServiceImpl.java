@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -19,9 +17,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.s3.S3Service;
-
-import java.util.concurrent.CompletableFuture;
+import school.faang.user_service.service.avatar.AvatarService;
 
 @Slf4j
 @Service
@@ -31,11 +27,11 @@ public class UserServiceImpl implements UserService {
     @Value("${user.password.min.length}")
     private int minPasswordLength;
 
-    private final S3Service s3Service;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final AvatarService avatarService;
 
     @Transactional
     @Override
@@ -57,11 +53,7 @@ public class UserServiceImpl implements UserService {
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
 
-        CompletableFuture.supplyAsync(() -> {
-            MultipartFile multipartFile = DiceBearClient.generateRandomAvatar();
-            s3Service.saveToFileStorage(multipartFile, key);
-            return multipartFile;
-        });
+        avatarService.generateAndSaveAvatarAsync(key);
 
         return userMapper.toUserDto(user);
     }
