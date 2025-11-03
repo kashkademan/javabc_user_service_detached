@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import school.faang.user_service.service.user.UserService;
 import java.io.IOException;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
@@ -65,6 +67,7 @@ public class UserController {
         try {
             imageBytes = userService.getUserAvatar(userContext.getUserId()).readAllBytes();
         } catch (IOException e) {
+            log.info(String.valueOf(e));
             e.printStackTrace();
         }
         HttpHeaders headers = new HttpHeaders();
