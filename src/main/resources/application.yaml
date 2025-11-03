@@ -46,3 +46,22 @@ user:
 
 goal:
   max-active-goals: 2
+
+cloud:
+  aws:
+    region:
+      static: default
+    stack:
+      auto: false
+    credentials:
+      access-key: user
+      secret-key: password
+    s3:
+      bucketName: bucket
+      endpoint: http://localhost:9000
+
+
+avatar:
+  dicebear:
+    base-url: https://api.dicebear.com/7.x
+    default-style: adventurer

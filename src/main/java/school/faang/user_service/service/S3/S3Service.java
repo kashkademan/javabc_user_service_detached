@@ -1,0 +1,60 @@
+package school.faang.user_service.service.S3;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import school.faang.user_service.exception.FileException;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class S3Service {
+
+    private final S3Client amazonS3;
+
+    @Value("${cloud.aws.s3.bucketName}")
+    private String bucketName;
+
+    public byte[] downloadFileAsBytes(String key) {
+        try {
+            return amazonS3.getObjectAsBytes(
+                    GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .build()
+            ).asByteArray();
+        } catch (S3Exception e) {
+            log.error("Error downloading file from S3, key = '{}'", key, e);
+            throw new FileException(String.format("Error downloading file from S3, key = '%s'", key));
+        }
+    }
+
+    public HeadObjectResponse getFileMetadata(String key) {
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+            return amazonS3.headObject(headObjectRequest);
+        } catch (S3Exception e) {
+            log.error("File not found in S3, key = '{}'", key, e);
+            throw new FileException(String.format("File not found in S3: '%s'", key));
+        }
+    }
+
+    public String getFileContentType(String key) {
+        try {
+            HeadObjectResponse metadata = getFileMetadata(key);
+            return metadata.contentType();
+        } catch (Exception e) {
+            log.warn("Falling back to default content-type for key={}", key);
+            return "image/png";
+        }
+    }
+}

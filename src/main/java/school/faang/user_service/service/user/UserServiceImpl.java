@@ -4,17 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.avatar.AvatarService;
 
 @Slf4j
 @Service
@@ -27,7 +30,9 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final AvatarService avatarService;
 
+    @Transactional
     @Override
     public UserDto create(CreateUserDto userDto) {
         if (userDto.password().length() < minPasswordLength) {
@@ -37,10 +42,18 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
         user = userRepository.save(user);
+
+        String avatarUrl = avatarService.assignRandomAvatar(user.getId());
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setSmallFileId(avatarUrl);
+        user.setUserProfilePic(userProfilePic);
+        user = userRepository.save(user);
+
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto update(long userId, UpdateUserDto userDto) {
         long requesterId = userContext.getUserId();
