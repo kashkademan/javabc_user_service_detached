@@ -2,28 +2,44 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.UserService;
 
-@Component
+@RestController
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    public UserDto create(@Valid CreateUserDto userDto) {
-
+    @PostMapping
+    public UserDto create(@RequestBody CreateUserDto userDto) {
+        validateString(userDto.username(), "username");
+        validateString(userDto.email(), "email");
+        validateString(userDto.password(), "password");
+        validateNotNull(userDto.countryId(), "country");
         return userService.create(userDto);
     }
 
-    public UserDto update(long userId, @Valid UpdateUserDto userDto) {
-
+    @PutMapping("/{userId}")
+    public UserDto update(@PathVariable long userId, @RequestBody UpdateUserDto userDto) {
+        validateString(userDto.username(), "username");
+        validateString(userDto.email(), "email");
+        validateNotNull(userDto.countryId(), "country");
         return userService.update(userId, userDto);
     }
 
-    public UserDto getById(long userId) {
+    @GetMapping("/{userId}")
+    public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
     }
 }
