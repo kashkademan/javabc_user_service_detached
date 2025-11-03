@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.imgscalr.Scalr;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,8 +27,10 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "services.s3.isMocked", havingValue = "false")
 public class S3ServiceImpl implements S3Service {
-    private final AmazonS3 s3Client;
-    private final String bucketName = "amazonBucket";
+    private final AmazonS3 s3Client; //Именно в нем проблема, он не создается!
+
+    @Value("${services.s3.bucketName}")
+    private String bucketName;
 
     @Override
     @Transactional

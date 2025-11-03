@@ -34,6 +34,7 @@ services:
     accessKey: user
     secretKey: password
     bucketName: corpbucket
+    isMocked: false
 
 project-service:
   host: localhost
