@@ -38,7 +38,10 @@ public class PersonValidator {
         }
     }
 
-    private static void validateNotBlankWithRegexp(String value, String fieldName, StringBuilder errors, Pattern pattern) {
+    private static void validateNotBlankWithRegexp(String value,
+                                                   String fieldName,
+                                                   StringBuilder errors,
+                                                   Pattern pattern) {
         if (value == null || value.isBlank()) {
             errors.append(fieldName).append(" must not be empty. ");
         } else if (!pattern.matcher(value).matches()) {
