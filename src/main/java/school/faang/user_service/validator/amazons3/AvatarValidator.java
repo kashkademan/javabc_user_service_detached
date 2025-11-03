@@ -1,4 +1,4 @@
-package school.faang.user_service.validator.amazonS3;
+package school.faang.user_service.validator.amazons3;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

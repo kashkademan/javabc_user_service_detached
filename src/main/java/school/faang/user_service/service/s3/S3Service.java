@@ -1,4 +1,4 @@
-package school.faang.user_service.service.S3;
+package school.faang.user_service.service.s3;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
