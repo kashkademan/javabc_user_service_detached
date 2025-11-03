@@ -17,21 +17,21 @@ import school.faang.user_service.service.user.UsersBanListener;
 @Configuration
 public class RedisConfig {
     @Value("${redis.topics.listener.user-ban-topic}")
-    private String USER_BAN_TOPIC;
+    private String userBanTopic;
     @Value("${spring.data.redis.host}")
-    private String REDIS_HOST;
+    private String redisHost;
     @Value("${spring.data.redis.port}")
-    private int REDIS_PORT;
+    private int redisPort;
     @Value("${spring.data.redis.password}")
-    private String REDIS_PASSWORD;
+    private String redisPassword;
 
     @Bean
     public RedisConnectionFactory connectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(REDIS_HOST);
-        config.setPort(REDIS_PORT);
-        if (REDIS_PASSWORD != null && !REDIS_PASSWORD.isEmpty()) {
-            config.setPassword(RedisPassword.of(REDIS_PASSWORD));
+        config.setHostName(redisHost);
+        config.setPort(redisPort);
+        if (redisPassword != null && !redisPassword.isEmpty()) {
+            config.setPassword(RedisPassword.of(redisPassword));
         }
         return new LettuceConnectionFactory(config);
     }
@@ -48,7 +48,7 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic userBanTopic() {
-        return new ChannelTopic(USER_BAN_TOPIC);
+        return new ChannelTopic(userBanTopic);
     }
 
     @Bean

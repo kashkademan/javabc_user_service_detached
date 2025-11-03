@@ -33,7 +33,7 @@ class UsersBanListenerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void onMessage_ValidUserIds_ShouldBanUsers() throws JsonProcessingException {
+    void onMessage_validUserIds_shouldBanUsers() throws JsonProcessingException {
         List<Long> userIds = List.of(1L, 2L, 3L);
         String jsonMessage = objectMapper.writeValueAsString(userIds);
         byte[] pattern = "user-ban-topic".getBytes();
@@ -46,7 +46,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    void onMessage_EmptyUserList_ShouldNotBanUsers() throws JsonProcessingException {
+    void onMessage_emptyUserList_shouldNotBanUsers() throws JsonProcessingException {
         List<Long> emptyList = List.of();
         String jsonMessage = objectMapper.writeValueAsString(emptyList);
         byte[] pattern = "user-ban-topic".getBytes();
@@ -59,7 +59,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    void onMessage_InvalidJson_ShouldNotBanUsers() {
+    void onMessage_invalidJson_shouldNotBanUsers() {
         String invalidJson = "invalid json";
         byte[] pattern = "user-ban-topic".getBytes();
 
@@ -71,7 +71,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    void onMessage_EmptyBody_ShouldNotBanUsers() {
+    void onMessage_emptyBody_shouldNotBanUsers() {
         String emptyBody = "";
         byte[] pattern = "user-ban-topic".getBytes();
 
@@ -83,7 +83,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    void onMessage_SingleUserId_ShouldBanUser() throws JsonProcessingException {
+    void onMessage_singleUserId_shouldBanUser() throws JsonProcessingException {
         List<Long> userIds = List.of(10L);
         String jsonMessage = objectMapper.writeValueAsString(userIds);
         byte[] pattern = "user-ban-topic".getBytes();
