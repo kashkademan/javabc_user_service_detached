@@ -19,7 +19,7 @@ public class PromotionFacade {
 
     public PromotionDto createPromotion(PromotionCreateDto promotionCreateDto) {
         Promotion promotion = promotionMapper.toPromotion(promotionCreateDto);
-        Promotion result = promotionService.crearePromotion(promotion, promotionCreateDto.paymentRequest());
+        Promotion result = promotionService.create(promotion, promotionCreateDto.paymentRequest());
         return promotionMapper.toPromotionDto(result);
     }
 

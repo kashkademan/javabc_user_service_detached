@@ -33,7 +33,7 @@ public class PromotionService {
     private final PromotionConfig promotionConfig;
 
 
-    public Promotion crearePromotion(Promotion promotion, PaymentRequest paymentRequest) {
+    public Promotion create(Promotion promotion, PaymentRequest paymentRequest) {
 
         Long userId = userContext.getUserId();
         userRepository.getByIdOrThrow(userId);

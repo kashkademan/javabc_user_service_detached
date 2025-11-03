@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -25,8 +23,6 @@ import school.faang.user_service.service.redis.PromotionRedisService;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,13 +75,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public Page<UserDto> getUser(Pageable pageable) {
+
         int countRow = (pageable.getPageNumber() + 1) * pageable.getPageSize();
-        List<UserDto> redisUsers = new ArrayList<>();
-        redisUsers.addAll(callingMethodToGetUsersFromRedis(countRow));
+        System.out.println(countRow);
+        List<UserDto> redisUsers = getUsersWithPromotions(pageable, countRow);
 
         if (redisUsers.size() >= countRow) {
-            List<UserDto> result = redisUsers.subList(0, countRow);
-            return new PageImpl<>(result, pageable, result.size());
+            return new PageImpl<>(redisUsers, pageable, redisUsers.size());
         }
 
         List<Long> redisUserIds = redisUsers.stream()
@@ -96,13 +92,10 @@ public class UserServiceImpl implements UserService {
         int remainingCount = countRow - sizeRedisList;
 
         Page<User> dbUsers = userRepository.findByIdNotIn(redisUserIds,
-                PageRequest.of(0, remainingCount, pageable.getSort()));
+                PageRequest.of(pageable.getPageNumber(), remainingCount, pageable.getSort()));
         List<UserDto> dbUserDtos = dbUsers.stream()
                 .map(userMapper::toUserDto)
                 .toList();
-
-        Comparator<UserDto> comparator = promotionRedisService.createComparatorFromSort(pageable.getSort());
-        redisUsers.sort(comparator);
 
         List<UserDto> allUsers = new ArrayList<>();
         allUsers.addAll(redisUsers);
@@ -110,12 +103,14 @@ public class UserServiceImpl implements UserService {
         return getPageFromList(allUsers, pageable);
     }
 
-    @Retryable(value = {ConcurrentModificationException.class},
-            maxAttempts = 4, backoff = @Backoff(delay = 1000, multiplier = 2))
-    private List<UserDto> callingMethodToGetUsersFromRedis(int countRow) {
-        return promotionRedisService.fetchPromotionsAndUpdateViews(countRow);
-    }
+    private List<UserDto> getUsersWithPromotions(Pageable pageable, int countRow) {
 
+        List<UserDto> redisUsers = new ArrayList<>();
+        redisUsers.addAll(promotionRedisService.fetchPromotionsAndUpdateViews(countRow, pageable));
+
+        //List<UserDto> result = redisUsers.subList(0, countRow);
+        return redisUsers;
+    }
 
     private Page<UserDto> getPageFromList(List<UserDto> list, Pageable pageable) {
         int start = (int) pageable.getOffset();

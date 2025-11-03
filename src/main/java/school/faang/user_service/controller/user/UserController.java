@@ -48,7 +48,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/promotion/{countRow}")
+    @GetMapping("/promotion")
     public Page<UserDto> getUser(@PageableDefault Pageable pageable) {
         Page<UserDto> results = userServiceImpl.getUser(pageable);
         return results;

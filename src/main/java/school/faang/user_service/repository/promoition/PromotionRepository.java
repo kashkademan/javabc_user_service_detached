@@ -20,7 +20,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Modifying
     @Query(value = """
             WITH locked_row AS (
-                SELECT id FROM promotions WHERE id = :id FOR UPDATE
+                SELECT id FROM promotion WHERE id = :id FOR UPDATE
             )
             UPDATE promotion 
             SET remaining_display = remaining_display - 1 
@@ -32,7 +32,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Query(value = """
             UPDATE Promotion p 
             SET p.promotionStatus = 'ENDED'
-            WHERE p.id = :id AND p.remainingDisplay <= 1
+            WHERE p.id = :id AND p.remainingDisplay <= 0
             """)
     int updateIfNoRemainingDisplay(@Param("id") Long id);
 

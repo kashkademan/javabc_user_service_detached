@@ -26,7 +26,7 @@ promotion-redis:
   ttl: 1d
   time:
     fixedRate: 600000  #милисекунды
-    initialDelay: 100  #милисекунды
+    initialDelay: 50  #милисекунды
   promotions:
     BASIC: 5
     ADVANCED: 10
