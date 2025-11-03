@@ -11,7 +11,6 @@ import java.util.Random;
 @Slf4j
 @RequiredArgsConstructor
 public class AvatarGenerationServiceImpl implements AvatarGenerationService {
-    private final Random random = new Random();
     private final List<String> flipVariants = List.of(
             "true",
             "false"
@@ -81,6 +80,7 @@ public class AvatarGenerationServiceImpl implements AvatarGenerationService {
 
     @Override
     public String generateAvatarUrl() {
+        Random random = new Random();
         String generatedAvatarUrl = "https://api.dicebear.com/9.x/big-smile/svg";
         int randomElementIndex = random.nextInt(flipVariants.size());
         generatedAvatarUrl += "?flip=" + flipVariants.get(randomElementIndex);
