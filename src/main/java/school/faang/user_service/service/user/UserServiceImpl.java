@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-
     @Value("${user.password.min.length}")
     private int minPasswordLength;
     private final UserRepository userRepository;
@@ -75,49 +74,38 @@ public class UserServiceImpl implements UserService {
     }
 
     public Page<UserDto> getUser(Pageable pageable) {
+        List<UserDto> allRedisUsers = getUsersWithPromotions(pageable, Integer.MAX_VALUE);
 
-        int countRow = (pageable.getPageNumber() + 1) * pageable.getPageSize();
-        System.out.println(countRow);
-        List<UserDto> redisUsers = getUsersWithPromotions(pageable, countRow);
-
-        if (redisUsers.size() >= countRow) {
-            return new PageImpl<>(redisUsers, pageable, redisUsers.size());
-        }
-
-        List<Long> redisUserIds = redisUsers.stream()
-                .map(userDto -> userDto.id())
+        List<Long> redisUserIds = allRedisUsers.stream()
+                .map(UserDto::id)
                 .collect(Collectors.toList());
 
-        int sizeRedisList = redisUsers.size();
-        int remainingCount = countRow - sizeRedisList;
-
-        Page<User> dbUsers = userRepository.findByIdNotIn(redisUserIds,
-                PageRequest.of(pageable.getPageNumber(), remainingCount, pageable.getSort()));
-        List<UserDto> dbUserDtos = dbUsers.stream()
+        Page<User> dbUsers = userRepository.findByIdNotIn(
+                redisUserIds,
+                PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort()) // Берем всех
+        );
+        List<UserDto> allDbUsers = dbUsers.stream()
                 .map(userMapper::toUserDto)
                 .toList();
 
         List<UserDto> allUsers = new ArrayList<>();
-        allUsers.addAll(redisUsers);
-        allUsers.addAll(dbUserDtos);
+        allUsers.addAll(allRedisUsers);
+        allUsers.addAll(allDbUsers);
         return getPageFromList(allUsers, pageable);
     }
 
-    private List<UserDto> getUsersWithPromotions(Pageable pageable, int countRow) {
-
-        List<UserDto> redisUsers = new ArrayList<>();
-        redisUsers.addAll(promotionRedisService.fetchPromotionsAndUpdateViews(countRow, pageable));
-
-        return redisUsers;
+    private List<UserDto> getUsersWithPromotions(Pageable pageable, int limit) {
+        return promotionRedisService.fetchPromotionsAndUpdateViews(limit, pageable);
     }
 
     private Page<UserDto> getPageFromList(List<UserDto> list, Pageable pageable) {
         int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), list.size());
-        if (start > list.size()) {
+
+        if (start < 0 || start >= list.size()) {
             return new PageImpl<>(Collections.emptyList(), pageable, list.size());
         }
 
+        int end = Math.min((start + pageable.getPageSize()), list.size());
         List<UserDto> pageContent = list.subList(start, end);
         return new PageImpl<>(pageContent, pageable, list.size());
     }
