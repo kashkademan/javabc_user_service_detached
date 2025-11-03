@@ -2,7 +2,6 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,19 +21,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@RequestBody CreateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateString(userDto.password(), "password");
-        validateNotNull(userDto.countryId(), "country");
+    public UserDto create(@RequestBody @Valid CreateUserDto userDto) {
+
         return userService.create(userDto);
     }
 
     @PutMapping("/{userId}")
-    public UserDto update(@PathVariable long userId, @RequestBody UpdateUserDto userDto) {
-        validateString(userDto.username(), "username");
-        validateString(userDto.email(), "email");
-        validateNotNull(userDto.countryId(), "country");
+    public UserDto update(@PathVariable long userId, @RequestBody @Valid UpdateUserDto userDto) {
+
         return userService.update(userId, userDto);
     }
 
