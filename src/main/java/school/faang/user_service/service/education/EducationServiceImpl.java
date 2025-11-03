@@ -74,7 +74,7 @@ public class EducationServiceImpl implements EducationService {
 
     private void validateEducation(EducationDto educationDto) {
         if (educationDto.yearFrom() == null
-                && educationDto.institution().isBlank()) {
+                || educationDto.institution().isBlank()) {
             String message = "Отсутствуют год поступления или учебное заведение";
             log.warn(message);
             throw new DataValidationException(message);
