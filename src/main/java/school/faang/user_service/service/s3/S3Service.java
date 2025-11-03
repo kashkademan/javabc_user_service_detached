@@ -49,11 +49,8 @@ public class S3Service {
         }
     }
 
-    public byte[] downloadAvatarAsBytes(String key) {
-        return downloadFileAsBytes(key);
-    }
 
-    public byte[] downloadFileAsBytes(String key) {
+    public byte[] downloadAvatarAsBytes(String key) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
@@ -79,15 +76,6 @@ public class S3Service {
 
         } catch (S3Exception e) {
             throw new FileException(String.format("File not found in S3: {}", key));
-        }
-    }
-
-    public String getFileContentType(String key) {
-        try {
-            HeadObjectResponse metadata = getFileMetadata(key);
-            return metadata.contentType();
-        } catch (Exception e) {
-            return "image/svg+xml";
         }
     }
 }
