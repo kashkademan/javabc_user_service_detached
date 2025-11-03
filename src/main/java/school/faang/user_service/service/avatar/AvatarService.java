@@ -32,8 +32,8 @@ public class AvatarService {
     private final DiceBearClient diceBearClient;
     private final S3Client amazonS3;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    @Value("${cloud.aws.s3.bucketName}")
+    private String bucketName;
 
     public ResponseEntity<byte[]> getAvatarUsers(Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
@@ -62,7 +62,7 @@ public class AvatarService {
 
             amazonS3.putObject(
                     PutObjectRequest.builder()
-                            .bucket(bucket)
+                            .bucket(bucketName)
                             .key(key)
                             .contentType("image/png")
                             .build(),
