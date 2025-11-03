@@ -1,7 +1,9 @@
 package school.faang.user_service.repository.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 
@@ -33,4 +35,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User %d not found", userId)));
     }
+
+    @Modifying
+    @Query("""
+            UPDATE User u SET u.banned = true WHERE u.id IN :authorIds
+            """)
+    void bannedByIds(@Param("authorIds") List<Long> authorIds);
 }
