@@ -60,7 +60,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     @Override
     public CountResponse getFollowersCount(long followeeId) {
-        long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
+        int count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
         log.debug("Number of subscribers of the user {}: {}", followeeId, count);
         return new CountResponse(count);
     }
