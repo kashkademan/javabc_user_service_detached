@@ -13,6 +13,8 @@ import school.faang.user_service.controller.facade.promotion.PromotionFacade;
 import school.faang.user_service.dto.promotion.PromotionCreateDto;
 import school.faang.user_service.dto.promotion.PromotionDto;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/promotions")
 @RestController
@@ -27,7 +29,7 @@ public class PromotionController {
     }
 
     @GetMapping
-    public PromotionDto getPromotionByUserId() {
+    public List<PromotionDto> getPromotionByUserId() {
         return promotionFacade.getPromotionByUserId();
     }
 

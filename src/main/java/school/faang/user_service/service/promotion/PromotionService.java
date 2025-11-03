@@ -16,6 +16,7 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.promotion.validator.PromotionValidator;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
+import java.util.List;
 import java.util.Objects;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
@@ -39,9 +40,9 @@ public class PromotionService {
         userRepository.getByIdOrThrow(userId);
 
         promotion.setUserId(userId);
-
-        PromotionValidator.validateExistsByUserIdPromotion(() -> promotionRepository.existsByUserId(userId), userId);
-
+        List<Promotion> promotionListByUser = promotionRepository.findPromotionByUserId(userId);
+        PromotionValidator.validateExistsByUserStatusPromotion(promotionListByUser, userId);
+        System.out.println(promotion.getPromotionStatus());
         ResponseEntity<PaymentResponse> responseEntity = paymentServiceClient.sendPayment(paymentRequest);
         PaymentResponse paymentResponse = responseEntity.getBody();
 
@@ -60,9 +61,9 @@ public class PromotionService {
     }
 
 
-    public Promotion getPromotionByUserId() {
+    public List<Promotion> getPromotionByUserId() {
         Long userId = userContext.getUserId();
-        Promotion result = promotionRepository.getPromotionByUserId(userId);
+        List<Promotion> result = promotionRepository.findPromotionByUserId(userId);
         if (Objects.isNull(result)) {
             throw new EntityNotFoundException(String
                     .format("The user %s currently has no promotion! Now is the time to register", userId));

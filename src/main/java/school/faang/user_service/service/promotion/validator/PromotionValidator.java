@@ -2,13 +2,15 @@ package school.faang.user_service.service.promotion.validator;
 
 import school.faang.user_service.dto.payment.PaymentResponse;
 import school.faang.user_service.dto.payment.PaymentStatus;
+import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static school.faang.user_service.dto.payment.PaymentStatus.SUCCESS;
+import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 
 public class PromotionValidator {
 
@@ -28,10 +30,12 @@ public class PromotionValidator {
         }
     }
 
-    public static void validateExistsByUserIdPromotion(Supplier<Boolean> existsSupplier, Long userId) {
-        Boolean exists = existsSupplier.get();
-        if (exists) {
-            throw new DataValidationException(String.format("User %d already has promotions", userId));
-        }
+    public static void validateExistsByUserStatusPromotion(List<Promotion> promotionList, Long userId) {
+        promotionList.stream()
+                .filter(promotion -> Objects.equals(promotion.getPromotionStatus(), ACTIVE))
+                .forEach(promotion -> {
+                    throw new DataValidationException(String.format("User %d already has promotions %s", userId));
+                });
     }
+
 }

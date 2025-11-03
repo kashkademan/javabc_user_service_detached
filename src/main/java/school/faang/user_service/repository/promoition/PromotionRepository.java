@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
-    List<Promotion> findByPromotionStatusNot(PromotionStatus promotionStatus);
+    List<Promotion> findByPromotionStatus(PromotionStatus promotionStatus);
 
     boolean existsByUserId(Long userId);
 
@@ -20,7 +20,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Modifying
     @Query(value = """
             WITH locked_row AS (
-                SELECT id FROM promotion WHERE id = :id FOR UPDATE
+                SELECT id FROM promotion WHERE id = :id FOR UPDATE 
             )
             UPDATE promotion 
             SET remaining_display = remaining_display - 1 
@@ -38,6 +38,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     Promotion getPromotionByUserId(Long userId);
 
+    List<Promotion> findPromotionByUserId(Long userId);
 }
 
 

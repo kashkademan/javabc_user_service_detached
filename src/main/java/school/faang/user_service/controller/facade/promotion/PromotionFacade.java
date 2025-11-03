@@ -9,6 +9,8 @@ import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.mapper.PromotionMapper;
 import school.faang.user_service.service.promotion.PromotionService;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -23,9 +25,11 @@ public class PromotionFacade {
         return promotionMapper.toPromotionDto(result);
     }
 
-    public PromotionDto getPromotionByUserId() {
-        Promotion result = promotionService.getPromotionByUserId();
-        return promotionMapper.toPromotionDto(result);
+    public List<PromotionDto> getPromotionByUserId() {
+        List<Promotion> result = promotionService.getPromotionByUserId();
+        return result.stream()
+                .map(promotionMapper::toPromotionDto)
+                .toList();
     }
 
 
