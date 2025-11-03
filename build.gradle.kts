@@ -47,6 +47,8 @@ dependencies {
     /**
      * Utils & Logging
      */
+
+    implementation("org.springdoc", "springdoc-openapi-starter-webmvc-ui", "2.6.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("org.slf4j:slf4j-api:2.0.5")
