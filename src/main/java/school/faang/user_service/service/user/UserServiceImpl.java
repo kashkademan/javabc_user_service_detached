@@ -108,7 +108,6 @@ public class UserServiceImpl implements UserService {
         List<UserDto> redisUsers = new ArrayList<>();
         redisUsers.addAll(promotionRedisService.fetchPromotionsAndUpdateViews(countRow, pageable));
 
-        //List<UserDto> result = redisUsers.subList(0, countRow);
         return redisUsers;
     }
 
