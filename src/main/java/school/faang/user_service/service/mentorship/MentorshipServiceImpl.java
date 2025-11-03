@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.mentorship.service;
+package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.repository.mentorship.dto.MentorshipDto;
+import school.faang.user_service.dto.mentorship.MentorshipDto;
 import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
 
 import java.time.LocalDateTime;

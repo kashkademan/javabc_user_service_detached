@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.mentorship.controller;
+package school.faang.user_service.controller.mentorship;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.repository.mentorship.dto.CreateMentorshipRequestDto;
-import school.faang.user_service.repository.mentorship.dto.MentorshipDto;
-import school.faang.user_service.repository.mentorship.service.MentorshipService;
+import school.faang.user_service.dto.mentorship.CreateMentorshipDto;
+import school.faang.user_service.dto.mentorship.MentorshipDto;
+import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class MentorshipController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MentorshipDto addMentorship(@Valid @RequestBody CreateMentorshipRequestDto request) {
+    public MentorshipDto addMentorship(@Valid @RequestBody CreateMentorshipDto request) {
         return mentorshipService.addMentorship(request.mentorId(), request.menteeId());
     }
 

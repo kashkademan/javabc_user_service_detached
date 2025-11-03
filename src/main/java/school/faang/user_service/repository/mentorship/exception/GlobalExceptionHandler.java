@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.repository.mentorship.dto.ErrorResponseDto;
+import school.faang.user_service.dto.mentorship.ErrorResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.mentorship_test;
+package school.faang.user_service.service.mentorship;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +10,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.repository.mentorship.service.MentorshipServiceImpl;
+import school.faang.user_service.service.mentorship.MentorshipServiceImpl;
 import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
 
 import java.util.ArrayList;
