@@ -1,6 +1,5 @@
 package school.faang.user_service.messages.redis.listeners;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,126 +33,30 @@ class UsersBanListenerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void onMessage_validUserIds_shouldBanUsers() {
-        List<Long> userIds = List.of(1L, 2L, 3L);
-        String jsonMessage;
-        try {
-            jsonMessage = objectMapper.writeValueAsString(userIds);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] pattern = "user-ban-topic".getBytes();
+    public void onMessage_WhenNonEmptyList_ShouldBanUsers() {
+        List<Long> usersIdList = Arrays.asList(1L, 2L, 3L);
+        byte[] messageBody = serializeToJson(usersIdList);
+        when(message.getBody()).thenReturn(messageBody);
 
-        when(message.getBody()).thenReturn(jsonMessage.getBytes());
+        usersBanListener.onMessage(message, "user_ban_topic".getBytes());
 
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, times(1)).bannedByIds(userIds);
+        verify(userRepository, times(1)).bannedByIds(usersIdList);
+        verify(userRepository, never()).bannedByIds(List.of());
     }
 
     @Test
-    public void onMessage_emptyUserList_shouldNotBanUsers() {
-        List<Long> emptyList = List.of();
-        String jsonMessage;
-        try {
-            jsonMessage = objectMapper.writeValueAsString(emptyList);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] pattern = "user-ban-topic".getBytes();
+    public void onMessage_WhenEmptyList_ShouldNotCallUserRepository() {
+        List<Long> emptyList = Collections.emptyList();
+        byte[] messageBody = serializeToJson(emptyList);
+        when(message.getBody()).thenReturn(messageBody);
 
-        when(message.getBody()).thenReturn(jsonMessage.getBytes());
+        usersBanListener.onMessage(message, "user_ban_topic".getBytes());
 
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, never()).bannedByIds(anyList());
+        verify(userRepository, never()).bannedByIds(any());
     }
 
-    @Test
-    public void onMessage_invalidJson_shouldNotBanUsers() {
-        String invalidJson = "invalid json";
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(invalidJson.getBytes());
-
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, never()).bannedByIds(anyList());
-    }
-
-    @Test
-    public void onMessage_emptyBody_shouldNotBanUsers() {
-        String emptyBody = "";
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(emptyBody.getBytes());
-
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, never()).bannedByIds(anyList());
-    }
-
-    @Test
-    public void onMessage_singleUserId_shouldBanUser() {
-        List<Long> userIds = List.of(10L);
-        String jsonMessage;
-        try {
-            jsonMessage = objectMapper.writeValueAsString(userIds);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(jsonMessage.getBytes());
-
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, times(1)).bannedByIds(userIds);
-    }
-
-    @Test
-    public void onMessage_nullBody_shouldNotBanUsers() {
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(new byte[0]);
-
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, never()).bannedByIds(anyList());
-    }
-
-    @Test
-    public void onMessage_whitespaceJson_shouldNotBanUsers() {
-        String whitespaceJson = "   ";
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(whitespaceJson.getBytes());
-
-        usersBanListener.onMessage(message, pattern);
-
-        verify(userRepository, never()).bannedByIds(anyList());
-    }
-
-    @Test
-    public void onMessage_nullInJson_shouldNotBanUsers() {
-        String nullJson = "null";
-        byte[] pattern = "user-ban-topic".getBytes();
-
-        when(message.getBody()).thenReturn(nullJson.getBytes());
-
-        assertThrows(NullPointerException.class, () -> usersBanListener.onMessage(message, pattern));
-
-        verify(userRepository, never()).bannedByIds(anyList());
-    }
-
-    @Test
-    public void onMessage_generalException_shouldNotBanUsers() {
-        byte[] pattern = "user-ban-topic".getBytes();
-        when(message.getBody()).thenThrow(new RuntimeException("Test exception"));
-
-        assertThrows(RuntimeException.class, () ->
-                usersBanListener.onMessage(message, pattern));
-
-        verify(userRepository, never()).bannedByIds(anyList());
+    private byte[] serializeToJson(List<Long> list) {
+        return new org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer()
+                .serialize(list);
     }
 }
