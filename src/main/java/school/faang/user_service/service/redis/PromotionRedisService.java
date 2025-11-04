@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
+import static school.faang.user_service.entity.promotion.PromotionStatus.ENDED;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -147,7 +148,7 @@ public class PromotionRedisService {
             Set<Object> setMembers = redisTemplate.opsForSet().members(PROMOTION_MAP_KEY_PREFIX);
             deletedByPromotionMapToRedis(promotionId, setMembers);
 
-            int deleted = promotionRepository.updateIfNoRemainingDisplay(promotionId);
+            int deleted = promotionRepository.updateIfNoRemainingDisplay(promotionId, ENDED);
             if (deleted > 0) {
                 log.info("Promotion {} deleted from everywhere", promotionId);
             }
