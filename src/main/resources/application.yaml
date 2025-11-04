@@ -21,6 +21,17 @@ spring:
       port: 6379
       host: localhost
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 
 promotion-redis:
   ttl: 1d
@@ -64,3 +75,8 @@ services:
 
 goal:
   max-active-goals: 2
+
+topics:
+  notifications: notifications.events
+  analytics: analytics.events
+  achievements: achievements.events
