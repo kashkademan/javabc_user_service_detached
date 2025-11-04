@@ -1,0 +1,24 @@
+package school.faang.user_service.entity.redis;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.promotion.Tarif;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+public class RedisPromotionEntity  {
+    private UserDto userDto;
+    private Long promotionId;
+    private Tarif tarif;
+}

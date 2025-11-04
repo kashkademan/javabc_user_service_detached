@@ -1,7 +1,4 @@
 spring:
-  application:
-    name: User Service
-    version: 1.0.0
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres
@@ -24,8 +21,21 @@ spring:
       port: 6379
       host: localhost
 
+
+promotion-redis:
+  ttl: 1d
+  time:
+    fixedRate: 600000  #милисекунды
+    initialDelay: 50  #милисекунды
+  promotions:
+    BASIC: 5
+    ADVANCED: 10
+    EXPERIENCE: 50
+    LEGEND: 100
+
+
 server:
-  port: 8080
+  port: 8081
 
 logging:
   level:
@@ -43,6 +53,14 @@ user:
   password:
     min:
       length: 6
+
+services:
+  s3:
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: corpbucket
+    isMocked: false
 
 goal:
   max-active-goals: 2
