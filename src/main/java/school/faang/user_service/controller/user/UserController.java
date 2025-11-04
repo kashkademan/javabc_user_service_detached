@@ -12,9 +12,9 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
@@ -42,6 +42,12 @@ public class UserController {
         if (StringUtils.isBlank(value)) {
             throw new DataValidationException(paramName + " should be present!");
         }
+    }
+
+    @GetMapping("/promotion")
+    public Page<UserDto> getUser(@PageableDefault Pageable pageable) {
+        Page<UserDto> results = userServiceImpl.getUser(pageable);
+        return results;
     }
 
     private void validateNotNull(Object value, String paramName) {
