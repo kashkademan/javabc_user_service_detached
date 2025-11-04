@@ -64,4 +64,7 @@ public class Promotion {
     @Enumerated(EnumType.STRING)
     @Column(name = "promotion_status")
     private PromotionStatus promotionStatus;
+
+    @Column(name = "update_for_redis")
+    private Boolean updateForRedis;
 }

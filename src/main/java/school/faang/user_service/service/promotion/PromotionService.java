@@ -1,5 +1,6 @@
 package school.faang.user_service.service.promotion;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import school.faang.user_service.config.context.PromotionConfig;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.payment.PaymentRequest;
 import school.faang.user_service.dto.payment.PaymentResponse;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.promotion.Promotion;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.promoition.PromotionRepository;
@@ -60,6 +62,14 @@ public class PromotionService {
         return promotion;
     }
 
+    @Transactional
+    public void updatePromotion(UserDto userDto) {
+        List<Promotion> promotions = promotionRepository.findPromotionByUserId(userDto.id());
+        promotions.forEach(promotion -> {
+            promotion.setUpdateForRedis(true);
+        });
+        promotionRepository.saveAll(promotions);
+    }
 
     public List<Promotion> getPromotionByUserId() {
         Long userId = userContext.getUserId();

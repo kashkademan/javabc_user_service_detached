@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.commons.config.DefaultsBindHandlerAdvisor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -55,8 +52,6 @@ public class PromotionRedisService {
     private final PromotionRepository promotionRepository;
     private final ObjectMapper objectMapper;
     private final DistributedLockService lockService;
-
-    private final DefaultsBindHandlerAdvisor.MappingsProvider mappingsProvider;
 
     public void savePromotionByUser(Promotion promotion, Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
@@ -88,14 +83,22 @@ public class PromotionRedisService {
 
     }
 
+    @Transactional
     @Scheduled(initialDelayString = "${promotion-redis.time.initialDelay}",
             fixedRateString = "${promotion-redis.time.fixedRate}")
     public void syncPromotionData() {
         if (lockService.tryLock(PROMOTION_SYNC_LOCK, Duration.ofSeconds(30))) {
             try {
-                redisTemplate.getConnectionFactory().getConnection().flushDb();
-                List<Promotion> promotions = promotionRepository.findByPromotionStatus(ACTIVE);
-                saveAll(promotions);
+                List<Long> userIds = promotionRepository.findUserIdsWithUpdateForRedisTrue();
+                List<User> users = userRepository.findAllById(userIds);
+                List<UserDto> userDtos = users.stream()
+                        .map(userMapper::toUserDto)
+                        .toList();
+                for (int i = 0; i < userIds.size(); i++) {
+                    updateUserInRedis(userIds.get(i), userDtos.get(i));
+                }
+                promotionRepository.updateForRedisToFalse(userIds);
+
                 log.info("Redis is updating its data");
             } finally {
                 lockService.unlock(PROMOTION_SYNC_LOCK);
@@ -174,6 +177,62 @@ public class PromotionRedisService {
             if (entity.getPromotionId().equals(promotionId)) {
                 redisTemplate.opsForZSet().remove(PROMOTION_SORTED_KEY_PREFIX, member);
                 break;
+            }
+        }
+    }
+
+    private void updateUserInRedis(Long userId, UserDto newUserDto) {
+        updateUserInMap(userId, newUserDto);
+
+        updateUserInzSet(userId, newUserDto);
+
+        log.info("User {} updated in Redis", userId);
+    }
+
+    private void updateUserInMap(Long userId, UserDto newUserDto) {
+        Set<Object> setMembers = redisTemplate.opsForSet().members(PROMOTION_MAP_KEY_PREFIX);
+
+        for (Object member : setMembers) {
+            try {
+                Map<Long, UserDto> map = objectMapper.convertValue(member,
+                        new TypeReference<>() {});
+
+                for (Map.Entry<Long, UserDto> entry : map.entrySet()) {
+                    if (entry.getValue() != null && userId.equals(entry.getValue().id())) {
+                        map.put(entry.getKey(), newUserDto);
+                        redisTemplate.opsForSet().remove(PROMOTION_MAP_KEY_PREFIX, member);
+                        redisTemplate.opsForSet().add(PROMOTION_MAP_KEY_PREFIX, map);
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to process map member: {}", e.getMessage());
+            }
+        }
+    }
+
+    private void updateUserInzSet(Long userId, UserDto newUserDto) {
+        Set<Object> zsetMembers = redisTemplate.opsForZSet().range(PROMOTION_SORTED_KEY_PREFIX, 0, -1);
+
+        for (Object member : zsetMembers) {
+            try {
+                RedisPromotionEntity entity = objectMapper.convertValue(member, RedisPromotionEntity.class);
+
+                if (entity.getUserDto() != null && userId.equals(entity.getUserDto().id())) {
+                    Double score = redisTemplate.opsForZSet().score(PROMOTION_SORTED_KEY_PREFIX, member);
+                    redisTemplate.opsForZSet().remove(PROMOTION_SORTED_KEY_PREFIX, member);
+
+                    RedisPromotionEntity updatedEntity = RedisPromotionEntity.builder()
+                            .userDto(newUserDto)
+                            .promotionId(entity.getPromotionId())
+                            .tarif(entity.getTarif())
+                            .build();
+
+                    redisTemplate.opsForZSet().add(PROMOTION_SORTED_KEY_PREFIX, updatedEntity, score);
+                    return;
+                }
+            } catch (Exception e) {
+                log.warn("Failed to process zset member: {}", e.getMessage());
             }
         }
     }

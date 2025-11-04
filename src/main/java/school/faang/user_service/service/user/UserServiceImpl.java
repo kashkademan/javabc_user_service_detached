@@ -19,6 +19,7 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.promotion.PromotionService;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final PromotionRedisService promotionRedisService;
+    private final PromotionService promotionService;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -64,7 +66,10 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
         user = userRepository.save(user);
         log.info("User {} updated", user.getId());
-        return userMapper.toUserDto(user);
+
+        UserDto userDtoResult = userMapper.toUserDto(user);
+        promotionService.updatePromotion(userDtoResult);
+        return userDtoResult;
     }
 
     @Override

@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS promotion (
     remaining_display     INTEGER   NOT NULL,
     activation_time       TIMESTAMP,
     update_time           TIMESTAMP,
-    promotion_status      TEXT
+    promotion_status      TEXT,
+    update_for_redis      BOOLEAN
 );
 
 CREATE INDEX IF NOT EXISTS idx_promotion_user_id ON promotion(user_id);

@@ -39,6 +39,21 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     Promotion getPromotionByUserId(Long userId);
 
     List<Promotion> findPromotionByUserId(Long userId);
+
+    @Query(value = """
+            SELECT DISTINCT p.userId
+            FROM Promotion p 
+            WHERE p.updateForRedis = true
+                        """)
+    List<Long> findUserIdsWithUpdateForRedisTrue();
+
+    @Modifying
+    @Query(value = """
+            UPDATE Promotion p 
+            SET p.updateForRedis = false 
+             WHERE p.userId IN :userIds
+            """)
+    void updateForRedisToFalse(@Param("userIds") List<Long> userIds);
 }
 
 
