@@ -43,7 +43,7 @@ public class AwsConfig {
     public S3Presigner s3Presigner() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         return S3Presigner.builder()
-                .region(Region.US_WEST_2)
+                .region(Region.US_EAST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
                 .build();

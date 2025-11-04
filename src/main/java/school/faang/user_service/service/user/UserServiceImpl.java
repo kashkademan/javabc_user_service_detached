@@ -11,7 +11,6 @@ import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
@@ -43,11 +42,7 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
         user = userRepository.save(user);
 
-        String avatarUrl = avatarService.assignRandomAvatar(user.getId());
-        UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setSmallFileId(avatarUrl);
-        user.setUserProfilePic(userProfilePic);
-        user = userRepository.save(user);
+        avatarService.assignRandomAvatarAsync(user.getId());
 
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);

@@ -32,7 +32,7 @@ public class UserController {
         return userService.create(userDto);
     }
 
-    @PatchMapping
+    @PatchMapping("/{userId}")
     public UserDto update(@PathVariable long userId, @Valid @RequestBody UpdateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getById(long userId) {
+    public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
     }
 

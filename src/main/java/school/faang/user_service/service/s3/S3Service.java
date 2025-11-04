@@ -30,7 +30,6 @@ public class S3Service {
                             .build()
             ).asByteArray();
         } catch (S3Exception e) {
-            log.error("Error downloading file from S3, key = '{}'", key, e);
             throw new FileException(String.format("Error downloading file from S3, key = '%s'", key));
         }
     }
@@ -43,7 +42,6 @@ public class S3Service {
                     .build();
             return amazonS3.headObject(headObjectRequest);
         } catch (S3Exception e) {
-            log.error("File not found in S3, key = '{}'", key, e);
             throw new FileException(String.format("File not found in S3: '%s'", key));
         }
     }

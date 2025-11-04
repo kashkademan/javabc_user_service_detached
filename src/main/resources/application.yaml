@@ -60,8 +60,6 @@ cloud:
       bucketName: bucket
       endpoint: http://localhost:9000
 
-
-avatar:
-  dicebear:
-    base-url: https://api.dicebear.com/7.x
-    default-style: adventurer
+dicebear:
+  base-url: https://api.dicebear.com/7.x
+  default-style: adventurer
