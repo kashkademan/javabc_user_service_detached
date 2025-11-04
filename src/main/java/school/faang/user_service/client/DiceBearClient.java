@@ -25,7 +25,7 @@ public class DiceBearClient {
     @Value("${dice.bear.client.baseUrl}")
     private String baseUrl;
     @Value("${avatar.default.template}")
-    private final String defaultAvatarTemplate;
+    private String defaultAvatarTemplate;
     private final HttpClient httpClient;
     private static final Random random = new Random();
 
