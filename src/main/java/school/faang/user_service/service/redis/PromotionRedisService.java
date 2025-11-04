@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.promotion.Promotion;
+import school.faang.user_service.entity.promotion.Tarif;
 import school.faang.user_service.entity.redis.RedisPromotionEntity;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -24,10 +25,12 @@ import school.faang.user_service.util.RedisComparingUtil;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static school.faang.user_service.entity.promotion.PromotionStatus.ACTIVE;
 
@@ -58,10 +61,11 @@ public class PromotionRedisService {
     public void savePromotionByUser(Promotion promotion, Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         UserDto userDto = userMapper.toUserDto(user);
-        RedisPromotionEntity redisPromotionEntity = new RedisPromotionEntity(userDto, promotion.getId());
+        RedisPromotionEntity redisPromotionEntity = new RedisPromotionEntity(userDto, promotion.getId(),
+                promotion.getTarif());
 
         Map<Long, UserDto> map = new HashMap<>();
-        ;
+
         map.put(redisPromotionEntity.getPromotionId(), redisPromotionEntity.getUserDto());
 
         redisTemplate.opsForSet().add(PROMOTION_MAP_KEY_PREFIX, map);
@@ -107,20 +111,30 @@ public class PromotionRedisService {
             throw new DataValidationException(String.format("You have entered a negative or zero value %d.",
                     countRow));
         }
-        List<UserDto> resultPromotion = new ArrayList<>();
+
+        Map<Tarif, List<UserDto>> resultByTarif = new EnumMap<>(Tarif.class);
         Set<Object> promotionKeys = redisTemplate.opsForZSet()
                 .range(PROMOTION_SORTED_KEY_PREFIX, 0, countRow - 1);
+
         promotionKeys.stream()
                 .map(valueObj -> objectMapper.convertValue(valueObj, RedisPromotionEntity.class))
                 .peek(redisPromotionEntity
-                        -> resultPromotion.add(redisPromotionEntity.getUserDto()))
-                .forEach(redisPromotionEntity
-                        -> updatePromotionAfterView(redisPromotionEntity.getPromotionId()));
+                        -> {
+                    Tarif tarif = redisPromotionEntity.getTarif();
+                    resultByTarif.computeIfAbsent(tarif, k -> new ArrayList<>())
+                            .add(redisPromotionEntity.getUserDto());
+                })
+                .forEach(redisPromotionEntity  -> {
+                    updatePromotionAfterView(redisPromotionEntity.getPromotionId());
+                });
 
         Comparator<UserDto> comparator = RedisComparingUtil.createComparatorFromSort(pageable.getSort());
-        resultPromotion.sort(comparator);
+        resultByTarif.values().forEach(list -> list.sort(comparator));
+        List<UserDto> resultPromotion = resultByTarif.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Tarif::getScopeForTarif)))
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.toList());
         return resultPromotion;
-
     }
 
     private void updatePromotionAfterView(Long promotionId) {

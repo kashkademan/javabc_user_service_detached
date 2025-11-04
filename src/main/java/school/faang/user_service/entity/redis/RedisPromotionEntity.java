@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.promotion.Tarif;
 
 @Getter
 @Setter
@@ -19,4 +20,5 @@ import school.faang.user_service.dto.user.UserDto;
 public class RedisPromotionEntity  {
     private UserDto userDto;
     private Long promotionId;
+    private Tarif tarif;
 }
