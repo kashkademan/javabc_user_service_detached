@@ -51,7 +51,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    public void onMessage_emptyUserList_shouldNotBanUsers(){
+    public void onMessage_emptyUserList_shouldNotBanUsers() {
         List<Long> emptyList = List.of();
         String jsonMessage;
         try {
