@@ -33,9 +33,7 @@ public class AvatarService {
 
         String smallFileId = userProfilePic.getSmallFileId();
         if (Objects.nonNull(smallFileId)) {
-
             return smallFileId;
-
         } else {
             throw new DataValidationException("SORRY!!!! Service under development!!!!");
         }
