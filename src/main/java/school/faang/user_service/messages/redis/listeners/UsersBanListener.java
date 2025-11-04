@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user;
+package school.faang.user_service.messages.redis.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

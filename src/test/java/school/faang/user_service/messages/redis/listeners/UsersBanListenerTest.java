@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user;
+package school.faang.user_service.messages.redis.listeners;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UsersBanListenerTests {
+class UsersBanListenerTest {
     @Mock
     private UserRepository userRepository;
 
@@ -33,9 +33,14 @@ class UsersBanListenerTests {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void onMessage_validUserIds_shouldBanUsers() throws JsonProcessingException {
+    public void onMessage_validUserIds_shouldBanUsers() {
         List<Long> userIds = List.of(1L, 2L, 3L);
-        String jsonMessage = objectMapper.writeValueAsString(userIds);
+        String jsonMessage;
+        try {
+            jsonMessage = objectMapper.writeValueAsString(userIds);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         byte[] pattern = "user-ban-topic".getBytes();
 
         when(message.getBody()).thenReturn(jsonMessage.getBytes());
@@ -46,9 +51,14 @@ class UsersBanListenerTests {
     }
 
     @Test
-    public void onMessage_emptyUserList_shouldNotBanUsers() throws JsonProcessingException {
+    public void onMessage_emptyUserList_shouldNotBanUsers(){
         List<Long> emptyList = List.of();
-        String jsonMessage = objectMapper.writeValueAsString(emptyList);
+        String jsonMessage;
+        try {
+            jsonMessage = objectMapper.writeValueAsString(emptyList);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         byte[] pattern = "user-ban-topic".getBytes();
 
         when(message.getBody()).thenReturn(jsonMessage.getBytes());
@@ -83,9 +93,14 @@ class UsersBanListenerTests {
     }
 
     @Test
-    public void onMessage_singleUserId_shouldBanUser() throws JsonProcessingException {
+    public void onMessage_singleUserId_shouldBanUser() {
         List<Long> userIds = List.of(10L);
-        String jsonMessage = objectMapper.writeValueAsString(userIds);
+        String jsonMessage;
+        try {
+            jsonMessage = objectMapper.writeValueAsString(userIds);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         byte[] pattern = "user-ban-topic".getBytes();
 
         when(message.getBody()).thenReturn(jsonMessage.getBytes());
