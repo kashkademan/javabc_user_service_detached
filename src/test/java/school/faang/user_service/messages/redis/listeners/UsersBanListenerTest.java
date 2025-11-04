@@ -1,6 +1,5 @@
 package school.faang.user_service.messages.redis.listeners;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,10 +29,8 @@ class UsersBanListenerTest {
     @InjectMocks
     private UsersBanListener usersBanListener;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
-    public void onMessage_WhenNonEmptyList_ShouldBanUsers() {
+    public void onMessage_whenNonEmptyList_shouldBanUsers() {
         List<Long> usersIdList = Arrays.asList(1L, 2L, 3L);
         byte[] messageBody = serializeToJson(usersIdList);
         when(message.getBody()).thenReturn(messageBody);
@@ -45,7 +42,7 @@ class UsersBanListenerTest {
     }
 
     @Test
-    public void onMessage_WhenEmptyList_ShouldNotCallUserRepository() {
+    public void onMessage_whenEmptyList_shouldNotCallUserRepository() {
         List<Long> emptyList = Collections.emptyList();
         byte[] messageBody = serializeToJson(emptyList);
         when(message.getBody()).thenReturn(messageBody);
