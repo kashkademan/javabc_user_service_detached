@@ -125,9 +125,7 @@ class UsersBanListenerTests {
 
         when(message.getBody()).thenReturn(nullJson.getBytes());
 
-        assertThrows(NullPointerException.class, () -> {
-            usersBanListener.onMessage(message, pattern);
-        });
+        assertThrows(NullPointerException.class, () -> usersBanListener.onMessage(message, pattern));
 
         verify(userRepository, never()).bannedByIds(anyList());
     }
@@ -137,9 +135,8 @@ class UsersBanListenerTests {
         byte[] pattern = "user-ban-topic".getBytes();
         when(message.getBody()).thenThrow(new RuntimeException("Test exception"));
 
-        assertThrows(RuntimeException.class, () -> {
-            usersBanListener.onMessage(message, pattern);
-        });
+        assertThrows(RuntimeException.class, () ->
+                usersBanListener.onMessage(message, pattern));
 
         verify(userRepository, never()).bannedByIds(anyList());
     }
