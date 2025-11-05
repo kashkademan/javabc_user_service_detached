@@ -2,7 +2,14 @@ package school.faang.user_service.controller.education;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.education.CreateEducationDto;
 import school.faang.user_service.dto.user.education.EducationDto;
@@ -25,8 +32,7 @@ public class EducationController {
     }
 
     @PutMapping("/{educationId}")
-    public EducationDto updateEducation(@PathVariable long educationId,
-                                        @RequestBody UpdateEducationDto educationDto) {
+    public EducationDto updateEducation(@PathVariable long educationId, @RequestBody UpdateEducationDto educationDto) {
 
 
         long userId = userContext.getUserId();
