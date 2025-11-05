@@ -3,7 +3,7 @@ package school.faang.user_service.publisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 
@@ -12,13 +12,14 @@ import school.faang.user_service.dto.event.EventDto;
 @RequiredArgsConstructor
 public class AnalyticsEventPublisher {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private static final String TOPIC = "analytics";
 
     public void publish(EventDto eventDto) {
         try {
             String jsonEvent = objectMapper.writeValueAsString(eventDto);
-            redisTemplate.convertAndSend("analytics", jsonEvent);
+            kafkaTemplate.send(TOPIC, jsonEvent);
             log.debug("Publisher analytics event: {}", eventDto);
         } catch (Exception e) {
             log.error("Publisher analytics event failed: {}", eventDto, e);
