@@ -31,10 +31,10 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     @Modifying
     @Query(value = """
             UPDATE Promotion p 
-            SET p.promotionStatus = 'ENDED'
+            SET p.promotionStatus = :status
             WHERE p.id = :id AND p.remainingDisplay <= 0
             """)
-    int updateIfNoRemainingDisplay(@Param("id") Long id);
+    int updateIfNoRemainingDisplay(@Param("id") Long id, @Param("status") PromotionStatus status);
 
     Promotion getPromotionByUserId(Long userId);
 

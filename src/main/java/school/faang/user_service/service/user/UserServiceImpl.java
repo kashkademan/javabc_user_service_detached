@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +15,13 @@ import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
 import java.util.ArrayList;
@@ -33,12 +36,15 @@ public class UserServiceImpl implements UserService {
 
     @Value("${user.password.min.length}")
     private int minPasswordLength;
+
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final AvatarService avatarService;
     private final PromotionRedisService promotionRedisService;
 
+    @Transactional
     @Override
     public UserDto create(CreateUserDto userDto) {
         if (userDto.password().length() < minPasswordLength) {
@@ -47,8 +53,19 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
+        String key = String.format("%s %s", user.getUsername(), user.getEmail());
+
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setSmallFileId(key);
+
+        user.setUserProfilePic(userProfilePic);
+
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
+
+        avatarService.generateAndSaveAvatarAsync(key);
+
         return userMapper.toUserDto(user);
     }
 
