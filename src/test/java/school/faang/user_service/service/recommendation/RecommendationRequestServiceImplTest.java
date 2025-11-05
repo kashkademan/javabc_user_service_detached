@@ -7,11 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RejectionDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.user.User;
@@ -72,6 +72,8 @@ class RecommendationRequestServiceImplTest {
                 .phone("54321")
                 .aboutMe("About Петр Петров")
                 .build();
+
+        ReflectionTestUtils.setField(recommendationRequestService, "timeForRequest", 6);
     }
 
     @Test
@@ -105,7 +107,7 @@ class RecommendationRequestServiceImplTest {
     }
 
     @Test
-    void create_ShouldThrowException_WhenRequesterAndReceiverAreSame() {
+    void create_ShouldThrowExceptionWhenRequesterAndReceiverAreSame() {
 
         CreateRecommendationRequestDto sameUserDto = new CreateRecommendationRequestDto(
                 "Message",
@@ -123,12 +125,12 @@ class RecommendationRequestServiceImplTest {
     }
 
     @Test
-    void create_ShouldThrowException_WhenPendingRequestExistsWithinTimeLimit() {
+    void create_ShouldThrowExceptionWhenPendingRequestExistsWithinTimeLimit() {
 
         CreateRecommendationRequestDto createDto = new CreateRecommendationRequestDto(
                 "Please write me a recommendation", 1L, 2L);
 
-        LocalDateTime recentRequestTime = LocalDateTime.now().minusMonths(3);
+        LocalDateTime recentRequestTime = LocalDateTime.now().minusMonths(5);
 
         RecommendationRequest existingRequest = RecommendationRequest.builder()
                 .id(100L)
