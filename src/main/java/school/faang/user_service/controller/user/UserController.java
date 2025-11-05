@@ -2,15 +2,29 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-@Component
+import java.util.List;
+
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -29,8 +43,31 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    public UserDto getById(long userId) {
+    @GetMapping("/{userId}")
+    public UserDto getUser(@PathVariable long userId) {
         return userService.getById(userId);
+    }
+
+    @PostMapping
+    public List<UserDto> getUsersByIds(@RequestBody GetUsersDto getUsersDto) {
+        return userService.getUsersByIds(getUsersDto);
+    }
+
+    @GetMapping("/premium")
+    public List<UserDto> getPremiumUsers(@ModelAttribute UserFiltersDto userFiltersDto) {
+        return userService.getPremiumUsers(userFiltersDto);
+    }
+
+    @PutMapping("/{userId}/deactivate")
+    @ResponseStatus(HttpStatus.OK)
+    public void deactivateUser(@PathVariable long userId) {
+        userService.deactivateUser(userId);
+    }
+
+    @PutMapping("/{userId}/activate")
+    @ResponseStatus(HttpStatus.OK)
+    public void activateUser(@PathVariable long userId) {
+        userService.activateUser(userId);
     }
 
     private void validateString(String value, String paramName) {

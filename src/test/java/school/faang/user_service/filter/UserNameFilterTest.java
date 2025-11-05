@@ -2,6 +2,7 @@ package school.faang.user_service.filter;
 
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.filter.user.UserFilter;
 
 import java.util.stream.Stream;
 

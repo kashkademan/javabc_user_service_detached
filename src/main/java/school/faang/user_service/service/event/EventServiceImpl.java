@@ -12,10 +12,10 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.filter.EventFilter;
+import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validation.EventValidator;
+import school.faang.user_service.validation.event.EventValidator;
 
 import java.util.List;
 import java.util.stream.Stream;

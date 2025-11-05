@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validation.event;
 
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class EventValidator {
     private final UserContext userContext;
     private final UserRepository userRepository;
 
-    private static final String ERROR_MESSAGE_FOR_NOT_OWNER = "You are not the owner of this event";
+    private static final String ERROR_MESSAGE_FOR_NOT_OWNER = "User is not owner of the event";
 
     public void validateEventOwnership(Event event) {
         Long currentUserId = userContext.getUserId();
