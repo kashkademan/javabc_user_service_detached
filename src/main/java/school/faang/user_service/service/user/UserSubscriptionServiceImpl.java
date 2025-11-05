@@ -11,6 +11,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.AnalyticsEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final UserMapper userMapper;
 
     private final List<UserFilter> userFilters;
+    private final AnalyticsEventPublisher analyticsEventPublisher;
 
     @Override
     @Transactional
@@ -39,6 +41,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         }
 
         subscriptionRepository.followUser(followerId, followeeId);
+        analyticsEventPublisher.publishFollow(followerId, followeeId);
         log.info("The user {} successfully subscribed to the user {}",
                 followerId, followeeId);
     }
