@@ -43,11 +43,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-
     @Override
     public List<UserDto> getUsersByIds(List<Long> ids) {
-        return ids.stream()
-                .map(this::getById)
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream()
+                .distinct()
+                .map(userMapper::toUserDto)
                 .toList();
     }
 

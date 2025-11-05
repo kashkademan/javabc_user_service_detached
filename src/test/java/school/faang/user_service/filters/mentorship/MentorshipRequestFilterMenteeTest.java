@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MentorshipRequestFilterMenteeTest extends DataForTests {
 
     private final MentorshipRequestFilter filter = new MentorshipRequestFilterMentee();
-    private final MentorshipRequestFilterMentee mentorshipRequestFilterMentee = new MentorshipRequestFilterMentee();
 
     @Test
     void isApplicable_filterDoesNotExist() {
@@ -54,7 +53,7 @@ public class MentorshipRequestFilterMenteeTest extends DataForTests {
                 mentReqR14
         );
 
-        List<MentorshipRequest> resultFiltredMentorshipRequest = mentorshipRequestFilterMentee
+        List<MentorshipRequest> resultFiltredMentorshipRequest = filter
                 .apply(mentorshipRequestAll.stream(), mentorshipRequestFilterDto)
                 .toList();
 

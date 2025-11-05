@@ -155,13 +155,6 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
     @Test
     void create_CreateMentorshipRequest() {
         Optional<MentorshipRequest> mentorshipRequest = Optional.empty();
-        record CreateArgs(Long menteeId, Long mentorId, String desc) {
-        }
-
-        CreateArgs args = new CreateArgs(
-                MENTEE_ID_1,
-                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.mentorId(),
-                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.description());
 
         when(userContext.getUserId()).thenReturn(MENTEE_ID_1);
         when(mentorshipRequestRepository.findLatestRequest(userContext.getUserId(),
@@ -174,16 +167,16 @@ public class MentorshipRequestServiceImplTest extends DataForTests {
                 FIXED_LOCAL_DATE_TIME);
 
         when(mentorshipRequestRepository.create(
-                args.menteeId(),
-                args.mentorId(),
-                args.desc())).thenReturn(createMentorshipRequest);
+                MENTEE_ID_1,
+                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.mentorId(),
+                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.description())).thenReturn(createMentorshipRequest);
 
         MentorshipRequestDto resultCreateMentorshipRequestDto = service.create(FIXED_CREATE_MENTORSHIP_REQUEST_DTO);
 
         verify(mentorshipRequestRepository).create(
-                args.menteeId(),
-                args.mentorId(),
-                args.desc()
+                MENTEE_ID_1,
+                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.mentorId(),
+                FIXED_CREATE_MENTORSHIP_REQUEST_DTO.description()
         );
         MentorshipRequestDto createMentorshipRequestDto = mentorshipRequestMapper
                 .toMentorshipRequestDto(createMentorshipRequest);
