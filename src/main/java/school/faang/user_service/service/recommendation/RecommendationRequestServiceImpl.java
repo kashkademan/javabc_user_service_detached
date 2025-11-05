@@ -102,16 +102,19 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     public void accept(Long id) {
         log.debug("Accepting recommendation request: requestId={}, userId={}", id, userContext.getUserId());
         RecommendationRequest request = recommendationRequestRepository.getByIdOrThrow(id);
+
         if (!Objects.equals(userContext.getUserId(), request.getReceiver().getId())) {
             log.warn("Unauthorized accept attempt: requestId={}, userId={}, actualReceiverId={}",
                     id, userContext.getUserId(), request.getReceiver().getId());
             throw new ForbiddenException("You can not accept this request");
         }
+
         if (request.getStatus() != RequestStatus.PENDING) {
             log.warn("Accept attempt for non-pending request: requestId={}, currentStatus={}",
                     id, request.getStatus());
             throw new DataValidationException("Status must be pending");
         }
+
         request.setStatus(RequestStatus.ACCEPTED);
         recommendationRequestRepository.save(request);
         log.info("Recommendation request accepted: requestId={}, requesterId={}, receiverId={}",
@@ -129,16 +132,19 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         log.debug("Rejecting recommendation request: requestId={}, userId={}, reason={}",
                 id, userContext.getUserId(), dto.reason());
         RecommendationRequest request = recommendationRequestRepository.getByIdOrThrow(id);
+
         if (userContext.getUserId() != request.getReceiver().getId()) {
             log.warn("Unauthorized reject attempt: requestId={}, userId={}, actualReceiverId={}",
                     id, userContext.getUserId(), request.getReceiver().getId());
             throw new ForbiddenException("You can not reject this request");
         }
+
         if (request.getStatus() != RequestStatus.PENDING) {
             log.warn("Reject attempt for non-pending request: requestId={}, currentStatus={}",
                     id, request.getStatus());
             throw new DataValidationException("Status must be pending");
         }
+
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(dto.reason());
         recommendationRequestRepository.save(request);
