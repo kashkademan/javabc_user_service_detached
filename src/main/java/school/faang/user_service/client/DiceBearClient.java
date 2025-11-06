@@ -1,49 +1,89 @@
 package school.faang.user_service.client;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+import school.faang.user_service.service.s3.SimpleMultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Random;
+import java.util.UUID;
 
-@Component
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class DiceBearClient {
 
-    @Value("${dicebear.base-url}")
+    @Value("${dice.bear.client.baseUrl}")
     private String baseUrl;
+    @Value("${avatar.default.template}")
+    private String defaultAvatarTemplate;
+    private final HttpClient httpClient;
+    private static final Random random = new Random();
 
-    public byte[] generateAvatarPng(String style) throws Exception {
-        String url = String.format("%s/%s/png", baseUrl, style);
-        log.debug("Generating avatar from DiceBear: {}", url);
+    public MultipartFile generateRandomAvatar() {
+        String randomStyle = getRandomStyle().getStyleName();
+        String randomSeed = UUID.randomUUID().toString().substring(0, 8);
+        UriComponents uri = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .pathSegment(randomStyle, "svg")
+                .queryParam("seed", randomSeed)
+                .build();
 
-        HttpURLConnection connection = null;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri.toUri())
+                .GET()
+                .timeout(Duration.ofSeconds(30))
+                .build();
+        return sendRequest(request, randomSeed);
+    }
+
+    private MultipartFile sendRequest(HttpRequest request, String randomSeed) {
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (InputStream inputStream = connection.getInputStream()) {
-                    return inputStream.readAllBytes();
-                }
-            } else {
-                log.warn("DiceBear returned HTTP {}: {}", responseCode, connection.getResponseMessage());
-                throw new RuntimeException("DiceBear API returned error: " + responseCode);
+            HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            boolean isSuccessful = response.statusCode() == 200;
+            if (isSuccessful) {
+                byte[] avatarData = response.body();
+                return new SimpleMultipartFile(
+                        "avatar",
+                        "avatar_" + randomSeed + ".svg",
+                        "image/svg+xml",
+                        avatarData
+                );
             }
-
-        } catch (IOException e) {
-            log.error("Failed to fetch avatar from DiceBear (URL: {}): {}", url, e.getMessage(), e);
-            throw new RuntimeException("Avatar generation failed due to external service error", e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        } catch (Exception e) {
+            log.error("An error occurred while downloading the file");
         }
+        return generateDefaultAvatar();
+    }
+
+    private MultipartFile generateDefaultAvatar() {
+        String defaultSvg = defaultAvatarTemplate.formatted(generateRandomColor());
+
+        return new SimpleMultipartFile(
+                "avatar",
+                "avatar_default.svg",
+                "image/svg+xml",
+                defaultSvg.getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+    private String generateRandomColor() {
+        return String.format("%06x", random.nextInt(0xFFFFFF));
+    }
+
+
+    private DiceBearStyles getRandomStyle() {
+        DiceBearStyles[] diceBearStyles = DiceBearStyles.values();
+        int index = random.nextInt(diceBearStyles.length);
+        return diceBearStyles[index];
     }
 }

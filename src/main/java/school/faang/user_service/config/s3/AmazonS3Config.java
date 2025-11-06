@@ -1,6 +1,6 @@
-package school.faang.user_service.config.aws;
+package school.faang.user_service.config.s3;
 
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,27 +12,24 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
-
+@Slf4j
 @Configuration
-public class AwsConfig {
+public class AmazonS3Config {
 
-    @Value("${service.s3.accessKey}")
+    @Value("${services.s3.accessKey}")
     private String accessKey;
 
-    @Value("${service.s3.secretKey}")
+    @Value("${services.s3.secretKey}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")
-    private String region;
-
-    @Value("${service.s3.endpoint}")
+    @Value("${services.s3.endpoint}")
     private String endpoint;
 
     @Bean
     public S3Client amazonS3() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         return S3Client.builder()
-                .region(Region.US_EAST_1)
+                .region(Region.US_WEST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
                 .forcePathStyle(true)
@@ -43,7 +40,7 @@ public class AwsConfig {
     public S3Presigner s3Presigner() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         return S3Presigner.builder()
-                .region(Region.US_EAST_2)
+                .region(Region.US_WEST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
                 .build();
