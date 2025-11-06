@@ -21,6 +21,7 @@ import school.faang.user_service.mapper.recommendation.RecommendationRequestMapp
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -130,7 +131,8 @@ class RecommendationRequestServiceImplTest {
         CreateRecommendationRequestDto createDto = new CreateRecommendationRequestDto(
                 "Please write me a recommendation", 1L, 2L);
 
-        LocalDateTime recentRequestTime = LocalDateTime.now().minusMonths(5);
+        LocalDateTime fixedDate = LocalDateTime.of(2025, 11, 5, 12, 00, 00);
+        LocalDateTime recentRequestTime = fixedDate.minusMonths(5);
 
         RecommendationRequest existingRequest = RecommendationRequest.builder()
                 .id(100L)
