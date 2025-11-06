@@ -13,7 +13,7 @@ import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.UserExperienceFilterTest;
-import school.faang.user_service.filter.UserFilter;
+import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.UserNameFilterTest;
 import school.faang.user_service.filter.UserPhoneFilterTest;
 import school.faang.user_service.mapper.UserMapper;
