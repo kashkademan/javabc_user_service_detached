@@ -19,8 +19,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class AvatarService {
     private final S3Client amazonS3;
     private final DiceBearClientV2 diceBearClientV2;
 
-    @Value("${cloud.aws.s3.bucketName}")
+    @Value("${services.s3.bucketName}")
     private String bucketName;
 
     public String getAvatarUsers(Long userId) {
@@ -59,13 +59,11 @@ public class AvatarService {
     }
 
     @Async
-    public void assignRandomAvatarAsync(Long userId) {
+    public Future<String> assignRandomAvatarAsync(User user) {
+        String key = "avatars/user-" + user.getUsername() + user.getEmail() + ".png";
         try {
-            log.info("Starting async avatar generation for user {}", userId);
-
+            log.info("Starting async avatar generation for user {}", user.getUsername());
             byte[] avatarBytes = diceBearClientV2.generateAvatarPng("adventurer");
-            String key = "avatars/user-" + userId + ".png";
-
             amazonS3.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
@@ -75,17 +73,9 @@ public class AvatarService {
                     RequestBody.fromBytes(avatarBytes)
             );
 
-            userRepository.findById(userId).ifPresent(user -> {
-                UserProfilePic profilePic = Optional.ofNullable(user.getUserProfilePic())
-                        .orElse(new UserProfilePic());
-                profilePic.setSmallFileId(key);
-                user.setUserProfilePic(profilePic);
-                userRepository.save(user);
-                log.info("Avatar assigned for user {} and saved to DB", userId);
-            });
-
         } catch (Exception e) {
-            log.error("Error generating or uploading avatar for user {}", userId, e);
+            log.error("Error generating or uploading avatar for user {}", user.getUsername(), e);
         }
+        return CompletableFuture.completedFuture(key);
     }
 }

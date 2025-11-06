@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -55,19 +56,24 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
-
+        String key;
         double probability = random.nextDouble(0, 1);
         if (probability < 0.5) {
-            avatarService.assignRandomAvatarAsync(user.getId());
+            try {
+                key = avatarService.assignRandomAvatarAsync(user).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         } else {
-            String key = String.format("%s %s", user.getUsername(), user.getEmail());
-
-            UserProfilePic userProfilePic = new UserProfilePic();
-            userProfilePic.setSmallFileId(key);
-
-            user.setUserProfilePic(userProfilePic);
+            key = String.format("avatars/%s %s", user.getUsername(), user.getEmail());
             avatarService.generateAndSaveAvatarAsync(key);
         }
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setSmallFileId(key);
+
+        user.setUserProfilePic(userProfilePic);
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
@@ -95,6 +101,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
+    @Override
     public Page<UserDto> getUser(Pageable pageable) {
         List<UserDto> allRedisUsers = getUsersWithPromotions(pageable, Integer.MAX_VALUE);
 

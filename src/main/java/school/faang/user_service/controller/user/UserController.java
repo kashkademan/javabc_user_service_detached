@@ -18,14 +18,12 @@ import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.service.user.UserServiceImpl;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
-    private final UserServiceImpl userServiceImpl;
 
     @PostMapping("/create")
     public UserDto create(@RequestBody CreateUserDto userDto) {
@@ -57,7 +55,7 @@ public class UserController {
 
     @GetMapping("/promotion")
     public Page<UserDto> getUser(@PageableDefault Pageable pageable) {
-        Page<UserDto> results = userServiceImpl.getUser(pageable);
+        Page<UserDto> results = userService.getUser(pageable);
         return results;
     }
 
