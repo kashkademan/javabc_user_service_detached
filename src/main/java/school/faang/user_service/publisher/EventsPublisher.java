@@ -1,6 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,29 +9,27 @@ import school.faang.user_service.dto.event.EventDto;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AnalyticsEventPublisher {
+public class EventsPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
-    private static final String TOPIC = "analytics";
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private static final String ANALYTICS_TOPIC = "analytics";
 
-    public void publish(EventDto eventDto) {
+    public void sendEvent(String topic, EventDto event) {
         try {
-            String jsonEvent = objectMapper.writeValueAsString(eventDto);
-            kafkaTemplate.send(TOPIC, jsonEvent);
-            log.debug("Publisher analytics event: {}", eventDto);
+            kafkaTemplate.send(topic, event);
+            log.debug("Published event to topic {}: {}", topic, event);
         } catch (Exception e) {
-            log.error("Publisher analytics event failed: {}", eventDto, e);
+            log.error("Failed to publish event to topic {}: {}", topic, event, e);
         }
     }
 
     public void publishProfileView(long profileId, long viewerId) {
         log.info("Publishing PROFILE_VIEW event: profileId={}, viewerId={}", profileId, viewerId);
-        publish(new EventDto(viewerId, profileId, "PROFILE_VIEW"));
+        sendEvent(ANALYTICS_TOPIC, new EventDto(viewerId, profileId, "PROFILE_VIEW"));
     }
 
     public void publishFollow(long followerId, long followingId) {
         log.info("Publishing FOLLOWER event: followerId={}, followingId={}", followerId, followingId);
-        publish(new EventDto(followerId, followingId, "FOLLOWER"));
+        sendEvent(ANALYTICS_TOPIC, new EventDto(followerId, followingId, "FOLLOWER"));
     }
 }

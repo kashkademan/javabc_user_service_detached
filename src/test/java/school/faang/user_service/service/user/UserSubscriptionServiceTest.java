@@ -17,7 +17,7 @@ import school.faang.user_service.filters.NameFilter;
 import school.faang.user_service.filters.PhoneFilter;
 import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.AnalyticsEventPublisher;
+import school.faang.user_service.publisher.EventsPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class UserSubscriptionServiceTest {
     private SubscriptionRepository subscriptionRepository;
 
     @Mock
-    private AnalyticsEventPublisher analyticsEventPublisher;
+    private EventsPublisher eventsPublisher;
 
     @Spy
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
@@ -62,7 +62,7 @@ public class UserSubscriptionServiceTest {
                 subscriptionRepository,
                 userMapper,
                 userFilters,
-                analyticsEventPublisher
+                eventsPublisher
         );
     }
 

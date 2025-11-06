@@ -20,7 +20,6 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.AnalyticsEventPublisher;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -30,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -68,8 +65,6 @@ class UserServiceImplTest {
     private CountryRepository countryRepository;
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
-    @Mock
-    private AnalyticsEventPublisher analyticsEventPublisher;
     @Mock
     private UserContext userContext;
 
@@ -266,7 +261,6 @@ class UserServiceImplTest {
         assertEquals(EMAIL, result.email());
         verify(userRepository).getByIdOrThrow(USER_ID);
         verify(userMapper).toUserDto(entity);
-        verify(analyticsEventPublisher).publishProfileView(eq(USER_ID), anyLong());
     }
 
     @Test

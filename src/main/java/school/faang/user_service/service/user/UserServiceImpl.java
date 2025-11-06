@@ -13,7 +13,6 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.AnalyticsEventPublisher;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -28,7 +27,6 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
-    private final AnalyticsEventPublisher analyticsEventPublisher;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -61,10 +59,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
-        long viewerId = userContext.getUserId();
-        if (viewerId != userId) {
-            analyticsEventPublisher.publishProfileView(userId, viewerId);
-        }
         return userMapper.toUserDto(user);
     }
 }
