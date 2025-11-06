@@ -21,6 +21,13 @@ spring:
       port: 6379
       host: localhost
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
+kafka:
+  topic:
+    mentorship-offer: mentorship_offer_topic
+
 server:
   port: 8080
   servlet:
