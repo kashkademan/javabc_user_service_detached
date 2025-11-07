@@ -4,6 +4,8 @@ import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
 
+import java.util.List;
+
 /**
  * Сервис для управления пользователями.
  * Предоставляет методы для создания, обновления и получения информации о пользователях.
@@ -25,6 +27,9 @@ public interface UserService {
      * @return объект {@link UserDto}, представляющий созданного пользователя
      */
     UserDto create(CreateUserDto userDto);
+
+
+    List<UserDto> getUsersByIds(List<Long> ids);
 
     /**
      * Обновляет информацию о существующем пользователе.
