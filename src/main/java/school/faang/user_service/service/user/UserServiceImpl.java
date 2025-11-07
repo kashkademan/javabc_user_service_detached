@@ -16,17 +16,19 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Value("${user.password.min.length}")
-    private int minPasswordLength;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    @Value("${user.password.min.length}")
+    private int minPasswordLength;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -39,6 +41,15 @@ public class UserServiceImpl implements UserService {
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream()
+                .distinct()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
-public class MentorshipRequestFilterMentorStatus implements MentorshipRequestFilter {
+public class MentorshipRequestFilterStatus implements MentorshipRequestFilter {
 
     @Override
     public boolean isApplicable(MentorshipRequestFilterDto mentorshipRequestFilterDto) {
