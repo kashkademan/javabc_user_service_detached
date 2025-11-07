@@ -53,6 +53,7 @@ user:
   password:
     min:
       length: 6
+  max-ids-per-request: 100
 
 skills:
   min-offers-for-acquire: 3

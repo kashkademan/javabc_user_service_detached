@@ -9,19 +9,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserAvatarUploadDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserIdsRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,10 +49,6 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    public UserDto getById(long userId) {
-        return userService.getById(userId);
-    }
-
     @PostMapping("/avatars")
     @ResponseStatus(HttpStatus.CREATED)
     public void uploadAvatar(@Valid @ModelAttribute UserAvatarUploadDto userAvatarUploadDto) {
@@ -70,6 +70,24 @@ public class UserController {
             String size
     ) {
         return userService.getAvatar(userId, size);
+    }
+
+    @GetMapping("/{userId}")
+    public UserDto getUser(
+            @Positive
+            @PathVariable
+            Long userId
+    ) {
+        return userService.getById(userId);
+    }
+
+    @PostMapping
+    public List<UserDto> getUsersByIds(
+            @Valid
+            @RequestBody
+            UserIdsRequest request
+    ) {
+        return userService.getUsersByIds(request.userIds());
     }
 
     private void validateString(String value, String paramName) {

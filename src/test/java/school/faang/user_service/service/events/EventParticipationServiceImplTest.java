@@ -47,7 +47,8 @@ public class EventParticipationServiceImplTest {
         user.setId(DEFAULT_USER_ID);
         List<User> list = List.of(user);
         UserDto userDto = new UserDto(DEFAULT_USER_ID,
-                BLANK_STRING, BLANK_STRING, BLANK_STRING, BLANK_STRING);
+                BLANK_STRING, BLANK_STRING, BLANK_STRING, BLANK_STRING, null, List.of());
+
         Mockito.when(userMapper.toUserDto(user)).thenReturn(userDto);
         Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(DEFAULT_EVENT_ID)).thenReturn(list);
 
