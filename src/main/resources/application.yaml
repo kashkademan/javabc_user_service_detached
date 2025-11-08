@@ -24,6 +24,12 @@ spring:
       port: 6379
       host: localhost
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 
 promotion-redis:
   ttl: 1d
@@ -89,3 +95,8 @@ dice:
       baseUrl: https://api.dicebear.com/7.x
       default-style: adventurer
 
+
+topics:
+  notifications: notifications.events
+  analytics: analytics.events
+  achievements: achievements.events
