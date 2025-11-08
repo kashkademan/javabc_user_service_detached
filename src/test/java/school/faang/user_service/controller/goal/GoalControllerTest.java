@@ -120,7 +120,7 @@ class GoalControllerTest {
 
     @Test
     void testDeleteGoalFromUser() throws Exception {
-        mockMvc.perform(delete("/api/v1/goals/users/1/2"))
+        mockMvc.perform(delete("/api/v1/goals/1/users/2"))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(goalService).deleteGoalFromUser(1L, 2L);
