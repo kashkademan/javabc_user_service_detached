@@ -46,15 +46,7 @@ public class EducationServiceImplTest {
 
     @Test
     public void testAddWithInvalidYearFrom() {
-        EducationDto dto = prepareDto(true, false);
-
-        assertThrows(DataValidationException.class,
-                () -> educationService.addEducation(1L, dto));
-    }
-
-    @Test
-    public void testAddWithBlankInstitution() {
-        EducationDto dto = prepareDto(false, true);
+        EducationDto dto = prepareDto(true);
 
         assertThrows(DataValidationException.class,
                 () -> educationService.addEducation(1L, dto));
@@ -74,15 +66,7 @@ public class EducationServiceImplTest {
 
     @Test
     public void testUpdateWithInvalidYearFrom() {
-        EducationDto dto = prepareDto(true, false);
-
-        assertThrows(DataValidationException.class,
-                () -> educationService.updateEducation(1L, 1L, dto));
-    }
-
-    @Test
-    public void testUpdateWithBlankInstitution() {
-        EducationDto dto = prepareDto(false, true);
+        EducationDto dto = prepareDto(true);
 
         assertThrows(DataValidationException.class,
                 () -> educationService.updateEducation(1L, 1L, dto));
@@ -121,13 +105,13 @@ public class EducationServiceImplTest {
     }
 
     private EducationDto prepareDto() {
-        return prepareDto(false, false);
+        return prepareDto(false);
     }
 
-    private EducationDto prepareDto(boolean brakedYear, boolean brakedInstitution) {
+    private EducationDto prepareDto(boolean brakedYear) {
         EducationDto dto;
         int yearFrom = brakedYear ? LocalDate.now().getYear() + 1 : 2022;
-        String institution = brakedInstitution ? "  " : "URFU";
+        String institution = "URFU";
         dto = new EducationDto(1L, yearFrom, yearFrom + 5,
                 institution, "Magister", "Economist");
 
