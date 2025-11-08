@@ -41,11 +41,11 @@ class ApplicationContextTest {
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
 
-        registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
-        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
-        registry.add("spring.data.redis.password", () -> "");
+        registry.add("spring.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
+        registry.add("spring.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.redis.password", () -> "test");
 
-        registry.add("redis.topics.listener.user-ban-topic", () -> "user-ban-topic-test");
+        registry.add("redis.topics.name.user-ban-topic", () -> "user-ban-topic-test");
 
         registry.add("services.minio.endpoint", MINIO_CONTAINER::getS3URL);
         registry.add("services.minio.accessKey", MINIO_CONTAINER::getUserName);
