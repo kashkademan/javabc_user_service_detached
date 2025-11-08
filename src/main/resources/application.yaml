@@ -92,3 +92,4 @@ topics:
   notifications: notifications.events
   analytics: analytics.events
   achievements: achievements.events
+  events: event.events

@@ -11,6 +11,7 @@ public class KafkaTopicConfig {
     private String notifications;
     private String analytics;
     private String achievements;
+    private String events;
 }
 
 
