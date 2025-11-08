@@ -250,7 +250,9 @@ class UserServiceImplTest {
         entity.setUsername(USERNAME);
         entity.setEmail(EMAIL);
 
+        UserDto expectedDto = new UserDto(USER_ID, USERNAME, EMAIL, null, null);
         when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(entity);
+        when(userMapper.toUserDto(entity)).thenReturn(expectedDto);
 
         UserDto result = userService.getById(USER_ID);
 
