@@ -64,23 +64,23 @@ public class AvatarService {
         String key = buildAvatarKey(user);
 
         return CompletableFuture.supplyAsync(() -> {
-                    try {
-                        byte[] avatarBytes = diceBearClientV2.generateAvatarPng(avatarDefaultStyle);
+            try {
+                byte[] avatarBytes = diceBearClientV2.generateAvatarPng(avatarDefaultStyle);
 
-                        PutObjectRequest putRequest = PutObjectRequest.builder()
-                                .bucket(bucketName)
-                                .key(key)
-                                .contentType(avatarContentType)
-                                .build();
+                PutObjectRequest putRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(avatarContentType)
+                        .build();
 
-                        amazonS3.putObject(putRequest, RequestBody.fromBytes(avatarBytes));
-                        log.info("Avatar uploaded for user {}", user.getUsername());
-                        return key;
-                    } catch (Exception e) {
-                        log.error("Failed to upload avatar for user {}", user.getUsername(), e);
-                        throw new RuntimeException(e);
-                    }
-                });
+                amazonS3.putObject(putRequest, RequestBody.fromBytes(avatarBytes));
+                log.info("Avatar uploaded for user {}", user.getUsername());
+                return key;
+            } catch (Exception e) {
+                log.error("Failed to upload avatar for user {}", user.getUsername(), e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void generateAndSaveAvatarAsync(String key) {
