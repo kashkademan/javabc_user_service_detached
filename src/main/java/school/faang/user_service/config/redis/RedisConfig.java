@@ -1,8 +1,11 @@
 package school.faang.user_service.config.redis;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -13,26 +16,26 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.StringUtils;
 import school.faang.user_service.messages.redis.listeners.UsersBanListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
+@RequiredArgsConstructor
 public class RedisConfig {
-    @Value("${redis.topics.listener.user-ban-topic}")
-    private String userBanTopic;
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
-    @Value("${spring.data.redis.port}")
-    private int redisPort;
-    @Value("${spring.data.redis.password}")
-    private String redisPassword;
+    @Valid
+    private final RedisProperties redisProperties;
+    private final Map<ChannelTopic, MessageListenerAdapter> containersAdapter = new HashMap<>();
 
     @Bean
     public RedisConnectionFactory connectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(redisHost);
-        config.setPort(redisPort);
-        if (redisPassword != null && !redisPassword.isEmpty()) {
-            config.setPassword(RedisPassword.of(redisPassword));
+        config.setHostName(redisProperties.getHost());
+        config.setPort(redisProperties.getPort());
+        if (StringUtils.hasText(redisProperties.getPassword())) {
+            config.setPassword(RedisPassword.of(redisProperties.getPassword()));
         }
         return new LettuceConnectionFactory(config);
     }
@@ -52,22 +55,23 @@ public class RedisConfig {
     }
 
     @Bean
-    public ChannelTopic userBanTopic() {
-        return new ChannelTopic(userBanTopic);
+    public ChannelTopic userBanTopic(@Value("${redis.topics.name.user-ban-topic}") String topicName) {
+        return new ChannelTopic(topicName);
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
-                                                        MessageListenerAdapter messageListenerAdapter,
-                                                        ChannelTopic userBanTopic) {
+    public MessageListenerAdapter userBanListenerAdapter(UsersBanListener usersBanListener, ChannelTopic userBanTopic) {
+        MessageListenerAdapter adapter = new MessageListenerAdapter(usersBanListener);
+        containersAdapter.put(userBanTopic, adapter);
+        return adapter;
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(messageListenerAdapter, userBanTopic);
+        containersAdapter.entrySet().forEach(entry ->
+                             container.addMessageListener(entry.getValue(), entry.getKey()));
         return container;
-    }
-
-    @Bean
-    public MessageListenerAdapter redisListenerAdapter(UsersBanListener usersBanListener) {
-        return new MessageListenerAdapter(usersBanListener, "onMessage");
     }
 }

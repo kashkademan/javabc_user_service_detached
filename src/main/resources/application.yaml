@@ -66,5 +66,5 @@ services:
 
 redis:
   topics:
-    listener:
+    name:
       user-ban-topic: "user-ban-topic"

@@ -190,6 +190,16 @@ public class UserServiceImpl implements UserService {
                 .body(imageBytes);
     }
 
+    @Transactional
+    public void banUsers(List<Long> banUsersIds) {
+        if (!banUsersIds.isEmpty()) {
+            userRepository.bannedByIds(banUsersIds);
+            log.debug("Successfully banned {} users", banUsersIds.size());
+        } else {
+            log.debug("Empty lists for banning users!");
+        }
+    }
+
     private long getMaxAvatarBytes() {
         return avatarMaxSizeMb * BYTES_IN_KB * BYTES_IN_KB;
     }

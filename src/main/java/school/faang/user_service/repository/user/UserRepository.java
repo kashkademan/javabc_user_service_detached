@@ -38,7 +38,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("""
-            UPDATE User u SET u.banned = true WHERE u.id IN :authorIds
+            update User u
+            set u.banned = true
+            where u.id in :bannedIds
             """)
-    void bannedByIds(@Param("authorIds") List<Long> authorIds);
+    void bannedByIds(@Param("bannedIds") List<Long> bannedIds);
 }

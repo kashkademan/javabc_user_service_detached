@@ -6,6 +6,8 @@ import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserAvatarUploadDto;
 import school.faang.user_service.dto.user.UserDto;
 
+import java.util.List;
+
 /**
  * Сервис для управления пользователями.
  * Предоставляет методы для создания, обновления и получения информации о пользователях.
@@ -63,6 +65,8 @@ public interface UserService {
     void deleteAvatar();
 
     ResponseEntity<byte[]> getAvatar(Long userId, String size);
+
+    void banUsers(List<Long> usersIds);
 }
 
 
