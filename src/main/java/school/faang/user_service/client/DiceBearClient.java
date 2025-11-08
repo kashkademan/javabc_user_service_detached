@@ -24,6 +24,7 @@ public class DiceBearClient {
 
     @Value("${dice.bear.client.baseUrl}")
     private String baseUrl;
+
     @Value("${avatar.default.template}")
     private String defaultAvatarTemplate;
 

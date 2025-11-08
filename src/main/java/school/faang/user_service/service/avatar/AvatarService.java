@@ -3,7 +3,6 @@ package school.faang.user_service.service.avatar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.DiceBearClient;
@@ -20,7 +19,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +34,18 @@ public class AvatarService {
     @Value("${services.s3.bucketName}")
     private String bucketName;
 
+    @Value("${avatar.base-folder}")
+    private String avatarBaseFolder;
+
+    @Value("${avatar.file-extension}")
+    private String avatarFileExtension;
+
+    @Value("${dice.bear.client.default-style}")
+    private String avatarDefaultStyle;
+
+    @Value("${avatar.content-type}")
+    private String avatarContentType;
+
     public String getAvatarUsers(Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         UserProfilePic userProfilePic = user.getUserProfilePic();
@@ -50,32 +60,37 @@ public class AvatarService {
         }
     }
 
+    public CompletableFuture<String> assignRandomAvatarAsync(User user) {
+        String key = buildAvatarKey(user);
+
+        return diceBearClientV2.generateAvatarPng(avatarDefaultStyle)
+                .thenApply(avatarBytes -> {
+                    try {
+                        PutObjectRequest putRequest = PutObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(key)
+                                .contentType(avatarContentType)
+                                .build();
+
+                        amazonS3.putObject(putRequest, RequestBody.fromBytes(avatarBytes));
+                        log.info("Avatar uploaded for user {}", user.getUsername());
+                        return key;
+                    } catch (Exception e) {
+                        log.error("Failed to upload avatar for user {}", user.getUsername(), e);
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
     public void generateAndSaveAvatarAsync(String key) {
-        CompletableFuture.supplyAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             MultipartFile multipartFile = diceBearClient.generateRandomAvatar();
             s3Service.saveToFileStorage(multipartFile, key);
-            return multipartFile;
         });
     }
 
-    @Async
-    public Future<String> assignRandomAvatarAsync(User user) {
-        String key = "avatars/user-" + user.getUsername() + user.getEmail() + ".png";
-        try {
-            log.info("Starting async avatar generation for user {}", user.getUsername());
-            byte[] avatarBytes = diceBearClientV2.generateAvatarPng("adventurer");
-            amazonS3.putObject(
-                    PutObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(key)
-                            .contentType("image/png")
-                            .build(),
-                    RequestBody.fromBytes(avatarBytes)
-            );
-
-        } catch (Exception e) {
-            log.error("Error generating or uploading avatar for user {}", user.getUsername(), e);
-        }
-        return CompletableFuture.completedFuture(key);
+    public String buildAvatarKey(User user) {
+        String safeUsername = user.getUsername().replaceAll("[^a-zA-Z0-9_-]", "_");
+        return String.format("%s/user-%s-%d%s", avatarBaseFolder, safeUsername, user.getId(), avatarFileExtension);
     }
 }
