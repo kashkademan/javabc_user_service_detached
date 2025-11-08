@@ -10,6 +10,7 @@ plugins {
 group = "faang.school"
 version = "1.0"
 
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
