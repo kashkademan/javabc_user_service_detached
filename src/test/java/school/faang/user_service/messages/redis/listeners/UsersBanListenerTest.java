@@ -1,59 +1,67 @@
 package school.faang.user_service.messages.redis.listeners;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
-import school.faang.user_service.repository.user.UserRepository;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import school.faang.user_service.config.redis.GenericJacksonConfig;
+import school.faang.user_service.service.user.UserService;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UsersBanListenerTest {
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Mock
+    private GenericJacksonConfig genericJacksonConfig;
+
+    @Mock
+    private GenericJackson2JsonRedisSerializer genericJackson;
 
     @Mock
     private Message message;
 
-    @InjectMocks
     private UsersBanListener usersBanListener;
 
-    @Test
-    public void onMessage_whenNonEmptyList_shouldBanUsers() {
-        List<Long> usersIdList = Arrays.asList(1L, 2L, 3L);
-        byte[] messageBody = serializeToJson(usersIdList);
-        when(message.getBody()).thenReturn(messageBody);
-
-        usersBanListener.onMessage(message, "user_ban_topic".getBytes());
-
-        verify(userRepository, times(1)).bannedByIds(usersIdList);
-        verify(userRepository, never()).bannedByIds(List.of());
+    @BeforeEach
+    void setUp() {
+        usersBanListener = new UsersBanListener(userService, genericJacksonConfig);
+        when(genericJacksonConfig.getGenericJackson()).thenReturn(genericJackson);
     }
 
     @Test
-    public void onMessage_whenEmptyList_shouldNotCallUserRepository() {
-        List<Long> emptyList = Collections.emptyList();
-        byte[] messageBody = serializeToJson(emptyList);
+    void testOnMessage_whenValidMessageReceived_shouldCallBanUsers() {
+        byte[] messageBody = new byte[]{};
+        byte[] pattern = "user-ban-topic".getBytes();
+        List<Long> expectedUserIds = List.of(1L, 2L, 3L);
+
         when(message.getBody()).thenReturn(messageBody);
+        when(genericJackson.deserialize(messageBody)).thenReturn(expectedUserIds);
 
-        usersBanListener.onMessage(message, "user_ban_topic".getBytes());
+        usersBanListener.onMessage(message, pattern);
 
-        verify(userRepository, never()).bannedByIds(any());
+        verify(userService).banUsers(expectedUserIds);
     }
 
-    private byte[] serializeToJson(List<Long> list) {
-        return new org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer()
-                .serialize(list);
+    @Test
+    void testOnMessage_whenEmptyListReceived_shouldCallBanUsersWithEmptyList() {
+        byte[] messageBody = new byte[]{};
+        byte[] pattern = "user-ban-topic".getBytes();
+        List<Long> expectedUserIds = List.of();
+
+        when(message.getBody()).thenReturn(messageBody);
+        when(genericJackson.deserialize(messageBody)).thenReturn(expectedUserIds);
+
+        usersBanListener.onMessage(message, pattern);
+
+        verify(userService).banUsers(expectedUserIds);
     }
 }
