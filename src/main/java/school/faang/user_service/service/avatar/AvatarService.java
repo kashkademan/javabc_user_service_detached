@@ -63,9 +63,10 @@ public class AvatarService {
     public CompletableFuture<String> assignRandomAvatarAsync(User user) {
         String key = buildAvatarKey(user);
 
-        return diceBearClientV2.generateAvatarPng(avatarDefaultStyle)
-                .thenApply(avatarBytes -> {
+        return CompletableFuture.supplyAsync(() -> {
                     try {
+                        byte[] avatarBytes = diceBearClientV2.generateAvatarPng(avatarDefaultStyle);
+
                         PutObjectRequest putRequest = PutObjectRequest.builder()
                                 .bucket(bucketName)
                                 .key(key)
