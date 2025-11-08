@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -70,8 +69,7 @@ public class RedisConfig {
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        containersAdapter.entrySet().forEach(entry ->
-                             container.addMessageListener(entry.getValue(), entry.getKey()));
+        containersAdapter.forEach((key, value) -> container.addMessageListener(value, key));
         return container;
     }
 }

@@ -1,6 +1,5 @@
 package school.faang.user_service.service.user;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.config.s3.S3Config;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserAvatarUploadDto;
@@ -45,8 +43,6 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final ImageProcessing imageProcessing;
-    private final S3Config s3Config;
-    private final AmazonS3 s3Client;
     private final S3AvatarService s3AvatarService;
     @Value("${user.avatar.max.sizeMb}")
     private int avatarMaxSizeMb;
