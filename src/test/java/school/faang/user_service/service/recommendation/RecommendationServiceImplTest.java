@@ -45,7 +45,8 @@ public class RecommendationServiceImplTest {
 
         recommendationServiceImpl.create(anyLong, anyCreateRecommendationDto);
 
-        verify(recommendationMapper, times(1)).toRecommendation(any(CreateRecommendationDto.class));
+        verify(recommendationMapper, times(1))
+                .toRecommendation(any(CreateRecommendationDto.class));
         verify(recommendationRepository, times(1)).save(any(Recommendation.class));
         verify(recommendationProducer).sendToKafka(any(RecommendationEvent.class));
         verify(recommendationMapper, times(1)).toRecommendationDto(any(Recommendation.class));
