@@ -27,6 +27,8 @@ import school.faang.user_service.filter.mentorship_request.MentorshipRequestRece
 import school.faang.user_service.filter.mentorship_request.MentorshipRequestRequesterIdFilter;
 import school.faang.user_service.filter.mentorship_request.MentorshipRequestStatusFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -52,7 +54,9 @@ public class MentorshipRequestServiceImplTest {
     private final MentorshipRequest latestMentorship = new MentorshipRequest();
     private final MentorshipRequest mentorshipRequestForCreate = new MentorshipRequest();
     private final MentorshipRequest mentorshipRequestForAccept = new MentorshipRequest();
-    private final MentorshipRequestMapper mentorshipRequestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private final MentorshipRequestMapperImpl mentorshipRequestMapperImpl = new MentorshipRequestMapperImpl();
+    private MentorshipRequestMapper mentorshipRequestMapper;
     private MentorshipRequestFilterDto filterDto = MentorshipRequestFilterDto.builder()
             .status(RequestStatus.ACCEPTED)
             .build();
@@ -67,7 +71,7 @@ public class MentorshipRequestServiceImplTest {
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
-    private  MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
+    private MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
     @Spy
     private UserContext userContext;
 
@@ -75,6 +79,9 @@ public class MentorshipRequestServiceImplTest {
 
     @BeforeEach
     void setup() {
+        ReflectionTestUtils.setField(mentorshipRequestMapperImpl, "userMapper", userMapper);
+        mentorshipRequestMapper = mentorshipRequestMapperImpl;
+
         mentorshipRequestService = new MentorshipRequestServiceImpl(userRepository, mentorshipRequestRepository,
                 mentorshipRequestMapper, userContext, mentorshipOfferedEventPublisher,
                 List.of(new MentorshipRequestReceiverIdFilter(), new MentorshipRequestRequesterIdFilter(),
