@@ -12,7 +12,7 @@ import school.faang.user_service.dto.event.EventDto;
 public class EventsPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private static final String ANALYTICS_TOPIC = "analytics";
+    private static final String SUBSCRIPTION_TOPIC = "subscription-events";
 
     public void sendEvent(String topic, EventDto event) {
         try {
@@ -25,6 +25,6 @@ public class EventsPublisher {
 
     public void publishFollow(long followerId, long followingId) {
         log.info("Publishing FOLLOWER event: followerId={}, followingId={}", followerId, followingId);
-        sendEvent(ANALYTICS_TOPIC, new EventDto(followerId, followingId, "FOLLOWER"));
+        sendEvent(SUBSCRIPTION_TOPIC, new EventDto(followerId, followingId, "FOLLOWER"));
     }
 }
