@@ -29,7 +29,8 @@ public class RecommendationServiceImpl implements RecommendationService {
                 authorId,
                 createRecommendationDto.receiverId());
         recommendationProducer.sendToKafka(newRecommendationEvent);
-        log.info("Информация о новой рекомендации с id: {} отправлена из recommendationService в RecommendationProducer",
+        log.info("Информация о новой рекомендации с id: {} " +
+                        "отправлена из recommendationService в RecommendationProducer",
                 savedRecommendation.getId());
         return recommendationMapper.toRecommendationDto(savedRecommendation);
     }
