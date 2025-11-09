@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.mentorship.exception;
+/*package school.faang.user_service.repository.mentorship.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,3 +53,5 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now());
     }
 }
+
+ */
