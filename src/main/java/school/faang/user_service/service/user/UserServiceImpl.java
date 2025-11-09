@@ -19,6 +19,7 @@ import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.avatar.AvatarService;
@@ -43,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
     private final AvatarService avatarService;
     private final PromotionRedisService promotionRedisService;
+
+    private final UserMapperImpl userMapperImpl;
 
     @Transactional
     @Override
@@ -88,6 +91,14 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUser(List<Long> userIds) {
+        List<User> user = userRepository.findAllById(userIds);
+        return user.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     public Page<UserDto> getUser(Pageable pageable) {

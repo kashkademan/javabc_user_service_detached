@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,8 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.service.user.UserServiceImpl;
+
+import java.util.List;
 
 @RequestMapping("/api/v1/users")
 @RestController
@@ -40,8 +43,14 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    public UserDto getById(long userId) {
+    @GetMapping("/{userId}")
+    public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
+    }
+
+    @GetMapping("/get-list/{userIds}")
+    public List<UserDto> getUsers(@PathVariable List<Long> userIds) {
+        return userService.getUser(userIds);
     }
 
     private void validateString(String value, String paramName) {
