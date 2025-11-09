@@ -61,7 +61,7 @@ public class S3Service {
             return objectBytes.asByteArray();
 
         } catch (S3Exception e) {
-            throw new FileException(String.format("Error downloading profile picture for user! Key -", key));
+            throw new FileException(String.format("Error downloading profile picture for user! Key - %s", key));
         }
     }
 
@@ -75,7 +75,7 @@ public class S3Service {
             return amazonS3.headObject(headObjectRequest);
 
         } catch (S3Exception e) {
-            throw new FileException(String.format("File not found in S3: {}", key));
+            throw new FileException(String.format("File not found in S3: %s", key));
         }
     }
 }

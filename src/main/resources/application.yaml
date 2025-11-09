@@ -66,6 +66,11 @@ user:
 goal:
   max-active-goals: 2
 
+cloud:
+  aws:
+    region:
+      static: default
+
 services:
   s3:
     endpoint: http://localhost:9000
@@ -81,11 +86,15 @@ avatar:
         <circle cx="50" cy="50" r="40" fill="#%s"/>
         <text x="50" y="60" text-anchor="middle" fill="white" font-size="20">👤</text>
       </svg>
+  base-folder: "avatars"
+  file-extension: ".png"
+  content-type: "image/png"
 
 dice:
   bear:
     client:
       baseUrl: https://api.dicebear.com/7.x
+      default-style: adventurer
 
 
 topics:

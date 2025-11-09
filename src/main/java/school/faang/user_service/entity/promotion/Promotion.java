@@ -42,7 +42,7 @@ public class Promotion {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rate", nullable = false)
+    @Column(name = "tarif", nullable = false)
     private Tarif tarif;
 
     @Column(name = "number_of_display", nullable = false)

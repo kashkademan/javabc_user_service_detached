@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.commons.config.DefaultsBindHandlerAdvisor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,15 +48,12 @@ public class PromotionRedisService {
     @Value(" ${promotion-redis.time.fixedRate}")
     private Long fixedRate;
 
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RedisTemplate<String, Object> redisTemplate;
     private final PromotionRepository promotionRepository;
     private final ObjectMapper objectMapper;
     private final DistributedLockService lockService;
-
-    private final DefaultsBindHandlerAdvisor.MappingsProvider mappingsProvider;
 
     public void savePromotionByUser(Promotion promotion, Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
