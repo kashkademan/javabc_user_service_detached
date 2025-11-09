@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -48,8 +49,8 @@ public class UserController {
         return userService.getById(userId);
     }
 
-    @GetMapping("/get-list/{userIds}")
-    public List<UserDto> getUsers(@PathVariable List<Long> userIds) {
+    @GetMapping("/get-list")
+    public List<UserDto> getUsers(@RequestParam List<Long> userIds) {
         return userService.getUser(userIds);
     }
 

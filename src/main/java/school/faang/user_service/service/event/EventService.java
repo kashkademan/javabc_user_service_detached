@@ -50,7 +50,6 @@ public class EventService {
                 event.getType(),
                 event.getStatus());
 
-        eventStartEventPublisher.publishEvent(event);
         return event;
     }
 

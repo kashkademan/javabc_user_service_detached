@@ -19,14 +19,16 @@ public class EventStartEventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final KafkaTopicConfig kafkaTopicConfig;
 
-    public void publishEvent(Event event) {
+    public void publishEvent(Event event, String baseMessage) {
         List<Long> attendeesIds = event.getAttendees().stream()
                 .map(User::getId)
                 .toList();
 
         EventStartEventDto eventStartEventDto = new EventStartEventDto(event.getId(),
                 event.getOwner().getId(),
-                attendeesIds);
+                attendeesIds,
+                baseMessage,
+                event.getTitle());
 
         String topic = kafkaTopicConfig.getEvents();
         kafkaTemplate.send(topic, eventStartEventDto).whenComplete((result, ex) -> {
