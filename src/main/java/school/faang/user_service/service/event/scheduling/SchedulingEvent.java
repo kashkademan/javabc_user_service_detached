@@ -19,6 +19,13 @@ public class SchedulingEvent {
     private final EventStartEventPublisher eventStartEventPublisher;
     private final EventRepository eventRepository;
 
+    /* TODO одъединить в 1 джобу, еще 1 один метод
+         по 3 бекендам: распределенный лок на базе по отдельному евенту
+         поиск по топику кафки (отправлялось ли уведовление по этому евенту)
+         если нет, то отправляю.
+         когда сообщение отправлено лок снимается
+     */
+
     @Scheduled(fixedDelay = 60000)
     public void checkImminentEvents() {
         LocalDateTime dateNow = LocalDateTime.now();
