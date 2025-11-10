@@ -3,6 +3,7 @@ package school.faang.user_service.controller.user;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,12 +29,13 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    public UserDto create(CreateUserDto userDto) {
+    @PostMapping("/create")
+    public ResponseEntity<UserDto> create(@RequestBody CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateString(userDto.password(), "password");
         validateNotNull(userDto.countryId(), "country");
-        return userService.create(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(userDto));
     }
 
     public UserDto update(long userId, UpdateUserDto userDto) {
