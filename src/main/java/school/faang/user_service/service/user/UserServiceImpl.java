@@ -21,10 +21,13 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.dto.kafka.analytics.ProfileViewEvent;
+import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +47,7 @@ public class UserServiceImpl implements UserService {
     private final UserContext userContext;
     private final AvatarService avatarService;
     private final PromotionRedisService promotionRedisService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     private final SecureRandom random = new SecureRandom();
 
@@ -89,7 +93,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
+
+        publishProfileViewEventIfNeeded(userId);
+        
         return userMapper.toUserDto(user);
+    }
+
+    private void publishProfileViewEventIfNeeded(long userId) {
+        try {
+            long viewerId = userContext.getUserId();
+            if (viewerId == userId) {
+                return;
+            }
+            
+            ProfileViewEvent event = new ProfileViewEvent(userId, viewerId, LocalDateTime.now());
+            profileViewEventPublisher.publish(event);
+        } catch (IllegalArgumentException e) {
+            log.info("No viewer ID in context, skipping profile view event publication");
+        }
     }
 
     @Override
