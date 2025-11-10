@@ -45,7 +45,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable long userId,
-                           @RequestHeader(value = "x-user-id", required = false) String xUserId) {
+                           @RequestHeader(value = "x-user-id", required = false) String userIdHeader) {
         return userService.getById(userId);
     }
 
