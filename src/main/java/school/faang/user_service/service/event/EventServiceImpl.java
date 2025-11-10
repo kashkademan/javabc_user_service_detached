@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.CreateEventDto;
 import school.faang.user_service.dto.event.EventDto;
@@ -16,8 +17,15 @@ import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validation.event.EventValidator;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -29,6 +37,11 @@ public class EventServiceImpl implements EventService {
     private final EventValidator eventValidator;
     private final UserContext userContext;
     private final List<EventFilter> eventFilters;
+
+    @Value("${scheduler.batch-size}")
+    private int batchSize;
+    @Value("${scheduler.time-out}")
+    private int timeOut;
 
     @Override
     public EventDto create(CreateEventDto eventDto) {
@@ -88,5 +101,47 @@ public class EventServiceImpl implements EventService {
     private Event findEventById(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+    }
+
+    @Transactional
+    public void clearPassedEvents() {
+        List<Event> allEvents = eventRepository.findAll();
+        List<Long> passedEventIds = allEvents.stream()
+            .filter(event -> event.getEndDate().isBefore(LocalDateTime.now()))
+            .map(Event::getId)
+            .collect(Collectors.toList());
+
+        if (passedEventIds.isEmpty()) {
+            log.info("No passed events found to delete");
+            return;
+        } else {
+            log.info("Found {} passed events to delete", passedEventIds.size());
+        }
+
+        List<List<Long>> batches = splitIntoBatches(passedEventIds, batchSize);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(batches.size());
+
+        for (List<Long> batch : batches) {
+            executorService.submit(() -> {
+                eventRepository.deleteAllById(batch);
+            });
+        }
+
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(timeOut, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private List<List<Long>> splitIntoBatches(List<Long> list, int batchSize) {
+        return IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
+            .mapToObj(i -> list.subList(i * batchSize, Math.min((i + 1) * batchSize, list.size())))
+            .collect(Collectors.toList());
     }
 }

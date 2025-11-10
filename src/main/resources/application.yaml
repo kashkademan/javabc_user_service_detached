@@ -56,3 +56,8 @@ recommendation:
 mentorship:
   request:
    periodForRequest: 3
+
+scheduler:
+  clear-events-cron: "0 14 * * * ?"
+  batch-size: 1000
+  time-out: 180

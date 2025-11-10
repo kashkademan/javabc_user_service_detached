@@ -15,4 +15,6 @@ public interface EventService {
     List<EventDto> getByFilters(EventFilterDto filters);
 
     void delete(long eventId);
+
+    void clearPassedEvents();
 }
