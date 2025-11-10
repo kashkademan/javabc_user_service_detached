@@ -111,11 +111,11 @@ public class EventServiceImpl implements EventService {
             .map(Event::getId)
             .collect(Collectors.toList());
 
-        if (!passedEventIds.isEmpty()) {
-            log.info("Found {} passed events to delete", passedEventIds.size());
-        } else {
+        if (passedEventIds.isEmpty()) {
             log.info("No passed events found to delete");
             return;
+        } else {
+            log.info("Found {} passed events to delete", passedEventIds.size());
         }
 
         List<List<Long>> batches = splitIntoBatches(passedEventIds, batchSize);
