@@ -16,7 +16,7 @@ public class GoalCompletedEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.redis.channel.goal_completed}")
+    @Value("${spring.data.redis.channel.goal_completed}")
     private String channel;
 
     public void publish(GoalCompletedEvent goalCompletedEvent) {
