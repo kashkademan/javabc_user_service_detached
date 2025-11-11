@@ -29,6 +29,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        retries: 3
+        enable.idempotence: true
+        request.timeout.ms: 30000
+        delivery.timeout.ms: 120000
 
 
 promotion-redis:
@@ -49,6 +55,10 @@ server:
 logging:
   level:
     root: info
+
+springdoc:
+  swagger-ui:
+    persist-authorization: true
 
 project-service:
   host: localhost
@@ -98,12 +108,9 @@ dice:
 
 
 topics:
-  defaults:
-    partitions: 3
-    replicas: 1
   notifications:
-    like-received: notifications.like-received
+    like-received: notifications.like-received #example
   analytics:
     profile-view: analytics.profile-view
   achievements:
-    goal-completed: achievements.goal-completed
+    goal-completed: achievements.goal-completed #example

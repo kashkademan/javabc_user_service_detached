@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -44,8 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getById(@PathVariable long userId,
-                           @RequestHeader(value = "x-user-id", required = false) String userIdHeader) {
+    public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
     }
 

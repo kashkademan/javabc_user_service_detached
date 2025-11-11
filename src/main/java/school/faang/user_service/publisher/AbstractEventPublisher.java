@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import school.faang.user_service.config.KafkaTopicConfig;
+import school.faang.user_service.config.kafka.KafkaTopicConfig;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,7 +24,6 @@ public abstract class AbstractEventPublisher<T> {
             kafkaTemplate.send(topicName, key, eventJson);
 
             logSuccess(topicName, key, event);
-
         } catch (JsonProcessingException e) {
             logError(event, e);
             throw new RuntimeException("Failed to publish event to Kafka", e);
