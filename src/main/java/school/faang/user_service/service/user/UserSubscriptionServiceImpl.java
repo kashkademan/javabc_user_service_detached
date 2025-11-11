@@ -3,13 +3,17 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.kafka.FollowerEvent;
 import school.faang.user_service.dto.user.CountResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.kafka.producer.FollowerProducer;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.ProjectSubscriptionRepository;
 import school.faang.user_service.repository.user.SubscriptionRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,6 +25,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
+    private final FollowerProducer followerProducer;
+    private final ProjectSubscriptionRepository projectSubscriptionRepository;
 
     @Override
     public void followUser(long followerId, long followeeId) {
@@ -38,6 +44,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("followUser success: {} -> {}", followerId, followeeId);
+
+        followerProducer.sendToKafka(new FollowerEvent(followerId, followeeId, null));
     }
 
     @Override
@@ -88,4 +96,13 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         return results;
     }
 
+    @Override
+    public void followProject(long followerId, long projectId) {
+        if (!projectSubscriptionRepository.existsByFollowerIdAndProjectId(followerId, projectId)) {
+            log.warn("Пользователя с id: {} или проекта с id: {} не существует.", followerId, projectId);
+            throw new DataValidationException("Вы не можете подписаться на данный проект.");
+        }
+        projectSubscriptionRepository.followProject(followerId, projectId);
+        followerProducer.sendToKafka(new FollowerEvent(followerId, null, projectId));
+    }
 }
