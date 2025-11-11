@@ -13,7 +13,6 @@ import school.faang.user_service.kafka.producer.FollowerProducer;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.ProjectSubscriptionRepository;
 import school.faang.user_service.repository.user.SubscriptionRepository;
-import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
