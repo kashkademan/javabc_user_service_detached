@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -240,5 +241,12 @@ public class UserServiceImpl implements UserService {
         Resource savedResource = resourceRepository.save(resource);
         log.info("Resource {} has been created", savedResource.getId());
         return savedResource;
+    }
+
+    @Override
+    @Transactional
+    public void banUsers(List<Long> usersIds) {
+        userRepository.banUsers(usersIds);
+        log.info("Users have been banned. Users ids: {}", usersIds);
     }
 }

@@ -403,4 +403,13 @@ public class UserServiceImplTest {
             Assertions.assertFalse(participatedEventAttendees.contains(firstUser.getId()));
         }
     }
+
+    @Test
+    void testBanUserPositive() {
+        List<Long> usersIds = List.of(1L, 2L);
+
+        userService.banUsers(usersIds);
+
+        verify(userRepository).banUsers(Mockito.eq(usersIds));
+    }
 }

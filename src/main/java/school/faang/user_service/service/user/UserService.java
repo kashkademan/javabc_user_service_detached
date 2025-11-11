@@ -71,6 +71,8 @@ public interface UserService {
     void deactivateUser(long userId);
 
     void activateUser(long userId);
+
+    void banUsers(List<Long> usersIds);
 }
 
 
