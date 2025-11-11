@@ -86,6 +86,7 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
@@ -122,15 +123,10 @@ jacoco {
     toolVersion = "0.8.13"
 }
 
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
-
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
-        xml.required.set(false)
+        xml.required.set(true)
         csv.required.set(false)
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
@@ -145,18 +141,8 @@ tasks.jacocoTestCoverageVerification {
             enabled = true
             element = "CLASS"
 
-            excludes = listOf(
-                "**config**",
-                "**entity**",
-                "**dto**",
-                "**Application*",
-                "**exception*",
-                "**repository**",
-                "**controller**",
-                "**mapper**",
-                "**context**",
-                "**json**",
-                "**client**"
+            includes = listOf(
+                "school.faang.user_service.service**"
             )
 
             limit {
