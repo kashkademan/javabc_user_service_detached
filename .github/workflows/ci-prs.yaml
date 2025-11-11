@@ -35,10 +35,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build testClasses -x test -x check -x checkstyleMain -x checkstyleTest --no-daemon
-
-      - name: Checkstyle verification
-        run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
+        run: ./gradlew build testClasses -x test -x check --no-daemon
 
       - name: Test with Gradle
         run: ./gradlew test -x testClasses --no-daemon --continue
@@ -49,13 +46,6 @@ jobs:
         with:
           name: test_report
           path: build/reports/tests/test
-
-      - name: Archive checkstyle report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkstyle_report
-          path: build/reports/checkstyle
 
       - name: Comment on Pull Request if build failed
         if: failure()

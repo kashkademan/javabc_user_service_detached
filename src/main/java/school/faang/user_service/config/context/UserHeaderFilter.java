@@ -60,7 +60,8 @@ public class UserHeaderFilter implements Filter {
 
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
-            sendErrorResponse(res, req, HttpStatus.NOT_FOUND, String.format("User %s not found", userId), EntityNotFoundException.class);
+            sendErrorResponse(res, req, HttpStatus.NOT_FOUND,
+                    String.format("User %s not found", userId), EntityNotFoundException.class);
             return;
         }
 
