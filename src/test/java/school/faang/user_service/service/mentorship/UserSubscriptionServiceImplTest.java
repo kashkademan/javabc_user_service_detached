@@ -208,6 +208,8 @@ public class UserSubscriptionServiceImplTest {
 
         when(projectSubscriptionRepository.existsByFollowerIdAndProjectId(anyLong, anyLong)).thenReturn(true);
 
+        userSubscriptionServiceImpl.followProject(anyLong, anyLong);
+
         verify(projectSubscriptionRepository, times(1))
                 .existsByFollowerIdAndProjectId(anyLong, anyLong);
 
