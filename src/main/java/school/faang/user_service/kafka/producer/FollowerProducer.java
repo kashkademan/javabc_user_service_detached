@@ -18,6 +18,6 @@ public class FollowerProducer {
     public void sendToKafka(@NonNull FollowerEvent followerEvent) {
         String key = LocalDateTime.now().toString();
         objectKafkaTemplate.send("follower-event", key, followerEvent);
-        log.info("Новый followerEvent от пользователя с id: {} отправлен в Kafka.", followerEvent.followerId());
+        log.info("Новый followerEvent от пользователя с id: {} отправлен в Kafka", followerEvent.followerId());
     }
 }
