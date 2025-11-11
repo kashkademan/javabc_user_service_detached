@@ -40,11 +40,18 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     }
 
     @Query(value = """
-            SELECT e FROM Event e
-            LEFT JOIN FETCH e.attendees
-            WHERE e.startDate >= :nowTime
-              AND e.startDate < :plusMinuteTime
-            """)
+            SELECT e.* FROM event e
+            WHERE e.start_date >= :nowTime
+              AND e.start_date < :plusMinuteTime
+            FOR UPDATE SKIP LOCKED
+            """, nativeQuery = true)
     List<Event> findEventsBetweenDates(@Param("nowTime") LocalDateTime nowTime,
                                        @Param("plusMinuteTime") LocalDateTime plusMinuteTime);
+
+    @Query(value = """
+SELECT ue.user_id FROM user_event ue 
+            WHERE ue.event_id = :eventId
+            """,
+            nativeQuery = true)
+    List<Long> findParticipantIdsByEventId(@Param("eventId") long eventId);
 }

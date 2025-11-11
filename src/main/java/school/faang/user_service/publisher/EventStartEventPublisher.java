@@ -6,10 +6,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.KafkaTopicConfig;
 import school.faang.user_service.dto.kafka.EventStartEventDto;
-import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.user.User;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -18,20 +17,18 @@ public class EventStartEventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final KafkaTopicConfig kafkaTopicConfig;
+    private Set<String> keyForKafka = new HashSet<>();
 
-    public void publishEvent(Event event, String baseMessage) {
-        List<Long> attendeesIds = event.getAttendees().stream()
-                .map(User::getId)
-                .toList();
+    public void publishEvent(EventStartEventDto eventStartEventDto, String key) {
 
-        EventStartEventDto eventStartEventDto = new EventStartEventDto(event.getId(),
-                event.getOwner().getId(),
-                attendeesIds,
-                baseMessage,
-                event.getTitle());
+        if (keyForKafka.contains(key)) {
+            return;
+        } else {
+            keyForKafka.add(key);
+        }
 
         String topic = kafkaTopicConfig.getEvents();
-        kafkaTemplate.send(topic, eventStartEventDto).whenComplete((result, ex) -> {
+        kafkaTemplate.send(topic, key, eventStartEventDto).whenComplete((result, ex) -> {
             if (ex == null) {
                 log.info("Successfully sent event to topic '{}', partition: {}, offset: {}",
                         topic,
