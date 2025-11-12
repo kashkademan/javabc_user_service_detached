@@ -1,5 +1,6 @@
 package school.faang.user_service.service.s3;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ public class SimpleMultipartFile implements MultipartFile {
         this.content = content != null ? content : new byte[0];
     }
 
+    @NotNull
     @Override
     public String getName() {
         return name;
@@ -46,18 +48,20 @@ public class SimpleMultipartFile implements MultipartFile {
         return content.length;
     }
 
+    @NotNull
     @Override
     public byte[] getBytes() throws IOException {
         return content;
     }
 
+    @NotNull
     @Override
     public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(content);
     }
 
     @Override
-    public void transferTo(Path dest) throws IOException, IllegalStateException {
+    public void transferTo(@NotNull Path dest) throws IOException, IllegalStateException {
         Files.write(dest, content);
     }
 

@@ -25,6 +25,7 @@ import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +46,8 @@ public class UserServiceImpl implements UserService {
     private final AvatarService avatarService;
     private final PromotionRedisService promotionRedisService;
 
+    private final SecureRandom random = new SecureRandom();
+
     private final UserMapperImpl userMapperImpl;
 
     @Transactional
@@ -57,21 +60,20 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
-        String key = String.format("%s %s", user.getUsername(), user.getEmail());
+        String avatarKey = assignAvatar(user);
 
         UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setSmallFileId(key);
+        userProfilePic.setSmallFileId(avatarKey);
+
+        avatarService.assignRandomAvatarAsync(user).thenAccept(key -> log.info("Avatar saved at {}", key));
 
         user.setUserProfilePic(userProfilePic);
-
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
-
-        avatarService.generateAndSaveAvatarAsync(key);
-
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto update(long userId, UpdateUserDto userDto) {
         long requesterId = userContext.getUserId();
@@ -101,6 +103,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    @Override
     public Page<UserDto> getUser(Pageable pageable) {
         List<UserDto> allRedisUsers = getUsersWithPromotions(pageable, Integer.MAX_VALUE);
 
@@ -110,7 +113,7 @@ public class UserServiceImpl implements UserService {
 
         Page<User> dbUsers = userRepository.findByIdNotIn(
                 redisUserIds,
-                PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort()) // Берем всех
+                PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort())
         );
         List<UserDto> allDbUsers = dbUsers.stream()
                 .map(userMapper::toUserDto)
@@ -138,4 +141,15 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
+    private String assignAvatar(User user) {
+        double probability = random.nextDouble();
+        String key = avatarService.buildAvatarKey(user);
+
+        if (probability < 0.5) {
+            avatarService.assignRandomAvatarAsync(user);
+        } else {
+            avatarService.generateAndSaveAvatarAsync(key);
+        }
+        return key;
+    }
 }

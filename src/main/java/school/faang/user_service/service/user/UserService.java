@@ -1,5 +1,7 @@
 package school.faang.user_service.service.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -59,6 +61,8 @@ public interface UserService {
     UserDto getById(long userId);
 
     List<UserDto> getUser(List<Long> userIds);
+
+    Page<UserDto> getUser(Pageable pageable);
 }
 
 

@@ -34,7 +34,7 @@ public class PromotionValidator {
         promotionList.stream()
                 .filter(promotion -> Objects.equals(promotion.getPromotionStatus(), ACTIVE))
                 .forEach(promotion -> {
-                    throw new DataValidationException(String.format("User %d already has promotions %s", userId));
+                    throw new DataValidationException(String.format("User %d already has promotions ", userId));
                 });
     }
 
