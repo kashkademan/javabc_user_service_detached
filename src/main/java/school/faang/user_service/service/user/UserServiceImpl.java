@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.aspect.analytics.AnalyticsProfileView;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -90,6 +91,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @AnalyticsProfileView//todo: возможно сделать общую аннотацию для аналитики с параметром тип события
+    //todo: подумать над буфером, который бы не так часто генерил сообщения - присылаем пачку просмотров
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);

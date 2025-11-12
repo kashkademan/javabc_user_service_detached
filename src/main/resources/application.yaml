@@ -33,7 +33,9 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.add.type.headers: false
     properties:
-      retries: 3
+      acks: all
+      retries: 1
+      enable.idempotence: true
       request.timeout.ms: 30000
       max.block.ms: 60000
 
@@ -55,6 +57,10 @@ server:
 logging:
   level:
     root: info
+
+springdoc:
+  swagger-ui:
+    persist-authorization: true
 
 project-service:
   host: localhost
@@ -104,7 +110,10 @@ dice:
 
 
 topics:
-  notifications: notifications.events
-  analytics: analytics.events
-  achievements: achievements.events
+  notifications:
+    like-received: notifications.like-received #example
+  analytics:
+    profile-view: analytics.profile-view
+  achievements:
+    goal-completed: achievements.goal-completed #example
   events: event.events
