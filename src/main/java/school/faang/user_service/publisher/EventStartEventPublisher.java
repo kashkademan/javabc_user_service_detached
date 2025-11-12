@@ -16,7 +16,6 @@ public class EventStartEventPublisher {
     private final KafkaTopicConfig kafkaTopicConfig;
 
     public void publishEvent(EventStartEventDto eventStartEventDto, String key) {
-
         String topic = kafkaTopicConfig.getEvents();
         kafkaTemplate.send(topic, key, eventStartEventDto).whenComplete((result, ex) -> {
             if (ex == null) {
