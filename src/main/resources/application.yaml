@@ -30,6 +30,11 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 
 promotion-redis:
   ttl: 1d
@@ -73,6 +78,9 @@ services:
     secretKey: password
     bucketName: corpbucket
     isMocked: false
+    user-avatars:
+      bucket-name: user-avatars
+      max-file-size: 5242880
 
 avatar:
   default:
