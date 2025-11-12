@@ -1,9 +1,9 @@
 package school.faang.user_service.repository.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.faang.user_service.entity.event.EventKeyForKafka;
+import school.faang.user_service.entity.event.EventKey;
 
-public interface EventKeyForKafkaRepository extends JpaRepository<EventKeyForKafka, Long> {
+public interface EventKeyRepository extends JpaRepository<EventKey, Long> {
 
     boolean existsByKeyForKafka(String keyForKafka);
 }

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.kafka.EventStartEventDto;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventKeyForKafka;
+import school.faang.user_service.entity.event.EventKey;
 import school.faang.user_service.publisher.EventStartEventPublisher;
-import school.faang.user_service.repository.event.EventKeyForKafkaRepository;
+import school.faang.user_service.repository.event.EventKeyRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.time.LocalDateTime;
@@ -22,91 +22,56 @@ public class SchedulingEvent {
 
     private final EventStartEventPublisher eventStartEventPublisher;
     private final EventRepository eventRepository;
-    private final EventKeyForKafkaRepository eventKeyForKafkaRepository;
+    private final EventKeyRepository eventKeyRepository;
 
     @Scheduled(fixedDelay = 60000)
-    @Transactional
+
     public void checkImminentEvents() {
         LocalDateTime dateNow = LocalDateTime.now();
-        log.info("поехали");
-        sendEventStartNotifications(dateNow);
 
-        sendTenMinutesBeforeNotifications(dateNow);
-
-        sendOneHourBeforeNotifications(dateNow);
-
-        sendFiveHoursBeforeNotifications(dateNow);
-
-        sendDayBeforeNotifications(dateNow);
-
+        notifyEventsInMinute(dateNow, TimeLeft.START);
+        notifyEventsInMinute(dateNow.plusMinutes(10), TimeLeft.MINUTES_10);
+        notifyEventsInMinute(dateNow.plusHours(1), TimeLeft.HOUR_1);
+        notifyEventsInMinute(dateNow.plusHours(5), TimeLeft.HOURS_5);
+        notifyEventsInMinute(dateNow.plusDays(1), TimeLeft.HOURS_24);
     }
 
-    public void sendDayBeforeNotifications(LocalDateTime dateDayBeforeBefore) {
-        LocalDateTime targetDate = dateDayBeforeBefore.plusDays(1);
-        String baseMessage = "Остался 1 день!";
-        notifyEventsInMinute(baseMessage, targetDate, TimeLeft.HOURS_24);
-    }
-
-
-    public void sendFiveHoursBeforeNotifications(LocalDateTime dateFiveHoursBefore) {
-        LocalDateTime targetDate = dateFiveHoursBefore.plusHours(5);
-        String baseMessage = "Остался 5 часов!";
-        notifyEventsInMinute(baseMessage, targetDate, TimeLeft.HOURS_5);
-    }
-
-    public void sendOneHourBeforeNotifications(LocalDateTime dateOneHourBefore) {
-        LocalDateTime targetDate = dateOneHourBefore.plusHours(1);
-        String baseMessage = "Остался 1 час! ";
-        notifyEventsInMinute(baseMessage, targetDate, TimeLeft.HOUR_1);
-    }
-
-    public void sendTenMinutesBeforeNotifications(LocalDateTime dateTenMinutesBefore) {
-        LocalDateTime targetDate = dateTenMinutesBefore.plusMinutes(10);
-        String baseMessage = "Осталось 10 минут!";
-        notifyEventsInMinute(baseMessage, targetDate, TimeLeft.MINUTES_10);
-    }
-
-    public void sendEventStartNotifications(LocalDateTime dateNow) {
-        String baseMessage = "Начинается сейчас!";
-        notifyEventsInMinute(baseMessage, dateNow, TimeLeft.START);
-    }
-
-    public void notifyEventsInMinute(String message, LocalDateTime targetTime, TimeLeft timeLeft) {
-        List<Event> events = eventRepository.findEventsBetweenDates(targetTime.minusSeconds(1),
+    @Transactional
+    public void notifyEventsInMinute(LocalDateTime targetTime, TimeLeft timeLeft) {
+        List<Event> events = eventRepository.findEventsBetweenDates(targetTime.minusMinutes(1),
                 targetTime.plusMinutes(1));
         events.forEach(event -> {
-            preparingDataForSendingToKafka(message, event, timeLeft);
+            preparingDataForSendingToKafka(event, timeLeft);
         });
     }
 
-    public void preparingDataForSendingToKafka(String message, Event event, TimeLeft timeLeft) {
+    public void preparingDataForSendingToKafka(Event event, TimeLeft timeLeft) {
         StringBuilder sb = new StringBuilder();
         sb.append(event.getId())
-                .append(" ")
-                .append(message);
+                .append(event.getTitle())
+                .append(timeLeft.getMinutes());
 
         List<Long> attendeesIds = eventRepository.findParticipantIdsByEventId(event.getId());
 
         EventStartEventDto eventStartEventDto = new EventStartEventDto(event.getId(),
                 event.getOwner().getId(),
+                event.getOwner().getUsername(),
                 attendeesIds,
                 event.getTitle(),
                 timeLeft);
 
-        checkKeyInKafka(eventStartEventDto, sb.toString());
-
+        checkKeyInBd(eventStartEventDto, sb.toString());
     }
 
-    public void checkKeyInKafka(EventStartEventDto eventStartEventDto, String key) {
-
-        boolean isKey = eventKeyForKafkaRepository.existsByKeyForKafka(key);
+    public void checkKeyInBd(EventStartEventDto eventStartEventDto, String key) {
+        boolean isKey = eventKeyRepository.existsByKeyForKafka(key);
         if (isKey) {
             log.info("The event {} have already been processed", eventStartEventDto.eventId());
         } else {
-            EventKeyForKafka eventKeyForKafka = EventKeyForKafka.builder()
+            EventKey eventKey = EventKey.builder()
                     .keyForKafka(key)
                     .build();
-            eventKeyForKafkaRepository.save(eventKeyForKafka);
+            eventKeyRepository.save(eventKey);
             eventStartEventPublisher.publishEvent(eventStartEventDto, key);
             log.info("The event {} is ready to be sent to Kafka", eventStartEventDto.eventId());
         }

@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "event_key_for_kafka")
-public class EventKeyForKafka {
+public class EventKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
