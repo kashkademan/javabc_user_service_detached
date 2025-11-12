@@ -50,7 +50,7 @@ public class UserController {
         return userService.getById(userId);
     }
 
-    @GetMapping("/get-list")
+    @GetMapping("/attendees")
     public List<UserDto> getUsers(@RequestParam List<Long> userIds) {
         return userService.getUser(userIds);
     }
