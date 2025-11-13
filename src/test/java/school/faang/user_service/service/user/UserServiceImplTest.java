@@ -10,12 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.CreateUserDto;
+import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserAvatarUploadDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.ImageProcessing;
@@ -28,18 +31,18 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -48,6 +51,8 @@ public class UserServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private UserContext userContext;
+    @Mock
+    private UserMapper userMapper;
     @Mock
     private ImageProcessing imageProcessing;
     @Mock
@@ -66,7 +71,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void uploadAvatar_whenFileIsEmpty_shouldThrowDataValidationException() {
+    public void uploadAvatar_whenFileIsEmpty_shouldThrowDataValidationException() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
 
@@ -77,7 +82,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void uploadAvatar_whenFileIsInvalidImage_shouldThrowDataValidationException() {
+    public void uploadAvatar_whenFileIsInvalidImage_shouldThrowDataValidationException() {
         when(userContext.getUserId()).thenReturn(1L);
         when(userRepository.getByIdOrThrow(1L)).thenReturn(new User());
 
@@ -94,7 +99,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void uploadAvatar_whenNewAvatarProvided_shouldCreateProfilePic() throws IOException {
+    public void uploadAvatar_whenNewAvatarProvided_shouldCreateProfilePic() throws IOException {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
@@ -123,7 +128,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void uploadAvatar_whenExistingAvatarProvided_shouldDeleteOldAvatar() throws IOException {
+    public void uploadAvatar_whenExistingAvatarProvided_shouldDeleteOldAvatar() throws IOException {
         BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
@@ -158,7 +163,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void deleteAvatar_whenNoAvatar_shouldDoNothing() {
+    public void deleteAvatar_whenNoAvatar_shouldDoNothing() {
         when(userContext.getUserId()).thenReturn(1L);
         User user = new User();
         when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
@@ -168,7 +173,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void deleteAvatar_whenAvatarExists_shouldDeleteFilesAndClearProfilePic() {
+    public void deleteAvatar_whenAvatarExists_shouldDeleteFilesAndClearProfilePic() {
         when(userContext.getUserId()).thenReturn(1L);
         UserProfilePic pic = new UserProfilePic();
         pic.setFileId("big");
@@ -186,7 +191,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAvatar_whenNoAvatar_shouldThrowDataValidationException() {
+    public void getAvatar_whenNoAvatar_shouldThrowDataValidationException() {
         User user = new User();
         when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
 
@@ -194,7 +199,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAvatar_whenInvalidSize_shouldThrowDataValidationException() {
+    public void getAvatar_whenInvalidSize_shouldThrowDataValidationException() {
         UserProfilePic pic = new UserProfilePic();
         pic.setFileId("big");
         pic.setSmallFileId("small");
@@ -206,7 +211,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAvatar_whenBigRequested_shouldReturnBigFile() {
+    public void getAvatar_whenBigRequested_shouldReturnBigFile() {
         UserProfilePic pic = new UserProfilePic();
         pic.setFileId("bigKey");
         pic.setSmallFileId("smallKey");
@@ -223,7 +228,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAvatar_whenSmallRequested_shouldReturnSmallFile() {
+    public void getAvatar_whenSmallRequested_shouldReturnSmallFile() {
         UserProfilePic pic = new UserProfilePic();
         pic.setFileId("bigKey");
         pic.setSmallFileId("smallKey");
@@ -376,5 +381,44 @@ public class UserServiceImplTest {
 
         assertEquals("Invalid IDs found: [0]", exception.getMessage());
         verify(userRepository, never()).findAllById(any());
+    }
+  
+    @Test
+    public void create_whenPasswordTooShort_shouldThrowDataValidationException() {
+        ReflectionTestUtils.setField(userService, "minPasswordLength", 8);
+
+        CreateUserDto userDto = new CreateUserDto(
+                "username", "email@test.com", "short", 1L
+        );
+
+        assertThrows(DataValidationException.class, () -> userService.create(userDto));
+    }
+
+    @Test
+    public void update_whenUserNotOwner_shouldThrowForbiddenException() {
+        UpdateUserDto userDto = new UpdateUserDto("newUsername", "new@email.com", "321",
+                "new about", 14L, "City");
+
+        when(userContext.getUserId()).thenReturn(1L);
+
+        assertThrows(ForbiddenException.class, () -> userService.update(2L, userDto));
+    }
+
+
+    @Test
+    public void getById_shouldReturnUserDto() {
+        User user = new User();
+        user.setId(1L);
+        UserDto expectedDto = new UserDto(1L, "username", "email@test.com",
+                "about", " ");
+
+        when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
+        when(userMapper.toUserDto(user)).thenReturn(expectedDto);
+
+        UserDto result = userService.getById(1L);
+
+        assertNotNull(result);
+        assertEquals(expectedDto, result);
+        verify(userRepository).getByIdOrThrow(1L);
     }
 }

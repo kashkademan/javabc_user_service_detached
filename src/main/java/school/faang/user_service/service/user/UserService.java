@@ -67,6 +67,8 @@ public interface UserService {
     void deleteAvatar();
 
     ResponseEntity<byte[]> getAvatar(Long userId, String size);
+
+    void banUsers(List<Long> usersIds);
 }
 
 
