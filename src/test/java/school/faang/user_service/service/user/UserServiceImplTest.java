@@ -52,8 +52,6 @@ public class UserServiceImplTest {
     @Mock
     private UserContext userContext;
     @Mock
-    private UserMapper userMapper;
-    @Mock
     private ImageProcessing imageProcessing;
     @Mock
     private S3AvatarService s3AvatarService;
@@ -410,7 +408,7 @@ public class UserServiceImplTest {
         User user = new User();
         user.setId(1L);
         UserDto expectedDto = new UserDto(1L, "username", "email@test.com",
-                "about", " ");
+                "about", " ", null, List.of());
 
         when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
         when(userMapper.toUserDto(user)).thenReturn(expectedDto);
