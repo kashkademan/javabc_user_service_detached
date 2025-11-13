@@ -202,7 +202,7 @@ public class RecommendationServiceImplTest {
     @Test
     void testGetByFilters() {
         RecommendationFilterDto testFilterDto = new RecommendationFilterDto(
-                "text for", TEST_USER_ID, TEST_RECEIVER_ID);
+                "Test text", TEST_USER_ID, TEST_RECEIVER_ID);
         List<Recommendation> testRecommendationList = List.of(recommendation1, recommendation2, recommendation3);
 
         Mockito.when(recommendationRepository.findAll()).thenReturn(testRecommendationList);
