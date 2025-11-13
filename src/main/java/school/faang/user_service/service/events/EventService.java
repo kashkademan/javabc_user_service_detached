@@ -17,5 +17,7 @@ public interface EventService {
 
     void deleteEvent(Long eventId);
 
+    List<EventResponseDto> getEvents(List<Long> eventsIds);
+
     void clearExpiredEvents();
 }

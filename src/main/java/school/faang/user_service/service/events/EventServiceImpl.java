@@ -99,6 +99,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventResponseDto> getEvents(List<Long> eventsIds) {
+        List<Event> events = eventRepository.findAllById(eventsIds);
+        return events.stream()
+                .map(eventMapper::toDto)
+                .toList();
+    }
+    @Override
     @Transactional
     public void clearExpiredEvents() {
         LocalDateTime cutoffDate = LocalDateTime.now();

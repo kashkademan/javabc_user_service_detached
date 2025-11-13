@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.service.events.EventService;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -52,13 +52,21 @@ public class EventController {
 
     @GetMapping
     public List<EventResponseDto> getAllByFilter(@RequestBody AllEventByFilterDto allEventByFilterDto,
-                                          @RequestParam
-                                          @DefaultValue(value = "0")
-                                          int page,
-                                          @RequestParam
-                                          @DefaultValue(value = "10")
-                                          int size) {
+                                                 @RequestParam
+                                                 @DefaultValue(value = "0")
+                                                 int page,
+                                                 @RequestParam
+                                                 @DefaultValue(value = "10")
+                                                 int size) {
         return eventService.getAllByFilter(allEventByFilterDto, page, size);
+    }
+
+    @GetMapping("/eventIds")
+    public List<EventResponseDto> getEvents(@RequestParam List<@Positive Long> eventsIds) {
+        if (eventsIds.isEmpty()) {
+            throw new IllegalArgumentException("Events cannot be blank");
+        }
+        return eventService.getEvents(eventsIds);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
