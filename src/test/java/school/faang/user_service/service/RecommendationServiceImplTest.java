@@ -47,7 +47,7 @@ public class RecommendationServiceImplTest {
     private final static Long TEST_USER_ID = 1L;
     private final static Long TEST_RECEIVER_ID = 5L;
     private final static Long TEST_RECOMMENDATION_ID = 10L;
-    private final static String TEST_CONTENT_TEXT = "Recommendation text for testing";
+    private final static String TEST_CONTENT_TEXT = "Test text";
     private final static LocalDateTime TEST_CREATED_AT = LocalDateTime.now().minusMonths(7);
     private final static LocalDateTime INVALID_CREATED_AT = LocalDateTime.now();
     private final User testAuthor = new User();
