@@ -2,17 +2,17 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -20,8 +20,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
-import java.util.List;
-
+@Slf4j
 @RequestMapping("/api/v1/users")
 @RestController
 @RequiredArgsConstructor
@@ -48,11 +47,6 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
-    }
-
-    @GetMapping("/attendees")
-    public List<UserDto> getUsers(@RequestParam List<Long> userIds) {
-        return userService.getUser(userIds);
     }
 
     private void validateString(String value, String paramName) {

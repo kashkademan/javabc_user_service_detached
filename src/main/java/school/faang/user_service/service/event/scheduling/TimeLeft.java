@@ -10,8 +10,7 @@ public enum TimeLeft {
     MINUTES_10(10),
     HOUR_1(60),
     HOURS_5(300),
-    HOURS_24(1440),
-    ;
+    HOURS_24(1440);
 
     private final int minutes;
 }

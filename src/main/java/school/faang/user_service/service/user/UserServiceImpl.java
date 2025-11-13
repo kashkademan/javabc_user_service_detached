@@ -98,13 +98,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-    @Override
-    public List<UserDto> getUser(List<Long> userIds) {
-        List<User> user = userRepository.findAllById(userIds);
-        return user.stream()
-                .map(userMapper::toUserDto)
-                .toList();
-    }
 
     @Override
     public Page<UserDto> getUser(Pageable pageable) {

@@ -15,9 +15,9 @@ public class EventStartEventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final KafkaTopicConfig kafkaTopicConfig;
 
-    public void publishEvent(EventStartEventDto eventStartEventDto, String key) {
+    public void publishEvent(EventStartEventDto eventStartEventDto) {
         String topic = kafkaTopicConfig.getEvents();
-        kafkaTemplate.send(topic, key, eventStartEventDto).whenComplete((result, ex) -> {
+        kafkaTemplate.send(topic,  eventStartEventDto).whenComplete((result, ex) -> {
             if (ex == null) {
                 log.info("Successfully sent event to topic '{}', partition: {}, offset: {}",
                         topic,
