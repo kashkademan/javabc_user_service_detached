@@ -17,6 +17,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.UserRepository;
@@ -27,6 +28,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -50,12 +52,11 @@ public class UserServiceImplTest {
     @Mock
     private UserContext userContext;
     @Mock
-    private UserMapper userMapper;
-    @Mock
     private ImageProcessing imageProcessing;
     @Mock
     private S3AvatarService s3AvatarService;
-
+    @Mock
+    private UserMapper userMapper;
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -64,6 +65,7 @@ public class UserServiceImplTest {
         ReflectionTestUtils.setField(userService, "avatarMaxSizeMb", 5);
         ReflectionTestUtils.setField(userService, "allowedImageTypes",
                 List.of("image/png", "image/jpeg", "image/jpg", "image/webp"));
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
     }
 
     @Test
@@ -241,6 +243,145 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void getById_whenUserNotFound_shouldThrowEntityNotFoundException() {
+        Long userId = 1L;
+        when(userRepository.getByIdOrThrow(userId))
+                .thenThrow(new EntityNotFoundException(String.format("User %d not found", userId)));
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getById(userId));
+        verify(userRepository).getByIdOrThrow(userId);
+        verify(userMapper, never()).toUserDto(any());
+    }
+
+    @Test
+    void getById_whenUserExists_shouldReturnUserDto() {
+        Long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        UserDto expectedDto = new UserDto(
+                userId,
+                "username",
+                "email",
+                "phone",
+                "about",
+                null,
+                List.of()
+        );
+
+        when(userRepository.getByIdOrThrow(userId)).thenReturn(user);
+        when(userMapper.toUserDto(user)).thenReturn(expectedDto);
+
+        UserDto result = userService.getById(userId);
+
+        assertEquals(expectedDto, result);
+        verify(userRepository).getByIdOrThrow(userId);
+        verify(userMapper).toUserDto(user);
+    }
+
+    @Test
+    void getUsersByIds_whenValidIds_shouldReturnUserDtos() {
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
+        User user3 = new User();
+        user3.setId(3L);
+
+        UserDto dto1 = new UserDto(
+                1L,
+                "user1",
+                "email1",
+                "phone1",
+                "about1",
+                null,
+                List.of()
+        );
+        UserDto dto2 = new UserDto(
+                2L,
+                "user2",
+                "email2",
+                "phone2",
+                "about2",
+                null,
+                List.of()
+        );
+        UserDto dto3 = new UserDto(
+                3L,
+                "user3",
+                "email3",
+                "phone3",
+                "about3",
+                null,
+                List.of()
+        );
+
+        List<Long> userIds = List.of(1L, 2L, 3L);
+
+        when(userRepository.findAllById(userIds)).thenReturn(List.of(user1, user2, user3));
+        when(userMapper.toUserDto(user1)).thenReturn(dto1);
+        when(userMapper.toUserDto(user2)).thenReturn(dto2);
+        when(userMapper.toUserDto(user3)).thenReturn(dto3);
+
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
+
+        List<UserDto> result = userService.getUsersByIds(userIds);
+
+        assertEquals(3, result.size());
+        assertEquals(dto1, result.get(0));
+        assertEquals(dto2, result.get(1));
+        assertEquals(dto3, result.get(2));
+        verify(userRepository).findAllById(userIds);
+    }
+
+    @Test
+    void getUsersByIds_whenTooManyIds_shouldThrowException() {
+        List<Long> userIds = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L);
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> userService.getUsersByIds(userIds));
+
+        assertEquals("Max 10 ids allowed", exception.getMessage());
+        verify(userRepository, never()).findAllById(any());
+    }
+
+    @Test
+    void getUsersByIds_whenNullId_shouldThrowException() {
+        List<Long> userIds = Arrays.asList(1L, null, 3L);
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> userService.getUsersByIds(userIds));
+
+        assertEquals("Invalid IDs found: [null]", exception.getMessage());
+        verify(userRepository, never()).findAllById(any());
+    }
+
+    @Test
+    void getUsersByIds_whenNegativeId_shouldThrowException() {
+        List<Long> userIds = List.of(1L, -5L, 3L);
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> userService.getUsersByIds(userIds));
+
+        assertEquals("Invalid IDs found: [-5]", exception.getMessage());
+        verify(userRepository, never()).findAllById(any());
+    }
+
+    @Test
+    void getUsersByIds_whenZeroId_shouldThrowException() {
+        List<Long> userIds = List.of(1L, 0L, 3L);
+        ReflectionTestUtils.setField(userService, "maxIdsPerRequest", 10);
+
+        DataValidationException exception = assertThrows(DataValidationException.class,
+                () -> userService.getUsersByIds(userIds));
+
+        assertEquals("Invalid IDs found: [0]", exception.getMessage());
+        verify(userRepository, never()).findAllById(any());
+    }
+  
+    @Test
     public void create_whenPasswordTooShort_shouldThrowDataValidationException() {
         ReflectionTestUtils.setField(userService, "minPasswordLength", 8);
 
@@ -250,7 +391,6 @@ public class UserServiceImplTest {
 
         assertThrows(DataValidationException.class, () -> userService.create(userDto));
     }
-
 
     @Test
     public void update_whenUserNotOwner_shouldThrowForbiddenException() {
@@ -268,7 +408,7 @@ public class UserServiceImplTest {
         User user = new User();
         user.setId(1L);
         UserDto expectedDto = new UserDto(1L, "username", "email@test.com",
-                "about", " ");
+                "about", " ", null, List.of());
 
         when(userRepository.getByIdOrThrow(1L)).thenReturn(user);
         when(userMapper.toUserDto(user)).thenReturn(expectedDto);

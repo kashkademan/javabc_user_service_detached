@@ -93,10 +93,24 @@ class MentorshipServiceImplTest {
 
         List<User> mentees = List.of(mentee1, mentee2);
 
-        UserDto dto1 = new UserDto(2L, "mentee1", "mentee1@test.com",
-                "111111111", "About mentee1");
-        UserDto dto2 = new UserDto(3L, "mentee2", "mentee2@test.com",
-                 "222222222", "About mentee2");
+        UserDto dto1 = new UserDto(
+                2L,
+                "mentee1",
+                "mentee1@test.com",
+                "111111111",
+                "About mentee1",
+                null,
+                List.of()
+        );
+        UserDto dto2 = new UserDto(
+                3L,
+                "mentee2",
+                "mentee2@test.com",
+                "222222222",
+                "About mentee2",
+                null,
+                List.of()
+        );
 
         Long userId = 1L;
         when(mentorshipRepository.getMenteesById(userId)).thenReturn(mentees);
@@ -129,10 +143,24 @@ class MentorshipServiceImplTest {
 
         List<User> mentors = List.of(mentor1, mentor2);
 
-        UserDto dto1 = new UserDto(4L, "mentor1", "mentor1@test.com",
-                "123456789", "About mentor1");
-        UserDto dto2 = new UserDto(5L, "mentor2", "mentor2@test.com",
-                "987654321", "About mentor2");
+        UserDto dto1 = new UserDto(
+                4L,
+                "mentor1",
+                "mentor1@test.com",
+                "123456789",
+                "About mentor1",
+                null,
+                List.of()
+        );
+        UserDto dto2 = new UserDto(
+                5L,
+                "mentor2",
+                "mentor2@test.com",
+                "987654321",
+                "About mentor2",
+                null,
+                List.of()
+        );
         Long userId = 1L;
         when(mentorshipRepository.getMentorsById(userId)).thenReturn(mentors);
         when(userMapper.toUserDto(mentor1)).thenReturn(dto1);

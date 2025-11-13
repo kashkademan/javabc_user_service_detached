@@ -51,6 +51,8 @@ public class UserServiceImpl implements UserService {
     private static final int SMALL_SIDE_PX = 170;
     @Value("#{'${user.avatar.allowed.types}'.split(',')}")
     private List<String> allowedImageTypes;
+    @Value("${user.max-ids-per-request}")
+    private int maxIdsPerRequest;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -81,9 +83,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getById(long userId) {
+    public UserDto getById(Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUsersByIds(List<Long> userIds) {
+
+        validateIds(userIds);
+
+        return userRepository.findAllById(userIds).stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     @Override
@@ -223,6 +235,20 @@ public class UserServiceImpl implements UserService {
             }
         } catch (IOException e) {
             throw new DataValidationException("Failed to read image file");
+        }
+    }
+
+    private void validateIds(List<Long> ids) {
+        if (ids.size() > maxIdsPerRequest) {
+            throw new DataValidationException("Max %d ids allowed".formatted(maxIdsPerRequest));
+        }
+
+        List<Long> invalidIds = ids.stream()
+                .filter(id -> id == null || id <= 0)
+                .toList();
+
+        if (!invalidIds.isEmpty()) {
+            throw new DataValidationException("Invalid IDs found: " + invalidIds);
         }
     }
 }

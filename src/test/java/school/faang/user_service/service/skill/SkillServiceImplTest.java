@@ -129,7 +129,15 @@ public class SkillServiceImplTest {
         User guarantor = new User();
         UserSkillGuarantee guarantee = new UserSkillGuarantee();
         guarantee.setGuarantor(guarantor);
-        UserDto userDto = new UserDto(USER_ID, USER_NAME, USER_EMAIL, USER_PHONE, ABOUT_USER);
+        UserDto userDto = new UserDto(
+                USER_ID,
+                USER_NAME,
+                USER_EMAIL,
+                USER_PHONE,
+                ABOUT_USER,
+                null,
+                List.of()
+        );
 
         when(skillRepository.findAllByUserId(USER_ID)).thenReturn(skills);
         when(userSkillGuaranteeRepository.findAllByUserIdAndSkillId(USER_ID, SKILL_ID))
@@ -163,7 +171,15 @@ public class SkillServiceImplTest {
 
         List<Skill> offeredSkills = List.of(skill);
 
-        UserDto userDto = new UserDto(USER_ID, USER_NAME, USER_EMAIL, USER_PHONE, ABOUT_USER);
+        UserDto userDto = new UserDto(
+                USER_ID,
+                USER_NAME,
+                USER_EMAIL,
+                USER_PHONE,
+                ABOUT_USER,
+                null,
+                List.of()
+        );
 
         SkillDto skillDto = new SkillDto(
                 SKILL_ID,
@@ -304,8 +320,8 @@ public class SkillServiceImplTest {
 
             return guarantees.stream().allMatch(g ->
                     g.getUser() == user
-                        && g.getSkill() == skill
-                        && (g.getGuarantor() == guarantor1
+                            && g.getSkill() == skill
+                            && (g.getGuarantor() == guarantor1
                             || g.getGuarantor() == guarantor2)
             );
         }));
