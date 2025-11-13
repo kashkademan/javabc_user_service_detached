@@ -1,9 +1,9 @@
 package school.faang.user_service.service.events;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,9 +30,6 @@ import school.faang.user_service.service.skill.SkillServiceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -44,12 +41,9 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final EventMapper eventMapper;
+    private final EntityManager entityManager;
     @Value("${scheduler.clear-events.batch-size}")
     private int batchSize;
-    @Value("${scheduler.clear-events.threads}")
-    private int countThreads;
-    @Value("${scheduler.clear-events.await-termination-hours}")
-    private int awaitTerminationHours;
 
     @Transactional
     @Override
@@ -107,38 +101,24 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void clearExpiredEvents() {
-        LocalDateTime now = LocalDateTime.now();
-        ExecutorService executorService = Executors.newFixedThreadPool(countThreads);
-        boolean hasMore = true;
-        int pageNumber = 0;
+        LocalDateTime cutoffDate = LocalDateTime.now();
+        Integer deletedInBatch;
+        int totalDeleted = 0;
 
-        while (hasMore) {
-            Page<Long> page = eventRepository.findExpiredEventIds(PageRequest.of(pageNumber, batchSize), now);
-            List<Long> ids = page.getContent();
-            hasMore = page.hasNext() && !ids.isEmpty();
+        log.info("Starting cleanup of events older than {}", cutoffDate);
 
-            if (ids.isEmpty()) {
-                break;
+        do {
+            deletedInBatch = eventRepository.deleteExpiredEventsBatch(cutoffDate, batchSize);
+            totalDeleted += deletedInBatch;
+
+            if (deletedInBatch > 0) {
+                entityManager.flush();
+                entityManager.clear();
             }
 
-            executorService.submit(() -> {
-                eventRepository.deleteAllByIdInBatch(ids);
-                log.info("Deleted batch of {} events", ids.size());
-            });
+        } while (deletedInBatch >= batchSize);
 
-            pageNumber++;
-        }
-
-        executorService.shutdown();
-
-        try {
-            executorService.awaitTermination(awaitTerminationHours, TimeUnit.HOURS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("Event cleanup interrupted", e);
-        }
-
-        log.info("Event cleanup finished");
+        log.info("Cleanup finished. Total deleted: {} events", totalDeleted);
     }
 
     private void validateSkillAuthor(List<Long> skillList) {

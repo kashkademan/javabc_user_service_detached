@@ -1,6 +1,5 @@
 package school.faang.user_service.repository.event;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -58,6 +57,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                     @Param("participantId") Long participantId,
                                     Pageable pageable);
 
-    @Query("SELECT e.id FROM Event e WHERE e.endDate < :now")
-    Page<Long> findExpiredEventIds(Pageable pageable, @Param("now") LocalDateTime now);
+    @Modifying
+    @Query(value = """
+            DELETE FROM event
+            WHERE id IN (
+                SELECT id FROM event
+                WHERE end_date < :cutoffDate 
+                LIMIT :batchSize
+            )
+            """, nativeQuery = true)
+    Integer deleteExpiredEventsBatch(@Param("cutoffDate") LocalDateTime cutoffDate,
+                                     @Param("batchSize") int batchSize);
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.events;
 
+import jakarta.persistence.EntityManager;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,11 +11,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
@@ -39,19 +39,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
+
+    private final int batchSize = 2;
 
     @Mock
     private SkillServiceImpl skillService;
 
     @Mock
     private SkillRepository skillRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @Mock
     private EventRepository eventRepository;
@@ -72,10 +79,8 @@ class EventServiceImplTest {
     ArgumentCaptor<Event> captorEvent;
 
     @BeforeEach
-    void setup() {
-        setField(service, "batchSize", 2);
-        setField(service, "countThreads", 2);
-        setField(service, "awaitTerminationHours", 1);
+    void setUp() {
+        ReflectionTestUtils.setField(service, "batchSize", 2);
     }
 
     @Test
@@ -259,23 +264,48 @@ class EventServiceImplTest {
     }
 
     @Test
-    void clearExpiredEvents_shouldDeleteBatches() {
-        int batchSize = 2;
-
-        Page<Long> firstPage = new PageImpl<>(List.of(1L, 2L), PageRequest.of(0, batchSize), 4);
-        Page<Long> secondPage = new PageImpl<>(List.of(3L, 4L), PageRequest.of(1, batchSize), 4);
-        Page<Long> lastPage = new PageImpl<>(List.of(), PageRequest.of(2, batchSize), 4);
-
-        when(eventRepository.findExpiredEventIds(any(Pageable.class), any(LocalDateTime.class)))
-                .thenReturn(firstPage)
-                .thenReturn(secondPage)
-                .thenReturn(lastPage);
+    void testClearExpiredEvents_DeletesInMultipleBatches() {
+        doReturn(100, 50, 0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
 
         service.clearExpiredEvents();
 
-        verify(eventRepository).deleteAllByIdInBatch(List.of(1L, 2L));
-        verify(eventRepository).deleteAllByIdInBatch(List.of(3L, 4L));
-        verify(eventRepository, never()).deleteAllByIdInBatch(List.of());
+        verify(eventRepository, times(3))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        verify(entityManager, times(2)).flush();
+        verify(entityManager, times(2)).clear();
+    }
+
+    @Test
+    void testClearExpiredEvents_NoExpiredEvents() {
+        doReturn(0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository, times(1))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        verify(entityManager, never()).flush();
+        verify(entityManager, never()).clear();
+    }
+
+
+    @Test
+    void testClearExpiredEvents_ExactlyBatchSizeThenStop() {
+        doReturn(batchSize, 0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository, times(2))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+        verify(entityManager, times(1)).flush();
+        verify(entityManager, times(1)).clear();
     }
 
     private List<SkillDto> preparingSkillDtoList() {
