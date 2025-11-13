@@ -12,7 +12,7 @@ import school.faang.user_service.dto.event.EventDto;
 public class EventsPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private static final String SUBSCRIPTION_TOPIC = "subscription-events";
+    private static final String SUBSCRIPTION_TOPIC = "subscription-create-events";
 
     public void sendEvent(String topic, EventDto event) {
         try {
