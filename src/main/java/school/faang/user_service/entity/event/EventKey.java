@@ -2,8 +2,6 @@ package school.faang.user_service.entity.event;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,13 +16,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "event_key_for_kafka")
+@Table(name = "event_keys")
 public class EventKey {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(name = "key_for_kafka", unique = true)
-    private String keyForKafka;
+    @Column(name = "key", unique = true)
+    private String key;
 }

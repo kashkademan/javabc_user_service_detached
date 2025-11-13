@@ -39,10 +39,6 @@ public class SendEventService {
     }
 
     public void preparingDataForSendingToKafka(Event event, TimeLeft timeLeft) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(event.getId())
-                .append(event.getTitle())
-                .append(timeLeft.getMinutes());
 
         List<User> attendeesUser =  userRepository.findAttendeesByEventId(event.getId());
         List<UserDto> attendeesUserDto = attendeesUser.stream()
@@ -56,20 +52,30 @@ public class SendEventService {
                 event.getTitle(),
                 timeLeft);
 
-        checkKeyInBd(eventStartEventDto, sb.toString());
+        String key = formingKey(event, timeLeft);
+
+        checkKeyInBd(eventStartEventDto, key);
     }
 
     public void checkKeyInBd(EventStartEventDto eventStartEventDto, String key) {
-        boolean isKey = eventKeyRepository.existsByKeyForKafka(key);
+        boolean isKey = eventKeyRepository.existsByKey(key);
         if (isKey) {
             log.info("The event {} have already been processed", eventStartEventDto.eventId());
         } else {
             EventKey eventKey = EventKey.builder()
-                    .keyForKafka(key)
+                    .key(key)
                     .build();
             eventKeyRepository.save(eventKey);
             eventStartEventPublisher.publishEvent(eventStartEventDto);
             log.info("The event {} is ready to be sent to Kafka", eventStartEventDto.eventId());
         }
+    }
+
+    private String formingKey(Event event, TimeLeft timeLeft) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(event.getId())
+                .append("__")
+                .append(timeLeft);
+        return sb.toString();
     }
 }

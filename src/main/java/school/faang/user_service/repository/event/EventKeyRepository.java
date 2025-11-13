@@ -5,5 +5,5 @@ import school.faang.user_service.entity.event.EventKey;
 
 public interface EventKeyRepository extends JpaRepository<EventKey, Long> {
 
-    boolean existsByKeyForKafka(String keyForKafka);
+    boolean existsByKey(String keyForKafka);
 }
