@@ -88,7 +88,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         Recommendation recommendation = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() -> new DataValidationException("Recommendation with this ID does not exist!"));
         if (!recommendation.getAuthor().getId().equals(userId)) {
-            throw new ForbiddenException("Author ID mismatch, editing this recommendation is not allowed for this user!");
+            throw new ForbiddenException("Author ID mismatch," +
+                    " editing this recommendation is not allowed for this user!");
         }
         return recommendation;
     }

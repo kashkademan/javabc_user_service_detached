@@ -26,13 +26,14 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public ResponseEntity<RecommendationDto> create(@Validated @RequestBody CreateRecommendationDto recommendationDto){
+    public ResponseEntity<RecommendationDto> create(@RequestBody CreateRecommendationDto recommendationDto) {
         return ResponseEntity.ok(recommendationService.create(recommendationDto));
     }
 
     @PutMapping("/{recommendationId}")
-    public ResponseEntity<RecommendationDto> update(long recommendationId, @Validated @RequestBody UpdateRecommendationDto recommendationDto){
-        return ResponseEntity.ok(recommendationService.update(recommendationId,recommendationDto));
+    public ResponseEntity<RecommendationDto> update(long recommendationId,
+                                                    @RequestBody UpdateRecommendationDto recommendationDto) {
+        return ResponseEntity.ok(recommendationService.update(recommendationId, recommendationDto));
     }
 
     @DeleteMapping("/{recommendationId}")
@@ -42,7 +43,8 @@ public class RecommendationController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<RecommendationDto>> getByFilters(@Validated @RequestBody RecommendationFilterDto filters) {
+    public ResponseEntity<List<RecommendationDto>> getByFilters(
+            @RequestBody RecommendationFilterDto filters) {
         return ResponseEntity.ok(recommendationService.getByFilters(filters));
     }
 }
