@@ -44,12 +44,12 @@ public class RecommendationServiceImplTest {
     @InjectMocks
     private RecommendationServiceImpl recommendationService;
 
-    private final static Long TEST_USER_ID = 1L;
-    private final static Long TEST_RECEIVER_ID = 5L;
-    private final static Long TEST_RECOMMENDATION_ID = 10L;
-    private final static String TEST_CONTENT_TEXT = "Test text";
-    private final static LocalDateTime TEST_CREATED_AT = LocalDateTime.now().minusMonths(7);
-    private final static LocalDateTime INVALID_CREATED_AT = LocalDateTime.now();
+    private static final Long TEST_USER_ID = 1L;
+    private static final Long TEST_RECEIVER_ID = 5L;
+    private static final Long TEST_RECOMMENDATION_ID = 10L;
+    private static final String TEST_CONTENT_TEXT = "Test text";
+    private static final LocalDateTime TEST_CREATED_AT = LocalDateTime.now().minusMonths(7);
+    private static final LocalDateTime INVALID_CREATED_AT = LocalDateTime.now();
     private final User testAuthor = new User();
     private final User testReceiver = new User();
 
@@ -89,7 +89,8 @@ public class RecommendationServiceImplTest {
         Mockito.when(recommendationRepository.findAllByAuthorId(TEST_USER_ID)).thenReturn(testRecommendationList);
         Mockito.when(recommendationRepository.create(TEST_USER_ID, TEST_RECEIVER_ID, TEST_CONTENT_TEXT))
                 .thenReturn(TEST_RECOMMENDATION_ID);
-        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation1));
+        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
+                .thenReturn(Optional.of(recommendation1));
 
         RecommendationDto expectedDto = new RecommendationDto(TEST_RECOMMENDATION_ID,
                 TEST_USER_ID, TEST_RECEIVER_ID, TEST_CONTENT_TEXT);
@@ -137,8 +138,10 @@ public class RecommendationServiceImplTest {
 
     @Test
     void testUpdateSuccess() {
-        Mockito.when(userContext.getUserId()).thenReturn(TEST_USER_ID);
-        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation1));
+        Mockito.when(userContext.getUserId())
+                .thenReturn(TEST_USER_ID);
+        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
+                .thenReturn(Optional.of(recommendation1));
         Mockito.when(recommendationRepository.save(Mockito.any(Recommendation.class))).thenReturn(recommendation1);
 
         RecommendationDto expectedDto = new RecommendationDto(TEST_RECOMMENDATION_ID,
@@ -158,9 +161,10 @@ public class RecommendationServiceImplTest {
     }
 
     @Test
-    void testUpdateInvalidAuthorID() {
+    void testUpdateInvalidAuthorId() {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_RECEIVER_ID);
-        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation1));
+        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
+                .thenReturn(Optional.of(recommendation1));
         assertThrows(ForbiddenException.class, () -> recommendationService
                         .update(TEST_RECOMMENDATION_ID, updateRecommendationDto),
                 "Author ID mismatch, editing this recommendation is not allowed for this user!");
@@ -169,7 +173,8 @@ public class RecommendationServiceImplTest {
     @Test
     void testDeleteSuccess() {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_USER_ID);
-        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation1));
+        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
+                .thenReturn(Optional.of(recommendation1));
 
         recommendationService.delete(TEST_RECOMMENDATION_ID);
         Mockito.verify(recommendationRepository).deleteByIdAndAuthor_id(TEST_RECOMMENDATION_ID, TEST_USER_ID);
@@ -187,7 +192,8 @@ public class RecommendationServiceImplTest {
     @Test
     void testDeleteInvalidAuthorId() {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_RECEIVER_ID);
-        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation1));
+        Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
+                .thenReturn(Optional.of(recommendation1));
         assertThrows(ForbiddenException.class, () -> recommendationService
                         .delete(TEST_RECOMMENDATION_ID),
                 "Author ID mismatch, editing this recommendation is not allowed for this user!");
@@ -195,7 +201,8 @@ public class RecommendationServiceImplTest {
 
     @Test
     void testGetByFilters() {
-        RecommendationFilterDto testFilterDto = new RecommendationFilterDto("text for", TEST_USER_ID, TEST_RECEIVER_ID);
+        RecommendationFilterDto testFilterDto = new RecommendationFilterDto(
+                "text for", TEST_USER_ID, TEST_RECEIVER_ID);
         List<Recommendation> testRecommendationList = List.of(recommendation1, recommendation2, recommendation3);
 
         Mockito.when(recommendationRepository.findAll()).thenReturn(testRecommendationList);
