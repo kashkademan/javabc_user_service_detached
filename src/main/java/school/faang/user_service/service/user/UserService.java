@@ -73,6 +73,8 @@ public interface UserService {
     void activateUser(long userId);
 
     void banUsers(List<Long> usersIds);
+
+    List<Long> getNotBannedUsersIds(List<Long> usersIds);
 }
 
 

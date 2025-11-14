@@ -249,4 +249,11 @@ public class UserServiceImpl implements UserService {
         userRepository.banUsers(usersIds);
         log.info("Users have been banned. Users ids: {}", usersIds);
     }
+
+    @Override
+    public List<Long> getNotBannedUsersIds(List<Long> usersIds) {
+        return userRepository.findAllById(usersIds).stream()
+                .filter(user -> !user.isBanned())
+                .map(User::getId).toList();
+    }
 }
