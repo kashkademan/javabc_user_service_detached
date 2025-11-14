@@ -20,6 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      chanel:
+        recommendation: recommendation_topic
 
 server:
   port: 8080
