@@ -71,5 +71,5 @@ redis:
 
 scheduler:
   clear-events:
-    cron: "*/30 * * * * ?"
+    cron: "0 0 1 ? * MON"
     batch-size: 5000
