@@ -19,3 +19,7 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V009__change_goal_status_to_string.sql
   - include:
       file: db/changelog/changeset/user_V010__user_score_event.sql
+  - include:
+      file: db/changelog/changeset/V3__Create_event_key_for_kafka_table.sql
+  - include:
+      file: db/changelog/changeset/V2__Create_promotion_table.sql
