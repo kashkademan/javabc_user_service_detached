@@ -34,10 +34,12 @@ spring:
         spring.json.add.type.headers: false
     properties:
       acks: all
-      retries: 1
+      retries: 3
       enable.idempotence: true
       request.timeout.ms: 30000
       max.block.ms: 60000
+  lifecycle:
+    timeout-per-shutdown-phase: 1s
 
 promotion-redis:
   ttl: 1d
@@ -53,6 +55,7 @@ promotion-redis:
 
 server:
   port: 8080
+  shutdown: graceful
 
 logging:
   level:
