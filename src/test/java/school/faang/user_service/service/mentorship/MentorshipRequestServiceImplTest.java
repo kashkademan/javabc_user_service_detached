@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -18,6 +19,7 @@ import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.event.mentorship.MentorshipOfferedEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -25,6 +27,9 @@ import school.faang.user_service.filter.mentorship_request.MentorshipRequestRece
 import school.faang.user_service.filter.mentorship_request.MentorshipRequestRequesterIdFilter;
 import school.faang.user_service.filter.mentorship_request.MentorshipRequestStatusFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -49,7 +54,9 @@ public class MentorshipRequestServiceImplTest {
     private final MentorshipRequest latestMentorship = new MentorshipRequest();
     private final MentorshipRequest mentorshipRequestForCreate = new MentorshipRequest();
     private final MentorshipRequest mentorshipRequestForAccept = new MentorshipRequest();
-    private final MentorshipRequestMapper mentorshipRequestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private final MentorshipRequestMapperImpl mentorshipRequestMapperImpl = new MentorshipRequestMapperImpl();
+    private MentorshipRequestMapper mentorshipRequestMapper;
     private MentorshipRequestFilterDto filterDto = MentorshipRequestFilterDto.builder()
             .status(RequestStatus.ACCEPTED)
             .build();
@@ -63,6 +70,8 @@ public class MentorshipRequestServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
+    @Mock
+    private MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
     @Spy
     private UserContext userContext;
 
@@ -70,8 +79,11 @@ public class MentorshipRequestServiceImplTest {
 
     @BeforeEach
     void setup() {
+        ReflectionTestUtils.setField(mentorshipRequestMapperImpl, "userMapper", userMapper);
+        mentorshipRequestMapper = mentorshipRequestMapperImpl;
+
         mentorshipRequestService = new MentorshipRequestServiceImpl(userRepository, mentorshipRequestRepository,
-                mentorshipRequestMapper, userContext,
+                mentorshipRequestMapper, userContext, mentorshipOfferedEventPublisher,
                 List.of(new MentorshipRequestReceiverIdFilter(), new MentorshipRequestRequesterIdFilter(),
                         new MentorshipRequestStatusFilter()));
 
@@ -133,6 +145,8 @@ public class MentorshipRequestServiceImplTest {
         MentorshipRequestDto expectedMentorshipRequest
                 = mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequestForCreate);
         MentorshipRequestDto mentorshipRequestDto = mentorshipRequestService.create(createMentorshipRequestDto);
+
+        verify(mentorshipOfferedEventPublisher).publish(Mockito.any(MentorshipOfferedEvent.class));
 
         Assertions.assertEquals(expectedMentorshipRequest, mentorshipRequestDto);
     }

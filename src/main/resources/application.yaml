@@ -21,6 +21,18 @@ spring:
       port: 6379
       host: localhost
 
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+kafka:
+  topic:
+    mentorship-offer: mentorship_offer_topic
+
 server:
   port: 8080
   servlet:
