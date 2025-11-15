@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
+import jakarta.persistence.Index;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +34,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "event")
+@Table(
+        name = "event",
+        indexes = {
+                @Index(name = "idx_event_end_date", columnList = "end_date")
+        }
+)
 public class Event {
 
     @Id

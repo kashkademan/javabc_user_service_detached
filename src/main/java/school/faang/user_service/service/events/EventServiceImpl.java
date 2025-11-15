@@ -1,6 +1,9 @@
 package school.faang.user_service.service.events;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,11 +27,13 @@ import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class EventServiceImpl implements EventService {
     private final SkillServiceImpl skillService;
     private final SkillRepository skillRepository;
@@ -36,6 +41,9 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final EventMapper eventMapper;
+    private final EntityManager entityManager;
+    @Value("${scheduler.clear-events.batch-size}")
+    private int batchSize;
 
     @Transactional
     @Override
@@ -90,6 +98,28 @@ public class EventServiceImpl implements EventService {
         eventRepository.delete(event);
     }
 
+    @Override
+    @Transactional
+    public void clearExpiredEvents() {
+        LocalDateTime cutoffDate = LocalDateTime.now();
+        Integer deletedInBatch;
+        int totalDeleted = 0;
+
+        log.info("Starting cleanup of events older than {}", cutoffDate);
+
+        do {
+            deletedInBatch = eventRepository.deleteExpiredEventsBatch(cutoffDate, batchSize);
+            totalDeleted += deletedInBatch;
+
+            if (deletedInBatch > 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+
+        } while (deletedInBatch >= batchSize);
+
+        log.info("Cleanup finished. Total deleted: {} events", totalDeleted);
+    }
 
     private void validateSkillAuthor(List<Long> skillList) {
         List<SkillDto> ownerSkills = skillService.getByUserId(userContext.getUserId());

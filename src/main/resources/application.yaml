@@ -68,3 +68,8 @@ redis:
   topics:
     name:
       user-ban-topic: "user-ban-topic"
+
+scheduler:
+  clear-events:
+    cron: "0 0 1 ? * MON"
+    batch-size: 5000

@@ -1,7 +1,9 @@
 package school.faang.user_service.service.events;
 
+import jakarta.persistence.EntityManager;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
@@ -34,18 +37,28 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
+
+    private final int batchSize = 2;
 
     @Mock
     private SkillServiceImpl skillService;
 
     @Mock
     private SkillRepository skillRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @Mock
     private EventRepository eventRepository;
@@ -64,6 +77,11 @@ class EventServiceImplTest {
 
     @Captor
     ArgumentCaptor<Event> captorEvent;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "batchSize", 2);
+    }
 
     @Test
     public void createEvent_authorNotSkill_shouldThrowForbiddenException() {
@@ -245,6 +263,50 @@ class EventServiceImplTest {
         verify(eventRepository).delete(event);
     }
 
+    @Test
+    void testClearExpiredEvents_DeletesInMultipleBatches() {
+        doReturn(100, 50, 0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository, times(3))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        verify(entityManager, times(2)).flush();
+        verify(entityManager, times(2)).clear();
+    }
+
+    @Test
+    void testClearExpiredEvents_NoExpiredEvents() {
+        doReturn(0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository, times(1))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        verify(entityManager, never()).flush();
+        verify(entityManager, never()).clear();
+    }
+
+
+    @Test
+    void testClearExpiredEvents_ExactlyBatchSizeThenStop() {
+        doReturn(batchSize, 0)
+                .when(eventRepository)
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+
+        service.clearExpiredEvents();
+
+        verify(eventRepository, times(2))
+                .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
+        verify(entityManager, times(1)).flush();
+        verify(entityManager, times(1)).clear();
+    }
 
     private List<SkillDto> preparingSkillDtoList() {
         SkillDto skillDto =

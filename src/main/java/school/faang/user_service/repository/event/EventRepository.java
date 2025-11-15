@@ -1,14 +1,15 @@
 package school.faang.user_service.repository.event;
 
-import feign.Param;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -56,4 +57,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                     @Param("participantId") Long participantId,
                                     Pageable pageable);
 
+    @Modifying
+    @Query(value = """
+            DELETE FROM event
+            WHERE id IN (
+                SELECT id FROM event
+                WHERE end_date < :cutoffDate 
+                LIMIT :batchSize
+            )
+            """, nativeQuery = true)
+    Integer deleteExpiredEventsBatch(@Param("cutoffDate") LocalDateTime cutoffDate,
+                                     @Param("batchSize") int batchSize);
 }
