@@ -20,6 +20,7 @@ import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.avatar.AvatarService;
@@ -47,6 +48,8 @@ public class UserServiceImpl implements UserService {
     private final PromotionRedisService promotionRedisService;
 
     private final SecureRandom random = new SecureRandom();
+
+    private final UserMapperImpl userMapperImpl;
 
     @Transactional
     @Override
@@ -94,6 +97,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
     }
+
 
     @Override
     public Page<UserDto> getUser(Pageable pageable) {

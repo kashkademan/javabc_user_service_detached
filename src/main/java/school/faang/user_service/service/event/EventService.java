@@ -12,6 +12,7 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.publisher.EventStartEventPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.validator.event.EventValidator;
@@ -28,6 +29,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final UserContext userContext;
+    private final EventStartEventPublisher eventStartEventPublisher;
 
     public Event create(EventCreateDto eventCreateDto) {
         long ownerId = userContext.getUserId();

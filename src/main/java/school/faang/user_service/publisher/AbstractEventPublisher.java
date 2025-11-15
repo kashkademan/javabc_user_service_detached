@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import school.faang.user_service.config.kafka.KafkaTopicConfig;
+import school.faang.user_service.config.KafkaTopicConfig;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractEventPublisher<T> {
 
-    protected final KafkaTemplate<String, String> kafkaTemplate;
+    protected final KafkaTemplate<String, Object> kafkaTemplate;
     protected final ObjectMapper objectMapper;
     protected final KafkaTopicConfig kafkaTopicConfig;
 

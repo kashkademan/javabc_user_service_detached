@@ -3,8 +3,8 @@ package school.faang.user_service.publisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.config.KafkaTopicConfig;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.config.kafka.KafkaTopicConfig;
 import school.faang.user_service.dto.kafka.analytics.ProfileViewEvent;
 
 import java.time.Instant;
@@ -14,7 +14,7 @@ public class ProfileViewEventPublisher extends AbstractEventPublisher<ProfileVie
     private final UserContext userContext;
 
     public ProfileViewEventPublisher(
-            KafkaTemplate<String, String> kafkaTemplate,
+            KafkaTemplate<String, Object> kafkaTemplate,
             ObjectMapper objectMapper,
             KafkaTopicConfig kafkaTopicConfig,
             UserContext userContext) {

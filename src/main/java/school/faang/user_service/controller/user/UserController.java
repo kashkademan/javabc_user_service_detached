@@ -2,6 +2,7 @@ package school.faang.user_service.controller.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +20,10 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
+@Slf4j
+@RequestMapping("/api/v1/users")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 

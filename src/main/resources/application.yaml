@@ -28,14 +28,16 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        acks: all
-        retries: 3
-        enable.idempotence: true
-        request.timeout.ms: 30000
-        delivery.timeout.ms: 120000
-
+        spring.json.trusted.packages: "*"
+        spring.json.add.type.headers: false
+    properties:
+      acks: all
+      retries: 1
+      enable.idempotence: true
+      request.timeout.ms: 30000
+      max.block.ms: 60000
 
 promotion-redis:
   ttl: 1d
@@ -114,3 +116,4 @@ topics:
     profile-view: analytics.profile-view
   achievements:
     goal-completed: achievements.goal-completed #example
+  events: event.events

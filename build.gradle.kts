@@ -44,21 +44,17 @@ dependencies {
     /**
      * Amazon S3
      */
-    implementation("software.amazon.awssdk:s3:2.20.56"){
-        exclude(group = "com.fasterxml.jackson.core", module = "jackson-core")
-        exclude(group = "com.fasterxml.jackson.core", module = "jackson-databind")
-        exclude(group = "com.fasterxml.jackson.core", module = "jackson-annotations")
-    }
+    implementation("software.amazon.awssdk:s3:2.20.56")
 
     /**
      * Utils & Logging
      */
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.14.2")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.14.2")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.2")
-
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
+    implementation("com.fasterxml.jackson.core:jackson-core")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.core:jackson-annotations")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.6")
     implementation("org.projectlombok:lombok:1.18.28")
@@ -67,7 +63,6 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2")
 
     /**
      * Test containers
@@ -75,6 +70,7 @@ dependencies {
     implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:kafka")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
 
     /**
