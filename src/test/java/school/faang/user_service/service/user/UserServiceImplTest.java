@@ -27,9 +27,16 @@ import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -139,9 +146,6 @@ class UserServiceImplTest {
                 preference
         );
 
-        UserDto result = userService.create(input);
-
-        // Check entity passed to repository
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User saved = captor.getValue();
@@ -150,7 +154,8 @@ class UserServiceImplTest {
         assertNotNull(saved.getContactPreference());
         assertEquals(PreferredContact.EMAIL, saved.getContactPreference().getPreference());
 
-        // Check DTO returned
+        UserDto result = userService.create(input);
+
         assertEquals(localeTag, result.locale());
         assertEquals(preference, result.preference());
     }
