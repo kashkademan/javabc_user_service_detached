@@ -5,4 +5,6 @@ import school.faang.user_service.entity.resource.Resource;
 
 public interface S3Service {
     Resource uploadFile(MultipartFile file, String folder);
+
+    Resource uploadFile(byte[] fileData, String filename, String contentType, String folder);
 }

@@ -2,11 +2,11 @@ package school.faang.user_service.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import school.faang.user_service.exception.FileException;
+import school.faang.user_service.properties.DiceBearProperties;
 
 import java.util.UUID;
 
@@ -14,26 +14,19 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class DiceBearClient {
+
     private final RestTemplate restTemplate;
     private final String seed = UUID.randomUUID().toString();
-
-    @Value("${clients.dice-bear-client.host}")
-    private String host;
-
-    @Value("${clients.dice-bear-client.api-version}")
-    private String apiVersion;
-
-    @Value("${clients.dice-bear-client.style-name}")
-    private String styleName;
-
-    @Value("${clients.dice-bear-client.format}")
-    private String format;
-
-    @Value("${clients.dice-bear-client.size}")
-    private int size;
+    private final DiceBearProperties diceBearProperties;
 
     public String generateRandomAvatarUrl() {
-        return "%s%s%s%s?seed=%s&size=%d".formatted(host, apiVersion, styleName, format, seed, size);
+        return "%s%s%s%s?seed=%s&size=%d".formatted(
+                diceBearProperties.host(),
+                diceBearProperties.apiVersion(),
+                diceBearProperties.styleName(),
+                diceBearProperties.format(),
+                seed,
+                diceBearProperties.size());
     }
 
     public boolean isUrlValid(String url) {
