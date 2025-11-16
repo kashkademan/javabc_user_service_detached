@@ -15,6 +15,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -23,16 +25,11 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Locale;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -89,7 +86,16 @@ class UserServiceImplTest {
             return u;
         });
 
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
+        // locale and preference are null in this scenario
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_VALID,
+                COUNTRY_ID,
+                null,
+                null
+        );
+
         UserDto result = userService.create(input);
 
         assertNotNull(result);
@@ -99,6 +105,8 @@ class UserServiceImplTest {
 
         assertNull(result.phone());
         assertNull(result.aboutMe());
+        assertNull(result.locale());
+        assertNull(result.preference());
 
         verify(userMapper).toUser(input);
         verify(countryRepository).getByIdOrThrow(COUNTRY_ID);
@@ -107,9 +115,57 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("create: sets locale and preference when provided")
+    void create_setsLocaleAndPreference() {
+        Country country = new Country();
+        country.setId(COUNTRY_ID);
+
+        when(countryRepository.getByIdOrThrow(COUNTRY_ID)).thenReturn(country);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0, User.class);
+            u.setId(USER_ID);
+            return u;
+        });
+
+        String localeTag = "en-US";
+        String preference = "EMAIL";
+
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_VALID,
+                COUNTRY_ID,
+                localeTag,
+                preference
+        );
+
+        UserDto result = userService.create(input);
+
+        // Check entity passed to repository
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        User saved = captor.getValue();
+
+        assertEquals(Locale.forLanguageTag(localeTag), saved.getLocale());
+        assertNotNull(saved.getContactPreference());
+        assertEquals(PreferredContact.EMAIL, saved.getContactPreference().getPreference());
+
+        // Check DTO returned
+        assertEquals(localeTag, result.locale());
+        assertEquals(preference, result.preference());
+    }
+
+    @Test
     @DisplayName("create: password too short -> DataValidationException (mapper/repo not called)")
     void create_passwordTooShort() {
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_SHORT, COUNTRY_ID);
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_SHORT,
+                COUNTRY_ID,
+                null,
+                null
+        );
 
         DataValidationException ex =
                 assertThrows(DataValidationException.class, () -> userService.create(input));
@@ -131,7 +187,14 @@ class UserServiceImplTest {
             return u;
         });
 
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_MIN_OK, COUNTRY_ID);
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_MIN_OK,
+                COUNTRY_ID,
+                null,
+                null
+        );
         UserDto result = userService.create(input);
 
         assertEquals(USER_ID, result.id());
@@ -142,7 +205,14 @@ class UserServiceImplTest {
     @Test
     @DisplayName("create: invalid country -> propagates exception, save not called")
     void create_invalidCountry() {
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, INVALID_COUNTRY_ID);
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_VALID,
+                INVALID_COUNTRY_ID,
+                null,
+                null
+        );
 
         when(countryRepository.getByIdOrThrow(INVALID_COUNTRY_ID))
                 .thenThrow(new RuntimeException("Country not found"));
@@ -167,7 +237,14 @@ class UserServiceImplTest {
             return u;
         });
 
-        CreateUserDto input = new CreateUserDto(USERNAME, EMAIL, PASSWORD_VALID, COUNTRY_ID);
+        CreateUserDto input = new CreateUserDto(
+                USERNAME,
+                EMAIL,
+                PASSWORD_VALID,
+                COUNTRY_ID,
+                null,
+                null
+        );
         userService.create(input);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
@@ -243,22 +320,29 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("getById: ok -> repository returns entity, mapper returns dto")
+    @DisplayName("getById: ok – repository returns entity and mapper builds dto with locale & preference")
     void getById_ok() {
         User entity = new User();
         entity.setId(USER_ID);
         entity.setUsername(USERNAME);
         entity.setEmail(EMAIL);
+        entity.setLocale(Locale.forLanguageTag("en-SG"));
 
-        UserDto expectedDto = new UserDto(USER_ID, USERNAME, EMAIL, null, null);
+        ContactPreference cp = new ContactPreference();
+        cp.setUser(entity);
+        cp.setPreference(PreferredContact.EMAIL);
+        entity.setContactPreference(cp);
+
         when(userRepository.getByIdOrThrow(USER_ID)).thenReturn(entity);
-        when(userMapper.toUserDto(entity)).thenReturn(expectedDto);
 
         UserDto result = userService.getById(USER_ID);
 
         assertEquals(USER_ID, result.id());
         assertEquals(USERNAME, result.username());
         assertEquals(EMAIL, result.email());
+        assertEquals("en-SG", result.locale());
+        assertEquals("EMAIL", result.preference());
+
         verify(userRepository).getByIdOrThrow(USER_ID);
         verify(userMapper).toUserDto(entity);
     }
@@ -285,5 +369,4 @@ class UserServiceImplTest {
                 .city(UPDATED_CITY)
                 .build();
     }
-
 }

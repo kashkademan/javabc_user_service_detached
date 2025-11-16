@@ -36,6 +36,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 @Setter
@@ -99,7 +100,7 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private List<Event> ownedEvents;
 
-    @ManyToMany(mappedBy = "mentors", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "mentors")
     private List<User> mentees;
 
     @ManyToMany
@@ -156,7 +157,7 @@ public class User {
     })
     private UserProfilePic userProfilePic;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private ContactPreference contactPreference;
 
     @OneToOne(mappedBy = "user")
@@ -170,4 +171,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private WorkSchedule workSchedule;
+
+    @Column(name = "locale", length = 16)
+    private Locale locale;
 }

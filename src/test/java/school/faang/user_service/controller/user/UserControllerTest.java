@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import school.faang.user_service.controller.user.UserController;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -39,16 +38,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class UserControllerTest {
 
-    @Autowired private MockMvc mvc;
-    @MockBean private UserService userService;
+    @Autowired
+    private MockMvc mvc;
+    @MockBean
+    private UserService userService;
 
-
-    @MockBean private UserContext userContext;
+    @MockBean
+    private UserContext userContext;
 
     @Test
     @DisplayName("POST /users -> 200 OK with body on valid input")
     void create_ok() throws Exception {
-        UserDto response = new UserDto(10L, "john", "john@example.com", null, null);
+        UserDto response = new UserDto(
+                10L,
+                "john",
+                "john@example.com",
+                null,
+                null,
+                null,
+                null
+        );
+
         when(userService.create(any(CreateUserDto.class))).thenReturn(response);
 
         String json = """
@@ -91,7 +101,15 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /users/{id} -> 200 OK with body on valid input")
     void update_ok() throws Exception {
-        UserDto response = new UserDto(10L, "johnny", "johnny@example.com", "+65 1111 2222", "About");
+        UserDto response = new UserDto(
+                10L,
+                "johnny",
+                "johnny@example.com",
+                "+65 1111 2222",
+                "About",
+                null,
+                null
+        );
         when(userService.update(eq(10L), any(UpdateUserDto.class))).thenReturn(response);
 
         String json = """
@@ -137,7 +155,16 @@ class UserControllerTest {
     @Test
     @DisplayName("GET /users/{id} -> 200 OK with body")
     void get_ok() throws Exception {
-        UserDto response = new UserDto(10L, "john", "john@example.com", null, null);
+        UserDto response = new UserDto(
+                10L,
+                "john",
+                "john@example.com",
+                null,
+                null,
+                null,
+                null
+        );
+
         when(userService.getById(10L)).thenReturn(response);
 
         mvc.perform(get("/users/{userId}", 10))
