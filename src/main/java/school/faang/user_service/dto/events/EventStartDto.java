@@ -1,7 +1,9 @@
 package school.faang.user_service.dto.events;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import school.faang.user_service.entity.EventStart;
 
 import java.util.List;
 
@@ -10,6 +12,8 @@ public record EventStartDto(
         @NotNull(message = "Event cannot be negative")
         Long eventId,
         List<Long> attendeesIds,
-        String prepareEventMessage
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        EventStart eventStart,
+        String title
 ) {
 }

@@ -4,12 +4,9 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RScheduledExecutorService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -19,6 +16,7 @@ import school.faang.user_service.dto.events.EventResponseDto;
 import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.EventStart;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
@@ -34,11 +32,9 @@ import school.faang.user_service.service.skill.SkillServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,7 +49,6 @@ public class EventServiceImpl implements EventService {
     private final EntityManager entityManager;
     @Value("${scheduler.clear-events.batch-size}")
     private int batchSize;
-    private final RScheduledExecutorService scheduledExecutorService;
     private final PublishEventStart publishEventStart;
 
     @Transactional
@@ -110,25 +105,33 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public EventResponseDto getEventById(Long eventId) {
+        return eventMapper.toDto(eventRepository.getByIdOrThrow(eventId));
+    }
+
+    @Override
     public void startEventsPublish() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        log.info("Current Date {}", now);
+
         LocalDateTime windowStart = now.plusHours(23);
+        log.info("windowStart Date {}", windowStart);
         LocalDateTime windowEnd = now.plusHours(25);
-        List<Event> events = eventRepository.findEventsFor24HourReminder(windowStart, windowEnd);
+        log.info("windowEnd Date {}", windowEnd);
+        List<Event> events = eventRepository.findEventsFor24HourReminder();
         log.info("Number of Events per notification {}", events.size());
         events.forEach(event -> {
             LocalDateTime eventStartTime = event.getStartDate();
-            scheduleNotification(eventMapper.toStartDto(event, "1 day before"),
+            scheduleNotification(eventMapper.toStartDto(event, EventStart.ONE_DAY),
                     eventStartTime.minusHours(24));
-            scheduleNotification(eventMapper.toStartDto(event, "5 hours before"),
+            scheduleNotification(eventMapper.toStartDto(event, EventStart.FIVE_HOURS),
                     eventStartTime.minusHours(5));
-            scheduleNotification(eventMapper.toStartDto(event,"1 hour before"),
+            scheduleNotification(eventMapper.toStartDto(event, EventStart.ONE_HOUR),
                     eventStartTime.minusHours(1));
-            scheduleNotification(eventMapper.toStartDto(event, "10 minutes before"),
+            scheduleNotification(eventMapper.toStartDto(event, EventStart.TEN_MINUTES),
                     eventStartTime.minusMinutes(10));
         });
     }
-
 
     private void scheduleNotification(EventStartDto eventStartDto, LocalDateTime notifyTime) {
         LocalDateTime now = LocalDateTime.now();
@@ -138,9 +141,18 @@ public class EventServiceImpl implements EventService {
         }
 
         long delay = Duration.between(now, notifyTime).toMillis();
-        scheduledExecutorService.schedule(() -> publishEventStart.sendNotification(eventStartDto),
-                delay, TimeUnit.MILLISECONDS);
+
+     /*   Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                publishEventStart.sendNotification(eventStartDto);
+            }
+        }, delay);*/
+        publishEventStart.sendNotification(eventStartDto);
+        log.info("Event send to topic: {}", eventStartDto.eventId());
     }
+
     @Override
     @Transactional
     public void clearExpiredEvents() {

@@ -50,6 +50,7 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         redisTemplate.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
 
+
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }

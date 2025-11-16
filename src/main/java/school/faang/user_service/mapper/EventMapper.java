@@ -8,6 +8,7 @@ import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
 import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
+import school.faang.user_service.entity.EventStart;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
@@ -22,8 +23,10 @@ public interface EventMapper {
     EventResponseDto toDto(Event event);
 
     @Mapping(target = "attendeesIds", expression = "java(mapAttendeesToIds(event.getAttendees()))")
-    @Mapping(target = "prepareEventMessage", source = "prepareEventMessage")
-    EventStartDto toStartDto(Event event, String prepareEventMessage);
+    @Mapping(target = "eventId", source = "event.id")
+    @Mapping(target = "eventStart", source = "eventStart")
+    @Mapping(target = "title", source = "event.title")
+    EventStartDto toStartDto(Event event, EventStart eventStart);
 
     @Mapping(target = "type", source = "eventType")
     Event toEntityCreate(EventCreateDto eventCreateDto);

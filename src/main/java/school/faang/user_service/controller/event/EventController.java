@@ -61,6 +61,13 @@ public class EventController {
         return eventService.getAllByFilter(allEventByFilterDto, page, size);
     }
 
+    @GetMapping("/{eventId}")
+    public EventResponseDto getEventById(@Positive(message = "Event cannot be negative")
+                                         @PathVariable
+                                         Long eventId) {
+        return eventService.getEventById(eventId);
+    }
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{eventId}")
     public void deleteEvent(

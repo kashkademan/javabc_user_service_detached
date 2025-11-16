@@ -1,6 +1,7 @@
 package school.faang.user_service.config.redisson;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RScheduledExecutorService;
 import org.redisson.api.RedissonClient;
@@ -13,6 +14,7 @@ import school.faang.user_service.config.redis.RedisProperties;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 public class RedissonConfig {
@@ -42,7 +44,7 @@ public class RedissonConfig {
         executor.registerWorkers(WorkerOptions.defaults()
                 .workers(threadPoolWorker)
                 .taskTimeout(taskTimeOutSecond, TimeUnit.SECONDS));
-
+        log.info("R2ScheduledExecutorService create bean {}", executorName);
         return executor;
     }
 }
