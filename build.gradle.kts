@@ -20,7 +20,6 @@ repositories {
 }
 
 dependencies {
-    implementation("com.amazonaws:aws-java-sdk-s3:1.12.700")
     implementation("commons-io:commons-io:2.15.1")
     /**
      * Spring boot starters
@@ -46,7 +45,9 @@ dependencies {
     /**
      * Amazon S3
      */
-    implementation("software.amazon.awssdk:s3:2.20.56")
+    implementation ("software.amazon.awssdk:s3:2.20.56")
+    implementation("software.amazon.awssdk:auth:2.20.0")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.700")
 
     /**
      * Utils & Logging

@@ -1,21 +1,22 @@
 package school.faang.user_service.service.avatar;
 
+
+
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.gradle.internal.impldep.com.amazonaws.services.s3.AmazonS3;
-import org.gradle.internal.impldep.com.amazonaws.services.s3.model.ObjectMetadata;
-import org.gradle.internal.impldep.com.amazonaws.services.s3.model.S3Object;
-import org.gradle.internal.impldep.com.amazonaws.services.s3.model.S3ObjectInputStream;
-import org.gradle.internal.impldep.org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.minios3.FileUploadResponse;
 import school.faang.user_service.exception.FileStorageException;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FileStorageService {
-    private final AmazonS3 amazonS3;
+    private final S3Client s3Client;
     private static final String ALLOWED_FILENAME_CHARS_PATTERN = "[^a-zA-Z0-9._-]";
     private static final int MAX_FILENAME_LENGTH = 255;
 
@@ -47,13 +48,20 @@ public class FileStorageService {
     public FileUploadResponse uploadFile(byte[] fileData, String fileName, String contentType) {
         validateFileInput(fileData, fileName, contentType);
         String objectKey = generateObjectKey(fileName);
-        ObjectMetadata metadata = createMetadata(fileData, contentType);
 
         try {
-            amazonS3.putObject(bucketName, objectKey,
-                    new ByteArrayInputStream(fileData), metadata);
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .contentType(contentType)
+                    .contentLength((long) fileData.length)
+                    .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileData));
+
             String fileUrl = generatePublicUrl(objectKey);
             log.info("File {} successfully uploaded to bucket {}", fileName, bucketName);
+
             return FileUploadResponse.builder()
                     .fileId(objectKey)
                     .fileName(fileName)
@@ -76,7 +84,12 @@ public class FileStorageService {
         }
 
         try {
-            amazonS3.deleteObject(bucketName, fileId);
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileId)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
             log.info("File {} successfully removed from bucket {}", fileId, bucketName);
         } catch (Exception e) {
             log.error("Error deleting file from S3", e);
@@ -86,11 +99,13 @@ public class FileStorageService {
 
     public byte[] downloadFile(String fileId) {
         try {
-            S3Object s3Object = amazonS3.getObject(bucketName, fileId);
-            S3ObjectInputStream inputStream = s3Object.getObjectContent();
-            byte[] file = inputStream.readAllBytes();
-            inputStream.close();
-            return file;
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileId)
+                    .build();
+
+            ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
+            return objectBytes.asByteArray();
         } catch (Exception e) {
             log.error("Error loading file {} from S3", fileId, e);
             throw new FileStorageException("Failed to download file");
@@ -103,29 +118,45 @@ public class FileStorageService {
         }
 
         try {
-            return amazonS3.doesObjectExist(bucketName, fileId);
-        } catch (Exception e) {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileId)
+                    .build();
+
+            s3Client.headObject(headObjectRequest);
+            return true;
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                return false;
+            }
             log.error("Error checking the existence of a file", e);
             return false;
         }
     }
 
     private String generateObjectKey(String fileName) {
-
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         String uuid = UUID.randomUUID().toString();
         String safeFileName = FilenameUtils.getName(fileName)
                 .replaceAll(ALLOWED_FILENAME_CHARS_PATTERN, "_");
-        if (safeFileName.length() > MAX_FILENAME_LENGTH ) {
-            safeFileName = safeFileName.substring(0,
-                    Math.min(MAX_FILENAME_LENGTH, FilenameUtils.getName(safeFileName).length()));
+
+        if (safeFileName.length() > MAX_FILENAME_LENGTH) {
+            safeFileName = safeFileName.substring(0, MAX_FILENAME_LENGTH);
         }
+
         return String.format("%s/%s-%s", timestamp, uuid, safeFileName);
     }
 
     private String generatePublicUrl(String objectKey) {
-        URL url = amazonS3.getUrl(bucketName, objectKey);
-        return url.toString();
+        try {
+            URL url = s3Client.utilities().getUrl(builder -> builder
+                    .bucket(bucketName)
+                    .key(objectKey));
+            return url.toString();
+        } catch (Exception e) {
+            log.error("Error generating URL for file {}", objectKey, e);
+            return String.format("%s/%s/%s", endpoint, bucketName, objectKey);
+        }
     }
 
     private void validateFileInput(byte[] fileData, String fileName, String contentType) {
@@ -142,20 +173,27 @@ public class FileStorageService {
 
     private void ensureBucketExists() {
         try {
-            if (!amazonS3.doesBucketExistV2(bucketName)) {
-                log.info("Creating a bucket: {}", bucketName);
-                amazonS3.createBucket(bucketName);
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
+                    .bucket(bucketName)
+                    .build();
+
+            s3Client.headBucket(headBucketRequest);
+            log.info("Bucket {} exists", bucketName);
+
+        } catch (NoSuchBucketException e) {
+            log.info("Creating a bucket: {}", bucketName);
+            try {
+                CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
+                        .bucket(bucketName)
+                        .build();
+                s3Client.createBucket(createBucketRequest);
+            } catch (Exception createException) {
+                log.error("Error creating bucket {}", bucketName, createException);
+                throw new FileStorageException("Storage access error");
             }
         } catch (Exception e) {
-            log.error("Error creating bucket {}", bucketName, e);
+            log.error("Error accessing bucket {}", bucketName, e);
             throw new FileStorageException("Storage access error");
         }
-    }
-
-    private ObjectMetadata createMetadata(byte[] fileData, String contentType) {
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(fileData.length);
-        metadata.setContentType(contentType);
-        return metadata;
     }
 }
