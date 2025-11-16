@@ -61,6 +61,7 @@ public class Event {
     private int maxAttendees;
 
     @ManyToMany(mappedBy = "participatedEvents")
+    @Builder.Default
     private List<User> attendees = new ArrayList<>();
 
     @OneToMany(mappedBy = "event")

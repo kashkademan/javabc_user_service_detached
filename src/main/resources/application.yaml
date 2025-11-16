@@ -28,7 +28,16 @@ spring:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.add.type.headers: false
+    properties:
+      acks: all
+      retries: 1
+      enable.idempotence: true
+      request.timeout.ms: 30000
+      max.block.ms: 60000
 
   servlet:
     multipart:
@@ -55,6 +64,10 @@ logging:
   level:
     root: info
 
+springdoc:
+  swagger-ui:
+    persist-authorization: true
+
 project-service:
   host: localhost
   port: 8082
@@ -70,6 +83,11 @@ user:
 
 goal:
   max-active-goals: 2
+
+cloud:
+  aws:
+    region:
+      static: default
 
 services:
   s3:
@@ -89,14 +107,22 @@ avatar:
         <circle cx="50" cy="50" r="40" fill="#%s"/>
         <text x="50" y="60" text-anchor="middle" fill="white" font-size="20">👤</text>
       </svg>
+  base-folder: "avatars"
+  file-extension: ".png"
+  content-type: "image/png"
 
 dice:
   bear:
     client:
       baseUrl: https://api.dicebear.com/7.x
+      default-style: adventurer
 
 
 topics:
-  notifications: notifications.events
-  analytics: analytics.events
-  achievements: achievements.events
+  notifications:
+    like-received: notifications.like-received #example
+  analytics:
+    profile-view: analytics.profile-view
+  achievements:
+    goal-completed: achievements.goal-completed #example
+  events: event.events

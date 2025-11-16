@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.aspect.analytics.AnalyticsProfileView;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -19,11 +20,13 @@ import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.redis.PromotionRedisService;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +47,10 @@ public class UserServiceImpl implements UserService {
     private final AvatarService avatarService;
     private final PromotionRedisService promotionRedisService;
 
+    private final SecureRandom random = new SecureRandom();
+
+    private final UserMapperImpl userMapperImpl;
+
     @Transactional
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -54,21 +61,20 @@ public class UserServiceImpl implements UserService {
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
 
-        String key = String.format("%s %s", user.getUsername(), user.getEmail());
+        String avatarKey = assignAvatar(user);
 
         UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setSmallFileId(key);
+        userProfilePic.setSmallFileId(avatarKey);
+
+        avatarService.assignRandomAvatarAsync(user).thenAccept(key -> log.info("Avatar saved at {}", key));
 
         user.setUserProfilePic(userProfilePic);
-
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
-
-        avatarService.generateAndSaveAvatarAsync(key);
-
         return userMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public UserDto update(long userId, UpdateUserDto userDto) {
         long requesterId = userContext.getUserId();
@@ -85,11 +91,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @AnalyticsProfileView//todo: возможно сделать общую аннотацию для аналитики с параметром тип события
+    //todo: подумать над буфером, который бы не так часто генерил сообщения - присылаем пачку просмотров
     public UserDto getById(long userId) {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
     }
 
+
+    @Override
     public Page<UserDto> getUser(Pageable pageable) {
         List<UserDto> allRedisUsers = getUsersWithPromotions(pageable, Integer.MAX_VALUE);
 
@@ -99,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
         Page<User> dbUsers = userRepository.findByIdNotIn(
                 redisUserIds,
-                PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort()) // Берем всех
+                PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort())
         );
         List<UserDto> allDbUsers = dbUsers.stream()
                 .map(userMapper::toUserDto)
@@ -127,4 +137,15 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
+    private String assignAvatar(User user) {
+        double probability = random.nextDouble();
+        String key = avatarService.buildAvatarKey(user);
+
+        if (probability < 0.5) {
+            avatarService.assignRandomAvatarAsync(user);
+        } else {
+            avatarService.generateAndSaveAvatarAsync(key);
+        }
+        return key;
+    }
 }
