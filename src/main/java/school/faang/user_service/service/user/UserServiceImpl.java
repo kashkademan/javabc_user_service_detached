@@ -58,7 +58,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long userId) {
+        log.info("No Complete");
         User user = userRepository.getByIdOrThrow(userId);
+        log.info("Complete");
         return userMapper.toUserDto(user);
     }
 }
