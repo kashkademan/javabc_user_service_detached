@@ -135,4 +135,25 @@ public class UserControllerTest {
 
         verify(userService).activateUser(id);
     }
+
+    @Test
+    void getNotBannedUsersIds() throws Exception {
+        List<Long> userIds = List.of(firstUser.id());
+        String[] ids = userIds.stream().map(String::valueOf).toArray(String[]::new);
+
+        when(userService.getNotBannedUsersIds(userIds)).thenReturn(userIds);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/users/not-banned")
+                        .queryParam("ids", ids))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", Matchers.hasSize(userIds.size())))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<Long> idsFromResponse = objectMapper.readValue(response,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+
+        Assertions.assertTrue(userIds.containsAll(idsFromResponse));
+    }
 }

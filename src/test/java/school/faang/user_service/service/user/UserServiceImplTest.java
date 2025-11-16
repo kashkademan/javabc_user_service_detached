@@ -403,4 +403,42 @@ public class UserServiceImplTest {
             Assertions.assertFalse(participatedEventAttendees.contains(firstUser.getId()));
         }
     }
+
+    @Test
+    void testBanUserPositive() {
+        List<Long> usersIds = List.of(1L, 2L);
+
+        userService.banUsers(usersIds);
+
+        verify(userRepository).banUsers(Mockito.eq(usersIds));
+    }
+
+    @Test
+    void testGetNotBannedUsersIdsReturnEmptyList() {
+        User user = User.builder()
+                .id(1L)
+                .banned(true)
+                .build();
+
+        when(userRepository.findAllById(List.of(user.getId()))).thenReturn(List.of(user));
+
+        List<Long> notBannedUsersIds = userService.getNotBannedUsersIds(List.of(user.getId()));
+
+        Assertions.assertTrue(notBannedUsersIds.isEmpty());
+    }
+
+    @Test
+    void testGetNotBannedUsersIdsPositive() {
+        User user = User.builder()
+                .id(1L)
+                .banned(false)
+                .build();
+
+        when(userRepository.findAllById(List.of(user.getId()))).thenReturn(List.of(user));
+
+        List<Long> notBannedUsersIds = userService.getNotBannedUsersIds(List.of(user.getId()));
+
+        Assertions.assertEquals(1, notBannedUsersIds.size());
+        Assertions.assertEquals(user.getId(), notBannedUsersIds.get(0));
+    }
 }
