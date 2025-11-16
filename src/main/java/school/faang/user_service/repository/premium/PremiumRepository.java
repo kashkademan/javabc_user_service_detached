@@ -1,6 +1,7 @@
 package school.faang.user_service.repository.premium;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import school.faang.user_service.entity.premium.Premium;
 
 import java.time.LocalDateTime;
@@ -11,4 +12,10 @@ public interface PremiumRepository extends JpaRepository<Premium, Long> {
     boolean existsByUserId(long userId);
 
     List<Premium> findAllByEndDateBefore(LocalDateTime endDate);
+
+    @Query(nativeQuery = true, value = """
+            SELECT user_id FROM user_premium
+            WHERE end_date < :endDate
+            """)
+    List<Long> findAllIdsByEndDateBefore(LocalDateTime endDate);
 }

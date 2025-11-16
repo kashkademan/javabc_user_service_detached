@@ -2,13 +2,12 @@ package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -30,19 +29,11 @@ public class PremiumServiceImpl implements PremiumService {
 
     @Override
     public void deleteExpired() {
-        List<Long> expiredPremiumAccesses = premiumRepository.findAllByEndDateBefore(LocalDateTime.now())
-                .stream()
-                .map(Premium::getId)
-                .toList();
+        List<Long> expiredPremiumAccesses = premiumRepository.findAllIdsByEndDateBefore(LocalDateTime.now());
 
         log.info("Found {} expired premium accesses: {}", expiredPremiumAccesses.size(), expiredPremiumAccesses);
 
-        List<List<Long>> parts = new ArrayList<>();
-        for (int i = 0; i < expiredPremiumAccesses.size(); i += maxDeletePerThread) {
-            int end = Math.min(i + maxDeletePerThread, expiredPremiumAccesses.size());
-            parts.add(expiredPremiumAccesses.subList(i, end));
-        }
-
+        List<List<Long>> parts = ListUtils.partition(expiredPremiumAccesses, maxDeletePerThread);
         List<CompletableFuture<Void>> futures = parts.stream()
                 .map(part -> CompletableFuture.runAsync(
                         () -> {

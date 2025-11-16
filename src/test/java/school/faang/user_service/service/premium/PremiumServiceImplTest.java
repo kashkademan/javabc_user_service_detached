@@ -56,9 +56,10 @@ public class PremiumServiceImplTest {
                 .id(2L)
                 .build();
 
-        List<Premium> premiums = List.of(premiumOne, premiumTwo);
+        List<Long> premiumIds = List.of(premiumOne, premiumTwo).stream().map(Premium::getId).toList();
 
-        Mockito.when(premiumRepository.findAllByEndDateBefore(Mockito.any(LocalDateTime.class))).thenReturn(premiums);
+        Mockito.when(premiumRepository.findAllIdsByEndDateBefore(Mockito.any(LocalDateTime.class)))
+                .thenReturn(premiumIds);
         doNothing().when(premiumRepository).deleteAllById(Mockito.anyList());
 
         premiumService.deleteExpired();
@@ -68,7 +69,6 @@ public class PremiumServiceImplTest {
         List<Long> capturedPremiumIds = premiumListArgumentCaptor.getAllValues().stream()
                 .flatMap(Collection::stream)
                 .toList();
-        List<Long> premiumIds = premiums.stream().map(Premium::getId).toList();
 
         assertEquals(2, capturedPremiumIds.size());
         assertTrue(capturedPremiumIds.containsAll(premiumIds));

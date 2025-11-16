@@ -44,4 +44,9 @@ public class AppConfig {
                 .withPathStyleAccessEnabled(true)
                 .build();
     }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }
