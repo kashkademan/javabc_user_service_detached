@@ -2,12 +2,14 @@ package school.faang.user_service.config.redis;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
-@Data
+@Setter
+@Getter
 @Validated
 @ConfigurationProperties("spring.redis")
 @Configuration

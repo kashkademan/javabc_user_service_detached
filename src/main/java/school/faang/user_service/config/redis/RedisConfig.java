@@ -17,6 +17,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.util.StringUtils;
 import school.faang.user_service.messages.redis.listeners.UsersBanListener;
+import school.faang.user_service.messages.redis.publishers.PublishEventStart;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +64,11 @@ public class RedisConfig {
         MessageListenerAdapter adapter = new MessageListenerAdapter(usersBanListener);
         containersAdapter.put(userBanTopic, adapter);
         return adapter;
+    }
+
+    @Bean
+    public ChannelTopic eventStartTopic(@Value("${redis.topics.name.event-start-topic}") String topicName) {
+        return new ChannelTopic(topicName);
     }
 
     @Bean

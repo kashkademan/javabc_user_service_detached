@@ -72,6 +72,7 @@ redis:
     name:
       user-ban-topic: "user-ban-topic"
       mentorship-offered: "mentorship-offered"
+      event-start-topic: "event_start_topic"
 
 scheduler:
   clear-events:

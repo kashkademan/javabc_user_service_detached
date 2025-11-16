@@ -6,9 +6,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
+import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.user.Skill;
+import school.faang.user_service.entity.user.User;
 
 import java.util.List;
 
@@ -18,6 +20,10 @@ public interface EventMapper {
 
     @Mapping(target = "skillIds", expression = "java(mapSkillToIds(event.getRelatedSkills()))")
     EventResponseDto toDto(Event event);
+
+    @Mapping(target = "attendeesIds", expression = "java(mapAttendeesToIds(event.getAttendees()))")
+    @Mapping(target = "prepareEventMessage", source = "prepareEventMessage")
+    EventStartDto toStartDto(Event event, String prepareEventMessage);
 
     @Mapping(target = "type", source = "eventType")
     Event toEntityCreate(EventCreateDto eventCreateDto);
@@ -33,6 +39,12 @@ public interface EventMapper {
     default List<Long> mapSkillToIds(List<Skill> skillList) {
         return skillList.stream()
                 .map(Skill::getId)
+                .toList();
+    }
+
+    default List<Long> mapAttendeesToIds(List<User> users) {
+        return users.stream()
+                .map(User::getId)
                 .toList();
     }
 }

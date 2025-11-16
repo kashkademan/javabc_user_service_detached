@@ -61,14 +61,6 @@ public class EventController {
         return eventService.getAllByFilter(allEventByFilterDto, page, size);
     }
 
-    @GetMapping("/eventsIds")
-    public List<EventResponseDto> getEvents(@RequestParam List<@Positive Long> eventsIds) {
-        if (eventsIds.isEmpty()) {
-            throw new IllegalArgumentException("Events cannot be blank");
-        }
-        return eventService.getEvents(eventsIds);
-    }
-
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{eventId}")
     public void deleteEvent(

@@ -4,15 +4,19 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RScheduledExecutorService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
+import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.event.Event;
@@ -22,18 +26,23 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
+import school.faang.user_service.messages.redis.publishers.PublishEventStart;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class EventServiceImpl implements EventService {
     private final SkillServiceImpl skillService;
     private final SkillRepository skillRepository;
@@ -44,6 +53,8 @@ public class EventServiceImpl implements EventService {
     private final EntityManager entityManager;
     @Value("${scheduler.clear-events.batch-size}")
     private int batchSize;
+    private final RScheduledExecutorService scheduledExecutorService;
+    private final PublishEventStart publishEventStart;
 
     @Transactional
     @Override
@@ -99,11 +110,36 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponseDto> getEvents(List<Long> eventsIds) {
-        List<Event> events = eventRepository.findAllById(eventsIds);
-        return events.stream()
-                .map(eventMapper::toDto)
-                .toList();
+    public void startEventsPublish() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime windowStart = now.plusHours(23);
+        LocalDateTime windowEnd = now.plusHours(25);
+        List<Event> events = eventRepository.findEventsFor24HourReminder(windowStart, windowEnd);
+        log.info("Number of Events per notification {}", events.size());
+        events.forEach(event -> {
+            LocalDateTime eventStartTime = event.getStartDate();
+            scheduleNotification(eventMapper.toStartDto(event, "1 day before"),
+                    eventStartTime.minusHours(24));
+            scheduleNotification(eventMapper.toStartDto(event, "5 hours before"),
+                    eventStartTime.minusHours(5));
+            scheduleNotification(eventMapper.toStartDto(event,"1 hour before"),
+                    eventStartTime.minusHours(1));
+            scheduleNotification(eventMapper.toStartDto(event, "10 minutes before"),
+                    eventStartTime.minusMinutes(10));
+        });
+    }
+
+
+    private void scheduleNotification(EventStartDto eventStartDto, LocalDateTime notifyTime) {
+        LocalDateTime now = LocalDateTime.now();
+        if (notifyTime.isBefore(now)) {
+            log.info("Notification skipped (already past) for Event: {}", eventStartDto.eventId());
+            return;
+        }
+
+        long delay = Duration.between(now, notifyTime).toMillis();
+        scheduledExecutorService.schedule(() -> publishEventStart.sendNotification(eventStartDto),
+                delay, TimeUnit.MILLISECONDS);
     }
     @Override
     @Transactional
