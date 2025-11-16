@@ -18,7 +18,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 import school.faang.user_service.validator.UserValidator;
 

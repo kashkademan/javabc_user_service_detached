@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
-import school.faang.user_service.service.MentorshipRequestService;
+import school.faang.user_service.service.Mentorship.MentorshipRequestService;
 
 @RestController
 @RequestMapping("/mentorship/request")
