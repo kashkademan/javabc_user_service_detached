@@ -20,6 +20,8 @@ repositories {
 }
 
 dependencies {
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.700")
+    implementation("commons-io:commons-io:2.15.1")
     /**
      * Spring boot starters
      */
