@@ -28,7 +28,8 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    public UserDto create(CreateUserDto userDto) {
+    @PostMapping("/create")
+    public UserDto create(@RequestBody CreateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateString(userDto.password(), "password");

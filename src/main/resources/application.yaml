@@ -42,6 +42,15 @@ logging:
   level:
     root: info
 
+services:
+  s3:
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: userbucket
+    region: us-east-1
+    isMocked: false
+
 project-service:
   host: localhost
   port: 8082
@@ -67,7 +76,15 @@ recommendation:
 
 mentorship:
   request:
-   periodForRequest: 3
+    periodForRequest: 3
+
+clients:
+  dice-bear-client:
+    host: https://api.dicebear.com
+    api-version: /9.x
+    style-name: /adventurer
+    format: /svg
+    size: 100
 
 scheduler:
   clear-events-cron: "0 14 * * * ?"

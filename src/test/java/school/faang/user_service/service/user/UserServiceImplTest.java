@@ -10,14 +10,20 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.resource.Resource;
+import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.user.UserExperienceFilter;
@@ -28,14 +34,18 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.CountryRepository;
+import school.faang.user_service.repository.user.ResourceRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.s3.S3ServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +53,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
+    private final int minPasswordLength = 6;
     private final UserFiltersDto userFiltersDto
             = new UserFiltersDto("Anton", "89991231213", 3, 7);
     private final UserFilter userExperienceFilter = new UserExperienceFilter();
@@ -101,6 +112,12 @@ public class UserServiceImplTest {
     private EventRepository eventRepository;
     @Mock
     private MentorshipService mentorshipService;
+    @Mock
+    private S3ServiceImpl s3Service;
+    @Mock
+    private DiceBearClient diceBearClient;
+    @Mock
+    private ResourceRepository resourceRepository;
 
     private UserServiceImpl userService;
 
@@ -108,14 +125,55 @@ public class UserServiceImplTest {
     void setUp() {
         userService = new UserServiceImpl(userRepository, countryRepository, userMapper, userContext,
                 List.of(userExperienceFilter, userNamePatternFilter, userPhonePatternFilter), goalRepository,
-                eventRepository, mentorshipService);
+                eventRepository, mentorshipService, s3Service, diceBearClient, resourceRepository);
+
+        ReflectionTestUtils.setField(userService, "minPasswordLength", minPasswordLength);
+    }
+
+    @Test
+    void createUserThrowsExceptionIfPasswordNotValid() {
+        CreateUserDto userDto = CreateUserDto.builder()
+                .password("a".repeat(minPasswordLength - 1))
+                .build();
+        DataValidationException dataValidationException = assertThrows(DataValidationException.class,
+                () -> userService.create(userDto));
+        assertEquals("Password should be more than " + minPasswordLength + " symbols!",
+                dataValidationException.getMessage());
+    }
+
+    @Test
+    void createUserPositive() {
+        Country country = Country.builder().id(123L).build();
+
+        CreateUserDto createUserDto = CreateUserDto.builder()
+                .password("a".repeat(minPasswordLength))
+                .countryId(country.getId())
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .username("test")
+                .build();
+
+        Resource resource = Resource.builder().id(234532L).build();
+
+        when(diceBearClient.downloadAvatar()).thenReturn(new byte[]{});
+        when(s3Service.uploadFile(Mockito.any(byte[].class), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString())).thenReturn(resource);
+        when(resourceRepository.save(Mockito.any(Resource.class))).thenReturn(resource);
+        when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+        when(countryRepository.getByIdOrThrow(country.getId())).thenReturn(country);
+
+        UserDto userDto = userService.create(createUserDto);
+
+        assertEquals(user.getId(), userDto.id());
     }
 
     @Test
     void testGetUserThrowsEntityNotFound() {
         when(userRepository.getByIdOrThrow(anyLong())).thenThrow(EntityNotFoundException.class);
 
-        Assertions.assertThrows(EntityNotFoundException.class, () -> userService.getById(1L));
+        assertThrows(EntityNotFoundException.class, () -> userService.getById(1L));
     }
 
     @Test
@@ -238,7 +296,7 @@ public class UserServiceImplTest {
     void testDeactivateUserThrowsExceptionIfUserNotFound() {
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenThrow(EntityNotFoundException.class);
 
-        Assertions.assertThrows(EntityNotFoundException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> userService.deactivateUser(firstUser.getId()));
     }
 
@@ -248,7 +306,7 @@ public class UserServiceImplTest {
 
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
 
-        ForbiddenException forbiddenException = Assertions.assertThrows(ForbiddenException.class,
+        ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
                 () -> userService.deactivateUser(firstUser.getId()));
         Assertions.assertEquals("User %d already deactivated".formatted(firstUser.getId()),
                 forbiddenException.getMessage());
@@ -275,7 +333,7 @@ public class UserServiceImplTest {
     void testActivateUserThrowsExceptionIfUserNotFound() {
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenThrow(EntityNotFoundException.class);
 
-        Assertions.assertThrows(EntityNotFoundException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> userService.activateUser(firstUser.getId()));
     }
 
@@ -285,7 +343,7 @@ public class UserServiceImplTest {
 
         when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
 
-        ForbiddenException forbiddenException = Assertions.assertThrows(ForbiddenException.class,
+        ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
                 () -> userService.activateUser(firstUser.getId()));
         Assertions.assertEquals("User %d already activated".formatted(firstUser.getId()),
                 forbiddenException.getMessage());
