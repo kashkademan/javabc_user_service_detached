@@ -11,6 +11,7 @@ import org.gradle.internal.impldep.com.amazonaws.services.s3.model.S3ObjectInput
 import org.gradle.internal.impldep.org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.minios3.FileUploadResponse;
 import school.faang.user_service.exception.FileStorageException;
 
@@ -25,6 +26,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileStorageService {
     private final AmazonS3 amazonS3;
+    private static final String ALLOWED_FILENAME_CHARS_PATTERN = "[^a-zA-Z0-9._-]";
+    private static final int MAX_FILENAME_LENGTH = 255;
 
     @Value("${services.s3.user-avatars.bucket-name}")
     private String bucketName;
@@ -40,17 +43,16 @@ public class FileStorageService {
         ensureBucketExists();
     }
 
+    @Transactional
     public FileUploadResponse uploadFile(byte[] fileData, String fileName, String contentType) {
         validateFileInput(fileData, fileName, contentType);
+        String objectKey = generateObjectKey(fileName);
+        ObjectMetadata metadata = createMetadata(fileData, contentType);
 
         try {
-
-            String objectKey = generateObjectKey(fileName);
-            ObjectMetadata metadata = createMetadata(fileData, contentType);
-
-            uploadToS3(fileData, objectKey, metadata);
+            amazonS3.putObject(bucketName, objectKey,
+                    new ByteArrayInputStream(fileData), metadata);
             String fileUrl = generatePublicUrl(objectKey);
-
             log.info("File {} successfully uploaded to bucket {}", fileName, bucketName);
             return FileUploadResponse.builder()
                     .fileId(objectKey)
@@ -67,6 +69,7 @@ public class FileStorageService {
         }
     }
 
+    @Transactional
     public void deleteFile(String fileId) {
         if (fileId == null || fileId.isBlank()) {
             return;
@@ -85,7 +88,9 @@ public class FileStorageService {
         try {
             S3Object s3Object = amazonS3.getObject(bucketName, fileId);
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
-            return inputStream.readAllBytes();
+            byte[] file = inputStream.readAllBytes();
+            inputStream.close();
+            return file;
         } catch (Exception e) {
             log.error("Error loading file {} from S3", fileId, e);
             throw new FileStorageException("Failed to download file");
@@ -110,8 +115,11 @@ public class FileStorageService {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         String uuid = UUID.randomUUID().toString();
         String safeFileName = FilenameUtils.getName(fileName)
-                .replaceAll("[^a-zA-Z0-9._-]", "_");
-
+                .replaceAll(ALLOWED_FILENAME_CHARS_PATTERN, "_");
+        if (safeFileName.length() > MAX_FILENAME_LENGTH ) {
+            safeFileName = safeFileName.substring(0,
+                    Math.min(MAX_FILENAME_LENGTH, FilenameUtils.getName(safeFileName).length()));
+        }
         return String.format("%s/%s-%s", timestamp, uuid, safeFileName);
     }
 
@@ -149,15 +157,5 @@ public class FileStorageService {
         metadata.setContentLength(fileData.length);
         metadata.setContentType(contentType);
         return metadata;
-    }
-
-    private void uploadToS3(byte[] fileData, String objectKey, ObjectMetadata metadata) {
-        try {
-            amazonS3.putObject(bucketName, objectKey,
-                    new ByteArrayInputStream(fileData), metadata);
-        } catch (Exception e) {
-            log.error("Error uploading {} file to S3", objectKey, e);
-            throw new FileStorageException("Failed to save file to storage");
-        }
     }
 }

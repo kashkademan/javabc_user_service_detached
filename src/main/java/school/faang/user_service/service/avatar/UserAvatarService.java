@@ -11,13 +11,12 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.AvatarNotFoundException;
 import school.faang.user_service.exception.AvatarUploadException;
-import school.faang.user_service.exception.FileSizeExceededException;
-import school.faang.user_service.exception.InvalidFileTypeException;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.awt.image.BufferedImage;
 import java.util.Objects;
-import java.util.Set;
+
+import static school.faang.user_service.service.avatar.validator.UserAvatarValidator.validateInput;
 
 @Slf4j
 @Service
@@ -32,34 +31,35 @@ public class UserAvatarService {
 
     private static final int LARGE_AVATAR_SIZE = 1080;
     private static final int SMALL_AVATAR_SIZE = 170;
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-    private static final Set<String> SUPPORTED_CONTENT_TYPES = Set.of(
-            "image/jpeg", "image/jpg", "image/png", "image/webp"
-    );
 
     public void uploadAvatar(MultipartFile file) {
         long userId = userContext.getUserId();
         validateInput(userId, file);
+        User user = userRepository.getByIdOrThrow(userId);
+        UserProfilePic oldAvatars = user.getUserProfilePic();
+        UserProfilePic newAvatars = null;
 
         try {
-            User user = userRepository.getByIdOrThrow(userId);
-            UserProfilePic newAvatars = processAndUploadAvatars(userId, file);
+            newAvatars = processAndUploadAvatars(userId, file);
 
             user.setUserProfilePic(newAvatars);
             userRepository.save(user);
+            if (oldAvatars != null) {
+                deleteOldAvatars(oldAvatars);
+            }
 
-            deleteOldAvatars(user);
             log.info("Avatar successfully uploaded to user {}", userId);
 
         } catch (Exception e) {
+            if (newAvatars != null) {
+                cleanupFailedUpload(newAvatars);
+            }
             log.error("Error uploading avatar for user {}", userId, e);
             throw new AvatarUploadException("Failed to upload avatar");
         }
     }
 
-    public byte[] getAvatar(boolean small) {
-        long userId = userContext.getUserId();
+    public byte[] getAvatar(boolean small, Long userId) {
         User user = userRepository.getByIdOrThrow(userId);
 
         UserProfilePic profilePic = user.getUserProfilePic();
@@ -79,8 +79,8 @@ public class UserAvatarService {
     public void deleteAvatar() {
         long userId = userContext.getUserId();
         User user = userRepository.getByIdOrThrow(userId);
-
-        deleteOldAvatars(user);
+        UserProfilePic userProfilePic = user.getUserProfilePic();
+        deleteOldAvatars(userProfilePic);
 
         user.setUserProfilePic(null);
         userRepository.save(user);
@@ -88,16 +88,15 @@ public class UserAvatarService {
         log.info("Avatar successfully deleted for user {}", userId);
     }
 
-    private void deleteOldAvatars(User user) {
-        if (user.getUserProfilePic() != null) {
+    private void deleteOldAvatars(UserProfilePic userProfilePic) {
+        if (userProfilePic != null) {
             try {
-                UserProfilePic oldProfilePic = user.getUserProfilePic();
-                if (oldProfilePic.getFileId() != null) {
-                    fileStorageService.deleteFile(oldProfilePic.getFileId());
+                if (userProfilePic.getFileId() != null) {
+                    fileStorageService.deleteFile(userProfilePic.getFileId());
                 }
 
-                if (oldProfilePic.getSmallFileId() != null) {
-                    fileStorageService.deleteFile(oldProfilePic.getSmallFileId());
+                if (userProfilePic.getSmallFileId() != null) {
+                    fileStorageService.deleteFile(userProfilePic.getSmallFileId());
                 }
             } catch (Exception e) {
                 log.warn("Failed to delete old avatars", e);
@@ -151,23 +150,15 @@ public class UserAvatarService {
         }
     }
 
-    private void validateInput(Long userId, MultipartFile file) {
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
+    private void cleanupFailedUpload(UserProfilePic newAvatars) {
+        if (newAvatars == null) return;
 
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeExceededException("File size exceeds 5MB");
-        }
-
-        String contentType = file.getContentType();
-        if (!SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-            throw new InvalidFileTypeException(
-                    String.format("Unsupported image format. Supported: %s",
-                            String.join(", ", SUPPORTED_CONTENT_TYPES)));
+        try {
+            deleteOldAvatars(newAvatars);
+            log.info("Cleaned up failed upload for avatars");
+        } catch (Exception e) {
+            log.error("Failed to cleanup uploaded files after error", e);
         }
     }
-
-
 }
 
