@@ -18,6 +18,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.recommendation.RecommendationRequestSpecification;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -34,6 +35,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserContext userContext;
     private final UserRepository userRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
     @Value("${recommendation.request.timeForRequest}")
     private int timeForRequest;
 
@@ -114,6 +116,11 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         recommendationRequestRepository.save(request);
         log.info("Recommendation request accepted: requestId={}, requesterId={}, receiverId={}",
                 id, request.getRequester().getId(), request.getReceiver().getId());
+        recommendationReceivedEventPublisher.publish(request.getReceiver().getId(),
+                request.getRequester().getId(),
+                id,
+                LocalDateTime.now());
+
     }
 
     @Override
