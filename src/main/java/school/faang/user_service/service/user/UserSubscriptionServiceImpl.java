@@ -47,7 +47,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         subscriptionRepository.followUser(followerId, followeeId);
         eventsPublisher.publishFollow(followerId, followeeId);
         User followerUser = userRepository.getByIdOrThrow(followerId);
-        newFollowerEventPublisher.publishFollow(followerId, followeeId, followerUser.getUsername());
+        newFollowerEventPublisher.publishEvent(followerId, followeeId, followerUser.getUsername());
         log.info("The user {} successfully subscribed to the user {}",
                 followerId, followeeId);
     }

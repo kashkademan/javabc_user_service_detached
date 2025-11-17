@@ -34,8 +34,8 @@ public class NewFollowerEventPublisher {
         });
     }
 
-    public void publishFollow(long followerId, long followingId, String followerDisplayName) {
-        log.info("Publishing FOLLOWER event: followerId={}, followingId={}, followerDisplayName={}",
+    public void publishEvent(long followerId, long followingId, String followerDisplayName) {
+        log.info("Publishing new follower event: followerId={}, followingId={}, followerDisplayName={}",
                 followerId, followingId, followerDisplayName);
         sendEvent(userSubscriptionTopic, new NewFollowerEventDto(followerId, followingId, followerDisplayName));
     }

@@ -114,7 +114,7 @@ public class UserSubscriptionServiceTest {
         verify(subscriptionRepository).followUser(FOLLOWER_ID, FOLLOWEE_ID);
 
         verify(eventsPublisher).publishFollow(FOLLOWER_ID, FOLLOWEE_ID);
-        verify(newFollowerEventPublisher).publishFollow(FOLLOWER_ID, FOLLOWEE_ID, USERNAME_1);
+        verify(newFollowerEventPublisher).publishEvent(FOLLOWER_ID, FOLLOWEE_ID, USERNAME_1);
     }
 
     @Test
