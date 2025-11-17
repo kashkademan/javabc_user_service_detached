@@ -35,11 +35,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
-    long requesterId = userContext.getUserId();
-    Long receiverId = recommendationDto.receiverId();
-    validateRecommendationRequestRights(requesterId, receiverId);
+        long requesterId = userContext.getUserId();
+        Long receiverId = recommendationDto.receiverId();
+        validateRecommendationRequestRights(requesterId, receiverId);
         log.info("Creating new recommendation request");
-        RecommendationRequest recommendationRequest = recommendationRequestMapper.toRecommendationRequest(recommendationDto);
+        RecommendationRequest recommendationRequest = recommendationRequestMapper
+                .toRecommendationRequest(recommendationDto);
         recommendationRequest.setRequester(userRepository.getByIdOrThrow(requesterId));
         recommendationRequest.setReceiver(userRepository.getByIdOrThrow(receiverId));
         recommendationRequest.setStatus(RequestStatus.PENDING);
@@ -105,7 +106,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         Long userId = userContext.getUserId();
         RecommendationRequest recommendationRequest = recommendationRequestRepository
                 .findById(recommendationRequestId)
-                .orElseThrow(() -> new DataValidationException("Recommendation request with this ID does not exist!"));
+                .orElseThrow(() -> new DataValidationException(
+                        "Recommendation request with this ID does not exist!"));
         if (!recommendationRequest.getReceiver().getId().equals(userId)) {
             throw new ForbiddenException("ID mismatch,"
                     + " accepting/declining this recommendation request is not allowed for this user!");

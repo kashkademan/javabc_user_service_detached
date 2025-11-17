@@ -124,17 +124,14 @@ public class RecommendationServiceImplTest {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_REQUESTER_ID);
         Mockito.when(recommendationRequestRepository.findLatestPendingRequest(TEST_REQUESTER_ID, TEST_RECEIVER_ID))
                 .thenReturn(Optional.of(recommendationRequest1));
-        assertThrows(ForbiddenException.class, () -> recommendationRequestService.
-                        create(createRecommendationRequestDto),
+        assertThrows(ForbiddenException.class, () -> recommendationRequestService
+                        .                        create(createRecommendationRequestDto),
                 "Last recommendation request for this user "
                         + "was created later than 6 months ago");
     }
 
     @Test
     void testGetByFilters() {
-        RecommendationRequestFilterDto testFilterDto = new RecommendationRequestFilterDto(
-                TEST_REQUESTER_ID, TEST_RECEIVER_ID,
-                "Test text", RequestStatus.PENDING);
         recommendationRequest2.setRequester(testRequester);
         recommendationRequest2.setReceiver(testReceiver);
         recommendationRequest2.setMessage(TEST_MESSAGE_TEXT);
@@ -150,6 +147,10 @@ public class RecommendationServiceImplTest {
         List<RecommendationRequestDto> expectedList = testRecommendationRequestList
                 .stream().map(r -> recommendationRequestMapper
                         .toRecommendationRequestDto(r)).toList();
+
+        RecommendationRequestFilterDto testFilterDto = new RecommendationRequestFilterDto(
+                TEST_REQUESTER_ID, TEST_RECEIVER_ID,
+                "Test text", RequestStatus.PENDING);
         List<RecommendationRequestDto> resultList = recommendationRequestService.getByFilters(testFilterDto);
         assertEquals(expectedList, resultList);
     }
@@ -182,7 +183,8 @@ public class RecommendationServiceImplTest {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_REQUESTER_ID);
         Mockito.when(recommendationRequestRepository.findById(TEST_RECOMMENDATION_REQUEST_ID))
                 .thenReturn(Optional.of(recommendationRequest1));
-        assertThrows(ForbiddenException.class, () -> recommendationRequestService.accept(TEST_RECOMMENDATION_REQUEST_ID),
+        assertThrows(ForbiddenException.class, () -> recommendationRequestService
+                        .accept(TEST_RECOMMENDATION_REQUEST_ID),
                 "ID mismatch,"
                         + " accepting/declining this recommendation request is not allowed for this user!");
     }
@@ -193,7 +195,8 @@ public class RecommendationServiceImplTest {
         Mockito.when(userContext.getUserId()).thenReturn(TEST_RECEIVER_ID);
         Mockito.when(recommendationRequestRepository.findById(TEST_RECOMMENDATION_REQUEST_ID))
                 .thenReturn(Optional.of(recommendationRequest1));
-        assertThrows(ForbiddenException.class, () -> recommendationRequestService.accept(TEST_RECOMMENDATION_REQUEST_ID),
+        assertThrows(ForbiddenException.class, () -> recommendationRequestService
+                        .accept(TEST_RECOMMENDATION_REQUEST_ID),
                 "Only PENDING recommendation requests can be accepted/declined.");
     }
 
