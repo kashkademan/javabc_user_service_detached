@@ -148,6 +148,9 @@ class UserServiceImplTest {
 
         UserDto result = userService.create(input);
 
+        assertEquals(localeTag, result.locale());
+        assertEquals(preference, result.preference());
+
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User saved = captor.getValue();
@@ -155,9 +158,6 @@ class UserServiceImplTest {
         assertEquals(Locale.forLanguageTag(localeTag), saved.getLocale());
         assertNotNull(saved.getContactPreference());
         assertEquals(PreferredContact.EMAIL, saved.getContactPreference().getPreference());
-
-        assertEquals(localeTag, result.locale());
-        assertEquals(preference, result.preference());
     }
 
     @Test
