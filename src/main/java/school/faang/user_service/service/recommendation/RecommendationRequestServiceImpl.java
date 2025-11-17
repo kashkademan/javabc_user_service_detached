@@ -31,7 +31,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserContext userContext;
 
     @Value("${recommendation.months.limit}")
-    private final int maxMonths;
+    private int maxMonths;
 
     @Override
     public RecommendationRequestDto create(CreateRecommendationRequestDto recommendationDto) {
@@ -42,6 +42,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toRecommendationRequest(recommendationDto);
         recommendationRequest.setRequester(userRepository.getByIdOrThrow(requesterId));
         recommendationRequest.setReceiver(userRepository.getByIdOrThrow(receiverId));
+        recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequestRepository.save(recommendationRequest);
         return recommendationRequestMapper.toRecommendationRequestDto(recommendationRequest);
     }
@@ -104,7 +105,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         Long userId = userContext.getUserId();
         RecommendationRequest recommendationRequest = recommendationRequestRepository
                 .findById(recommendationRequestId)
-                .orElseThrow(() -> new DataValidationException("Recommendation with this ID does not exist!"));
+                .orElseThrow(() -> new DataValidationException("Recommendation request with this ID does not exist!"));
         if (!recommendationRequest.getReceiver().getId().equals(userId)) {
             throw new ForbiddenException("ID mismatch,"
                     + " accepting/declining this recommendation request is not allowed for this user!");
