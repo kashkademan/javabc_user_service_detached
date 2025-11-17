@@ -9,7 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @RequiredArgsConstructor
 public class AsyncExecutor {
 
-    private final static long MAX_WAIT_MILLIS = 300000;
+    private static final long MAX_WAIT_MILLIS = 300000;
 
     @Bean(name = "expiredEventTaskExecutor")
     public ThreadPoolTaskExecutor expiredEventTaskExecutor() {
