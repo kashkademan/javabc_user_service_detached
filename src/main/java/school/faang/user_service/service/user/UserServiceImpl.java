@@ -19,6 +19,7 @@ import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
-    private final MessagePublisher<SearchAppearanceEvent> searchAppearancePublisher;
+    private final List<MessagePublisher<Object>> publishers;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -67,7 +68,11 @@ public class UserServiceImpl implements UserService {
         SearchAppearanceEvent event = new SearchAppearanceEvent(userContext.getUserId(),
                 user.getId(),
                 LocalDateTime.now());
-        searchAppearancePublisher.publish(event);
+        publishers.stream()
+                        .filter(publisher -> publisher.getInstanceClass().isAssignableFrom(SearchAppearanceEvent.class))
+                        .findFirst()
+                                .ifPresent(searchAppearancePublisher -> searchAppearancePublisher.publish(event));
+
         return userMapper.toUserDto(user);
     }
 }

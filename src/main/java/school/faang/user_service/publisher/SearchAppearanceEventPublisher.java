@@ -12,4 +12,8 @@ public class SearchAppearanceEventPublisher extends AbstractEventPublisher<Searc
         super(channelName, redisTemplate);
     }
 
+    @Override
+    public Class<?> getInstanceClass() {
+        return SearchAppearanceEvent.class;
+    }
 }
