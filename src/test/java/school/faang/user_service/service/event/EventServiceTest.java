@@ -33,7 +33,7 @@ public class EventServiceTest {
     @InjectMocks
     private EventService eventService;
 
-    private static final int testPageSize = 2000;
+    private static final int TEST_PAGE_SIZE = 2000;
     List<Long> testEventIds = List.of(1L, 2L, 3L, 4L, 5L);
     Page<Long> emptyPage = Page.empty();
 
@@ -48,14 +48,14 @@ public class EventServiceTest {
 
     @Test
     void testClearPastEventsSuccess() {
-        Pageable pageable = Pageable.ofSize(testPageSize);
-        Page<Long> newPage = new PageImpl<>(testEventIds, pageable, 5);
+        Pageable pageable = Pageable.ofSize(TEST_PAGE_SIZE);
+        Page<Long> newPage = new PageImpl<>(testEventIds, pageable, testEventIds.size());
 
         Mockito.when(eventRepository.findAllIdByStatus(EventStatus.COMPLETED,
-                PageRequest.of(0, testPageSize))).thenReturn(newPage);
+                PageRequest.of(0, TEST_PAGE_SIZE))).thenReturn(newPage);
         Mockito.when(eventRepository.findAllIdByStatus(EventStatus.COMPLETED,
-                PageRequest.of(1, testPageSize))).thenReturn(emptyPage);
-        eventService.clearPastEvents(testPageSize);
+                PageRequest.of(1, TEST_PAGE_SIZE))).thenReturn(emptyPage);
+        eventService.clearPastEvents(TEST_PAGE_SIZE);
 
         ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
         Mockito.verify(asyncExecutor).execute(captor.capture());
@@ -68,8 +68,8 @@ public class EventServiceTest {
     void testClearPastEventsIdPageIsEmpty() {
         Page<Long> emptyPage = Page.empty();
         Mockito.when(eventRepository.findAllIdByStatus(EventStatus.COMPLETED,
-                PageRequest.of(0, testPageSize))).thenReturn(emptyPage);
-        eventService.clearPastEvents(testPageSize);
+                PageRequest.of(0, TEST_PAGE_SIZE))).thenReturn(emptyPage);
+        eventService.clearPastEvents(TEST_PAGE_SIZE);
 
         Mockito.verify(asyncExecutor, Mockito.never()).execute(Mockito.any());
         Mockito.verify(chunkDeletionService, Mockito.never()).deleteChunk(Mockito.anyList());
