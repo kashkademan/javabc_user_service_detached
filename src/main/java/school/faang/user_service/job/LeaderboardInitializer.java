@@ -7,8 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.LeaderBoardConfig;
 import school.faang.user_service.repository.user.UserScoreRepository;
-import school.faang.user_service.service.user.LeaderBoardCacheService;
+import school.faang.user_service.service.redis.DistributedLockService;
+import school.faang.user_service.service.redis.LeaderBoardRedisService;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
@@ -16,33 +18,44 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LeaderboardInitializer {
 
+    private static final String LEADERBOARD_INIT_LOCK = "leaderboard:init:lock";
+
     private final UserScoreRepository userScoreRepository;
-    private final LeaderBoardCacheService leaderBoardCacheService;
+    private final LeaderBoardRedisService leaderBoardRedisService;
     private final LeaderBoardConfig leaderBoardConfig;
+    private final DistributedLockService lockService;
 
     @PostConstruct
     public void initLeaderboard() {
-        String redisKey = leaderBoardConfig.getRedisKey();
+        if (lockService.tryLock(LEADERBOARD_INIT_LOCK, Duration.ofSeconds(30))) {
+            try {
+                String redisKey = leaderBoardConfig.getRedisKey();
 
-        if (leaderBoardCacheService.exists(redisKey)) {
-            log.info("Leaderboard already initialized in Redis, skipping");
-            return;
+                if (leaderBoardRedisService.exists(redisKey)) {
+                    log.info("Leaderboard already initialized in Redis, skipping");
+                    return;
+                }
+
+                int limit = leaderBoardConfig.getMaxLeaders();
+                List<UserScoreRepository.UserPointsProjection> leaderboard = userScoreRepository
+                        .getLeaderBoard(PageRequest.of(0, limit))
+                        .getContent();
+
+                if (leaderboard.isEmpty()) {
+                    log.info("No user score data found in database — leaderboard not initialized");
+                    return;
+                }
+
+                leaderboard.forEach(entry ->
+                        leaderBoardRedisService.addScore(entry.getUserId(), entry.getPoints())
+                );
+
+                log.info("Leaderboard initialized in Redis with {} entries", leaderboard.size());
+            } finally {
+                lockService.unlock(LEADERBOARD_INIT_LOCK);
+            }
+        } else {
+            log.info("Another instance is initializing leaderboard, skipping");
         }
-
-        int limit = leaderBoardConfig.getMaxLeaders();
-        List<UserScoreRepository.UserPointsProjection> leaderboard = userScoreRepository
-                .getLeaderBoard(PageRequest.of(0, limit))
-                .getContent();
-
-        if (leaderboard.isEmpty()) {
-            log.info("No user score data found in database — leaderboard not initialized");
-            return;
-        }
-
-        leaderboard.forEach(entry ->
-                leaderBoardCacheService.addScore(entry.getUserId(), entry.getPoints())
-        );
-
-        log.info("Leaderboard initialized in Redis with {} entries", leaderboard.size());
     }
 }

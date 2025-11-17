@@ -1,4 +1,4 @@
-package school.faang.user_service.aspect;
+package school.faang.user_service.aspect.leadersboard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +7,6 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.goal.GoalUpdateDto;
-import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.ActionType;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.service.user.UserScoreService;
@@ -26,7 +24,7 @@ public class UserScoreAspect {
         ActionType actionType = userScore.type();
 
         try {
-            if (!shouldAddScore(joinPoint, actionType)) {
+            if (!actionType.shouldAddScore(joinPoint)) {
                 log.debug("Skipping score for actionType={} (condition not met)", actionType);
                 return;
             }
@@ -36,28 +34,5 @@ public class UserScoreAspect {
         } catch (Exception e) {
             log.error("Error handling user score for {}: {}", actionType, e.getMessage());
         }
-    }
-
-    private boolean shouldAddScore(JoinPoint joinPoint, ActionType actionType) {
-        return switch (actionType) {
-            case GOAL_CREATED_BY_USER,
-                 GOAL_CREATED_BY_MENTOR,
-                 CAREER_ADDED -> true;
-            case GOAL_COMPLETED -> checkGoalCompleted(joinPoint);
-            default -> throw new IllegalStateException(
-                    "Unhandled ActionType in UserScoreAspect: %s".formatted(actionType)
-            );
-        };
-    }
-
-    private boolean checkGoalCompleted(JoinPoint joinPoint) {
-        for (Object arg : joinPoint.getArgs()) {
-            if (arg instanceof GoalUpdateDto dto) {
-                if (dto.status() == GoalStatus.COMPLETED) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

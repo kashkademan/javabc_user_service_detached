@@ -1,4 +1,4 @@
-package school.faang.user_service.service.user;
+package school.faang.user_service.service.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,12 +14,12 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class LeaderBoardCacheService {
+public class LeaderBoardRedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final LeaderBoardConfig leaderBoardConfig;
 
-    public LeaderBoardCacheService(
+    public LeaderBoardRedisService(
             @Qualifier("customStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             LeaderBoardConfig leaderBoardConfig
     ) {

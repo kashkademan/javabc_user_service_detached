@@ -1,4 +1,4 @@
-package school.faang.user_service.aspect;
+package school.faang.user_service.aspect.leadersboard;
 
 import school.faang.user_service.entity.user.ActionType;
 

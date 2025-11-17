@@ -11,6 +11,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserScoreEvent;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.repository.user.UserScoreRepository;
+import school.faang.user_service.service.redis.LeaderBoardRedisService;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class UserScoreService {
     private final UserScoreRepository userScoreRepository;
     private final UserRepository userRepository;
     private final LeaderBoardConfig leaderBoardConfig;
-    private final LeaderBoardCacheService leaderBoardCacheService;
+    private final LeaderBoardRedisService leaderBoardRedisService;
 
     public void addScore(User user, ActionType actionType) {
         int points = leaderBoardConfig.getPointsFor(actionType);
@@ -36,13 +37,13 @@ public class UserScoreService {
                 .build();
 
         userScoreRepository.save(event);
-        leaderBoardCacheService.addScore(user.getId(), points);
+        leaderBoardRedisService.addScore(user.getId(), points);
 
         log.info("Added {} points for action {} by userId {}", points, actionType, user.getId());
     }
 
     public List<LeaderScoreDto> getLeaderBoard() {
-        List<UserPointsDto> userPoints = leaderBoardCacheService.getTopUsers();
+        List<UserPointsDto> userPoints = leaderBoardRedisService.getTopUsers();
 
         if (userPoints.isEmpty()) {
             return List.of();
