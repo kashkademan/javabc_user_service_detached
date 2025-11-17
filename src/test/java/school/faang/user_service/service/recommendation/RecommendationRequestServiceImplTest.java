@@ -24,10 +24,9 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceImplTest {
-    private final static long DEFAULT_ID = 1L;
-    private final static long REQUESTER_ID = 2L;
-    private final static long INCORRECT_ID = 123L;
-
+    private static final long DEFAULT_ID = 1L;
+    private static final long REQUESTER_ID = 2L;
+    private static final long INCORRECT_ID = 123L;
 
     @InjectMocks
     RecommendationRequestServiceImpl recommendationRequestService;
@@ -59,6 +58,7 @@ public class RecommendationRequestServiceImplTest {
             .receiver(receiverUser)
             .status(RequestStatus.PENDING)
             .build();
+
     @Test
     public void testSuccessfullyRecommendationRequestAcceptPublished() {
         when(recommendationRequestRepository.getByIdOrThrow(requestId)).thenReturn(recommendationRequest);
