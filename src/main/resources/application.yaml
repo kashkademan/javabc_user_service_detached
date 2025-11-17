@@ -41,6 +41,10 @@ user:
     min:
       length: 6
 
+mentorship:
+  months:
+    limit: 3
+
 cleanup:
   expired-event:
     cron: "0 0 0 * * *"
