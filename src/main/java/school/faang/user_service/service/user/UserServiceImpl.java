@@ -19,7 +19,6 @@ import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
