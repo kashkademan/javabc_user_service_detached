@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
@@ -13,8 +15,10 @@ import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.resource.Resource;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.user.UserFilter;
@@ -22,8 +26,10 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.CountryRepository;
+import school.faang.user_service.repository.user.ResourceRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.s3.S3ServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,6 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Value("${user.password.min.length}")
     private int minPasswordLength;
+
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
@@ -45,6 +52,9 @@ public class UserServiceImpl implements UserService {
     private final GoalRepository goalRepository;
     private final EventRepository eventRepository;
     private final MentorshipService mentorshipService;
+    private final S3ServiceImpl s3Service;
+    private final DiceBearClient diceBearClient;
+    private final ResourceRepository resourceRepository;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -56,6 +66,17 @@ public class UserServiceImpl implements UserService {
         user.setCountry(country);
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
+
+        try {
+            Resource resource = addRandomAvatar(user);
+            user.setUserProfilePic(UserProfilePic.builder()
+                    .smallFileId(resource.getKey())
+                    .build());
+            user = userRepository.save(user);
+        } catch (Exception e) {
+            log.warn("Couldn't add avatar for user {}", user.getId());
+        }
+
         return userMapper.toUserDto(user);
     }
 
@@ -207,5 +228,32 @@ public class UserServiceImpl implements UserService {
         user.setActive(true);
         userRepository.save(user);
         log.info("User {} has been activated", user.getId());
+    }
+
+    private Resource addRandomAvatar(User user) {
+        byte[] avatar = diceBearClient.downloadAvatar();
+        String folder = user.getId() + user.getUsername();
+        String fileName = folder + "avatar.svg";
+        Resource resource = s3Service.uploadFile(avatar, fileName, "image/svg+xml", folder);
+        log.info("Avatar for user {} has been uploaded", user.getId());
+
+        resource.setCreatedBy(user);
+        Resource savedResource = resourceRepository.save(resource);
+        log.info("Resource {} has been created", savedResource.getId());
+        return savedResource;
+    }
+
+    @Override
+    @Transactional
+    public void banUsers(List<Long> usersIds) {
+        userRepository.banUsers(usersIds);
+        log.info("Users have been banned. Users ids: {}", usersIds);
+    }
+
+    @Override
+    public List<Long> getNotBannedUsersIds(List<Long> usersIds) {
+        return userRepository.findAllById(usersIds).stream()
+                .filter(user -> !user.isBanned())
+                .map(User::getId).toList();
     }
 }

@@ -32,6 +32,23 @@ spring:
       acks: all
       properties:
         spring.json.add.type.headers: false
+    consumer:
+      group-id: user-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+kafka:
+  topic:
+    mentorship-offer: mentorship_offer_topic
+    user-ban: user_ban
 
 server:
   port: 8080
@@ -41,6 +58,15 @@ server:
 logging:
   level:
     root: info
+
+services:
+  s3:
+    endpoint: http://localhost:9000
+    accessKey: user
+    secretKey: password
+    bucketName: userbucket
+    region: us-east-1
+    isMocked: false
 
 project-service:
   host: localhost
@@ -67,9 +93,23 @@ recommendation:
 
 mentorship:
   request:
-   periodForRequest: 3
+    periodForRequest: 3
+
+clients:
+  dice-bear-client:
+    host: https://api.dicebear.com
+    api-version: /9.x
+    style-name: /adventurer
+    format: /svg
+    size: 100
 
 scheduler:
   clear-events-cron: "0 14 * * * ?"
   batch-size: 1000
   time-out: 180
+
+premium:
+  max-delete-per-thread: 100
+  delete-expired-timeout: 30
+  delete-premium-cron: 0 0 0 * * 0
+  delete-premium-pool-size: 3

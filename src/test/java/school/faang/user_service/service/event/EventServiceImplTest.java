@@ -48,13 +48,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.faang.user_service.preparation.test.PreparationTest.CURRENT_USER_ID;
-import static school.faang.user_service.preparation.test.PreparationTest.PLUS_TWO_DAYS;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_1;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_2;
 import static school.faang.user_service.preparation.test.PreparationTest.EVENT_ID;
 import static school.faang.user_service.preparation.test.PreparationTest.OTHER_USER_ID;
 import static school.faang.user_service.preparation.test.PreparationTest.OWNER_1;
 import static school.faang.user_service.preparation.test.PreparationTest.PLUS_ONE_DAY;
+import static school.faang.user_service.preparation.test.PreparationTest.PLUS_TWO_DAYS;
 import static school.faang.user_service.preparation.test.PreparationTest.createEvent;
 import static school.faang.user_service.preparation.test.PreparationTest.createEventDto;
 
@@ -172,7 +172,8 @@ public class EventServiceImplTest {
         Event existingEvent = EVENT_1;
 
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(existingEvent));
-        when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(eventRepository.save(any(Event.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         EventDto result = eventService.update(EVENT_ID, updateEventDto);
 
@@ -230,7 +231,8 @@ public class EventServiceImplTest {
 
     @Test
     void getByFilters_ShouldHandleAllNullFilters() {
-        EventFilterDto filterDto = new EventFilterDto(null, null, null, null, null);
+        EventFilterDto filterDto = new EventFilterDto(null, null, null,
+                null, null);
 
         when(eventRepository.findAll()).thenReturn(List.of(EVENT_1));
 
@@ -297,7 +299,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    void clearPassedEvents_WithPassedEvents() throws IllegalAccessException, NoSuchFieldException {
+    void clearPassedEvents_WithPassedEvents() throws Exception {
         List<Event> allEvents = Arrays.asList(pastEvent1, pastEvent2);
 
         when(eventRepository.findAll()).thenReturn(allEvents);
@@ -306,8 +308,14 @@ public class EventServiceImplTest {
         batchSizeField.setAccessible(true);
         batchSizeField.set(eventService, 100);
 
+        Field timeoutField = EventServiceImpl.class.getDeclaredField("timeOut");
+        timeoutField.setAccessible(true);
+        timeoutField.set(eventService, 10);
+
         eventService.clearPassedEvents();
         timeout(10000);
+
+        Thread.sleep(2000);
 
         verify(eventRepository, times(1)).deleteAllById(anyCollection());
         verify(eventRepository, times(1)).findAll();
