@@ -5,6 +5,7 @@ plugins {
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
     checkstyle
+    jacoco
 }
 
 group = "faang.school"
@@ -24,6 +25,8 @@ dependencies {
     /**
      * Spring boot starters
      */
+    implementation("org.springframework.retry:spring-retry:2.0.12")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -57,7 +60,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-
+    implementation("org.imgscalr:imgscalr-lib:4.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
 
     /**
@@ -76,6 +79,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 }
 
 jsonSchema2Pojo {
@@ -117,4 +121,65 @@ tasks.checkstyleTest {
     include("**/*.java")
 
     classpath = files()
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    classDirectories.setFrom(
+        project.layout.projectDirectory.dir("build/classes/java/main")
+            .asFileTree
+            .matching {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**",
+                    "**/*Feign*",
+                    "**/repository/**",
+                    "**/com/json/**"
+                )
+            }
+    )
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    classDirectories.setFrom(
+        project.layout.projectDirectory.dir("build/classes/java/main")
+            .asFileTree
+            .matching {
+                exclude(
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/*Application*",
+                    "**/exception/**",
+                    "**/mapper/**",
+                    "**/*Feign*",
+                    "**/repository/**",
+                    "**/com/json/**"
+                )
+            }
+    )
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.7.toBigDecimal()
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package school.faang.user_service.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.CountResponse;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -23,6 +24,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
 
+    @Transactional
     @Override
     public void followUser(long followerId, long followeeId) {
         log.info("User {} пытается подписаться на пользователя {}", followerId, followeeId);
@@ -31,6 +33,7 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
         log.info("User {} успешно подписался на пользователя {}", followerId, followeeId);
     }
 
+    @Transactional
     @Override
     public void unfollowUser(long followerId, long followeeId) {
         log.info("User {} пытается отписаться от пользователя {}", followerId, followeeId);
@@ -89,7 +92,9 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private List<UserDto> processUserStream(Stream<User> users, UserFiltersDto filters) {
         for (UserFilter filter : userFilters) {
-            users = filter.apply(users, filters);
+            if (filter.isApplicable(filters)) {
+                users = filter.apply(users, filters);
+            }
         }
         return users.map(userMapper::toUserDto).toList();
     }
