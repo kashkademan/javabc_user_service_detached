@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+import school.faang.user_service.exception.PublishingException;
 
 @Component
 @Slf4j
@@ -28,7 +29,7 @@ public class RecommendationReceivedEventPublisher implements MessagePublisher {
 
         } catch (Exception e) {
             log.error("Failed to publish recommendation event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to publish recommendation event", e);
+            throw new PublishingException("Failed to publish recommendation event", e);
         }
     }
 }
