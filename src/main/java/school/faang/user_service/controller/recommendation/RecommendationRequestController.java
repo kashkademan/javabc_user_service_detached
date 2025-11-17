@@ -28,12 +28,14 @@ public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
     @PostMapping
-    public ResponseEntity<RecommendationRequestDto> create(@Valid @RequestBody CreateRecommendationRequestDto recommendationDto) {
+    public ResponseEntity<RecommendationRequestDto> create(
+            @Valid @RequestBody CreateRecommendationRequestDto recommendationDto) {
         return ResponseEntity.ok(recommendationRequestService.create(recommendationDto));
     }
 
     @GetMapping
-    public ResponseEntity<List<RecommendationRequestDto>> getByFilters(@Valid @RequestBody RecommendationRequestFilterDto filters) {
+    public ResponseEntity<List<RecommendationRequestDto>> getByFilters(
+            @Valid @RequestBody RecommendationRequestFilterDto filters) {
         return ResponseEntity.ok(recommendationRequestService.getByFilters(filters));
     }
 
@@ -43,7 +45,9 @@ public class RecommendationRequestController {
     }
 
     @PatchMapping("/{id}/accept")
-    public void accept(@PathVariable long id) {recommendationRequestService.accept(id);}
+    public void accept(@PathVariable long id) {
+        recommendationRequestService.accept(id);
+    }
 
     @PatchMapping("/{id}/reject")
     public void reject(@PathVariable long id, @Valid @RequestBody RejectionDto rejection) {

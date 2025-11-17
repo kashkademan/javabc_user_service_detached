@@ -125,7 +125,7 @@ public class RecommendationServiceImplTest {
         Mockito.when(recommendationRequestRepository.findLatestPendingRequest(TEST_REQUESTER_ID, TEST_RECEIVER_ID))
                 .thenReturn(Optional.of(recommendationRequest1));
         assertThrows(ForbiddenException.class, () -> recommendationRequestService
-                        .                        create(createRecommendationRequestDto),
+                        .create(createRecommendationRequestDto),
                 "Last recommendation request for this user "
                         + "was created later than 6 months ago");
     }

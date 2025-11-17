@@ -102,7 +102,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     private RecommendationRequest
-    validateRecommendationRequestDeclineOrAcceptRights(long recommendationRequestId) {
+        validateRecommendationRequestDeclineOrAcceptRights(long recommendationRequestId) {
         Long userId = userContext.getUserId();
         RecommendationRequest recommendationRequest = recommendationRequestRepository
                 .findById(recommendationRequestId)
