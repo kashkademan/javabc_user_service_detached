@@ -1,11 +1,11 @@
-package school.faang.user_service.repository.mentorship.dto;
+package school.faang.user_service.dto.mentorship;
 
 import jakarta.validation.constraints.NotNull;
 
-public record CreateMentorshipRequestDto(
+public record CreateMentorshipDto(
         @NotNull(message = "Mentor ID is required")
-        long mentorId,
+        Long mentorId,
         @NotNull(message = "Mentee ID if required")
-        long menteeId
+        Long menteeId
 ) {
 }

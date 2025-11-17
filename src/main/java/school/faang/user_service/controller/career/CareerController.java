@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.career;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.config.context.UserContext;
@@ -14,11 +15,11 @@ public class CareerController {
     private final CareerService careerService;
     private final UserContext userContext;
 
-    public CareerDto addCareer(CreateCareerDto careerDto) {
+    public CareerDto addCareer(@Valid CreateCareerDto careerDto) {
         return careerService.addCareer(userContext.getUserId(), careerDto);
     }
 
-    public CareerDto updateCareer(long careerId, UpdateCareerDto careerDto) {
+    public CareerDto updateCareer(long careerId, @Valid UpdateCareerDto careerDto) {
         return careerService.updateCareer(userContext.getUserId(), careerId, careerDto);
     }
 
