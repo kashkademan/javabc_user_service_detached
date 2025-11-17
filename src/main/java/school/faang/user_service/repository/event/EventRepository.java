@@ -1,5 +1,8 @@
 package school.faang.user_service.repository.event;
 
+import feign.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +24,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             SELECT e.id FROM event e
             WHERE e.status = :eventStatus
             """)
-    List<Long> findAllIdByStatus(EventStatus eventStatus);
+    Page<Long> findAllIdByStatus(@Param("status") EventStatus eventStatus, Pageable pageable);
 
     @Query(nativeQuery = true, value = """
             SELECT e.* FROM event e

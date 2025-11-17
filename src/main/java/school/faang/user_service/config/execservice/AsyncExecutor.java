@@ -11,13 +11,14 @@ public class AsyncExecutor {
 
     private final static long MAX_WAIT_MILLIS = 300000;
 
-    @Bean({"expiredEventTaskExecutor"})
-    public ThreadPoolTaskExecutor getAsyncExecutor(int threadCount) {
+    @Bean(name = "expiredEventTaskExecutor")
+    public ThreadPoolTaskExecutor expiredEventTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(threadCount);
-        executor.setMaxPoolSize(threadCount);
-        executor.setThreadNamePrefix("expiredEventTaskExecutor-");
         executor.setAwaitTerminationMillis(MAX_WAIT_MILLIS);
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("expiredEventTaskExecutor-");
         executor.initialize();
         return executor;
     }
