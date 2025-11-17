@@ -11,7 +11,6 @@ import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.ActionType;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.user.UserScoreService;
 
 @Slf4j
@@ -20,7 +19,6 @@ import school.faang.user_service.service.user.UserScoreService;
 @Component
 public class UserScoreAspect {
     private final UserScoreService userScoreService;
-    private final UserRepository userRepository;
     private final UserContext userContext;
 
     @AfterReturning("@annotation(userScore)")
@@ -33,8 +31,7 @@ public class UserScoreAspect {
                 return;
             }
 
-            long userId = userContext.getUserId();
-            User user = userRepository.getByIdOrThrow(userId);
+            User user = userContext.getUser();
             userScoreService.addScore(user, actionType);
         } catch (Exception e) {
             log.error("Error handling user score for {}: {}", actionType, e.getMessage());
@@ -43,13 +40,13 @@ public class UserScoreAspect {
 
     private boolean shouldAddScore(JoinPoint joinPoint, ActionType actionType) {
         return switch (actionType) {
-          case GOAL_CREATED_BY_USER,
-              GOAL_CREATED_BY_MENTOR,
-              CAREER_ADDED -> true;
-          case GOAL_COMPLETED -> checkGoalCompleted(joinPoint);
-          default -> throw new IllegalStateException(
-                "Unhandled ActionType in UserScoreAspect: %s".formatted(actionType)
-        );
+            case GOAL_CREATED_BY_USER,
+                 GOAL_CREATED_BY_MENTOR,
+                 CAREER_ADDED -> true;
+            case GOAL_COMPLETED -> checkGoalCompleted(joinPoint);
+            default -> throw new IllegalStateException(
+                    "Unhandled ActionType in UserScoreAspect: %s".formatted(actionType)
+            );
         };
     }
 

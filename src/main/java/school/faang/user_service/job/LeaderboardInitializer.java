@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.LeaderBoardConfig;
-import school.faang.user_service.dto.user.LeaderScoreDto;
 import school.faang.user_service.repository.user.UserScoreRepository;
 import school.faang.user_service.service.user.LeaderBoardCacheService;
 
@@ -26,24 +25,24 @@ public class LeaderboardInitializer {
         String redisKey = leaderBoardConfig.getRedisKey();
 
         if (leaderBoardCacheService.exists(redisKey)) {
-            log.info("Leaderboard already initialized in Redis, skipping.");
+            log.info("Leaderboard already initialized in Redis, skipping");
             return;
         }
 
-        int limit = leaderBoardConfig.getSize();
-        List<LeaderScoreDto> leaderboard = userScoreRepository
+        int limit = leaderBoardConfig.getMaxLeaders();
+        List<UserScoreRepository.UserPointsProjection> leaderboard = userScoreRepository
                 .getLeaderBoard(PageRequest.of(0, limit))
                 .getContent();
 
         if (leaderboard.isEmpty()) {
-            log.info("No user score data found in database — leaderboard not initialized.");
+            log.info("No user score data found in database — leaderboard not initialized");
             return;
         }
 
         leaderboard.forEach(entry ->
-                leaderBoardCacheService.addScore(entry.username(), entry.points())
+                leaderBoardCacheService.addScore(entry.getUserId(), entry.getPoints())
         );
 
-        log.info("Leaderboard initialized in Redis with {} entries.", leaderboard.size());
+        log.info("Leaderboard initialized in Redis with {} entries", leaderboard.size());
     }
 }

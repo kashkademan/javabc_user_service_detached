@@ -4,11 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.aspect.UserScore;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalUpdateDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.entity.user.ActionType;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
@@ -38,6 +40,7 @@ public class GoalService {
     private final UserContext userContext;
     private final List<FilterGoal> filterGoals;
 
+    @UserScore(type = ActionType.GOAL_CREATED_BY_USER)
     public Goal create(Goal goal, List<Long> userIds,
                        List<Long> skillIds, Long mentorId) {
 

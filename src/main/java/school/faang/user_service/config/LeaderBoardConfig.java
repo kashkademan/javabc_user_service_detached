@@ -8,14 +8,15 @@ import school.faang.user_service.entity.user.ActionType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "leader-board")
 @Component
 public class LeaderBoardConfig {
-    private Map<String, Integer> scores = new HashMap<>();
-    private int size;
+    private Map<String, Integer> scores = new ConcurrentHashMap<>();
+    private int maxLeaders;
     private String redisKey;
 
     public int getPointsFor(ActionType actionType) {

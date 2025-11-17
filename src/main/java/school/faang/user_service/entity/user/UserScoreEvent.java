@@ -38,12 +38,9 @@ public class UserScoreEvent {
 
     @Column(name = "user_id")
     private Long userId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
-
-    @Column(name = "username", length = 64, nullable = false)
-    private String username;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "action_type")
@@ -53,7 +50,6 @@ public class UserScoreEvent {
     private Integer points;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
