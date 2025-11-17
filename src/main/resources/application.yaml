@@ -33,6 +33,10 @@ spring:
       properties:
         spring.json.add.type.headers: false
 
+kafka:
+  topic:
+    follower-create-events: follower-create-events
+
 server:
   port: 8080
   servlet:

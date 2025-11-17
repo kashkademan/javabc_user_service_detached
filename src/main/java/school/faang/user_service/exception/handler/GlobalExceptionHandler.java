@@ -39,10 +39,9 @@ public class GlobalExceptionHandler {
             String fieldName = error instanceof FieldError fieldError
                     ? fieldError.getField() : error.getObjectName();
             String errorMessage = error.getDefaultMessage();
+            log.warn("Validation failed for field: {}, reason: {}", fieldName, errorMessage);
             errors.put(fieldName, errorMessage);
         });
-
-        log.warn("Validation failed for fields: {}", errors.keySet());
         return errors;
     }
 
