@@ -44,4 +44,4 @@ user:
 cleanup:
   expired-event:
     cron: "0 0 0 * * *"
-    chunk-size: 1000
+    chunk-size: 2000
