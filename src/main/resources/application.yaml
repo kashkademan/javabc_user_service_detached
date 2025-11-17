@@ -98,3 +98,9 @@ scheduler:
   clear-events-cron: "0 14 * * * ?"
   batch-size: 1000
   time-out: 180
+
+premium:
+  max-delete-per-thread: 100
+  delete-expired-timeout: 30
+  delete-premium-cron: 0 0 0 * * 0
+  delete-premium-pool-size: 3

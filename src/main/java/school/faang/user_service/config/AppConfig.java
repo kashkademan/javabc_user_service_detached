@@ -11,9 +11,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Configuration
 public class AppConfig {
 
+    @Value("${premium.delete-premium-pool-size:3}")
+    private int deletePremiumPools;
     @Value("${services.s3.accessKey}")
     private String accessKey;
     @Value("${services.s3.secretKey}")
@@ -22,6 +27,11 @@ public class AppConfig {
     private String endpoint;
     @Value("${services.s3.region}")
     private String region;
+
+    @Bean
+    public ExecutorService deletePremiumPool() {
+        return Executors.newFixedThreadPool(deletePremiumPools);
+    }
 
     @Bean
     public AmazonS3 s3Client() {
