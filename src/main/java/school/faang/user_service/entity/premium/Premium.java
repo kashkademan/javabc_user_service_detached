@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.enums.Currency;
 import school.faang.user_service.enums.PremiumPeriod;
@@ -66,7 +67,8 @@ public class Premium {
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
 }

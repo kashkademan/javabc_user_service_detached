@@ -13,7 +13,7 @@ import school.faang.user_service.enums.PremiumPeriod;
 import school.faang.user_service.service.premium.PremiumService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/v1/premium")
 @Validated
 @RequiredArgsConstructor
 public class PremiumController {
@@ -21,10 +21,9 @@ public class PremiumController {
     private final PremiumService premiumService;
     private final UserContext userContext;
 
-    @PostMapping("/buy")
-    public ResponseEntity<PremiumDto> buyPremium(@RequestParam ("days") int days) {
+    @PostMapping
+    public ResponseEntity<PremiumDto> buyPremium(@RequestParam("period") PremiumPeriod period) {
         long userId = userContext.getUserId();
-        PremiumPeriod period = PremiumPeriod.fromDays(days);
         return ResponseEntity.ok(premiumService.buyPremium(userId, period));
     }
 }

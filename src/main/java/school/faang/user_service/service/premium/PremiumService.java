@@ -2,6 +2,7 @@ package school.faang.user_service.service.premium;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.payment.PaymentServiceClient;
@@ -100,13 +101,12 @@ public class PremiumService {
                             .userId(String.valueOf(userId))
                             .paymentNumber(paymentNumber)
                             .status(PurchaseStatus.PAYMENT_PENDING)
-                            .createdAt(LocalDateTime.now())
                             .build();
 
                     try {
                         return attemptRepository.save(newAttempt);
-                    } catch (Exception e) {
-                        log.warn("Race condition detected for paymentNumber: {}, retrying find", paymentNumber);
+                    } catch (DataIntegrityViolationException e) {
+                        log.warn("Failed to save attempt for paymentNumber: {}, retrying find", paymentNumber, e);
                         return attemptRepository.findByPaymentNumber(paymentNumber)
                                 .orElseThrow(() -> new IllegalStateException(
                                         "Failed to create or find attempt for payment: " + paymentNumber));
@@ -149,8 +149,6 @@ public class PremiumService {
                     attempt.getUserId(), response.verificationCode());
             return response;
 
-        } catch (PaymentFailedException e) {
-            throw e;
         } catch (Exception e) {
             attempt.setStatus(PurchaseStatus.FAILED);
             attemptRepository.save(attempt);
@@ -171,7 +169,7 @@ public class PremiumService {
 
     private Premium extendExistingPremium(Premium existing, PremiumPeriod period, 
                                           String paymentNumber, int verificationCode) {
-        LocalDateTime newEndDate = existing.getEndDate().plusDays(period.getDays());
+        LocalDateTime newEndDate = existing.getEndDate().plusMonths(period.getMonths());
 
         existing.setEndDate(newEndDate);
         existing.setPremiumPeriod(period);
@@ -188,7 +186,7 @@ public class PremiumService {
 
     private Premium createNewPremium(User user, PremiumPeriod period, String paymentNumber, 
                                      int verificationCode, LocalDateTime now) {
-        LocalDateTime endDate = now.plusDays(period.getDays());
+        LocalDateTime endDate = now.plusMonths(period.getMonths());
 
         Premium premium = Premium.builder()
                 .user(user)
@@ -216,7 +214,7 @@ public class PremiumService {
     }
 
     private String generatePaymentNumber(long userId) {
-        return "PREM-" + userId + "-" + UUID.randomUUID().toString().replace("-", "");
+        return String.format("PREM-%d-%s", userId, UUID.randomUUID().toString().replace("-", ""));
     }
 
     private long toLongPaymentNumber(String paymentNumber) {

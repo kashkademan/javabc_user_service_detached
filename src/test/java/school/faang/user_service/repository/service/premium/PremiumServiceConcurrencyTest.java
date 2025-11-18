@@ -103,11 +103,6 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentRequests_ShouldHandleRaceConditions() throws InterruptedException {
         
         int numberOfThreads = 10;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
@@ -126,6 +121,11 @@ class PremiumServiceConcurrencyTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
@@ -155,11 +155,6 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentIdempotentRequests_ShouldReturnSameResult() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        List<CompletableFuture<PremiumDto>> futures = new ArrayList<>();
-        List<PremiumDto> results = new ArrayList<>();
-        Object lock = new Object();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
@@ -178,6 +173,9 @@ class PremiumServiceConcurrencyTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        List<CompletableFuture<PremiumDto>> futures = new ArrayList<>();
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture<PremiumDto> future = CompletableFuture.supplyAsync(() -> {
@@ -197,6 +195,8 @@ class PremiumServiceConcurrencyTest {
         executor.shutdown();
 
         // Collect results
+        List<PremiumDto> results = new ArrayList<>();
+        Object lock = new Object();
         for (CompletableFuture<PremiumDto> future : futures) {
             try {
                 PremiumDto result = future.get();
@@ -223,10 +223,6 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentPaymentFailures_ShouldHandleGracefully() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
@@ -251,6 +247,10 @@ class PremiumServiceConcurrencyTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
@@ -280,10 +280,6 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentCacheOperations_ShouldHandleGracefully() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
@@ -302,6 +298,10 @@ class PremiumServiceConcurrencyTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
@@ -330,21 +330,23 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentDatabaseOperations_ShouldHandleGracefully() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(paymentClient.processPayment(any())).thenReturn(successResponse);
         when(premiumRepository.findFirstByUser_IdAndEndDateAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(Optional.empty());
-        when(premiumRepository.save(any(Premium.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(premiumRepository.save(any(Premium.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
@@ -373,14 +375,11 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentLeapYearOperations_ShouldHandleCorrectly() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(paymentClient.processPayment(any())).thenReturn(successResponse);
         when(premiumRepository.findFirstByUser_IdAndEndDateAfter(eq(1L), any(LocalDateTime.class)))
@@ -395,6 +394,10 @@ class PremiumServiceConcurrencyTest {
         });
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
@@ -423,14 +426,11 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentYearBoundaryOperations_ShouldHandleCorrectly() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(paymentClient.processPayment(any())).thenReturn(successResponse);
         when(premiumRepository.findFirstByUser_IdAndEndDateAfter(eq(1L), any(LocalDateTime.class)))
@@ -445,6 +445,10 @@ class PremiumServiceConcurrencyTest {
         });
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
@@ -473,14 +477,11 @@ class PremiumServiceConcurrencyTest {
     void buyPremium_WithConcurrentDSTOperations_ShouldHandleCorrectly() throws InterruptedException {
         
         int numberOfThreads = 5;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(paymentClient.processPayment(any())).thenReturn(successResponse);
         when(premiumRepository.findFirstByUser_IdAndEndDateAfter(eq(1L), any(LocalDateTime.class)))
@@ -495,6 +496,10 @@ class PremiumServiceConcurrencyTest {
         });
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
         
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {

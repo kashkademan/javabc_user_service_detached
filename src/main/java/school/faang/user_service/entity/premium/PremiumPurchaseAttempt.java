@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.enums.PurchaseStatus;
 
 import java.time.LocalDateTime;
@@ -26,30 +28,36 @@ import java.time.LocalDateTime;
 public class PremiumPurchaseAttempt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
+    @Column(name = "status", nullable = false, length = 32)
     private PurchaseStatus status;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    @Column(columnDefinition = "Text")
+    @Column(name = "failure_reason", columnDefinition = "Text")
     private String failureReason;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "payment_number", nullable = false, unique = true)
     private String paymentNumber;
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-        if (status == PurchaseStatus.COMPLETED) {
+        if (status == PurchaseStatus.COMPLETED && completedAt == null) {
             this.completedAt = LocalDateTime.now();
         }
     }
