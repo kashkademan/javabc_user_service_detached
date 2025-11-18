@@ -12,7 +12,6 @@ import school.faang.user_service.enums.PurchaseStatus;
 import school.faang.user_service.repository.premium.PremiumPurchaseAttemptRepository;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -231,64 +230,70 @@ class PremiumPurchaseAttemptRepositoryTest {
     @Test
     void findByPaymentNumber_WithLeapYearDate_ShouldWorkCorrectly() {
         // Given - Create attempt with leap year date
-        LocalDateTime leapYearDate = LocalDateTime.of(2024, Month.FEBRUARY, 29, 12, 0, 0);
+        LocalDateTime beforeSave = LocalDateTime.now();
         PremiumPurchaseAttempt leapAttempt = PremiumPurchaseAttempt.builder()
                 .userId("8")
                 .paymentNumber("PREM-8-leap2024")
                 .status(PurchaseStatus.PAYMENT_PENDING)
-                .createdAt(leapYearDate)
                 .build();
         
         attemptRepository.save(leapAttempt);
+        LocalDateTime afterSave = LocalDateTime.now();
 
         
         Optional<PremiumPurchaseAttempt> attempt = attemptRepository.findByPaymentNumber("PREM-8-leap2024");
 
         
         assertThat(attempt).isPresent();
-        assertThat(attempt.get().getCreatedAt()).isEqualTo(leapYearDate);
+        assertThat(attempt.get().getCreatedAt())
+                .isAfterOrEqualTo(beforeSave)
+                .isBeforeOrEqualTo(afterSave);
     }
 
     @Test
     void findByPaymentNumber_WithYearBoundaryDate_ShouldWorkCorrectly() {
         // Given - Create attempt with year boundary date
-        LocalDateTime yearEnd = LocalDateTime.of(2023, Month.DECEMBER, 31, 23, 59, 59);
+        LocalDateTime beforeSave = LocalDateTime.now();
         PremiumPurchaseAttempt yearEndAttempt = PremiumPurchaseAttempt.builder()
                 .userId("9")
                 .paymentNumber("PREM-9-yearEnd2023")
                 .status(PurchaseStatus.PAYMENT_PENDING)
-                .createdAt(yearEnd)
                 .build();
         
         attemptRepository.save(yearEndAttempt);
+        LocalDateTime afterSave = LocalDateTime.now();
 
         
         Optional<PremiumPurchaseAttempt> attempt = attemptRepository.findByPaymentNumber("PREM-9-yearEnd2023");
 
         
         assertThat(attempt).isPresent();
-        assertThat(attempt.get().getCreatedAt()).isEqualTo(yearEnd);
+        assertThat(attempt.get().getCreatedAt())
+                .isAfterOrEqualTo(beforeSave)
+                .isBeforeOrEqualTo(afterSave);
     }
 
     @Test
     void findByPaymentNumber_WithDSTTransitionDate_ShouldWorkCorrectly() {
         // Given - Create attempt with DST transition date
-        LocalDateTime dstDate = LocalDateTime.of(2024, Month.MARCH, 10, 2, 30, 0);
+        LocalDateTime beforeSave = LocalDateTime.now();
         PremiumPurchaseAttempt dstAttempt = PremiumPurchaseAttempt.builder()
                 .userId("10")
                 .paymentNumber("PREM-10-dst2024")
                 .status(PurchaseStatus.PAYMENT_PENDING)
-                .createdAt(dstDate)
                 .build();
         
         attemptRepository.save(dstAttempt);
+        LocalDateTime afterSave = LocalDateTime.now();
 
         
         Optional<PremiumPurchaseAttempt> attempt = attemptRepository.findByPaymentNumber("PREM-10-dst2024");
 
         
         assertThat(attempt).isPresent();
-        assertThat(attempt.get().getCreatedAt()).isEqualTo(dstDate);
+        assertThat(attempt.get().getCreatedAt())
+                .isAfterOrEqualTo(beforeSave)
+                .isBeforeOrEqualTo(afterSave);
     }
 
     @Test

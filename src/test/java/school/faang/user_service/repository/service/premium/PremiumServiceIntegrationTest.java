@@ -220,8 +220,8 @@ class PremiumServiceIntegrationTest {
         LocalDateTime startDate = premium.getStartDate();
         LocalDateTime endDate = premium.getEndDate();
 
-        // The end date should be 90 days after start date
-        assertThat(endDate).isEqualTo(startDate.plusDays(90));
+        // The end date should be 3 months after start date
+        assertThat(endDate).isEqualTo(startDate.plusMonths(3));
     }
 
     @Test

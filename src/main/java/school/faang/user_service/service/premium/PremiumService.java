@@ -149,6 +149,8 @@ public class PremiumService {
                     attempt.getUserId(), response.verificationCode());
             return response;
 
+        } catch (PaymentFailedException e) {
+            throw e;
         } catch (Exception e) {
             attempt.setStatus(PurchaseStatus.FAILED);
             attemptRepository.save(attempt);

@@ -21,6 +21,7 @@ import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumPurchaseAttemptRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.premium.PremiumCacheService;
 import school.faang.user_service.service.premium.PremiumService;
 
 import java.math.BigDecimal;
@@ -53,6 +54,8 @@ class PremiumServiceEdgeCasesTest {
     @Mock
     private PremiumMapper premiumMapper;
 
+    @Mock
+    private PremiumCacheService premiumCacheService;
 
     @InjectMocks
     private PremiumService premiumService;
@@ -155,7 +158,9 @@ class PremiumServiceEdgeCasesTest {
                 .thenReturn(Optional.empty());
         when(premiumRepository.save(any(Premium.class))).thenAnswer(invocation -> {
             Premium premium = invocation.getArgument(0);
+            assertThat(premium).isNotNull();
             LocalDateTime endDate = premium.getEndDate();
+            assertThat(endDate).isNotNull();
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expectedEndDate = now.plusDays(expectedDays);
             assertThat(endDate).isCloseTo(expectedEndDate, within(1, ChronoUnit.MINUTES));
@@ -208,9 +213,9 @@ class PremiumServiceEdgeCasesTest {
         when(premiumRepository.save(any(Premium.class))).thenAnswer(invocation -> {
             Premium premium = invocation.getArgument(0);
             LocalDateTime endDate = premium.getEndDate();
-            // Quarterly period should add 90 days
+            // Quarterly period should add 3 months
             LocalDateTime now = LocalDateTime.now();
-            assertThat(endDate).isCloseTo(now.plusDays(90), within(1, ChronoUnit.MINUTES));
+            assertThat(endDate).isCloseTo(now.plusMonths(3), within(1, ChronoUnit.MINUTES));
             return premium;
         });
         when(premiumMapper.toDto(any())).thenReturn(createPremiumDto());
@@ -312,7 +317,9 @@ class PremiumServiceEdgeCasesTest {
                 .thenReturn(Optional.empty());
         when(premiumRepository.save(any(Premium.class))).thenAnswer(invocation -> {
             Premium premium = invocation.getArgument(0);
+            assertThat(premium).isNotNull();
             LocalDateTime endDate = premium.getEndDate();
+            assertThat(endDate).isNotNull();
             // Should correctly add 30 days from current time
             LocalDateTime now = LocalDateTime.now();
             assertThat(endDate).isCloseTo(now.plusDays(30), within(1, ChronoUnit.MINUTES));

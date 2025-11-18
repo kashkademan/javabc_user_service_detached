@@ -192,7 +192,8 @@ class PremiumServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenReturn(testAttempt);
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(paymentClient.processPayment(any(PaymentRequest.class))).thenReturn(failedResponse);
 
         assertThatThrownBy(() -> premiumService.buyPremium(1L, PremiumPeriod.MONTHLY))
@@ -208,7 +209,8 @@ class PremiumServiceTest {
         
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
-        when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenReturn(testAttempt);
+        when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(paymentClient.processPayment(any(PaymentRequest.class)))
                 .thenThrow(new RuntimeException("Network error"));
 
@@ -351,8 +353,8 @@ class PremiumServiceTest {
                 .thenReturn(Optional.empty()) // First call in getOrCreateAttempt
                 .thenReturn(Optional.of(testAttempt)); // Second call after exception
         when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
-                .thenThrow(new RuntimeException("Duplicate key"))
-                .thenReturn(testAttempt); // For markAttemptCompleted call
+                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("Duplicate key"))
+                .thenAnswer(invocation -> invocation.getArgument(0)); // For subsequent saves
         when(paymentClient.processPayment(any(PaymentRequest.class))).thenReturn(successResponse);
         when(premiumRepository.findFirstByUser_IdAndEndDateAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(Optional.empty());
