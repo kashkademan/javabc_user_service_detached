@@ -12,8 +12,7 @@ import school.faang.user_service.service.events.EventServiceImpl;
 public class ScheduledEventStart {
     private final EventServiceImpl eventService;
 
-    @Scheduled(cron = "*/10 * * * * *")
-    //"${schedule.events}"
+    @Scheduled(cron =  "${schedule.events-cron}")
     public void scheduledEventStart() {
         log.info("Start scheduled Event start");
         eventService.startEventsPublish();

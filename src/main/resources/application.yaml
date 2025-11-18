@@ -58,7 +58,7 @@ skills:
   min-offers-for-acquire: 3
 
 schedule:
-    events: "0 0 8,12,18 * * ?"
+    events-cron: "0 0 0 * * *"
 
 services:
   s3:

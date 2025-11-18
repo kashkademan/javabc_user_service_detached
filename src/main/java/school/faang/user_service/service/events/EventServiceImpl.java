@@ -30,11 +30,13 @@ import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -111,13 +113,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void startEventsPublish() {
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime now = LocalDateTime.now();
         log.info("Current Date {}", now);
 
-        LocalDateTime windowStart = now.plusHours(23);
-        log.info("windowStart Date {}", windowStart);
-        LocalDateTime windowEnd = now.plusHours(25);
-        log.info("windowEnd Date {}", windowEnd);
         List<Event> events = eventRepository.findEventsFor24HourReminder();
         log.info("Number of Events per notification {}", events.size());
         events.forEach(event -> {
@@ -134,23 +132,23 @@ public class EventServiceImpl implements EventService {
     }
 
     private void scheduleNotification(EventStartDto eventStartDto, LocalDateTime notifyTime) {
-        LocalDateTime now = LocalDateTime.now();
-        if (notifyTime.isBefore(now)) {
-            log.info("Notification skipped (already past) for Event: {}", eventStartDto.eventId());
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        long delay = ChronoUnit.MILLIS.between(LocalDateTime.now(), notifyTime);
+        if (delay <= 0) {
+            log.info("Notification skipped (already past) for Event: {}, delay {}, date now {}",
+                    eventStartDto.eventId(), delay, now);
             return;
         }
 
-        long delay = Duration.between(now, notifyTime).toMillis();
-
-     /*   Timer timer = new Timer();
+        Timer timer = new Timer();
+        log.info("{} Event waiting to send on {}", eventStartDto.eventId(), delay);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 publishEventStart.sendNotification(eventStartDto);
+                log.info("Event send to topic: {}", eventStartDto.eventId());
             }
-        }, delay);*/
-        publishEventStart.sendNotification(eventStartDto);
-        log.info("Event send to topic: {}", eventStartDto.eventId());
+        }, delay);
     }
 
     @Override

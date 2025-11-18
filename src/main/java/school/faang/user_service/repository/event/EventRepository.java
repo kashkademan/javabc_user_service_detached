@@ -9,7 +9,6 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -59,8 +58,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query(value = """
             SELECT * FROM event 
-            WHERE DATE(start_date) = DATE(NOW() + INTERVAL '1 day')
-              AND status = 0
+            WHERE status = 0 
+              AND start_date >= now() 
+              AND start_date <= now() + INTERVAL '25 hours'
             """,
             nativeQuery = true)
     List<Event> findEventsFor24HourReminder();

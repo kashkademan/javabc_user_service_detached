@@ -18,6 +18,10 @@ public class PublishEventStart extends PublishAbstract {
 
     public void sendNotification(EventStartDto eventStartDto) {
         log.info("Start publish {} - event start {}", eventStartDto.eventId(), eventStartDto);
-        publish(eventStartTopic, eventStartDto);
+        try {
+            publish(eventStartTopic, eventStartDto);
+        } catch (Exception e) {
+            log.error("Error to serialize EventDto {}", e.getMessage(), e);
+        }
     }
 }
