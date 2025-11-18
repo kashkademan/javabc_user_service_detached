@@ -8,9 +8,12 @@ import jakarta.validation.constraints.Size;
 
 @Builder
 public record UpdateUserDto(
+
         @Size(min = 1, max = 50)
-        @Pattern(regexp = "^[A-Za-z0-9._-]+$",
-                message = "Username may contain letters, digits, dot, underscore, hyphen")
+        @Pattern(
+                regexp = "^[A-Za-z0-9._-]+$",
+                message = "Username may contain letters, digits, dot, underscore, hyphen"
+        )
         String username,
 
         @Email
@@ -26,6 +29,22 @@ public record UpdateUserDto(
         Long countryId,
 
         @Size(max = 100)
-        String city
+        String city,
+
+        @Pattern(
+                regexp = "^[a-z]{2}(-[A-Z]{2})?$",
+                message = "Locale must be like 'en' or 'en-US'"
+        )
+        String locale,
+
+        /* nullable:
+         - if null -> remove preference record (if exists)
+         - if "EMAIL|PHONE|TELEGRAM" -> upsert preference record
+         */
+        @Pattern(
+                regexp = "^(EMAIL|PHONE|TELEGRAM)$",
+                message = "Preference must be EMAIL, PHONE, or TELEGRAM"
+        )
+        String preference
 ) {
 }

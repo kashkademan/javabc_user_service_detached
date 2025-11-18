@@ -24,6 +24,18 @@ public record CreateUserDto(
         String password,
 
         @NotNull @Positive
-        Long countryId
+        Long countryId,
+
+        @Pattern(
+                regexp = "^[a-z]{2}(-[A-Z]{2})?$",
+                message = "Locale must be like 'en' or 'en-US'"
+        )
+        String locale,
+
+        @Pattern(
+                regexp = "^(EMAIL|PHONE|TELEGRAM)$",
+                message = "Preference must be EMAIL, PHONE, or TELEGRAM"
+        )
+        String preference
 ) {
 }
