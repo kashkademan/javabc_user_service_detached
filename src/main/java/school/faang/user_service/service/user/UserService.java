@@ -27,6 +27,18 @@ public interface UserService {
     UserDto create(CreateUserDto userDto);
 
     /**
+     * Удаляет пользователя по указанному ID.
+     * <p>
+     * Условия:
+     * <ul>
+     *     <li>Запрашиваемый ID должен существовать в БД</li>
+     * </ul>
+     *
+     * @return возвращает ID удаленного пользователя
+     */
+    Long delete(Long userId);
+
+    /**
      * Обновляет информацию о существующем пользователе.
      * <p>
      * Условия:
@@ -39,7 +51,7 @@ public interface UserService {
      *         иначе выбрасывается {@code DataIntegrityViolationException}.</li>
      * </ul>
      *
-     * @param userId идентификатор пользователя, чьи данные необходимо обновить
+     * @param userId  идентификатор пользователя, чьи данные необходимо обновить
      * @param userDto объект {@link UpdateUserDto}, содержащий обновлённые данные пользователя
      * @return объект {@link UserDto}, представляющий обновлённого пользователя
      */
@@ -54,7 +66,7 @@ public interface UserService {
      * @param userId идентификатор пользователя
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
-    UserDto getById(long userId);
+    UserDto getUserById(long userId);
 }
 
 

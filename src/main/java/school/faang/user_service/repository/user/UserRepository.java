@@ -10,6 +10,12 @@ import java.util.stream.Stream;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByPhone(String phone);
+
     @Query(nativeQuery = true, value = """
             SELECT COUNT(s.id) FROM users u
             JOIN user_skill us ON us.user_id = u.id

@@ -20,6 +20,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,6 +41,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -101,12 +103,14 @@ public class User {
     private List<Event> ownedEvents;
 
     @ManyToMany(mappedBy = "mentors", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<User> mentees = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "mentorship",
             joinColumns = @JoinColumn(name = "mentee_id"),
             inverseJoinColumns = @JoinColumn(name = "mentor_id"))
+    @Builder.Default
     private List<User> mentors = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiver")
