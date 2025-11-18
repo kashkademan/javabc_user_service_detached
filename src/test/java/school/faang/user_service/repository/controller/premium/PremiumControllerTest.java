@@ -58,13 +58,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithValidDaysShouldReturnOk() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(premiumService.buyPremium(userId, PremiumPeriod.MONTHLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -76,13 +76,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithQuarterlyDaysShouldReturnOk() {
         
-        int days = 90;
+        PremiumPeriod period = PremiumPeriod.QUARTERLY;
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(premiumService.buyPremium(userId, PremiumPeriod.QUARTERLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -92,13 +92,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithYearlyDaysShouldReturnOk() {
         
-        int days = 365;
+        PremiumPeriod period = PremiumPeriod.YEARLY;
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(premiumService.buyPremium(userId, PremiumPeriod.YEARLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -106,69 +106,32 @@ class PremiumControllerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {30, 90, 365})
-    void buyPremiumWithValidPeriodsShouldCallServiceWithCorrectPeriod(int days) {
+    @ValueSource(strings = {"MONTHLY", "QUARTERLY", "YEARLY"})
+    void buyPremiumWithValidPeriodsShouldCallServiceWithCorrectPeriod(String periodName) {
         
+        PremiumPeriod period = PremiumPeriod.valueOf(periodName);
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(premiumService.buyPremium(any(Long.class), any(PremiumPeriod.class))).thenReturn(testPremiumDto);
         
-        premiumController.buyPremium(days);
+        premiumController.buyPremium(period);
 
         // Verification is done through the mock setup
-        // The service is called with the correct period based on days
+        // The service is called with the correct period
     }
 
-    @Test
-    void buyPremiumWithInvalidDaysShouldThrowException() {
-        
-        int invalidDays = 999;
-        long userId = 1L;
-        when(userContext.getUserId()).thenReturn(userId);
-
-        
-        assertThatThrownBy(() -> premiumController.buyPremium(invalidDays))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Unsupported premium period days: 999");
-    }
-
-    @Test
-    void buyPremiumWithZeroDaysShouldThrowException() {
-        
-        int zeroDays = 0;
-        long userId = 1L;
-        when(userContext.getUserId()).thenReturn(userId);
-
-        
-        assertThatThrownBy(() -> premiumController.buyPremium(zeroDays))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Unsupported premium period days: 0");
-    }
-
-    @Test
-    void buyPremiumWithNegativeDaysShouldThrowException() {
-        
-        int negativeDays = -30;
-        long userId = 1L;
-        when(userContext.getUserId()).thenReturn(userId);
-
-        
-        assertThatThrownBy(() -> premiumController.buyPremium(negativeDays))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Unsupported premium period days: -30");
-    }
 
     @Test
     void buyPremiumWithServiceExceptionShouldPropagateException() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(premiumService.buyPremium(userId, PremiumPeriod.MONTHLY))
                 .thenThrow(new RuntimeException("Service error"));
 
         
-        assertThatThrownBy(() -> premiumController.buyPremium(days))
+        assertThatThrownBy(() -> premiumController.buyPremium(period))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Service error");
     }
@@ -176,11 +139,11 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithUserContextExceptionShouldPropagateException() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         when(userContext.getUserId()).thenThrow(new RuntimeException("User context error"));
 
         
-        assertThatThrownBy(() -> premiumController.buyPremium(days))
+        assertThatThrownBy(() -> premiumController.buyPremium(period))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("User context error");
     }
@@ -188,13 +151,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithMaxLongUserIdShouldWork() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         long maxUserId = Long.MAX_VALUE;
         when(userContext.getUserId()).thenReturn(maxUserId);
         when(premiumService.buyPremium(maxUserId, PremiumPeriod.MONTHLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -204,13 +167,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithMinLongUserIdShouldWork() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         long minUserId = Long.MIN_VALUE;
         when(userContext.getUserId()).thenReturn(minUserId);
         when(premiumService.buyPremium(minUserId, PremiumPeriod.MONTHLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -220,13 +183,13 @@ class PremiumControllerTest {
     @Test
     void buyPremiumWithZeroUserIdShouldWork() {
         
-        int days = 30;
+        PremiumPeriod period = PremiumPeriod.MONTHLY;
         long zeroUserId = 0L;
         when(userContext.getUserId()).thenReturn(zeroUserId);
         when(premiumService.buyPremium(zeroUserId, PremiumPeriod.MONTHLY)).thenReturn(testPremiumDto);
 
         
-        ResponseEntity<PremiumDto> response = premiumController.buyPremium(days);
+        ResponseEntity<PremiumDto> response = premiumController.buyPremium(period);
 
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
