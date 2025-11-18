@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.time.LocalDateTime;
@@ -33,11 +32,9 @@ class EventServiceTest {
     @InjectMocks
     private EventService eventService;
 
-    private ExecutorService realExecutor;
-
     @BeforeEach
     void setUp() {
-        realExecutor = Executors.newFixedThreadPool(10);
+        ExecutorService realExecutor = Executors.newFixedThreadPool(10);
         ReflectionTestUtils.setField(eventService, "executorService", realExecutor);
         ReflectionTestUtils.setField(eventService, "batchSize", 100);
     }
@@ -45,34 +42,30 @@ class EventServiceTest {
     @Test
     void testRemovePastEventsWhenNoExpiredEventsShouldNotDelete() {
         // Given
-        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findExpiredEventIds(any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findExpiredEventIds(any(LocalDateTime.class));
         verify(eventRepository, never()).deleteAllById(anyList());
     }
 
     @Test
     void testRemovePastEventsWhenExpiredEventsExistShouldDeleteThem() {
         // Given
-        List<Event> expiredEvents = List.of(
-                createEvent(1L),
-                createEvent(2L),
-                createEvent(3L)
-        );
+        List<Long> expiredEventIds = List.of(1L, 2L, 3L);
 
-        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
-                .thenReturn(expiredEvents);
+        when(eventRepository.findExpiredEventIds(any(LocalDateTime.class)))
+                .thenReturn(expiredEventIds);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findExpiredEventIds(any(LocalDateTime.class));
         verify(eventRepository).deleteAllById(List.of(1L, 2L, 3L));
     }
 
@@ -81,22 +74,16 @@ class EventServiceTest {
         // Given
         ReflectionTestUtils.setField(eventService, "batchSize", 2);
 
-        List<Event> expiredEvents = List.of(
-                createEvent(1L),
-                createEvent(2L),
-                createEvent(3L),
-                createEvent(4L),
-                createEvent(5L)
-        );
+        List<Long> expiredEventIds = List.of(1L, 2L, 3L, 4L, 5L);
 
-        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
-                .thenReturn(expiredEvents);
+        when(eventRepository.findExpiredEventIds(any(LocalDateTime.class)))
+                .thenReturn(expiredEventIds);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findExpiredEventIds(any(LocalDateTime.class));
         verify(eventRepository).deleteAllById(List.of(1L, 2L));
         verify(eventRepository).deleteAllById(List.of(3L, 4L));
         verify(eventRepository).deleteAllById(List.of(5L));
@@ -107,20 +94,16 @@ class EventServiceTest {
         // Given
         ReflectionTestUtils.setField(eventService, "batchSize", 3);
 
-        List<Event> expiredEvents = List.of(
-                createEvent(1L),
-                createEvent(2L),
-                createEvent(3L)
-        );
+        List<Long> expiredEventIds = List.of(1L, 2L, 3L);
 
-        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
-                .thenReturn(expiredEvents);
+        when(eventRepository.findExpiredEventIds(any(LocalDateTime.class)))
+                .thenReturn(expiredEventIds);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findExpiredEventIds(any(LocalDateTime.class));
         verify(eventRepository, times(1)).deleteAllById(anyList());
         verify(eventRepository).deleteAllById(List.of(1L, 2L, 3L));
     }
@@ -130,30 +113,18 @@ class EventServiceTest {
         // Given
         ReflectionTestUtils.setField(eventService, "batchSize", 100);
 
-        List<Event> expiredEvents = createEventList(250);
+        List<Long> expiredEventIds = IntStream.rangeClosed(1, 250)
+                .mapToObj(Long::valueOf)
+                .toList();
 
-        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
-                .thenReturn(expiredEvents);
+        when(eventRepository.findExpiredEventIds(any(LocalDateTime.class)))
+                .thenReturn(expiredEventIds);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findExpiredEventIds(any(LocalDateTime.class));
         verify(eventRepository, times(3)).deleteAllById(anyList());
-    }
-
-    private Event createEvent(Long id) {
-        Event event = new Event();
-        event.setId(id);
-        event.setStartDate(LocalDateTime.now().minusDays(1));
-        event.setEndDate(LocalDateTime.now().minusDays(1));
-        return event;
-    }
-
-    private List<Event> createEventList(int count) {
-        return IntStream.range(1, count + 1)
-                .mapToObj(i -> createEvent((long) i))
-                .toList();
     }
 }

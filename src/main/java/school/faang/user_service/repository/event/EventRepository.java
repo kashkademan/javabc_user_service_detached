@@ -3,6 +3,7 @@ package school.faang.user_service.repository.event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -33,7 +34,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     int deleteById(long userId, long eventId);
 
-    List<Event> findByEndDateBefore(LocalDateTime dateTime);
+    @Query("SELECT e.id FROM Event e WHERE e.endDate < :dateTime")
+    List<Long> findExpiredEventIds(@Param("dateTime") LocalDateTime dateTime);
 
     default Event getByIdOrThrow(long eventId) {
         return findById(eventId)
