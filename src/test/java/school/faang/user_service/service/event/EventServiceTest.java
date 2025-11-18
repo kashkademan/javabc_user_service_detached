@@ -45,14 +45,14 @@ class EventServiceTest {
     @Test
     void testRemovePastEventsWhenNoExpiredEventsShouldNotDelete() {
         // Given
-        when(eventRepository.findByEventDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEventDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
         verify(eventRepository, never()).deleteAllById(anyList());
     }
 
@@ -65,14 +65,14 @@ class EventServiceTest {
                 createEvent(3L)
         );
 
-        when(eventRepository.findByEventDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(expiredEvents);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEventDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
         verify(eventRepository).deleteAllById(List.of(1L, 2L, 3L));
     }
 
@@ -89,14 +89,14 @@ class EventServiceTest {
                 createEvent(5L)
         );
 
-        when(eventRepository.findByEventDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(expiredEvents);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEventDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
         verify(eventRepository).deleteAllById(List.of(1L, 2L));
         verify(eventRepository).deleteAllById(List.of(3L, 4L));
         verify(eventRepository).deleteAllById(List.of(5L));
@@ -113,14 +113,14 @@ class EventServiceTest {
                 createEvent(3L)
         );
 
-        when(eventRepository.findByEventDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(expiredEvents);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEventDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
         verify(eventRepository, times(1)).deleteAllById(anyList());
         verify(eventRepository).deleteAllById(List.of(1L, 2L, 3L));
     }
@@ -132,14 +132,14 @@ class EventServiceTest {
 
         List<Event> expiredEvents = createEventList(250);
 
-        when(eventRepository.findByEventDateBefore(any(LocalDateTime.class)))
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(expiredEvents);
 
         // When
         eventService.removePastEvents();
 
         // Then
-        verify(eventRepository).findByEventDateBefore(any(LocalDateTime.class));
+        verify(eventRepository).findByEndDateBefore(any(LocalDateTime.class));
         verify(eventRepository, times(3)).deleteAllById(anyList());
     }
 

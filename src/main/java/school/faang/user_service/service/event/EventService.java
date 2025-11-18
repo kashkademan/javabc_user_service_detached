@@ -25,7 +25,7 @@ public class EventService {
     private int batchSize;
 
     public void removePastEvents() {
-        List<Event> expiredEvents = eventRepository.findByEventDateBefore(LocalDateTime.now());
+        List<Event> expiredEvents = eventRepository.findByEndDateBefore(LocalDateTime.now());
 
         if (expiredEvents.isEmpty()) {
             log.info("No expired events found");

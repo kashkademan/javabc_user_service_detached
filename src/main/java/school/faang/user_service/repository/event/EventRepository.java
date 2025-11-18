@@ -33,7 +33,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     int deleteById(long userId, long eventId);
 
-    List<Event> findByEventDateBefore(LocalDateTime dateTime);
+    List<Event> findByEndDateBefore(LocalDateTime dateTime);
 
     default Event getByIdOrThrow(long eventId) {
         return findById(eventId)
