@@ -9,6 +9,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.exception.EntityNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -64,6 +65,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """,
             nativeQuery = true)
     List<Event> findEventsFor24HourReminder();
+
     @Modifying
     @Query(value = """
             DELETE FROM event
