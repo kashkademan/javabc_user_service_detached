@@ -21,6 +21,9 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
+    @Value("${spring.data.redis.commenter_banner}")
+    private String commenterBannerTopicName;
+
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
@@ -35,6 +38,7 @@ public class RedisConfiguration {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
         return template;
     }
 
@@ -44,8 +48,8 @@ public class RedisConfiguration {
     }
 
     @Bean
-    ChannelTopic topic() {
-        return new ChannelTopic("commenter_banner_topic");
+    ChannelTopic commenterBannerTopic() {
+        return new ChannelTopic(commenterBannerTopicName);
     }
 
     @Bean
@@ -55,7 +59,7 @@ public class RedisConfiguration {
             ChannelTopic topic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(messageListenerAdapter, topic);
+        container.addMessageListener(messageListenerAdapter, commenterBannerTopic());
         return container;
     }
 }

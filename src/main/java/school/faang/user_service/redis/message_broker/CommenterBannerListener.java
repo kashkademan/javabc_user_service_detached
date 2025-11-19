@@ -23,8 +23,8 @@ public class CommenterBannerListener implements MessageListener {
             Long userIdForBan = objectMapper.readValue(message.getBody(), Long.class);
             userService.banUser(userIdForBan);
         } catch (IOException e) {
-            log.info("При попытки принятия сообщения CommenterBannerListener произошла ошибка.");
-            throw new RuntimeException(e);
+            log.error("При попытки принятия сообщения CommenterBannerListener произошла ошибка.");
+
         }
     }
 }
