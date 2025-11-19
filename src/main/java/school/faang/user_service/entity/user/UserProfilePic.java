@@ -14,4 +14,8 @@ import lombok.Setter;
 public class UserProfilePic {
     private String fileId;
     private String smallFileId;
+
+    public boolean hasAvatar() {
+        return fileId != null && !fileId.isBlank();
+    }
 }

@@ -1,6 +1,5 @@
 package school.faang.user_service.publisher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.config.KafkaTopicConfig;
@@ -15,10 +14,9 @@ public class ProfileViewEventPublisher extends AbstractEventPublisher<ProfileVie
 
     public ProfileViewEventPublisher(
             KafkaTemplate<String, Object> kafkaTemplate,
-            ObjectMapper objectMapper,
             KafkaTopicConfig kafkaTopicConfig,
             UserContext userContext) {
-        super(kafkaTemplate, objectMapper, kafkaTopicConfig);
+        super(kafkaTemplate, kafkaTopicConfig);
         this.userContext = userContext;
     }
 
@@ -29,7 +27,7 @@ public class ProfileViewEventPublisher extends AbstractEventPublisher<ProfileVie
 
     @Override
     protected String getKey(ProfileViewEvent event) {
-        return userContext.getUser().hashCode() + "_" + Instant.now().toEpochMilli();
+        return userContext.getUser().getId() + "_" + Instant.now().toEpochMilli();
     }
 }
 

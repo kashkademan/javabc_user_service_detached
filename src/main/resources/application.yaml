@@ -34,10 +34,18 @@ spring:
         spring.json.add.type.headers: false
     properties:
       acks: all
-      retries: 1
+      retries: 3
       enable.idempotence: true
       request.timeout.ms: 30000
       max.block.ms: 60000
+  lifecycle:
+    timeout-per-shutdown-phase: 1s
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 
 promotion-redis:
   ttl: 1d
@@ -53,6 +61,7 @@ promotion-redis:
 
 server:
   port: 8080
+  shutdown: graceful
 
 logging:
   level:
@@ -90,6 +99,9 @@ services:
     secretKey: password
     bucketName: corpbucket
     isMocked: false
+    user-avatars:
+      bucket-name: user-avatars
+      max-file-size: 5242880
 
 avatar:
   default:

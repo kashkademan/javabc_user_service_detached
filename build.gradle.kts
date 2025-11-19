@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    implementation("commons-io:commons-io:2.15.1")
     /**
      * Spring boot starters
      */
@@ -44,11 +45,15 @@ dependencies {
     /**
      * Amazon S3
      */
-    implementation("software.amazon.awssdk:s3:2.20.56")
+    implementation ("software.amazon.awssdk:s3:2.20.56")
+    implementation("software.amazon.awssdk:auth:2.20.0")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.700")
 
     /**
      * Utils & Logging
      */
+    implementation("org.imgscalr:imgscalr-lib:4.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-databind")

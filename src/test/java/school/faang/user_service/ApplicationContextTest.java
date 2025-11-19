@@ -27,8 +27,8 @@ class ApplicationContextTest {
     @Container
     static final GenericContainer<?> MINIO_CONTAINER = new GenericContainer<>("minio/minio:latest")
             .withExposedPorts(9000)
-            .withEnv("MINIO_ROOT_USER", "minioadmin")
-            .withEnv("MINIO_ROOT_PASSWORD", "minioadmin")
+            .withEnv("MINIO_ROOT_USER", "user")
+            .withEnv("MINIO_ROOT_PASSWORD", "password")
             .withCommand("server /data");
 
     @Container
@@ -52,10 +52,10 @@ class ApplicationContextTest {
 
         registry.add("spring.kafka.bootstrap-servers", KAFKA_CONTAINER::getBootstrapServers);
 
-        registry.add("services.minio.endpoint", () ->
-                "http://" + MINIO_CONTAINER.getHost() + ":" + MINIO_CONTAINER.getMappedPort(9000));
-        registry.add("services.minio.accessKey", () -> "minioadmin");
-        registry.add("services.minio.secretKey", () -> "minioadmin");
+        String minioEndpoint = "http://" + MINIO_CONTAINER.getHost() + ":" + MINIO_CONTAINER.getMappedPort(9000);
+        registry.add("services.s3.endpoint", () -> minioEndpoint);
+        registry.add("services.minio.accessKey", () -> "user");
+        registry.add("services.minio.secretKey", () -> "password");
     }
 
     @Test
