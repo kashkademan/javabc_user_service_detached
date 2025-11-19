@@ -43,6 +43,7 @@ kafka:
   topic:
     mentorship-offer: mentorship_offer_topic
     user-ban: user_ban
+    recommendation-received: recommendation_received_events
 
 server:
   port: 8080
