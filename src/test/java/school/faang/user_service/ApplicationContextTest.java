@@ -14,7 +14,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest
 @Testcontainers
-class ApplicationContextTest {
+public class ApplicationContextTest {
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
