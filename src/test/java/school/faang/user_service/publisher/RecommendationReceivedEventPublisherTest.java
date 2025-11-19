@@ -1,5 +1,6 @@
 package school.faang.user_service.publisher;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.recommendation.RecommendationReceivedEventDto;
 
 import java.time.LocalDateTime;
@@ -47,6 +49,10 @@ public class RecommendationReceivedEventPublisherTest {
     @InjectMocks
     private RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(recommendationReceivedEventPublisher, "notificationTopic", "recommendation_received_events");
+    }
 
     @Test
     void testPublish() {
@@ -54,7 +60,7 @@ public class RecommendationReceivedEventPublisherTest {
                 CompletableFuture.completedFuture(null);
 
         when(kafkaTemplate.send(
-                eq("recommendation-received-events"),
+                eq("recommendation_received_events"),
                 any(RecommendationReceivedEventDto.class))
         ).thenReturn(future);
 
@@ -63,7 +69,7 @@ public class RecommendationReceivedEventPublisherTest {
         );
 
         verify(kafkaTemplate).send(
-                eq("recommendation-received-events"),
+                eq("recommendation_received_events"),
                 recommendationReceivedEventDtoArgumentCaptor.capture()
         );
 
