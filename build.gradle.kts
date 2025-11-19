@@ -54,8 +54,6 @@ dependencies {
      * Utils & Logging
      */
     implementation("org.imgscalr:imgscalr-lib:4.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
