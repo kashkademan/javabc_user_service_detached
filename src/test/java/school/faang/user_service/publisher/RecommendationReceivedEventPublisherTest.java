@@ -51,7 +51,8 @@ public class RecommendationReceivedEventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(recommendationReceivedEventPublisher, "notificationTopic", "recommendation_received_events");
+        ReflectionTestUtils.setField(recommendationReceivedEventPublisher,
+                "notificationTopic", "recommendation_received_events");
     }
 
     @Test
