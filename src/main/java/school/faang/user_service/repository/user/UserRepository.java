@@ -49,4 +49,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """, nativeQuery = true)
     List<User> findAttendeesByEventId(@Param("eventId") long eventId);
 
+    @Query(value = """
+            SELECT u.id as id, u.username as username 
+            FROM users u 
+            WHERE u.id IN :userIds
+            """, nativeQuery = true)
+    List<UserIdUsername> findUsernamesByIds(@Param("userIds") List<Long> userIds);
+
+    interface UserIdUsername {
+        Long getId();
+        String getUsername();
+    }
+
 }

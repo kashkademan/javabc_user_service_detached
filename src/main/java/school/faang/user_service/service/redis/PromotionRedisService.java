@@ -90,10 +90,13 @@ public class PromotionRedisService {
     public void syncPromotionData() {
         if (lockService.tryLock(PROMOTION_SYNC_LOCK, Duration.ofSeconds(30))) {
             try {
-                redisTemplate.getConnectionFactory().getConnection().flushDb();
+                log.info("Clearing promotion keys from Redis...");
+                redisTemplate.delete(PROMOTION_SORTED_KEY_PREFIX);
+                redisTemplate.delete(PROMOTION_MAP_KEY_PREFIX);
+                
                 List<Promotion> promotions = promotionRepository.findByPromotionStatus(ACTIVE);
                 saveAll(promotions);
-                log.info("Redis is updating its data");
+                log.info("Redis promotion data updated");
             } finally {
                 lockService.unlock(PROMOTION_SYNC_LOCK);
             }

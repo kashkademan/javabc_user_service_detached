@@ -129,3 +129,12 @@ topics:
   achievements:
     goal-completed: achievements.goal-completed #example
   events: event.events
+
+leader-board:
+  scores:
+    goal_created_by_user: 2
+    goal_created_by_mentor: 3
+    goal_completed: 5
+    career_added: 1
+  max-leaders: 3
+  redis-key: "leaderBoard"
