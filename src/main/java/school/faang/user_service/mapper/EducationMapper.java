@@ -14,8 +14,8 @@ import school.faang.user_service.entity.user.Education;
 public interface EducationMapper {
     Education toEducation(CreateEducationDto createEducationDto);
 
+    EducationDto toEducationDto(Education education);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEducationFromDto(UpdateEducationDto dto, @MappingTarget Education entity);
-
-    EducationDto toEducationDto(Education education);
 }

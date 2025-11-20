@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,8 +31,10 @@ class EducationServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private EducationRepository educationRepository;
+
     @Mock
     private EducationMapper educationMapper;
 
@@ -53,135 +56,135 @@ class EducationServiceImplTest {
 
     @Test
     void addEducationSuccess() {
-        CreateEducationDto dto;
-        dto = new CreateEducationDto(
-                2020, 2022, "SSAU", "Entry", "CS");
-
-        User user = new User();
-        user.setId(10L);
-
-        Education education = new Education();
-        education.setId(100L);
-        education.setUser(user);
+        CreateEducationDto dto = new CreateEducationDto(
+                2020, 2022, "SSAU", "Entry", "CS"
+        );
+        User user = createUser(10L);
+        Education education = createEducation(100L, user);
+        EducationDto expectedDto = new EducationDto(100L, 2020, 2022, "SSAU", "Entry", "CS");
 
         when(userRepository.getByIdOrThrow(10L)).thenReturn(user);
         when(educationMapper.toEducation(dto)).thenReturn(education);
         when(educationRepository.save(education)).thenReturn(education);
-        when(educationMapper.toEducationDto(education)).thenReturn(new EducationDto(
-                100L, 2020, 2022, "SSAU", "Entry", "CS"));
+        when(educationMapper.toEducationDto(education)).thenReturn(expectedDto);
 
         EducationDto result = educationService.addEducation(10L, dto);
 
-        assertEquals(100L, result.id());
+        assertEquals(expectedDto.id(), result.id());
+        assertEquals(expectedDto.institution(), result.institution());
+        assertEquals(expectedDto.educationLevel(), result.educationLevel());
+        assertEquals(expectedDto.yearFrom(), result.yearFrom());
+        assertEquals(expectedDto.yearTo(), result.yearTo());
+        assertEquals(expectedDto.specialization(), result.specialization());
+
         verify(educationRepository, times(1)).save(education);
     }
 
     @Test
     void addEducationInvalidYearFrom() {
         CreateEducationDto dto = new CreateEducationDto(
-                2100, 2022, "SSAU", "Entry", "CS");
-
+                2100, 2022, "SSAU", "Entry", "CS"
+        );
         assertThrows(DataValidationException.class, () -> educationService.addEducation(10L, dto));
     }
 
+
     @Test
     void updateEducationSuccess() {
-        UpdateEducationDto dto;
-        dto = new UpdateEducationDto(
-                2010, 2014, "MGU", "Master", "AI");
-
-        User user = new User();
-        user.setId(10L);
-
-        Education oldEd = new Education();
-        oldEd.setId(500L);
-        oldEd.setUser(user);
-
-        Education newEd = new Education();
-        newEd.setId(500L);
-        newEd.setUser(user);
+        UpdateEducationDto dto = new UpdateEducationDto(
+                2010, 2014, "MGU", "Master", "AI"
+        );
+        User user = createUser(10L);
+        Education oldEd = createEducation(500L, user);
+        EducationDto expectedDto = new EducationDto(500L, 2010, 2014, "MGU", "Master", "AI");
 
         when(educationRepository.findById(500L)).thenReturn(Optional.of(oldEd));
-        when(educationMapper.toEducation(dto)).thenReturn(newEd);
-        when(educationRepository.save(newEd)).thenReturn(newEd);
-        when(educationMapper.toEducationDto(newEd)).thenReturn(new EducationDto(
-                500L, 2010, 2014, "MGU", "Master", "AI"));
+        doNothing().when(educationMapper).updateEducationFromDto(dto, oldEd);
+        when(educationRepository.save(oldEd)).thenReturn(oldEd);
+        when(educationMapper.toEducationDto(oldEd)).thenReturn(expectedDto);
 
         EducationDto result = educationService.updateEducation(10L, 500L, dto);
 
-        assertEquals(500L, result.id());
-        verify(educationRepository, times(1)).save(newEd);
-    }
+        assertEquals(expectedDto.id(), result.id());
+        assertEquals(expectedDto.institution(), result.institution());
+        assertEquals(expectedDto.educationLevel(), result.educationLevel());
+        assertEquals(expectedDto.yearFrom(), result.yearFrom());
+        assertEquals(expectedDto.yearTo(), result.yearTo());
+        assertEquals(expectedDto.specialization(), result.specialization());
 
+        verify(educationRepository, times(1)).save(oldEd);
+        verify(educationMapper, times(1)).updateEducationFromDto(dto, oldEd);
+    }
 
     @Test
     void updateEducationInvalidYearFrom() {
-        UpdateEducationDto dto;
-        dto = new UpdateEducationDto(
-                  3000, null, null, null, null);
-
-        Education oldEd = new Education();
-        oldEd.setId(1L);
-        oldEd.setUser(new User());
+        UpdateEducationDto dto = new UpdateEducationDto(
+                2100, null, null, null, null
+        );
+        Education oldEd = createEducation(1L, createUser(10L));
 
         when(educationRepository.findById(1L)).thenReturn(Optional.of(oldEd));
 
-        assertThrows(DataValidationException.class, () -> educationService.updateEducation(
-                10L, 1L, dto));
+        assertThrows(DataValidationException.class, () -> educationService.updateEducation(10L, 1L, dto));
     }
 
     @Test
     void updateEducationNotFound() {
         when(educationRepository.findById(5L)).thenReturn(Optional.empty());
-
         UpdateEducationDto dto = new UpdateEducationDto(
-                2000, 2004, "Inst", "Lvl", "Spec");
+                2000, 2004, "Inst", "Lvl", "Spec"
+        );
 
-        assertThrows(EntityNotFoundException.class, () -> educationService.updateEducation(
-                10L, 5L, dto));
+        assertThrows(EntityNotFoundException.class, () -> educationService.updateEducation(10L, 5L, dto));
     }
 
     @Test
     void updateEducationForbidden() {
-        UpdateEducationDto dto;
-        dto = new UpdateEducationDto(
-                  2000, 2004, "Inst", "Lvl", "Spec");
-
-        User owner = new User();
-        owner.setId(99L);
-
-        Education wrongEd = new Education();
-        wrongEd.setId(1L);
-        wrongEd.setUser(owner);
+        UpdateEducationDto dto = new UpdateEducationDto(
+                2000, 2004, "Inst", "Lvl", "Spec"
+        );
+        User owner = createUser(99L);
+        Education wrongEd = createEducation(1L, owner);
 
         when(educationRepository.findById(1L)).thenReturn(Optional.of(wrongEd));
 
-        assertThrows(ForbiddenException.class, () -> educationService.updateEducation(
-                10L, 1L, dto));
+        assertThrows(ForbiddenException.class, () -> educationService.updateEducation(10L, 1L, dto));
     }
+
 
     @Test
     void getByIdSuccess() {
-        User user = new User();
-        user.setId(10L);
-
-        Education ed = new Education();
-        ed.setId(100L);
-        ed.setUser(user);
+        User user = createUser(10L);
+        Education ed = createEducation(100L, user);
+        EducationDto expectedDto = new EducationDto(100L, null, null, null, null, null);
 
         when(educationRepository.getByIdOrThrow(100L)).thenReturn(ed);
-        when(educationMapper.toEducationDto(ed)).thenReturn(new EducationDto(
-                100L, null, null, null, null, null));
+        when(educationMapper.toEducationDto(ed)).thenReturn(expectedDto);
 
         EducationDto result = educationService.getById(100L);
 
-        assertEquals(100L, result.id());
+        assertEquals(expectedDto.id(), result.id());
     }
 
     @Test
     void getByIdNotFound() {
-        when(educationRepository.getByIdOrThrow(500L)).thenThrow(new EntityNotFoundException("Not found"));
+        when(educationRepository.getByIdOrThrow(500L))
+                .thenThrow(new EntityNotFoundException("Not found"));
 
         assertThrows(EntityNotFoundException.class, () -> educationService.getById(500L));
+    }
+
+
+    private User createUser(Long id) {
+        User user = new User();
+        user.setId(id);
+        return user;
+    }
+
+    private Education createEducation(Long id, User user) {
+        Education ed = new Education();
+        ed.setId(id);
+        ed.setUser(user);
+        return ed;
     }
 }

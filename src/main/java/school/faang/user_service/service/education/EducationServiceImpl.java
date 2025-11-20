@@ -1,5 +1,6 @@
 package school.faang.user_service.service.education;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,59 +30,36 @@ public class EducationServiceImpl implements EducationService {
 
 
     @Override
-    public EducationDto addEducation(long userId, CreateEducationDto educationDto) {
+    public EducationDto addEducation(long userId, @Valid CreateEducationDto educationDto) {
         log.info("Adding education for userId={} with payload={}", userId, educationDto);
-        int currentYear = Year.now().getValue();
 
-        if (educationDto.yearFrom() > currentYear) {
-            throw new DataValidationException("YearFrom cannot be greater than the current year");
-        }
         validateEducationDto(educationDto);
+
         User user = userRepository.getByIdOrThrow(userId);
         Education education = educationMapper.toEducation(educationDto);
         education.setUser(user);
-        education = educationRepository.save(education);
 
-        return educationMapper.toEducationDto(education);
+        Education saved = educationRepository.save(education);
+        return educationMapper.toEducationDto(saved);
     }
 
     @Override
     public EducationDto updateEducation(long userId, long educationId, UpdateEducationDto educationDto) {
         log.info("Updating education. userId={}, educationId={}, payload={}", userId, educationId, educationDto);
-        int currentYear = Year.now().getValue();
-        if (educationDto.yearFrom() != null && educationDto.yearFrom() > currentYear) {
-            log.warn("Validation failed for updateEducation: yearFrom={} is greater than currentYear={}",
-                    educationDto.yearFrom(), currentYear);
-            throw new DataValidationException("YearFrom cannot be greater than the current year");
-        }
 
+        validateYearFrom(educationDto.yearFrom());
 
         Education education = educationRepository.findById(educationId)
-                .orElseThrow(() -> {
-                    log.warn("Education not found. educationId={}", educationId);
-                    return new EntityNotFoundException("Education not found with id " + educationId);
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Education not found with id " + educationId));
 
         if (!education.getUser().getId().equals(userId)) {
-            log.warn("Forbidden update attempt. userId={} does not own educationId={}",
-                    userId, educationId);
             throw new ForbiddenException("You are not allowed to update this education");
         }
 
+        educationMapper.updateEducationFromDto(educationDto, education);
 
-        Education updatedEducation = educationMapper.toEducation(educationDto);
-
-        updatedEducation.setUser(education.getUser());
-
-        updatedEducation.setId(education.getId());
-
-
-        Education savedEducation = educationRepository.save(updatedEducation);
-
-        log.info("Education update successful. educationId={}, userId={}", educationId, userId);
-
-        return educationMapper.toEducationDto(savedEducation);
-
+        educationRepository.save(education);
+        return educationMapper.toEducationDto(education);
     }
 
     @Override
@@ -102,18 +80,19 @@ public class EducationServiceImpl implements EducationService {
 
     }
 
-    public void validateEducationDto(CreateEducationDto educationDto) {
-        if (educationDto.educationLevel() == null || educationDto.institution().isBlank()) {
-            throw new DataValidationException("Institution cannot be null or empty");
-        }
-
-        if (educationDto.yearFrom() == null) {
-            throw new DataValidationException("YearFrom is required");
-        }
-
+    public void validateEducationDto(CreateEducationDto dto) {
         int currentYear = Year.now().getValue();
+        if (dto.yearFrom() > currentYear) {
+            throw new DataValidationException("YearFrom cannot be greater than the current year");
+        }
+        if (dto.yearTo() < dto.yearFrom()) {
+            throw new DataValidationException("YearTo cannot be earlier than YearFrom");
+        }
+    }
 
-        if (educationDto.yearFrom() > currentYear) {
+    private void validateYearFrom(Integer yearFrom) {
+        int currentYear = Year.now().getValue();
+        if (yearFrom != null && yearFrom > currentYear) {
             throw new DataValidationException("YearFrom cannot be greater than the current year");
         }
     }
