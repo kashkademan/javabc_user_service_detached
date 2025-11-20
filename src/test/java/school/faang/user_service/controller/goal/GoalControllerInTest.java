@@ -18,9 +18,11 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserScoreEvent;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.repository.user.UserScoreRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +41,9 @@ public class GoalControllerInTest extends ApplicationContextTest {
 
     @Autowired
     private GoalRepository goalRepository;
+
+    @Autowired
+    private UserScoreRepository userScoreRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -61,6 +66,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
     @BeforeEach
     void setUp() {
         goalRepository.deleteAll();
+        userScoreRepository.deleteAll();
         userRepository.deleteAll();
         countryRepository.deleteAll();
 
