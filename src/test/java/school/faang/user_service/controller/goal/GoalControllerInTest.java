@@ -141,7 +141,6 @@ public class GoalControllerInTest extends ApplicationContextTest {
                 null, null, null);
 
         Long goalId = goal.getId();
-
         mockMvc.perform(patch("/goals/{goalId}", goalId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", currentUserId.toString())
