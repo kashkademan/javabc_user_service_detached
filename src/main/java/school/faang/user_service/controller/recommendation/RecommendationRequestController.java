@@ -33,7 +33,7 @@ public class RecommendationRequestController {
         return ResponseEntity.ok(recommendationRequestService.create(recommendationDto));
     }
 
-    @PostMapping
+    @PostMapping("/search")
     public ResponseEntity<List<RecommendationRequestDto>> getByFilters(
             @Valid @RequestBody RecommendationRequestFilterDto filters) {
         return ResponseEntity.ok(recommendationRequestService.getByFilters(filters));
