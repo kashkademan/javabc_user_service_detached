@@ -12,6 +12,7 @@ import school.faang.user_service.dto.recommendation.RecommendationRequestFilterD
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -51,12 +52,18 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     @Override
     public List<RecommendationRequestDto> getByFilters(RecommendationRequestFilterDto filters) {
         log.info("Performing search for submitted recommendation requests using filter(s)");
-        return recommendationRequestRepository.findAll().stream()
-                .filter(r -> r.getRequester().getId().equals(filters.requesterId()))
-                .filter(r -> r.getReceiver().getId().equals(filters.receiverId()))
-                .filter(r -> r.getMessage().contains(filters.messageContains()))
-                .filter(r -> r.getStatus().equals(filters.status()))
-                .map(recommendationRequestMapper::toRecommendationRequestDto).toList();
+
+        List<RecommendationRequest> recommendationRequests =
+                recommendationRequestRepository.getByFilters(filters);
+
+        if (recommendationRequests.isEmpty()) {
+            throw new EntityNotFoundException(
+                    "No recommendation requests that match provided filters have been found");
+        }
+
+        return recommendationRequests.stream()
+                .map(recommendationRequestMapper::toRecommendationRequestDto)
+                .toList();
     }
 
     @Override
@@ -102,7 +109,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     private RecommendationRequest
-        validateRecommendationRequestDeclineOrAcceptRights(long recommendationRequestId) {
+    validateRecommendationRequestDeclineOrAcceptRights(long recommendationRequestId) {
         Long userId = userContext.getUserId();
         RecommendationRequest recommendationRequest = recommendationRequestRepository
                 .findById(recommendationRequestId)

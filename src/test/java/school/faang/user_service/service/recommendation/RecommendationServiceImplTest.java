@@ -143,14 +143,17 @@ public class RecommendationServiceImplTest {
         List<RecommendationRequest> testRecommendationRequestList = List.of(
                 recommendationRequest1, recommendationRequest2, recommendationRequest3);
 
-        Mockito.when(recommendationRequestRepository.findAll()).thenReturn(testRecommendationRequestList);
+        RecommendationRequestFilterDto testFilterDto = new RecommendationRequestFilterDto(
+                TEST_REQUESTER_ID, TEST_RECEIVER_ID,
+                "Test text", RequestStatus.PENDING);
+
+        Mockito.when(recommendationRequestRepository.getByFilters(testFilterDto))
+                .thenReturn(testRecommendationRequestList);
         List<RecommendationRequestDto> expectedList = testRecommendationRequestList
                 .stream().map(r -> recommendationRequestMapper
                         .toRecommendationRequestDto(r)).toList();
 
-        RecommendationRequestFilterDto testFilterDto = new RecommendationRequestFilterDto(
-                TEST_REQUESTER_ID, TEST_RECEIVER_ID,
-                "Test text", RequestStatus.PENDING);
+
         List<RecommendationRequestDto> resultList = recommendationRequestService.getByFilters(testFilterDto);
         assertEquals(expectedList, resultList);
     }
