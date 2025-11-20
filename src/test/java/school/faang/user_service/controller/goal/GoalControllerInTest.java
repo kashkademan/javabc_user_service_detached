@@ -103,11 +103,13 @@ public class GoalControllerInTest extends ApplicationContextTest {
         userRepository.save(user2);
 
         goal = new Goal();
-        goal.setTitle("Start title");
-        goal.setDescription("Start description");
-        goal.setStatus(GoalStatus.ACTIVE);
-        goal.setMentor(mentor);
-        goal.setUsers(new ArrayList<>(List.of(user1, user2)));
+        goal = Goal.builder()
+                .title("Start title")
+                .description("Start description")
+                .status(GoalStatus.ACTIVE)
+                .mentor(mentor)
+                .users(new ArrayList<>(List.of(user1, user2)))
+                .build();
         goalRepository.save(goal);
     }
 

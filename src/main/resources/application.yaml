@@ -33,7 +33,7 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.add.type.headers: false
     properties:
-      acks: 1
+      acks: all
       retries: 3
       enable.idempotence: true
       request.timeout.ms: 30000
