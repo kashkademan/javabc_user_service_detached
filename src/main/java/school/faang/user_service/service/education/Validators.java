@@ -16,13 +16,10 @@ public class Validators {
 
     public static void validateYearFromYearTo(Integer yearFrom, Integer yearTo) {
         if (yearFrom != null && yearFrom > Year.now().getValue()) {
-            log.error("Попытка добавить образование с годом начала в будущем: {}", yearFrom);
             throw new DataValidationException("Год начала обучения не может быть больше текущего");
         }
 
         if (yearTo != null && yearFrom != null && yearTo < yearFrom) {
-            log.error("Попытка добавить образование с годом окончания {} большем чем начало обучения: {}", yearTo,
-                    yearFrom);
             throw new DataValidationException("Год окончание обучения не может быть меньше года начала обучения");
         }
     }
