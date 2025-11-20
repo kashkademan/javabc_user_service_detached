@@ -113,7 +113,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
     }
 
     @Test
-    void create_withValidData_shouldReturnGoalDto() throws Exception {
+    public void create_withValidData_shouldReturnGoalDto() throws Exception {
         Long currentUserId = mentor.getId();
         CreateGoalDto createGoalDto = new CreateGoalDto(
                 "Test Goal Title",
@@ -134,7 +134,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
     }
 
     @Test
-    void update_withValidData_shouldUpdateGoal() throws Exception {
+    public void update_withValidData_shouldUpdateGoal() throws Exception {
 
         Long currentUserId = mentor.getId();
         GoalUpdateDto goalUpdateDto = new GoalUpdateDto("update Title", "update Desc", null,
@@ -153,7 +153,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
     }
 
     @Test
-    void delete_withValidData_shouldDeleteGoal() throws Exception {
+    public void delete_withValidData_shouldDeleteGoal() throws Exception {
         Long goalId = goal.getId();
         Long currentUserId = mentor.getId();
 
@@ -165,7 +165,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
     }
 
     @Test
-    void filters_withValidData_shouldFiltersGoal() throws Exception {
+    public void filters_withValidData_shouldFiltersGoal() throws Exception {
         Long currentUserId = mentor.getId();
         GoalFilterDto goalFilterDto = new GoalFilterDto("Start title",
                 null,
