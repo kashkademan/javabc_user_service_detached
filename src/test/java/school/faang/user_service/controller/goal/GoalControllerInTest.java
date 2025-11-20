@@ -123,7 +123,6 @@ public class GoalControllerInTest extends ApplicationContextTest {
                 null,
                 null
         );
-
         mockMvc.perform(post("/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", currentUserId.toString())
