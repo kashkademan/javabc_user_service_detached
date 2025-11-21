@@ -3,6 +3,7 @@ package school.faang.user_service.service.recommendation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -40,7 +41,8 @@ class RecommendationRequestServiceImplTest {
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Spy
-    private RecommendationRequestMapperImpl recommendationRequestMapper;
+    private RecommendationRequestMapperImpl recommendationRequestMapper = Mappers
+            .getMapper(RecommendationRequestMapperImpl.class);
 
     @Mock
     private UserContext userContext;
@@ -51,30 +53,21 @@ class RecommendationRequestServiceImplTest {
     @InjectMocks
     private RecommendationRequestServiceImpl recommendationRequestService;
 
-    private User requester;
-    private User receiver;
+    private final User requester = User.builder()
+            .id(1L)
+            .username("Иван Иванов")
+            .email("ivanov@example.com")
+            .phone("12345")
+            .aboutMe("About Иван Иванов")
+            .build();
 
-
-    @BeforeEach
-    void setUp() {
-        requester = User.builder()
-                .id(1L)
-                .username("Иван Иванов")
-                .email("ivanov@example.com")
-                .phone("12345")
-                .aboutMe("About Иван Иванов")
-                .build();
-
-        receiver = User.builder()
-                .id(2L)
-                .username("Петр Петров")
-                .email("petrov@example.com")
-                .phone("54321")
-                .aboutMe("About Петр Петров")
-                .build();
-
-        ReflectionTestUtils.setField(recommendationRequestService, "timeForRequest", 6);
-    }
+    private final User receiver = User.builder()
+            .id(2L)
+            .username("Петр Петров")
+            .email("petrov@example.com")
+            .phone("54321")
+            .aboutMe("About Петр Петров")
+            .build();
 
     @Test
     void create_ShouldCreateRequestSuccessfully() {
@@ -103,6 +96,12 @@ class RecommendationRequestServiceImplTest {
         RecommendationRequestDto result = recommendationRequestService.create(createDto);
 
         assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals(requester.getId(), result.requester().id());
+        assertEquals(receiver.getId(), result.receiver().id());
+        assertEquals(RequestStatus.PENDING, result.status());
+        assertEquals("Please write me a recommendation", result.message());
+
         verify(recommendationRequestRepository).save(any(RecommendationRequest.class));
     }
 
