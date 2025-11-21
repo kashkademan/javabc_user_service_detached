@@ -1,4 +1,4 @@
-package school.faang.user_service.config.execservice;
+package school.faang.user_service.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
