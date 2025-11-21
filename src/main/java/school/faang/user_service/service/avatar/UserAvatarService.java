@@ -53,9 +53,13 @@ public class UserAvatarService {
         } catch (Exception e) {
             if (newAvatars != null) {
                 cleanupFailedUpload(newAvatars);
+                user.setUserProfilePic(oldAvatars);
             }
             log.error("Error uploading avatar for user {}", userId, e);
             throw new AvatarUploadException("Failed to upload avatar");
+        }
+        if (oldAvatars != null) {
+            deleteOldAvatars(oldAvatars);
         }
     }
 
