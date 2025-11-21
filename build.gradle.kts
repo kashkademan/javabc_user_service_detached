@@ -65,11 +65,11 @@ dependencies {
     /**
      * Test containers
      */
-    implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.5"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:minio")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
-    testImplementation("org.testcontainers:minio:1.19.5")
 
     /**
      * Tests
