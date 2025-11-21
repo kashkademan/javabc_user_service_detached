@@ -94,9 +94,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
-//    ------------------
-//    Private methods
-//    ------------------
     private void createValidation(CreateUserDto userDto, int minPasswordLength) {
         if (userRepository.existsByUsername(userDto.username())) {
             throw new DataValidationException("User with username " + userDto.username() + " already exists!");

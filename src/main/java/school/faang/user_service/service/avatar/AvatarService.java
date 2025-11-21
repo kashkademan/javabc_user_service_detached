@@ -32,8 +32,8 @@ public interface AvatarService {
      * @param userId ID пользователя, чей аватар необходимо скачать.
      * @return Массив байт {@code byte[]}, представляющий изображение аватара в формате PNG.
      * @throws school.faang.user_service.exception.EntityNotFoundException если аватар для пользователя не найден.
-     * @throws DataValidationException если у пользователя установлен аватар по умолчанию, который нельзя скачать.
-     * @throws RuntimeException если произошла ошибка при скачивании файла из S3.
+     * @throws DataValidationException                                     если у пользователя установлен аватар по умолчанию, который нельзя скачать.
+     * @throws RuntimeException                                            если произошла ошибка при скачивании файла из S3.
      */
     byte[] downloadAvatar(long userId);
 

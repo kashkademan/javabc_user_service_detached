@@ -2,8 +2,6 @@ package school.faang.user_service.service.avatar;
 
 import school.faang.user_service.entity.user.UserProfilePic;
 
-import java.util.Map;
-
 /**
  * Сервис для работы с аватарками пользователей.
  * <p>

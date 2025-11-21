@@ -16,7 +16,6 @@ import school.faang.user_service.service.s3.S3service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -24,7 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RandomAvatarServiceTest {
@@ -68,31 +71,37 @@ class RandomAvatarServiceTest {
 
     @Test
     @DisplayName("Exception when restTemplate return null")
-    void testRestTemplateReturnNull() throws  Exception {
+    void testRestTemplateReturnNull() throws Exception {
         when(restTemplate.getForEntity(anyString(), eq(byte[].class)))
                 .thenReturn(new ResponseEntity<>(null, HttpStatus.OK));
 
-        assertThrows(IllegalStateException.class, () -> {service.generateRandomAvatarForUser(username);});
+        assertThrows(IllegalStateException.class, () -> {
+            service.generateRandomAvatarForUser(username);
+        });
         verify(s3service, never()).uploadFileToS3(any(), anyString());
     }
 
     @Test
     @DisplayName("Exception when restTemplate return  empty array")
-    void testRestTemplateReturnEmptyArray() throws Exception{
+    void testRestTemplateReturnEmptyArray() throws Exception {
         when(restTemplate.getForEntity(anyString(), eq(byte[].class)))
                 .thenReturn(new ResponseEntity<>(new byte[0], HttpStatus.OK));
 
-        assertThrows(IllegalStateException.class, () -> {service.generateRandomAvatarForUser(username);});
+        assertThrows(IllegalStateException.class, () -> {
+            service.generateRandomAvatarForUser(username);
+        });
         verify(s3service, never()).uploadFileToS3(any(), anyString());
     }
 
     @Test
     @DisplayName("Exception when restTemplate return too large array")
-    void testRestTemplateReturnLargeArray() throws Exception{
+    void testRestTemplateReturnLargeArray() throws Exception {
         when(restTemplate.getForEntity(anyString(), eq(byte[].class)))
                 .thenReturn(new ResponseEntity<>(new byte[3_000_000], HttpStatus.OK));
 
-        assertThrows(IllegalStateException.class, () -> {service.generateRandomAvatarForUser(username);});
+        assertThrows(IllegalStateException.class, () -> {
+            service.generateRandomAvatarForUser(username);
+        });
         verify(s3service, never()).uploadFileToS3(any(), anyString());
     }
 }
