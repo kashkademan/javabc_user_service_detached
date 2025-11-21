@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -7,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
@@ -16,7 +18,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
-import school.faang.user_service.mapper.recommendation.RecommendationRequestMapperImpl;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -39,8 +41,8 @@ class RecommendationRequestServiceImplTest {
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Spy
-    private RecommendationRequestMapperImpl recommendationRequestMapper = Mappers
-            .getMapper(RecommendationRequestMapperImpl.class);
+    private RecommendationRequestMapper recommendationRequestMapper = Mappers
+            .getMapper(RecommendationRequestMapper.class);
 
     @Mock
     private UserContext userContext;
@@ -66,6 +68,13 @@ class RecommendationRequestServiceImplTest {
             .phone("54321")
             .aboutMe("About Петр Петров")
             .build();
+
+    @BeforeEach
+    void setUp() {
+        // скажем, хотим лимит 6 месяцев, как в боевом приложении
+        ReflectionTestUtils.setField(recommendationRequestService, "timeForRequest", 6);
+    }
+
 
     @Test
     void create_ShouldCreateRequestSuccessfully() {
@@ -127,8 +136,7 @@ class RecommendationRequestServiceImplTest {
         CreateRecommendationRequestDto createDto = new CreateRecommendationRequestDto(
                 "Please write me a recommendation", 1L, 2L);
 
-        LocalDateTime fixedDate = LocalDateTime.of(2025, 11, 5, 12, 00, 00);
-        LocalDateTime recentRequestTime = fixedDate.minusMonths(5);
+        LocalDateTime recentRequestTime = LocalDateTime.now().minusMonths(1);
 
         RecommendationRequest existingRequest = RecommendationRequest.builder()
                 .id(100L)
@@ -138,7 +146,6 @@ class RecommendationRequestServiceImplTest {
         when(recommendationRequestRepository.findLatestPendingRequest(
                 createDto.requesterId(), createDto.receiverId()))
                 .thenReturn(Optional.of(existingRequest));
-
 
         DataValidationException exception = assertThrows(
                 DataValidationException.class,
