@@ -18,7 +18,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.entity.user.UserScoreEvent;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -133,10 +132,12 @@ public class GoalControllerInTest extends ApplicationContextTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", currentUserId.toString())
                         .content(objectMapper.writeValueAsString(createGoalDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test Goal Title"))
-                .andExpect(jsonPath("$.description").value("Test Goal Description"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.title").value("Test Goal Title"),
+                        jsonPath("$.description").value("Test Goal Description"),
+                        jsonPath("$.status").value("ACTIVE")
+            );
     }
 
     @Test
@@ -151,9 +152,11 @@ public class GoalControllerInTest extends ApplicationContextTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("x-user-id", currentUserId.toString())
                         .content(objectMapper.writeValueAsString(goalUpdateDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("update Title"))
-                .andExpect(jsonPath("$.description").value("update Desc"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.title").value("update Title"),
+                        jsonPath("$.description").value("update Desc")
+            );
 
     }
 
@@ -184,9 +187,6 @@ public class GoalControllerInTest extends ApplicationContextTest {
                         .content(objectMapper.writeValueAsString(goalFilterDto)))
                 .andExpect(status().isOk())
                 .andReturn();
-
-        System.out.println("Actual status: " + result.getResponse().getStatus());
-        System.out.println("Response body: " + result.getResponse().getContentAsString());
 
         List<GoalDto> goalDtos = objectMapper.readValue(result.getResponse().getContentAsString(),
                 objectMapper.getTypeFactory().constructCollectionType(List.class, GoalDto.class));
