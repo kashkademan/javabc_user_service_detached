@@ -69,7 +69,13 @@ public class RedisConfig {
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        containersAdapter.forEach((key, value) -> container.addMessageListener(value, key));
+        containersAdapter.forEach((key, value) ->
+                container.addMessageListener(value, key));
         return container;
+    }
+
+    @Bean
+    public ChannelTopic mentorshipOfferedTopic(@Value("${redis.topics.name.mentorship-offered}") String topicName) {
+        return new ChannelTopic(topicName);
     }
 }

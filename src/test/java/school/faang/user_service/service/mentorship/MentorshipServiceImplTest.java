@@ -6,11 +6,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.mentorship.MentorshipEventDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messages.redis.publishers.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -29,6 +32,9 @@ class MentorshipServiceImplTest {
 
     @Mock
     private MentorshipRepository mentorshipRepository;
+
+    @Mock
+    private MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
 
     @Mock
     private UserMapper userMapper;
@@ -49,6 +55,7 @@ class MentorshipServiceImplTest {
         mentorshipService.addMentorship(mentorId, menteeId);
 
         verify(mentorshipRepository, times(1)).addMentorshipNative(mentorId, menteeId);
+        verify(mentorshipOfferedEventPublisher, times(1)).sendNotification(any(MentorshipEventDto.class));
     }
 
     @Test

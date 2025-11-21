@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.mentorship.MentorshipEventDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.messages.redis.publishers.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class MentorshipServiceImpl implements MentorshipService {
     private final MentorshipRepository mentorshipRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
 
 
     @Transactional
@@ -34,6 +37,8 @@ public class MentorshipServiceImpl implements MentorshipService {
         }
 
         mentorshipRepository.addMentorshipNative(mentorId, menteeId);
+        MentorshipEventDto eventDto = new MentorshipEventDto(mentorId, menteeId);
+        mentorshipOfferedEventPublisher.sendNotification(eventDto);
     }
 
     @Override
