@@ -47,7 +47,7 @@ public class EventService {
             List<Long> idsToDelete = page.getContent();
 
             executor.execute(() -> {
-                log.debug("Deleting {} events...", idsToDelete.size());
+                log.info("Deleting {} events...", idsToDelete.size());
                 chunkDeletionService.deleteChunk(idsToDelete);
             });
 
