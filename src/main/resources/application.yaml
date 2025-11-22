@@ -44,3 +44,8 @@ user:
 mentorship:
   months:
     limit: 3
+
+cleanup:
+  expired-event:
+    cron: "0 0 0 * * *"
+    chunk-size: 2000
