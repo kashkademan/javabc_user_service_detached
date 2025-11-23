@@ -9,10 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.resource.ResourceDto;
 import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
@@ -21,9 +24,13 @@ import school.faang.user_service.service.user.UserServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -155,5 +162,51 @@ public class UserControllerTest {
                 objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
 
         Assertions.assertTrue(userIds.containsAll(idsFromResponse));
+    }
+
+    @Test
+    void testAddUserAvatar() throws Exception {
+        ResourceDto resourceDto = ResourceDto.builder()
+                .id(1L)
+                .build();
+
+        when(userService.addAvatar(any(MultipartFile.class))).thenReturn(resourceDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/avatar")
+                        .file("file", "test content".getBytes())
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.is(resourceDto.id().intValue())));
+
+        verify(userService).addAvatar(any(MultipartFile.class));
+    }
+
+    @Test
+    void testDeleteUserAvatar() throws Exception {
+        doNothing().when(userService).deleteAvatar();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/users/avatar"))
+                .andExpect(status().isOk());
+
+        verify(userService).deleteAvatar();
+    }
+
+    @Test
+    void testGetUserAvatar() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        byte[] fileContent = "test image content".getBytes();
+
+        when(userService.getAvatar()).thenReturn(file);
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getOriginalFilename()).thenReturn("avatar.jpg");
+        when(file.getBytes()).thenReturn(fileContent);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/avatar"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "image/jpeg"))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"avatar.jpg\""))
+                .andExpect(content().bytes(fileContent));
+
+        verify(userService).getAvatar();
     }
 }
