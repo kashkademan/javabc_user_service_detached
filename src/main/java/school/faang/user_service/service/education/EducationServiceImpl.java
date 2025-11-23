@@ -44,7 +44,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDto updateEducation(long userId, long educationId, UpdateEducationDto educationDto) {
+    public EducationDto updateEducation(long userId, long educationId, @Valid UpdateEducationDto educationDto) {
         log.info("Updating education. userId={}, educationId={}, payload={}", userId, educationId, educationDto);
 
         validateYearFrom(educationDto.yearFrom());

@@ -8,6 +8,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -15,6 +17,8 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -31,14 +35,41 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(CreateUserDto userDto) {
         if (userDto.password().length() < minPasswordLength) {
-            throw new DataValidationException("Password should be more than " + minPasswordLength + " symbols!");
+            throw new DataValidationException(
+                    "Password should be more than " + minPasswordLength + " symbols!"
+            );
         }
+
         User user = userMapper.toUser(userDto);
+
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
+        if (userDto.preference() != null && !userDto.preference().isBlank()) {
+            PreferredContact prefEnum = PreferredContact.fromString(userDto.preference());
+
+            ContactPreference cp = ContactPreference.builder()
+                    .user(user)
+                    .preference(prefEnum)
+                    .build();
+
+            user.setContactPreference(cp);
+        }
+
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
+
         return userMapper.toUserDto(user);
+    }
+
+
+    @Override
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream()
+                .distinct()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     @Override
