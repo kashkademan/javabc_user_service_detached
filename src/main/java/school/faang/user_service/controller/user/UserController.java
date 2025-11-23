@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import school.faang.user_service.service.user.UserService;
 
 @Slf4j
 @RequestMapping("/api/v1/users")
+@SecurityRequirement(name = "BearerAuth")
 @RestController
 @RequiredArgsConstructor
 public class UserController {
