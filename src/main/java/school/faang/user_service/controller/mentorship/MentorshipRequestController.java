@@ -1,17 +1,15 @@
-package school.faang.user_service.controller.user.mentorship;
+package school.faang.user_service.controller.mentorship;
 
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,17 +36,17 @@ public class MentorshipRequestController {
         return mentorshipRequestService.create(createMentorshipRequestDto);
     }
 
-    @GetMapping()
+    @GetMapping
     public List<MentorshipRequestDto> getByFilters(@Valid @RequestBody MentorshipRequestFilterDto filter) {
         return mentorshipRequestService.getByFilters(filter);
     }
 
-    @PatchMapping("/accept/{requestId}")
+    @PutMapping("/accept/{requestId}")
     public void accept(@PathVariable @Positive long requestId) {
         mentorshipRequestService.accept(requestId);
     }
 
-    @PatchMapping("/reject/{requestId}")
+    @PutMapping("/reject/{requestId}")
     public void reject(@PathVariable @Positive long requestId, @Valid @RequestBody RejectionDto rejectionDto) {
         mentorshipRequestService.reject(requestId, rejectionDto);
     }

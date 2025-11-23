@@ -8,6 +8,8 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
@@ -16,29 +18,57 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Value("${user.password.min.length}")
-    private int minPasswordLength;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    @Value("${user.password.min.length}")
+    private int minPasswordLength;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
         if (userDto.password().length() < minPasswordLength) {
-            throw new DataValidationException("Password should be more than " + minPasswordLength + " symbols!");
+            throw new DataValidationException(
+                    "Password should be more than " + minPasswordLength + " symbols!"
+            );
         }
+
         User user = userMapper.toUser(userDto);
+
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
+        if (userDto.preference() != null && !userDto.preference().isBlank()) {
+            PreferredContact prefEnum = PreferredContact.fromString(userDto.preference());
+
+            ContactPreference cp = ContactPreference.builder()
+                    .user(user)
+                    .preference(prefEnum)
+                    .build();
+
+            user.setContactPreference(cp);
+        }
+
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
+
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return users.stream()
+                .distinct()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     @Override
@@ -49,8 +79,21 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.getByIdOrThrow(userId);
         userMapper.update(userDto, user);
+
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
+
+        if (userDto.preference() != null && !userDto.preference().isBlank()) {
+            PreferredContact prefEnum = PreferredContact.fromString(userDto.preference());
+
+            ContactPreference cp = ContactPreference.builder()
+                    .user(user)
+                    .preference(prefEnum)
+                    .build();
+
+            user.setContactPreference(cp);
+        }
+
         user = userRepository.save(user);
         log.info("User {} updated", user.getId());
         return userMapper.toUserDto(user);
