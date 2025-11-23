@@ -115,6 +115,7 @@ public class MentorshipControllerTest {
                         "123456",
                         "About me 1",
                         5,
+                        List.of(),
                         null,
                         null,
                         null),
@@ -125,6 +126,7 @@ public class MentorshipControllerTest {
                         "789012",
                         "About me 2",
                         3,
+                        List.of(),
                         null,
                         null,
                         null)
@@ -153,6 +155,7 @@ public class MentorshipControllerTest {
                         "111111",
                         "About mentor 1",
                         10,
+                        List.of(),
                         null,
                         null,
                         null),
@@ -163,6 +166,7 @@ public class MentorshipControllerTest {
                         "222222",
                         "About mentor 2",
                         15,
+                        List.of(),
                         null,
                         null,
                         null)
@@ -178,5 +182,4 @@ public class MentorshipControllerTest {
 
         verify(mentorshipService, times(1)).getMentors(userId);
     }
-
 }
