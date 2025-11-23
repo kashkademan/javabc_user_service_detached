@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.CountResponse;
+import school.faang.user_service.event.FollowerEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.service.subscription.UserSubscriptionService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,12 +21,14 @@ import java.util.Objects;
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
+    private final FollowerEventPublisher eventPublisher;
 
     public void followUser(long followeeId) {
         ensureUserIdValid(followeeId);
         long followerId = userContext.getUserId();
         ensureFollowerAndFolloweeNotTheSameUser(followerId, followeeId);
         userSubscriptionService.followUser(followerId, followeeId);
+        eventPublisher.publish(new FollowerEvent(followeeId, followerId, LocalDateTime.now()));
     }
 
     public void unfollowUser(long followeeId) {
