@@ -45,8 +45,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             AND e.start_date < :plusMinuteTime
             FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
-    List<Event> findEventsBetweenDates(@Param("minusMinuteTime") LocalDateTime minusMinuteTime,
-                                       @Param("plusMinuteTime") LocalDateTime plusMinuteTime);
+    List<Event> findEventsBetweenDatesWithLocked(@Param("minusMinuteTime") LocalDateTime minusMinuteTime,
+                                                 @Param("plusMinuteTime") LocalDateTime plusMinuteTime);
 
     @Query(value = """
             SELECT ue.user_id FROM user_event ue 
