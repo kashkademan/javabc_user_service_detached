@@ -34,7 +34,7 @@ spring:
         spring.json.add.type.headers: false
     properties:
       acks: all
-      retries: 3
+      retries: 1
       enable.idempotence: true
       request.timeout.ms: 30000
       max.block.ms: 60000

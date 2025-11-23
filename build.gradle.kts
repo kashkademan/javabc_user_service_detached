@@ -41,6 +41,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    testImplementation("com.h2database:h2")
 
     /**
      * Amazon S3
@@ -53,8 +54,6 @@ dependencies {
      * Utils & Logging
      */
     implementation("org.imgscalr:imgscalr-lib:4.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
@@ -95,7 +94,17 @@ jsonSchema2Pojo {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+    testLogging {
+        events("PASSED", "FAILED", "SKIPPED")
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+
 }
+
 
 val test by tasks.getting(Test::class) { testLogging.showStandardStreams = true }
 

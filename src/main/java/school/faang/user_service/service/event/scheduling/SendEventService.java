@@ -31,7 +31,7 @@ public class SendEventService {
 
     @Transactional
     public void notifyEventsInMinute(LocalDateTime targetTime, TimeLeft timeLeft) {
-        List<Event> events = eventRepository.findEventsBetweenDates(targetTime.minusMinutes(1),
+        List<Event> events = eventRepository.findEventsBetweenDatesWithLocked(targetTime.minusMinutes(1),
                 targetTime.plusMinutes(1));
         events.forEach(event -> {
             preparingDataForSendingToKafka(event, timeLeft);
