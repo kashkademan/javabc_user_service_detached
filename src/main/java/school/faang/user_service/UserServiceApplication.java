@@ -24,9 +24,4 @@ public class UserServiceApplication {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
     }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 }
