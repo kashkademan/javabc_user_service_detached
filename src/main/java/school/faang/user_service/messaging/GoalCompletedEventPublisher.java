@@ -1,6 +1,5 @@
 package school.faang.user_service.messaging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ public class GoalCompletedEventPublisher {
     @Value("${spring.data.redis.channel.goal_completed}")
     private String channel;
 
-    public void publish(GoalCompletedEvent goalCompletedEvent) throws JsonProcessingException {
+    public void publish(GoalCompletedEvent goalCompletedEvent) {
         log.info("Publishing goal completed event notification");
         redisTemplate.convertAndSend(channel, goalCompletedEvent);
         log.info("Goal completed event notification sent");
