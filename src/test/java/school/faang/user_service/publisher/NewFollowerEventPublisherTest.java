@@ -73,33 +73,18 @@ class NewFollowerEventPublisherTest {
     }
 
     @Test
-    @DisplayName("sendEvent: uses provided topic and event.getKey() as Kafka key")
-    void sendEvent_usesTopicAndKeyFromEvent() {
-        when(kafkaTemplate.send(eq(CUSTOM_TOPIC), anyString(), any()))
-                .thenReturn(CompletableFuture.completedFuture(sendResult));
-
-        NewFollowerEventDto event =
-                new NewFollowerEventDto(FOLLOWER_ID, FOLLOWEE_ID, FOLLOWER_NAME);
-
-        publisher.sendEvent(CUSTOM_TOPIC, event);
-
-        verify(kafkaTemplate).send(CUSTOM_TOPIC, event.getKey(), event);
-        verifyNoMoreInteractions(kafkaTemplate);
-    }
-
-    @Test
     @DisplayName("sendEvent: does not throw if async send completes exceptionally")
     void sendEvent_doesNotThrowOnFailedFuture() {
         CompletableFuture<SendResult<String, Object>> future = new CompletableFuture<>();
-        when(kafkaTemplate.send(eq(CUSTOM_TOPIC), anyString(), any()))
+        when(kafkaTemplate.send(eq(DEFAULT_TOPIC), anyString(), any()))
                 .thenReturn(future);
 
         NewFollowerEventDto event =
                 new NewFollowerEventDto(FOLLOWER_ID, FOLLOWEE_ID, FOLLOWER_NAME);
 
-        assertDoesNotThrow(() -> publisher.sendEvent(CUSTOM_TOPIC, event));
+        assertDoesNotThrow(() -> publisher.sendEvent(event));
         future.completeExceptionally(new RuntimeException("Kafka down"));
 
-        verify(kafkaTemplate).send(CUSTOM_TOPIC, event.getKey(), event);
+        verify(kafkaTemplate).send(DEFAULT_TOPIC, String.valueOf(event.receiverId()), event);
     }
 }

@@ -19,17 +19,17 @@ public class NewFollowerEventPublisher {
     @Value("${kafka.topic.follower-create-events:follower-create-events}")
     private String userSubscriptionTopic;
 
-    public void sendEvent(String topic, NewFollowerEventDto event) {
-        String key = event.getKey();
+    public void sendEvent(NewFollowerEventDto event) {
+        String key = String.valueOf(event.receiverId());
 
         CompletableFuture<SendResult<String, Object>> future
-                = kafkaTemplate.send(topic, key, event);
+                = kafkaTemplate.send(userSubscriptionTopic, key, event);
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Failed to publish event to topic {}: {}", topic, event, ex);
+                log.error("Failed to publish event to topic {}: {}", userSubscriptionTopic, event, ex);
             } else {
-                log.debug("Published event to topic {}: {}", topic, event);
+                log.debug("Published event to topic {}: {}", userSubscriptionTopic, event);
             }
         });
     }
@@ -37,6 +37,6 @@ public class NewFollowerEventPublisher {
     public void publishEvent(long followerId, long followingId, String followerDisplayName) {
         log.info("Publishing new follower event: followerId={}, followingId={}, followerDisplayName={}",
                 followerId, followingId, followerDisplayName);
-        sendEvent(userSubscriptionTopic, new NewFollowerEventDto(followerId, followingId, followerDisplayName));
+        sendEvent(new NewFollowerEventDto(followerId, followingId, followerDisplayName));
     }
 }
