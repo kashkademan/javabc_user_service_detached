@@ -55,6 +55,8 @@ public interface UserService {
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
     UserDto getById(long userId);
+
+    void banUser(long userId);
 }
 
 
