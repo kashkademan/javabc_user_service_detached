@@ -37,10 +37,6 @@ public record UpdateUserDto(
         )
         String locale,
 
-        /* nullable:
-         - if null -> remove preference record (if exists)
-         - if "EMAIL|PHONE|TELEGRAM" -> upsert preference record
-         */
         @Pattern(
                 regexp = "^(EMAIL|PHONE|TELEGRAM)$",
                 message = "Preference must be EMAIL, PHONE, or TELEGRAM"
