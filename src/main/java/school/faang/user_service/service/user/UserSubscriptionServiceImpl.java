@@ -29,20 +29,6 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     @Override
     public void followUser(long followerId, long followeeId) {
-        log.info("followUser requested: followerId={}, followeeId={}", followerId, followeeId);
-
-        if (followerId == followeeId) {
-            log.warn("followUser forbidden: self-follow");
-            throw new ForbiddenException("Self-following is not allowed.");
-        }
-
-        if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("followUser validation failed: already following");
-            throw new DataValidationException("You already follow this user.");
-        }
-
-        subscriptionRepository.followUser(followerId, followeeId);
-        log.info("followUser success: {} -> {}", followerId, followeeId);
 
         followerProducer.sendToKafka(new FollowerEvent(followerId, followeeId, null));
     }
