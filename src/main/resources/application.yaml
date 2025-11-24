@@ -20,8 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
-    topics:
-      commenter_banner: commenter_banner
+      topics:
+        commenter_banner: commenter_banner
 
 server:
   port: 8080

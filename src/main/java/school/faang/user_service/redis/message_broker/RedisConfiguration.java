@@ -21,7 +21,7 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.commenter_banner}")
+    @Value("${spring.data.redis.topics.commenter_banner}")
     private String commenterBannerTopicName;
 
     @Bean
