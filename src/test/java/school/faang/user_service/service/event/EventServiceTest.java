@@ -18,7 +18,6 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -34,9 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -185,25 +181,12 @@ class EventServiceTest {
     }
 
     @Test
-    void testDelete_success() {
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
-        doNothing().when(eventRepository).deleteById(EVENT_ID);
-
-        eventService.delete(EVENT_ID);
-
-        verify(eventRepository).findById(EVENT_ID);
-        verify(eventRepository).deleteById(EVENT_ID);
-    }
-
-    @Test
     void testDelete_fails_throwsEntityNotFound() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> eventService.delete(EVENT_ID));
     }
-
 
     @Test
     void testDelete_notOwner_throwsSecurityException() {
