@@ -19,7 +19,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("${app.redis.follower-events-topic}")
+    @Value("${spring.data.redis.channel.follower}")
     private String followerEventsTopic;
 
     @Bean
