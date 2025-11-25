@@ -188,12 +188,12 @@ class EventServiceTest {
     void testDelete_success() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
-
-        doReturn(1).when(eventRepository).deleteById(OWNER_ID, EVENT_ID);
+        doNothing().when(eventRepository).deleteById(EVENT_ID);
 
         eventService.delete(EVENT_ID);
 
-        verify(eventRepository).deleteById(OWNER_ID, EVENT_ID);
+        verify(eventRepository).findById(EVENT_ID);
+        verify(eventRepository).deleteById(EVENT_ID);
     }
 
     @Test
@@ -204,15 +204,6 @@ class EventServiceTest {
         assertThrows(IllegalArgumentException.class, () -> eventService.delete(EVENT_ID));
     }
 
-    @Test
-    void testDelete_deleteByIdReturnsZero_throwsEntityNotFoundException() {
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
-
-        when(eventRepository.deleteById(OWNER_ID, EVENT_ID)).thenReturn(0);
-
-        assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
-    }
 
     @Test
     void testDelete_notOwner_throwsSecurityException() {
