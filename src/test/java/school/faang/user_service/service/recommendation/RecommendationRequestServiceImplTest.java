@@ -19,6 +19,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -43,6 +44,9 @@ class RecommendationRequestServiceImplTest {
     @Spy
     private RecommendationRequestMapper recommendationRequestMapper = Mappers
             .getMapper(RecommendationRequestMapper.class);
+
+    @Mock
+    RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Mock
     private UserContext userContext;
