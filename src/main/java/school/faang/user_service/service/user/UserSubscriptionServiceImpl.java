@@ -12,7 +12,9 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.EventsPublisher;
+import school.faang.user_service.publisher.NewFollowerEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,10 +25,12 @@ import java.util.stream.Stream;
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     private final List<UserFilter> userFilters;
     private final EventsPublisher eventsPublisher;
+    private final NewFollowerEventPublisher newFollowerEventPublisher;
 
     @Override
     @Transactional
@@ -42,6 +46,8 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
         subscriptionRepository.followUser(followerId, followeeId);
         eventsPublisher.publishFollow(followerId, followeeId);
+        User followerUser = userRepository.getByIdOrThrow(followerId);
+        newFollowerEventPublisher.publishEvent(followerId, followeeId, followerUser.getUsername());
         log.info("The user {} successfully subscribed to the user {}",
                 followerId, followeeId);
     }

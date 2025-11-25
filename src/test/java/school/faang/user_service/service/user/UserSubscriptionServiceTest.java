@@ -21,7 +21,9 @@ import school.faang.user_service.filters.PhoneFilter;
 import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.EventsPublisher;
+import school.faang.user_service.publisher.NewFollowerEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
+import school.faang.user_service.repository.user.UserRepository;
 
 import java.util.List;
 import java.util.Locale;
@@ -61,9 +63,12 @@ public class UserSubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
-
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private EventsPublisher eventsPublisher;
+    @Mock
+    private NewFollowerEventPublisher newFollowerEventPublisher;
 
     @Spy
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
@@ -80,9 +85,11 @@ public class UserSubscriptionServiceTest {
 
         userSubscriptionService = new UserSubscriptionServiceImpl(
                 subscriptionRepository,
+                userRepository,
                 userMapper,
                 userFilters,
-                eventsPublisher
+                eventsPublisher,
+                newFollowerEventPublisher
         );
     }
 
@@ -96,9 +103,18 @@ public class UserSubscriptionServiceTest {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(FOLLOWER_ID, FOLLOWEE_ID))
                 .thenReturn(false);
 
+        User follower = User.builder()
+                .id(FOLLOWER_ID)
+                .username(USERNAME_1)
+                .build();
+        when(userRepository.getByIdOrThrow(FOLLOWER_ID)).thenReturn(follower);
+
         userSubscriptionService.followUser(FOLLOWER_ID, FOLLOWEE_ID);
 
         verify(subscriptionRepository).followUser(FOLLOWER_ID, FOLLOWEE_ID);
+
+        verify(eventsPublisher).publishFollow(FOLLOWER_ID, FOLLOWEE_ID);
+        verify(newFollowerEventPublisher).publishEvent(FOLLOWER_ID, FOLLOWEE_ID, USERNAME_1);
     }
 
     @Test
