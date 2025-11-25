@@ -98,16 +98,11 @@ public class EventService {
             throw new SecurityException("You don't have permission to delete this event");
         }
 
-        //todo deleteById(eventId, userId) не удаляет
-        //   int deletedCount = eventRepository.deleteById(eventId, currentUserId);
-        eventRepository.deleteById(eventId);
+        int deletedCount = eventRepository.deleteById(currentUserId, eventId);
 
-        //todo закоментил, так как логика теперь не нужна эта из-за смены метода удаления
-        //   if (deletedCount == 0) {
-        //       log.warn("Failed to delete event: id={}, userId={} — not found or access denied",
-        //               eventId, currentUserId);
-        //       throw new EntityNotFoundException("Event not found or access denied");
-        //   }
+        if (deletedCount == 0) {
+            throw new EntityNotFoundException("Event not found or access denied");
+        }
 
         log.info("Event deleted: id={}, title='{}', deletedByUserId={}",
                 eventId, event.getTitle(), currentUserId);
