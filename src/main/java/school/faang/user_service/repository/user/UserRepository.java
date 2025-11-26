@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -43,4 +44,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             where u.id in :bannedIds
             """)
     void bannedByIds(@Param("bannedIds") List<Long> bannedIds);
+
+    boolean existsByIdIn(Collection<Long> ids);
 }
