@@ -66,7 +66,8 @@ public class RecommendationController {
     })
     @Operation(summary = "Update a recommendation")
     @PutMapping("/{id}")
-    public RecommendationDto updateRecommendation(@RequestBody @Valid UpdateRecommendationDto dto, @PathVariable @Positive Long id) {
+    public RecommendationDto updateRecommendation(@RequestBody @Valid UpdateRecommendationDto dto,
+                                                  @PathVariable @Positive Long id) {
         return recommendationService.update(dto, id);
     }
 
