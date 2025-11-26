@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.service.premium;
+package school.faang.user_service.service.premium;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import school.faang.user_service.client.dto.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceClient;
 import school.faang.user_service.dto.premium.PremiumDto;
@@ -20,7 +22,7 @@ import school.faang.user_service.repository.premium.PremiumPurchaseAttemptReposi
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.premium.PremiumCacheService;
-import school.faang.user_service.service.premium.PremiumService;
+import school.faang.user_service.service.premium.PremiumBoughtEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -41,25 +43,29 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PremiumServiceConcurrencyTest {
 
     @Mock
     private UserRepository userRepository;
-    
+
     @Mock
     private PremiumRepository premiumRepository;
-    
+
     @Mock
     private PremiumPurchaseAttemptRepository attemptRepository;
-    
+
     @Mock
     private PaymentServiceClient paymentClient;
-    
+
     @Mock
     private PremiumMapper premiumMapper;
-    
+
     @Mock
     private PremiumCacheService premiumCacheService;
+
+    @Mock
+    private PremiumBoughtEventPublisher boughtEventPublisher;
 
     @InjectMocks
     private PremiumService premiumService;
@@ -101,7 +107,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentRequests_ShouldHandleRaceConditions() throws InterruptedException {
-        
+
         int numberOfThreads = 10;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -126,7 +132,7 @@ class PremiumServiceConcurrencyTest {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try {
@@ -145,7 +151,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
@@ -153,7 +159,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentIdempotentRequests_ShouldReturnSameResult() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -176,7 +182,7 @@ class PremiumServiceConcurrencyTest {
         ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         List<CompletableFuture<PremiumDto>> futures = new ArrayList<>();
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture<PremiumDto> future = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -210,7 +216,7 @@ class PremiumServiceConcurrencyTest {
             }
         }
 
-        
+
         assertThat(results).isNotEmpty();
         // All results should be the same (idempotent)
         for (int i = 1; i < results.size(); i++) {
@@ -221,7 +227,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentPaymentFailures_ShouldHandleGracefully() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -251,7 +257,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -269,7 +275,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // Some should succeed, some should fail
         assertThat(successCount.get()).isGreaterThan(0);
@@ -278,7 +284,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentCacheOperations_ShouldHandleGracefully() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -302,7 +308,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -320,7 +326,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
@@ -328,7 +334,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentDatabaseOperations_ShouldHandleGracefully() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -347,7 +353,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -365,7 +371,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
@@ -373,7 +379,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentLeapYearOperations_ShouldHandleCorrectly() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -398,7 +404,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -416,7 +422,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
@@ -424,7 +430,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentYearBoundaryOperations_ShouldHandleCorrectly() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -449,7 +455,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -467,7 +473,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
@@ -475,7 +481,7 @@ class PremiumServiceConcurrencyTest {
 
     @Test
     void buyPremium_WithConcurrentDSTOperations_ShouldHandleCorrectly() throws InterruptedException {
-        
+
         int numberOfThreads = 5;
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -500,7 +506,7 @@ class PremiumServiceConcurrencyTest {
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
-        
+
         for (int i = 0; i < numberOfThreads; i++) {
             CompletableFuture.runAsync(() -> {
                 try {
@@ -518,7 +524,7 @@ class PremiumServiceConcurrencyTest {
         latch.await(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        
+
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);

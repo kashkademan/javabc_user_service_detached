@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.service.premium;
+package school.faang.user_service.service.premium;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.client.dto.PaymentRequest;
 import school.faang.user_service.client.dto.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceClient;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.premium.PremiumPurchaseAttempt;
@@ -47,21 +48,24 @@ class PremiumServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    
+
     @Mock
     private PremiumRepository premiumRepository;
-    
+
     @Mock
     private PremiumPurchaseAttemptRepository attemptRepository;
-    
+
     @Mock
     private PaymentServiceClient paymentClient;
-    
+
     @Mock
     private PremiumMapper premiumMapper;
-    
+
     @Mock
     private PremiumCacheService premiumCacheService;
+
+    @Mock
+    private PremiumBoughtEventPublisher eventPublisher;
 
     @InjectMocks
     private PremiumService premiumService;
@@ -112,10 +116,10 @@ class PremiumServiceTest {
 
     @Test
     void buyPremium_WhenUserNotFound_ShouldThrowNotFoundException() {
-        
+
         long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        
+
         assertThatThrownBy(() -> premiumService.buyPremium(userId, PremiumPeriod.MONTHLY))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("User not found: 999");
@@ -123,7 +127,7 @@ class PremiumServiceTest {
 
     @Test
     void buyPremium_WhenNewPurchase_ShouldCreateNewPremium() {
-        
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenReturn(testAttempt);
@@ -133,24 +137,22 @@ class PremiumServiceTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
-        
         PremiumDto result = premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-        
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(1L);
         assertThat(result.getPremiumPeriod()).isEqualTo(PremiumPeriod.MONTHLY);
-        
+
         verify(paymentClient).processPayment(any(PaymentRequest.class));
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumCacheService).setActiveUntil(eq(1L), any(LocalDateTime.class));
-        // Once in getOrCreateAttempt, once in processPayment, once in markAttemptCompleted
         verify(attemptRepository, times(3)).save(any(PremiumPurchaseAttempt.class));
+        verify(eventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
     void buyPremium_WhenExistingActivePremium_ShouldExtendPremium() {
-        
+
         LocalDateTime existingEndDate = LocalDateTime.now().plusDays(15);
         Premium existingPremium = Premium.builder()
                 .id(1L)
@@ -174,18 +176,17 @@ class PremiumServiceTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(existingPremium);
         when(premiumMapper.toDto(existingPremium)).thenReturn(createPremiumDto());
 
-        
         PremiumDto result = premiumService.buyPremium(1L, PremiumPeriod.QUARTERLY);
 
-        
         assertThat(result).isNotNull();
         verify(premiumRepository).save(existingPremium);
         verify(premiumCacheService).setActiveUntil(eq(1L), any(LocalDateTime.class));
+        verify(eventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
     void buyPremium_WhenPaymentFails_ShouldThrowPaymentFailedException() {
-        
+
         PaymentResponse failedResponse = new PaymentResponse(
                 null, 0, 0L, BigDecimal.ZERO, Currency.USD, "Payment failed"
         );
@@ -206,7 +207,7 @@ class PremiumServiceTest {
 
     @Test
     void buyPremium_WhenPaymentThrowsException_ShouldThrowPaymentFailedException() {
-        
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(attemptRepository.save(any(PremiumPurchaseAttempt.class)))
@@ -224,7 +225,7 @@ class PremiumServiceTest {
 
     @Test
     void buyPremium_WhenAttemptAlreadyCompleted_ShouldReturnExistingPremium() {
-        
+
         PremiumPurchaseAttempt completedAttempt = PremiumPurchaseAttempt.builder()
                 .id(1L)
                 .userId("1")
@@ -238,10 +239,8 @@ class PremiumServiceTest {
         when(premiumRepository.findFirstByUser_Id(1L)).thenReturn(Optional.of(testPremium));
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
-        
         PremiumDto result = premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-        
         assertThat(result).isNotNull();
         verify(paymentClient, never()).processPayment(any(PaymentRequest.class));
         verify(premiumRepository, never()).save(any(Premium.class));
@@ -249,7 +248,7 @@ class PremiumServiceTest {
 
     @Test
     void buyPremium_WhenAttemptPaymentSuccess_ShouldSkipPaymentProcessing() {
-        
+
         PremiumPurchaseAttempt successAttempt = PremiumPurchaseAttempt.builder()
                 .id(1L)
                 .userId("1")
@@ -263,10 +262,8 @@ class PremiumServiceTest {
         when(premiumRepository.findFirstByUser_Id(1L)).thenReturn(Optional.of(testPremium));
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
-        
         PremiumDto result = premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-        
         assertThat(result).isNotNull();
         verify(paymentClient, never()).processPayment(any(PaymentRequest.class));
         verify(premiumRepository, never()).save(any(Premium.class));
@@ -274,7 +271,7 @@ class PremiumServiceTest {
 
     @Test
     void cancelPremium_WhenPremiumNotFound_ShouldThrowNotFoundException() {
-        
+
         when(premiumRepository.findFirstByUserId(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> premiumService.cancelPremium(1L))
@@ -284,7 +281,7 @@ class PremiumServiceTest {
 
     @Test
     void cancelPremium_WhenPremiumAlreadyExpired_ShouldEvictCacheAndReturn() {
-        
+
         LocalDateTime expiredDate = LocalDateTime.now().minusDays(1);
         Premium expiredPremium = Premium.builder()
                 .id(1L)
@@ -294,17 +291,15 @@ class PremiumServiceTest {
 
         when(premiumRepository.findFirstByUserId(1L)).thenReturn(Optional.of(expiredPremium));
 
-        
         premiumService.cancelPremium(1L);
 
-        
         verify(premiumCacheService).evict(1L);
         verify(premiumRepository, never()).save(any(Premium.class));
     }
 
     @Test
     void cancelPremium_WhenPremiumActive_ShouldCancelAndEvictCache() {
-        
+
         LocalDateTime futureDate = LocalDateTime.now().plusDays(30);
         Premium activePremium = Premium.builder()
                 .id(1L)
@@ -315,10 +310,8 @@ class PremiumServiceTest {
         when(premiumRepository.findFirstByUserId(1L)).thenReturn(Optional.of(activePremium));
         when(premiumRepository.save(any(Premium.class))).thenReturn(activePremium);
 
-        
         premiumService.cancelPremium(1L);
 
-        
         verify(premiumRepository).save(activePremium);
         verify(premiumCacheService).evict(1L);
         assertThat(activePremium.getEndDate()).isBefore(futureDate);
@@ -327,7 +320,7 @@ class PremiumServiceTest {
     @ParameterizedTest
     @EnumSource(PremiumPeriod.class)
     void buyPremium_WithDifferentPeriods_ShouldCalculateCorrectEndDate(PremiumPeriod period) {
-        
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString())).thenReturn(Optional.empty());
         when(attemptRepository.save(any(PremiumPurchaseAttempt.class))).thenReturn(testAttempt);
@@ -337,17 +330,17 @@ class PremiumServiceTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
-        
+
         premiumService.buyPremium(1L, period);
 
-        
+
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumCacheService).setActiveUntil(eq(1L), any(LocalDateTime.class));
     }
 
     @Test
     void buyPremium_WhenRaceConditionInAttemptCreation_ShouldHandleGracefully() {
-        
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(attemptRepository.findByPaymentNumber(anyString()))
                 .thenReturn(Optional.empty()) // First call in getOrCreateAttempt
@@ -361,10 +354,10 @@ class PremiumServiceTest {
         when(premiumRepository.save(any(Premium.class))).thenReturn(testPremium);
         when(premiumMapper.toDto(testPremium)).thenReturn(createPremiumDto());
 
-        
+
         PremiumDto result = premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-        
+
         assertThat(result).isNotNull();
         verify(attemptRepository, times(2)).findByPaymentNumber(anyString());
     }

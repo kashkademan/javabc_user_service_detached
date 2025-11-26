@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.payment.PaymentServiceClient;
 import school.faang.user_service.client.dto.PaymentRequest;
 import school.faang.user_service.client.dto.PaymentResponse;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 import school.faang.user_service.enums.PaymentStatus;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.user.User;
@@ -38,6 +39,7 @@ public class PremiumService {
     private final PaymentServiceClient paymentClient;
     private final PremiumMapper premiumMapper;
     private final PremiumCacheService premiumCacheService;
+    private final PremiumBoughtEventPublisher boughtEventPublisher;
 
     @Transactional
     public PremiumDto buyPremium(long userId, PremiumPeriod period) {
@@ -64,20 +66,22 @@ public class PremiumService {
 
         markAttemptCompleted(attempt);
 
+        publishPremiumBoughtEvent(userId, period, premium.getAmount(), LocalDateTime.now());
+
         return premiumMapper.toDto(premium);
     }
 
     @Transactional
     public void cancelPremium(long userId) {
         log.info("Starting premium cancellation for user: {}", userId);
-        
+
         Premium premium = premiumRepository.findFirstByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Premium subscription not found for user: " + userId));
 
         LocalDateTime now = LocalDateTime.now();
-        
+
         if (premium.getEndDate().isBefore(now)) {
-            log.warn("Premium for user {} is already expired (endDate: {}), current time: {}", 
+            log.warn("Premium for user {} is already expired (endDate: {}), current time: {}",
                     userId, premium.getEndDate(), now);
             premiumCacheService.evict(userId);
             return;
@@ -85,9 +89,9 @@ public class PremiumService {
 
         LocalDateTime previousEndDate = premium.getEndDate();
         premium.setEndDate(now);
-        
+
         Premium savedPremium = premiumRepository.save(premium);
-        log.info("Premium cancelled for user: {}, previous end date: {}, new end date: {}", 
+        log.info("Premium cancelled for user: {}, previous end date: {}, new end date: {}",
                 userId, previousEndDate, savedPremium.getEndDate());
 
         premiumCacheService.evict(userId);
@@ -169,7 +173,7 @@ public class PremiumService {
                 .orElseGet(() -> createNewPremium(user, period, paymentNumber, verificationCode, now));
     }
 
-    private Premium extendExistingPremium(Premium existing, PremiumPeriod period, 
+    private Premium extendExistingPremium(Premium existing, PremiumPeriod period,
                                           String paymentNumber, int verificationCode) {
         LocalDateTime newEndDate = existing.getEndDate().plusMonths(period.getMonths());
 
@@ -186,7 +190,7 @@ public class PremiumService {
         return saved;
     }
 
-    private Premium createNewPremium(User user, PremiumPeriod period, String paymentNumber, 
+    private Premium createNewPremium(User user, PremiumPeriod period, String paymentNumber,
                                      int verificationCode, LocalDateTime now) {
         LocalDateTime endDate = now.plusMonths(period.getMonths());
 
@@ -221,5 +225,19 @@ public class PremiumService {
 
     private long toLongPaymentNumber(String paymentNumber) {
         return Math.abs(UUID.nameUUIDFromBytes(paymentNumber.getBytes()).getMostSignificantBits());
+    }
+
+    private void publishPremiumBoughtEvent(
+            long userId,
+            PremiumPeriod period,
+            BigDecimal amount,
+            LocalDateTime purchaseDateTime) {
+        PremiumBoughtEvent event = PremiumBoughtEvent.builder()
+                .userId(userId)
+                .paymentAmount(amount)
+                .subscriptionDurationMonths(period.getMonths())
+                .purchaseDateTime(purchaseDateTime)
+                .build();
+        boughtEventPublisher.publish(event);
     }
 }
