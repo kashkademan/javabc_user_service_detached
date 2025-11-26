@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import school.faang.user_service.ApplicationContextTest;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventDto;
@@ -34,6 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext
 @SpringBootTest
 @AutoConfigureMockMvc
 public class EventControllerInTest extends ApplicationContextTest {
@@ -96,6 +100,7 @@ public class EventControllerInTest extends ApplicationContextTest {
         EventCreateDto createDto = EventCreateDto.builder()
                 .title("New Event")
                 .description("New Description")
+                .location("Kirov")
                 .startDate(LocalDateTime.now().plusDays(3))
                 .endDate(LocalDateTime.now().plusDays(4))
                 .type(EventType.WEBINAR)
@@ -112,7 +117,7 @@ public class EventControllerInTest extends ApplicationContextTest {
                         jsonPath("$.description").value("New Description"),
                         jsonPath("$.type").value("WEBINAR"),
                         jsonPath("$.status").value("PLANNED")
-            );
+                );
     }
 
     @Test
@@ -137,14 +142,13 @@ public class EventControllerInTest extends ApplicationContextTest {
                         status().isOk(),
                         jsonPath("$.title").value("Updated Event"),
                         jsonPath("$.description").value("Updated Description")
-            );
+                );
     }
 
     @Test
     void delete_withValidData_shouldDeleteEvent() throws Exception {
         Long currentUserId = owner.getId();
-        Event event1 = eventRepository.findById(event.getId()).get();
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + event1.getTitle());
+
         mockMvc.perform(delete("/events/{eventId}", event.getId())
                         .header("x-user-id", currentUserId.toString()))
                 .andExpect(status().isNoContent());

@@ -27,16 +27,10 @@ public class SwaggerConfig {
                                 .in(SecurityScheme.In.HEADER)
                                 .name("x-user-id")
                         )
-                        .addSecuritySchemes("BearerAuth", new SecurityScheme()
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                        )
                 )
                 .security(
                         java.util.List.of(
-                                new SecurityRequirement().addList("userIdAuth"),
-                                new SecurityRequirement().addList("BearerAuth")
+                                new SecurityRequirement().addList("userIdAuth")
                         )
                 );
     }

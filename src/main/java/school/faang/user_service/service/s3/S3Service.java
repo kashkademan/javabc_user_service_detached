@@ -29,8 +29,6 @@ public class S3Service {
     @Value("${services.s3.bucketName}")
     private String bucketName;
 
-
-
     private final S3Client amazonS3;
 
     public void saveToFileStorage(MultipartFile multipartFile, String key) {
@@ -80,6 +78,4 @@ public class S3Service {
             throw new FileException(String.format("File not found in S3: %s", key));
         }
     }
-
-
 }

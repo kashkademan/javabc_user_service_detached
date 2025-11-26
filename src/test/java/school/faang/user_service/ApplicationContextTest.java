@@ -3,6 +3,7 @@ package school.faang.user_service;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -12,7 +13,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest
+
 @Testcontainers
 public class ApplicationContextTest {
 
@@ -43,9 +44,13 @@ public class ApplicationContextTest {
         MINIO_CONTAINER.start();
         KAFKA_CONTAINER.start();
 
-        registry.add("spring.datasource.url", POSTGRESQL_CONTAINER::getJdbcUrl);
+        String postgresEndpoint = "jdbc:postgresql://" + POSTGRESQL_CONTAINER.getHost() + ":"
+                + POSTGRESQL_CONTAINER.getMappedPort(5432) + "/postgres";
+        System.out.println("!!!!!!!!!!!!!!!!!!!!- " + postgresEndpoint);
+        registry.add("spring.datasource.url", () -> postgresEndpoint);
         registry.add("spring.datasource.username", POSTGRESQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRESQL_CONTAINER::getPassword);
+
 
         registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
         registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
@@ -56,10 +61,5 @@ public class ApplicationContextTest {
         registry.add("services.s3.endpoint", () -> minioEndpoint);
         registry.add("services.minio.accessKey", () -> "user");
         registry.add("services.minio.secretKey", () -> "password");
-    }
-
-    @Test
-    void contextLoads() {
-
     }
 }

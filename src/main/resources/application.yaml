@@ -15,9 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  output:
-    ansi:
-      enabled: ALWAYS
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

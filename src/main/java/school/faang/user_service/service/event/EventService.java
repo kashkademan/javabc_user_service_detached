@@ -42,9 +42,6 @@ public class EventService {
         Event event = EventMapper.toEvent(eventCreateDto);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
-        //todo  в миграции стоит location NotNull, а в сущности нет данной аннотации
-        // проставлена для коретной работы тестов
-        event.setLocation("for test");
         eventRepository.save(event);
         log.info("Event created: id={}, title='{}', ownerId={}, type={}, status={}",
                 event.getId(),
