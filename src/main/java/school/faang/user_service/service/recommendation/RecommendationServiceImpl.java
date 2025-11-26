@@ -3,6 +3,9 @@ package school.faang.user_service.service.recommendation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
@@ -95,8 +98,23 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<RecommendationDto> getByFilters(RecommendationFilterDto filters) {
-        return recommendationRepository.getByFilters(filters.contentContains(),
-                filters.receiverId(), filters.authorId());
+    public Page<RecommendationDto> getByFilters(RecommendationFilterDto filters, Pageable pageable) {
+        var page = recommendationRepository.findByFilters(
+                filters.contentContains(),
+                filters.receiverId(),
+                filters.authorId(),
+                pageable
+        );
+
+        List<RecommendationDto> content = page.getContent().stream()
+                .map(recommendation -> RecommendationDto.builder()
+                        .id(recommendation.getId())
+                        .authorId(recommendation.getAuthor().getId())
+                        .receiverId(recommendation.getReceiver().getId())
+                        .content(recommendation.getContent())
+                        .build())
+                .toList();
+
+        return new PageImpl<>(content, pageable, page.getTotalElements());
     }
 }

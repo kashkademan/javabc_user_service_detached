@@ -1,11 +1,12 @@
 package school.faang.user_service.repository.recommendation;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.util.List;
@@ -41,21 +42,29 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     Optional<Long> findAuthorIdById(Long id);
 
-    @Query("""
-                select r.id as id,
-                    r.content as content,
-                    receiver.id as receiverId,
-                    author.id as authorId
-                from Recommendation as r
-                join r.author as author
-                join r.receiver as receiver
-                where :contentContains is null or lower(content) LIKE %:contentContains%
-                    and :receiverId is null or receiver.id = :receiverId
-                    and :authorId is null or author.id = :authorId
-            """)
-    List<RecommendationDto> getByFilters(
+    @EntityGraph(attributePaths = {"author", "receiver"})
+    @Query(
+            value = """
+                    select r from Recommendation r
+                    join r.author author
+                    join r.receiver receiver
+                    where (:contentContains is null or lower(r.content) like lower(concat('%', :contentContains, '%')))
+                        and (:receiverId is null or receiver.id = :receiverId)
+                        and (:authorId is null or author.id = :authorId)
+                    """,
+            countQuery = """
+                    select count(r) from Recommendation r
+                    join r.author author
+                    join r.receiver receiver
+                    where (:contentContains is null or lower(r.content) like lower(concat('%', :contentContains, '%')))
+                        and (:receiverId is null or receiver.id = :receiverId)
+                        and (:authorId is null or author.id = :authorId)
+                    """
+    )
+    Page<Recommendation> findByFilters(
             @Param("contentContains") String contentContains,
             @Param("receiverId") Long receiverId,
-            @Param("authorId") Long authorId
+            @Param("authorId") Long authorId,
+            Pageable pageable
     );
 }

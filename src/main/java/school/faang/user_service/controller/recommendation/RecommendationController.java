@@ -7,8 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,8 +30,6 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
-
-import java.util.List;
 
 @Tag(name = "recommendation (v1)", description = "Controller for recommendations")
 @RestController
@@ -91,7 +93,10 @@ public class RecommendationController {
     })
     @Operation(summary = "Receiving recommendations")
     @GetMapping
-    List<RecommendationDto> getByFilters(@RequestParam RecommendationFilterDto filters) {
-        return recommendationService.getByFilters(filters);
+    Page<RecommendationDto> getByFilters(@RequestParam RecommendationFilterDto filters,
+                                         @RequestParam(defaultValue = "0") @Min(0) int page,
+                                         @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size) {
+        var pegable = PageRequest.of(page, size);
+        return recommendationService.getByFilters(filters, pegable);
     }
 }

@@ -1,5 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
@@ -14,5 +16,5 @@ public interface RecommendationService {
 
     void delete(Long recommendationId);
 
-    List<RecommendationDto> getByFilters(RecommendationFilterDto filters);
+    Page<RecommendationDto> getByFilters(RecommendationFilterDto filters, Pageable pageable);
 }

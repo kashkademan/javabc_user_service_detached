@@ -7,9 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -180,17 +183,29 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("getByFilters: успех")
     void getByFilters_success() {
-        RecommendationFilterDto filters = new RecommendationFilterDto(null, 1L, 2L);
-        List<RecommendationDto> dtos = List.of(
-                RecommendationDto.builder().id(1L).authorId(1L).receiverId(2L).content("c1").build()
-        );
+        RecommendationFilterDto filters = new RecommendationFilterDto("c", 1L, 2L);
 
-        given(recommendationRepository.getByFilters(null, 2L, 1L)).willReturn(dtos);
+        Recommendation recommendation = new Recommendation();
+        recommendation.setId(1L);
+        User author = new User();
+        author.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+        recommendation.setAuthor(author);
+        recommendation.setReceiver(receiver);
+        recommendation.setContent("c1");
 
-        var result = service.getByFilters(filters);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Recommendation> repositoryPage = new PageImpl<>(List.of(recommendation), pageable, 1);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
+        given(recommendationRepository.findByFilters("c", 2L, 1L, pageable))
+                .willReturn(repositoryPage);
+
+        var result = service.getByFilters(filters, pageable);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getId()).isEqualTo(1L);
+        assertThat(result.getContent().get(0).getContent()).isEqualTo("c1");
     }
 }
 

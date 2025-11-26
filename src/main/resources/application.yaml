@@ -74,3 +74,7 @@ scheduler:
   clear-events:
     cron: "0 0 1 ? * MON"
     batch-size: 5000
+
+recommendation:
+  time:
+    limit: 6
