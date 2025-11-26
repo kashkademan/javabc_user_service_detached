@@ -7,8 +7,6 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 
-import java.util.List;
-
 public interface RecommendationService {
     RecommendationDto create(CreateRecommendationDto recommendationDto);
 

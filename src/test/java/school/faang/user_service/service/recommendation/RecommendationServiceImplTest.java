@@ -183,8 +183,6 @@ class RecommendationServiceImplTest {
     @Test
     @DisplayName("getByFilters: успех")
     void getByFilters_success() {
-        RecommendationFilterDto filters = new RecommendationFilterDto("c", 1L, 2L);
-
         Recommendation recommendation = new Recommendation();
         recommendation.setId(1L);
         User author = new User();
@@ -201,6 +199,7 @@ class RecommendationServiceImplTest {
         given(recommendationRepository.findByFilters("c", 2L, 1L, pageable))
                 .willReturn(repositoryPage);
 
+        RecommendationFilterDto filters = new RecommendationFilterDto("c", 1L, 2L);
         var result = service.getByFilters(filters, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
