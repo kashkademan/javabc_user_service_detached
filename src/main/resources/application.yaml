@@ -20,6 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      channels:
+        profile_pic_channel: profile_pic_channel
       topics:
         commenter_banner: commenter_banner
 
