@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,7 @@ public class RecommendationController {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Successful update"),
+            @ApiResponse(responseCode = "200", description = "Successful update"),
             @ApiResponse(responseCode = "400", description = "Server error due to invalid data", content =
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class))),
@@ -64,13 +65,13 @@ public class RecommendationController {
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
     @Operation(summary = "Update a recommendation")
-    @PutMapping()
-    public RecommendationDto updateRecommendation(@RequestBody @Valid UpdateRecommendationDto dto) {
-        return recommendationService.update(dto);
+    @PutMapping("/{id}")
+    public RecommendationDto updateRecommendation(@RequestBody @Valid UpdateRecommendationDto dto, @PathVariable @Positive Long id) {
+        return recommendationService.update(dto, id);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Successful delete"),
+            @ApiResponse(responseCode = "204", description = "Successful delete"),
             @ApiResponse(responseCode = "400", description = "Server error due to invalid data", content =
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class))),
@@ -86,17 +87,18 @@ public class RecommendationController {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Successful"),
+            @ApiResponse(responseCode = "200", description = "Successful"),
             @ApiResponse(responseCode = "400", description = "Server error due to invalid data", content =
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MessageDto.class)))
     })
     @Operation(summary = "Receiving recommendations")
     @GetMapping
-    Page<RecommendationDto> getByFilters(@RequestParam RecommendationFilterDto filters,
-                                         @RequestParam(defaultValue = "0") @Min(0) int page,
-                                         @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size) {
-        var pegable = PageRequest.of(page, size);
-        return recommendationService.getByFilters(filters, pegable);
+    Page<RecommendationDto> getByFilters(
+            @Valid RecommendationFilterDto filters,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return recommendationService.getByFilters(filters, pageable);
     }
 }

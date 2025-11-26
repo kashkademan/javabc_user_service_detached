@@ -10,7 +10,7 @@ import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 public interface RecommendationService {
     RecommendationDto create(CreateRecommendationDto recommendationDto);
 
-    RecommendationDto update(UpdateRecommendationDto dto);
+    RecommendationDto update(UpdateRecommendationDto dto, Long id);
 
     void delete(Long recommendationId);
 

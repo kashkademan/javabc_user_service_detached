@@ -29,7 +29,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,10 +62,22 @@ class RecommendationServiceImplTest {
     @DisplayName("create: успех")
     void create_success() {
         given(userContext.getUserId()).willReturn(1L);
-        given(userRepository.existsByIdIn(List.of(1L, 2L))).willReturn(false);
         given(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
                 .willReturn(Optional.empty());
-        given(recommendationRepository.create(1L, 2L, "hi")).willReturn(100L);
+
+        User author = new User();
+        author.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+        given(userRepository.getByIdOrThrow(1L)).willReturn(author);
+        given(userRepository.getByIdOrThrow(2L)).willReturn(receiver);
+
+        Recommendation saved = new Recommendation();
+        saved.setId(100L);
+        saved.setAuthor(author);
+        saved.setReceiver(receiver);
+        saved.setContent("hi");
+        given(recommendationRepository.save(any(Recommendation.class))).willReturn(saved);
 
         var dto = service.create(new CreateRecommendationDto(2L, "hi"));
 
@@ -71,6 +85,7 @@ class RecommendationServiceImplTest {
         assertThat(dto.getAuthorId()).isEqualTo(1L);
         assertThat(dto.getReceiverId()).isEqualTo(2L);
         assertThat(dto.getContent()).isEqualTo("hi");
+        verify(recommendationRepository).save(any(Recommendation.class));
     }
 
     @Test
@@ -86,17 +101,22 @@ class RecommendationServiceImplTest {
     @DisplayName("create: отсутствует пользователь — ошибка")
     void create_userNotFound_error() {
         given(userContext.getUserId()).willReturn(1L);
-        given(userRepository.existsByIdIn(List.of(1L, 2L))).willReturn(true);
+
+        User author = new User();
+        author.setId(1L);
+        given(userRepository.getByIdOrThrow(1L)).willReturn(author);
+        given(userRepository.getByIdOrThrow(2L))
+                .willThrow(new EntityNotFoundException("User not found"));
 
         assertThatThrownBy(() -> service.create(new CreateRecommendationDto(2L, "hi")))
                 .isInstanceOf(EntityNotFoundException.class);
+        verify(recommendationRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("create: частые рекомендации — ошибка")
     void create_tooOften_error() {
         given(userContext.getUserId()).willReturn(1L);
-        given(userRepository.existsByIdIn(List.of(1L, 2L))).willReturn(false);
         Recommendation recent = new Recommendation();
         recent.setCreatedAt(LocalDateTime.now());
         given(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
@@ -119,7 +139,7 @@ class RecommendationServiceImplTest {
         rec.setReceiver(receiver);
         given(recommendationRepository.findById(10L)).willReturn(Optional.of(rec));
 
-        var dto = service.update(new UpdateRecommendationDto(10L, "updated"));
+        var dto = service.update(new UpdateRecommendationDto("updated"), 10L);
 
         assertThat(dto.getId()).isEqualTo(10L);
         assertThat(dto.getAuthorId()).isEqualTo(1L);
@@ -137,7 +157,7 @@ class RecommendationServiceImplTest {
         rec.setAuthor(author);
         given(recommendationRepository.findById(10L)).willReturn(Optional.of(rec));
 
-        assertThatThrownBy(() -> service.update(new UpdateRecommendationDto(10L, "updated")))
+        assertThatThrownBy(() -> service.update(new UpdateRecommendationDto("updated"), 10L))
                 .isInstanceOf(ForbiddenException.class);
     }
 
@@ -146,7 +166,7 @@ class RecommendationServiceImplTest {
     void update_notFound_error() {
         given(recommendationRepository.findById(10L)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.update(new UpdateRecommendationDto(10L, "updated")))
+        assertThatThrownBy(() -> service.update(new UpdateRecommendationDto("updated"), 10L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 

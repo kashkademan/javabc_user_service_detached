@@ -13,6 +13,8 @@ import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
+import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -40,10 +42,6 @@ public class RecommendationServiceImpl implements RecommendationService {
             throw new DataValidationException("You can't send a recommendation to oneself");
         }
 
-        if (userRepository.existsByIdIn(List.of(authorId, recommendationDto.receiverId()))) {
-            throw new EntityNotFoundException("User(s) not found");
-        }
-
         recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId,
                         recommendationDto.receiverId())
                 .ifPresent(recommendation -> {
@@ -53,20 +51,28 @@ public class RecommendationServiceImpl implements RecommendationService {
                     }
                 });
 
-        var id = recommendationRepository.create(authorId, recommendationDto.receiverId(), recommendationDto.content());
+        User author = userRepository.getByIdOrThrow(authorId);
+        User receiver = userRepository.getByIdOrThrow(recommendationDto.receiverId());
+
+        Recommendation recommendation = new Recommendation();
+        recommendation.setAuthor(author);
+        recommendation.setReceiver(receiver);
+        recommendation.setContent(recommendationDto.content());
+
+        Recommendation saved = recommendationRepository.save(recommendation);
 
         return RecommendationDto.builder()
-                .id(id)
-                .content(recommendationDto.content())
+                .id(saved.getId())
+                .content(saved.getContent())
                 .authorId(authorId)
                 .receiverId(recommendationDto.receiverId())
                 .build();
     }
 
     @Override
-    public RecommendationDto update(UpdateRecommendationDto dto) {
+    public RecommendationDto update(UpdateRecommendationDto dto, Long id) {
         var userId = userContext.getUserId();
-        var recommendation = recommendationRepository.findById(dto.recommendationId())
+        var recommendation = recommendationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recommendation not found"));
 
         if (userId != recommendation.getAuthor().getId()) {
@@ -76,7 +82,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         recommendation.setContent(dto.content());
 
         return RecommendationDto.builder()
-                .id(dto.recommendationId())
+                .id(id)
                 .authorId(recommendation.getAuthor().getId())
                 .receiverId(recommendation.getReceiver().getId())
                 .content(dto.content())

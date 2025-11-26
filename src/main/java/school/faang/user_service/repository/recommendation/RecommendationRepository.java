@@ -15,13 +15,6 @@ import java.util.Optional;
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
 
     @Query(nativeQuery = true, value = """
-            INSERT INTO recommendation (author_id, receiver_id, content)
-            VALUES (?1, ?2, ?3) RETURNING id
-            """)
-    @Modifying
-    Long create(Long authorId, Long receiverId, String content);
-
-    @Query(nativeQuery = true, value = """
             UPDATE recommendation SET content = :content
             WHERE author_id = :authorId AND receiver_id = :receiverId
             """)
@@ -40,7 +33,8 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     @EntityGraph(attributePaths = {"author", "receiver"})
     Optional<Recommendation> findById(Long id);
 
-    Optional<Long> findAuthorIdById(Long id);
+    @Query("select r.author.id from Recommendation r where r.id = :id")
+    Optional<Long> findAuthorIdById(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"author", "receiver"})
     @Query(
