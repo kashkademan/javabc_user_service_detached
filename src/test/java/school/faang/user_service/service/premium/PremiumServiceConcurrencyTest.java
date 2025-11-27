@@ -23,6 +23,7 @@ import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.premium.PremiumCacheService;
 import school.faang.user_service.service.premium.PremiumBoughtEventPublisher;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -155,6 +158,10 @@ class PremiumServiceConcurrencyTest {
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
+        // Verify that event was published for successful operations
+        if (successCount.get() > 0) {
+            verify(boughtEventPublisher, atLeast(1)).publish(any(PremiumBoughtEvent.class));
+        }
     }
 
     @Test
@@ -223,6 +230,10 @@ class PremiumServiceConcurrencyTest {
             assertThat(results.get(i).getUserId()).isEqualTo(results.get(0).getUserId());
             assertThat(results.get(i).getPremiumPeriod()).isEqualTo(results.get(0).getPremiumPeriod());
         }
+        // Verify that event was published for successful operations
+        if (!results.isEmpty()) {
+            verify(boughtEventPublisher, atLeast(1)).publish(any(PremiumBoughtEvent.class));
+        }
     }
 
     @Test
@@ -280,6 +291,8 @@ class PremiumServiceConcurrencyTest {
         // Some should succeed, some should fail
         assertThat(successCount.get()).isGreaterThan(0);
         assertThat(errorCount.get()).isGreaterThan(0);
+        // Verify that event was published for successful operations
+        verify(boughtEventPublisher, atLeast(1)).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -330,6 +343,10 @@ class PremiumServiceConcurrencyTest {
         assertThat(successCount.get() + errorCount.get()).isEqualTo(numberOfThreads);
         // At least one should succeed
         assertThat(successCount.get()).isGreaterThanOrEqualTo(0);
+        // Verify that event was published for successful operations
+        if (successCount.get() > 0) {
+            verify(boughtEventPublisher, atLeast(1)).publish(any(PremiumBoughtEvent.class));
+        }
     }
 
     @Test

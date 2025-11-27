@@ -336,6 +336,7 @@ class PremiumServiceTest {
 
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumCacheService).setActiveUntil(eq(1L), any(LocalDateTime.class));
+        verify(eventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -360,6 +361,7 @@ class PremiumServiceTest {
 
         assertThat(result).isNotNull();
         verify(attemptRepository, times(2)).findByPaymentNumber(anyString());
+        verify(eventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     private PremiumDto createPremiumDto() {

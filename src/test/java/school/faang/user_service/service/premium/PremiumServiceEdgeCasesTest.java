@@ -25,6 +25,7 @@ import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.premium.PremiumCacheService;
 import school.faang.user_service.service.premium.PremiumBoughtEventPublisher;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,7 +111,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -135,7 +137,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @ParameterizedTest
@@ -176,7 +178,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -202,7 +204,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.YEARLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -228,7 +230,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.QUARTERLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -255,7 +257,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -281,7 +283,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.YEARLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -307,7 +309,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -335,7 +337,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     private PremiumPurchaseAttempt createAttempt() {
