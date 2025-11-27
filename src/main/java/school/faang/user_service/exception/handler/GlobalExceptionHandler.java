@@ -30,7 +30,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             DataValidationException.class,
-            EntityNotFoundException.class,
             FileException.class,
             AmazonS3Exception.class,
             IOException.class
@@ -40,15 +39,13 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-    @ExceptionHandler(FeignException.class)
+    @ExceptionHandler({
+            EntityNotFoundException.class,
+            FeignException.class,
+            EventPublishingException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleFeignException(FeignException ex) {
-        return new ErrorResponse(ex.getMessage());
-    }
-
-    @ExceptionHandler(EventPublishingException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleEventPublishingException(EventPublishingException ex) {
+    public ErrorResponse handleNotFoundExceptions(Exception ex) {
         return new ErrorResponse(ex.getMessage());
     }
 }

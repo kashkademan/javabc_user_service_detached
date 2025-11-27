@@ -8,6 +8,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
@@ -58,6 +59,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -138,8 +140,6 @@ public class UserServiceImplTest {
     @Mock
     private ResourceRepository resourceRepository;
     @Mock
-    private ResourceValidator resourceValidator;
-    @Mock
     private ResourceMapper resourceMapper;
 
     private UserServiceImpl userService;
@@ -148,7 +148,7 @@ public class UserServiceImplTest {
     void setUp() {
         userService = new UserServiceImpl(userRepository, countryRepository, userMapper, userContext,
                 List.of(userExperienceFilter, userNamePatternFilter, userPhonePatternFilter), goalRepository,
-                eventRepository, mentorshipService, s3Service, diceBearClient, resourceRepository, resourceValidator,
+                eventRepository, mentorshipService, s3Service, diceBearClient, resourceRepository,
                 resourceMapper);
 
         ReflectionTestUtils.setField(userService, "maxAvatarFileSize", maxAvatarFileSize);
@@ -471,44 +471,47 @@ public class UserServiceImplTest {
 
     @Test
     void testAddAvatar() {
-        Resource bigAvatarResource = new Resource();
-        Resource smallAvatarResource = new Resource();
-        bigAvatarResource.setId(1L);
-        bigAvatarResource.setKey("bigAvatarResource");
-        smallAvatarResource.setId(2L);
-        smallAvatarResource.setKey("smallAvatarResource");
+        try (MockedStatic<ResourceValidator> mockedStatic = mockStatic(ResourceValidator.class)) {
+            Resource bigAvatarResource = new Resource();
+            Resource smallAvatarResource = new Resource();
+            bigAvatarResource.setId(1L);
+            bigAvatarResource.setKey("bigAvatarResource");
+            smallAvatarResource.setId(2L);
+            smallAvatarResource.setKey("smallAvatarResource");
 
-        MultipartFile bigAvatarFile = new MockMultipartFile("bigAvatarFile", new byte[]{});
-        MultipartFile smallAvatarFile = new MockMultipartFile("smallAvatarFile", new byte[]{});
+            MultipartFile bigAvatarFile = new MockMultipartFile("bigAvatarFile", new byte[]{});
+            MultipartFile smallAvatarFile = new MockMultipartFile("smallAvatarFile", new byte[]{});
 
-        when(userContext.getUserId()).thenReturn(firstUser.getId());
-        when(resourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
-                eq(maxBigAvatarFileSideLength), eq(maxBigAvatarFileSideLength))).thenReturn(bigAvatarFile);
-        when(resourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
-                eq(maxSmallAvatarFileSideLength), eq(maxSmallAvatarFileSideLength))).thenReturn(smallAvatarFile);
-        when(userRepository.getByIdOrThrow(anyLong())).thenReturn(firstUser);
-        when(s3Service.uploadFile(eq(bigAvatarFile), anyString())).thenReturn(bigAvatarResource);
-        when(s3Service.uploadFile(eq(smallAvatarFile), anyString())).thenReturn(smallAvatarResource);
-        when(resourceRepository.save(eq(bigAvatarResource))).thenReturn(bigAvatarResource);
-        when(resourceRepository.save(eq(smallAvatarResource))).thenReturn(smallAvatarResource);
+            when(userContext.getUserId()).thenReturn(firstUser.getId());
+            when(ResourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
+                    eq(maxBigAvatarFileSideLength), eq(maxBigAvatarFileSideLength))).thenReturn(bigAvatarFile);
+            when(ResourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
+                    eq(maxSmallAvatarFileSideLength), eq(maxSmallAvatarFileSideLength))).thenReturn(smallAvatarFile);
+            when(userRepository.getByIdOrThrow(anyLong())).thenReturn(firstUser);
+            when(s3Service.uploadFile(eq(bigAvatarFile), anyString())).thenReturn(bigAvatarResource);
+            when(s3Service.uploadFile(eq(smallAvatarFile), anyString())).thenReturn(smallAvatarResource);
+            when(resourceRepository.save(eq(bigAvatarResource))).thenReturn(bigAvatarResource);
+            when(resourceRepository.save(eq(smallAvatarResource))).thenReturn(smallAvatarResource);
 
-        MultipartFile fileToAdd = new MockMultipartFile("fileToAdd", new byte[]{});
-        userService.addAvatar(fileToAdd);
+            MultipartFile fileToAdd = new MockMultipartFile("fileToAdd", new byte[]{});
+            userService.addAvatar(fileToAdd);
 
-        verify(resourceValidator, times(2))
-                .validateImageDimensions(eq(fileToAdd), anyInt(), anyInt());
-        verify(s3Service, times(2)).uploadFile(multipartFileArgumentCaptor.capture(),
-                eq(firstUser.getId() + firstUser.getUsername()));
-        verify(resourceRepository, times(2)).save(resourceArgumentCaptor.capture());
-        verify(userRepository).save(userCaptor.capture());
+            mockedStatic.verify(() -> ResourceValidator
+                    .validateImageDimensions(eq(fileToAdd), anyInt(), anyInt()), times(2)
+            );
+            verify(s3Service, times(2)).uploadFile(multipartFileArgumentCaptor.capture(),
+                    eq(firstUser.getId() + firstUser.getUsername()));
+            verify(resourceRepository, times(2)).save(resourceArgumentCaptor.capture());
+            verify(userRepository).save(userCaptor.capture());
 
-        List<MultipartFile> allMultipartFileCaptures = multipartFileArgumentCaptor.getAllValues();
-        List<Resource> allResourceCaptures = resourceArgumentCaptor.getAllValues();
-        User capturedUser = userCaptor.getValue();
+            List<MultipartFile> allMultipartFileCaptures = multipartFileArgumentCaptor.getAllValues();
+            List<Resource> allResourceCaptures = resourceArgumentCaptor.getAllValues();
+            User capturedUser = userCaptor.getValue();
 
-        assertTrue(allMultipartFileCaptures.containsAll(List.of(bigAvatarFile, smallAvatarFile)));
-        assertTrue(allResourceCaptures.containsAll(List.of(bigAvatarResource, smallAvatarResource)));
-        assertEquals(firstUser.getId(), capturedUser.getId());
+            assertTrue(allMultipartFileCaptures.containsAll(List.of(bigAvatarFile, smallAvatarFile)));
+            assertTrue(allResourceCaptures.containsAll(List.of(bigAvatarResource, smallAvatarResource)));
+            assertEquals(firstUser.getId(), capturedUser.getId());
+        }
     }
 
     @Test

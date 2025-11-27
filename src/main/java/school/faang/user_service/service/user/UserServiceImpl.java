@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
     private final S3ServiceImpl s3Service;
     private final DiceBearClient diceBearClient;
     private final ResourceRepository resourceRepository;
-    private final ResourceValidator resourceValidator;
     private final ResourceMapper resourceMapper;
 
     @Override
@@ -275,10 +274,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResourceDto addAvatar(MultipartFile file) {
-        resourceValidator.validateFileSize(file, maxAvatarFileSize);
-        MultipartFile bigAvatarFile = resourceValidator
+        ResourceValidator.validateFileSize(file, maxAvatarFileSize);
+        MultipartFile bigAvatarFile = ResourceValidator
                 .validateImageDimensions(file, maxBigAvatarFileSideLength, maxBigAvatarFileSideLength);
-        MultipartFile smallAvatarFile = resourceValidator
+        MultipartFile smallAvatarFile = ResourceValidator
                 .validateImageDimensions(file, maxSmallAvatarFileSideLength, maxSmallAvatarFileSideLength);
 
         long userId = userContext.getUserId();

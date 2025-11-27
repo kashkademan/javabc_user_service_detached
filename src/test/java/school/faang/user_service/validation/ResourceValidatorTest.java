@@ -39,7 +39,7 @@ public class ResourceValidatorTest {
         long maxSizeInMb = 5;
 
         FileException fileException = assertThrows(FileException.class,
-                () -> resourceValidator.validateFileSize(file, maxSizeInMb));
+                () -> ResourceValidator.validateFileSize(file, maxSizeInMb));
         assertTrue(fileException.getMessage().contains("File size exceeded"));
     }
 
@@ -48,7 +48,7 @@ public class ResourceValidatorTest {
         when(file.getSize()).thenReturn(1024 * 1024 * 4L);
         long maxSizeInMb = 5;
 
-        Assertions.assertDoesNotThrow(() -> resourceValidator.validateFileSize(file, maxSizeInMb));
+        Assertions.assertDoesNotThrow(() -> ResourceValidator.validateFileSize(file, maxSizeInMb));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ResourceValidatorTest {
         when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
 
         FileException fileException = assertThrows(FileException.class,
-                () -> resourceValidator.validateImageDimensions(file, 100, 100));
+                () -> ResourceValidator.validateImageDimensions(file, 100, 100));
         assertTrue(fileException.getMessage().contains("Invalid image file"));
     }
 
@@ -65,7 +65,7 @@ public class ResourceValidatorTest {
         BufferedImage originalImage = createTestImage(200, 300);
         MultipartFile file = createMockMultipartFile(originalImage, "test.jpg", "image/jpeg");
 
-        MultipartFile result = resourceValidator.validateImageDimensions(file, 150, 150);
+        MultipartFile result = ResourceValidator.validateImageDimensions(file, 150, 150);
 
         assertNotNull(result);
         assertEquals("test.jpg", result.getOriginalFilename());
@@ -79,7 +79,7 @@ public class ResourceValidatorTest {
         BufferedImage originalImage = createTestImage(100, 100);
         MultipartFile file = createMockMultipartFile(originalImage, "test.png", "image/png");
 
-        MultipartFile result = resourceValidator.validateImageDimensions(file, 150, 150);
+        MultipartFile result = ResourceValidator.validateImageDimensions(file, 150, 150);
 
         assertNotNull(result);
         assertEquals("test.png", result.getOriginalFilename());
@@ -90,7 +90,7 @@ public class ResourceValidatorTest {
         when(file.getInputStream()).thenThrow(new IOException("Read error"));
 
         FileException fileException = assertThrows(FileException.class,
-                () -> resourceValidator.validateImageDimensions(file, 100, 100));
+                () -> ResourceValidator.validateImageDimensions(file, 100, 100));
         assertTrue(fileException.getMessage().contains("Failed to read file dimensions"));
     }
 

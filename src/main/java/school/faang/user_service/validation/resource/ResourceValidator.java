@@ -2,7 +2,6 @@ package school.faang.user_service.validation.resource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.exception.FileException;
@@ -16,11 +15,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Component
 @Slf4j
 public class ResourceValidator {
 
-    public void validateFileSize(MultipartFile file, long maxPermittedSizeInMb) {
+    public static void validateFileSize(MultipartFile file, long maxPermittedSizeInMb) {
         long fileSizeMaxInBytes = DataSize.ofMegabytes(maxPermittedSizeInMb).toBytes();
 
         if (file.getSize() > fileSizeMaxInBytes) {
@@ -31,7 +29,7 @@ public class ResourceValidator {
         }
     }
 
-    public MultipartFile validateImageDimensions(MultipartFile file, int maxHeight, int maxWidth) {
+    public static MultipartFile validateImageDimensions(MultipartFile file, int maxHeight, int maxWidth) {
 
         BufferedImage image;
         try (InputStream inputStream = file.getInputStream()) {
@@ -72,7 +70,7 @@ public class ResourceValidator {
         return multipartFile;
     }
 
-    private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+    private static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
         BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = resizedImage.createGraphics();
 
@@ -86,7 +84,7 @@ public class ResourceValidator {
         return resizedImage;
     }
 
-    private MultipartFile convertToMultipartFile(BufferedImage image, MultipartFile file) throws IOException {
+    private static MultipartFile convertToMultipartFile(BufferedImage image, MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String contentType = file.getContentType();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
