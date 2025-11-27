@@ -22,7 +22,7 @@ spring:
       host: localhost
       channel:
         premium-bought: premium_bought_channel
-        mentorship: "mentorship_channel"
+        mentorship: mentorship_channel
 
   servlet:
     multipart:
