@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.service.premium;
+package school.faang.user_service.service.premium;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +24,6 @@ import school.faang.user_service.repository.premium.PremiumPurchaseAttemptReposi
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
-import school.faang.user_service.service.premium.PremiumCacheService;
-import school.faang.user_service.service.premium.PremiumService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

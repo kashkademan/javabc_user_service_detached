@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.service.premium;
+package school.faang.user_service.service.premium;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import school.faang.user_service.client.dto.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentServiceClient;
 import school.faang.user_service.entity.premium.Premium;
@@ -22,8 +24,8 @@ import school.faang.user_service.repository.premium.PremiumPurchaseAttemptReposi
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.premium.PremiumCacheService;
-import school.faang.user_service.service.premium.PremiumService;
-
+import school.faang.user_service.service.premium.PremiumBoughtEventPublisher;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -34,9 +36,11 @@ import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PremiumServiceEdgeCasesTest {
 
     @Mock
@@ -56,6 +60,9 @@ class PremiumServiceEdgeCasesTest {
 
     @Mock
     private PremiumCacheService premiumCacheService;
+
+    @Mock
+    private PremiumBoughtEventPublisher boughtEventPublisher;
 
     @InjectMocks
     private PremiumService premiumService;
@@ -104,7 +111,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -130,7 +137,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @ParameterizedTest
@@ -171,7 +178,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -197,7 +204,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.YEARLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -223,7 +230,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.QUARTERLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -250,7 +257,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -276,7 +283,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.YEARLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -302,7 +309,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
@@ -330,7 +337,7 @@ class PremiumServiceEdgeCasesTest {
 
         premiumService.buyPremium(1L, PremiumPeriod.MONTHLY);
 
-
+        verify(boughtEventPublisher).publish(any(PremiumBoughtEvent.class));
     }
 
     private PremiumPurchaseAttempt createAttempt() {

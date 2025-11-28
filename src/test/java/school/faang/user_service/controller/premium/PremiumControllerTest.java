@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.controller.premium;
+package school.faang.user_service.controller.premium;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.controller.premium.PremiumController;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.enums.Currency;
 import school.faang.user_service.enums.PremiumPeriod;
