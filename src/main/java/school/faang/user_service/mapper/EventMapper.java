@@ -28,6 +28,7 @@ public interface EventMapper {
         event.setStartDate(dto.startDate());
         event.setEndDate(dto.endDate());
         event.setType(dto.type());
+        event.setLocation(dto.location());
         event.setRelatedSkills(mapSkills(dto.skillsId()));
 
         return event;

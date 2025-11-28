@@ -26,12 +26,13 @@ public class SwaggerConfig {
                                 .type(SecurityScheme.Type.APIKEY)
                                 .in(SecurityScheme.In.HEADER)
                                 .name("x-user-id")
-                                .description("ID пользователя для идентификации запросов")
                         )
                 )
-                .security(List.of(
-                        new SecurityRequirement().addList("userIdAuth")
-                ));
+                .security(
+                        java.util.List.of(
+                                new SecurityRequirement().addList("userIdAuth")
+                        )
+                );
     }
 }
 

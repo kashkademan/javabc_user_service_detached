@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.EventCreateDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -41,7 +42,6 @@ public class EventService {
         Event event = EventMapper.toEvent(eventCreateDto);
         event.setOwner(owner);
         event.setStatus(EventStatus.PLANNED);
-
         eventRepository.save(event);
         log.info("Event created: id={}, title='{}', ownerId={}, type={}, status={}",
                 event.getId(),
@@ -84,6 +84,7 @@ public class EventService {
                 .toList();
     }
 
+    @Transactional
     public void delete(long eventId) {
         long currentUserId = userContext.getUserId();
 
@@ -94,11 +95,9 @@ public class EventService {
             throw new SecurityException("You don't have permission to delete this event");
         }
 
-        int deletedCount = eventRepository.deleteById(eventId, currentUserId);
+        int deletedCount = eventRepository.deleteById(currentUserId, eventId);
 
         if (deletedCount == 0) {
-            log.warn("Failed to delete event: id={}, userId={} — not found or access denied",
-                    eventId, currentUserId);
             throw new EntityNotFoundException("Event not found or access denied");
         }
 

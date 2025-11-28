@@ -24,5 +24,7 @@ public record EventCreateDto(
         LocalDateTime endDate,
         @NotNull
         EventType type,
+        @NotNull
+        String location,
         Set<Long> skillsId
 ) {}

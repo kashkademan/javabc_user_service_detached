@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import school.faang.user_service.ApplicationContextTest;
@@ -34,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DirtiesContext
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GoalControllerInTest extends ApplicationContextTest {
@@ -137,7 +140,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
                         jsonPath("$.title").value("Test Goal Title"),
                         jsonPath("$.description").value("Test Goal Description"),
                         jsonPath("$.status").value("ACTIVE")
-            );
+                );
     }
 
     @Test
@@ -156,7 +159,7 @@ public class GoalControllerInTest extends ApplicationContextTest {
                         status().isOk(),
                         jsonPath("$.title").value("update Title"),
                         jsonPath("$.description").value("update Desc")
-            );
+                );
 
     }
 

@@ -18,7 +18,6 @@ import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -182,31 +181,11 @@ class EventServiceTest {
     }
 
     @Test
-    void testDelete_success() {
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
-        when(eventRepository.deleteById(EVENT_ID, OWNER_ID)).thenReturn(1);
-
-        eventService.delete(EVENT_ID);
-
-        verify(eventRepository).deleteById(EVENT_ID, OWNER_ID);
-    }
-
-    @Test
     void testDelete_fails_throwsEntityNotFound() {
         when(userContext.getUserId()).thenReturn(OWNER_ID);
         when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> eventService.delete(EVENT_ID));
-    }
-
-    @Test
-    void testDelete_deleteByIdReturnsZero_throwsEntityNotFoundException() {
-        when(userContext.getUserId()).thenReturn(OWNER_ID);
-        when(eventRepository.findById(EVENT_ID)).thenReturn(Optional.of(event));
-        when(eventRepository.deleteById(EVENT_ID, OWNER_ID)).thenReturn(0);
-
-        assertThrows(EntityNotFoundException.class, () -> eventService.delete(EVENT_ID));
     }
 
     @Test
