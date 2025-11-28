@@ -4,5 +4,4 @@ public interface MessagePublisher<T> {
 
     void publish(T event);
 
-    Class<?> getInstanceClass();
 }

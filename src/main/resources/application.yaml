@@ -20,7 +20,7 @@ spring:
     redis:
       port: 6379
       host: localhost
-      chanel:
+      channel:
         recommendation: recommendation_topic
         search-appearance: search_appearance_channel
 
