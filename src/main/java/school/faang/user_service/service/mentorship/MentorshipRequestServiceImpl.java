@@ -1,5 +1,9 @@
 package school.faang.user_service.service.mentorship;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +21,8 @@ import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.mentorship.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import school.faang.user_service.service.event.MentorshipRequestedEvent;
+import school.faang.user_service.service.publisher.MentorshipRequestedEventPublisher;
 
 @Service
 @Slf4j
@@ -31,6 +33,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserContext userContext;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> requestFilters;
+    private final MentorshipRequestedEventPublisher MentorshipRequestedEventPublisher;
 
     @Setter
     @Value("${mentorship.months.limit}")
@@ -57,6 +60,12 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository
                 .create(userId, requestDto.mentorId(), requestDto.description());
         log.info("For user with id {} created request", userId);
+
+        MentorshipRequestedEvent mentorshipRequestedEvent = new MentorshipRequestedEvent(
+                userId, requestDto.mentorId(), LocalDateTime.now()
+        );
+
+        MentorshipRequestedEventPublisher.publish(mentorshipRequestedEvent);
 
         return mentorshipRequestMapper.toMentorshipRequestDto(mentorshipRequest);
     }

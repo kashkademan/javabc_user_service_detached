@@ -1,18 +1,22 @@
-package school.faang.user_service.redis.message_broker;
+package school.faang.user_service.config.redis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.stereotype.Service;
+import school.faang.user_service.redis.message_broker.CommenterBannerListener;
 
-@Service
+@Configuration
 @RequiredArgsConstructor
 public class RedisConfiguration {
     @Value("${spring.data.redis.host}")
@@ -21,7 +25,7 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.topics.commenter_banner}")
+    @Value("${spring.data.redis.channels.commenter_banner}")
     private String commenterBannerTopicName;
 
     @Bean
@@ -30,15 +34,22 @@ public class RedisConfiguration {
                 redisHost,
                 redisPort
         );
+
         return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory);
+        Jackson2JsonRedisSerializer<Object> jackson =
+                new Jackson2JsonRedisSerializer<>(new ObjectMapper(), Object.class);
+
+        template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(jackson);
+        template.setHashValueSerializer(jackson);
+
         return template;
     }
 
@@ -59,7 +70,7 @@ public class RedisConfiguration {
             ChannelTopic topic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(messageListenerAdapter, commenterBannerTopic());
+        container.addMessageListener(messageListenerAdapter, topic);
         return container;
     }
 }
