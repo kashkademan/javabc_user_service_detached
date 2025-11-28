@@ -1,5 +1,6 @@
 package school.faang.user_service.exception.handler;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -7,8 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.EventPublishingException;
-import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.exception.FileException;
+
+import java.io.IOException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,27 +28,24 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(DataValidationException.class)
+    @ExceptionHandler({
+            DataValidationException.class,
+            FileException.class,
+            AmazonS3Exception.class,
+            IOException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataValidationExceptions(DataValidationException ex) {
+    public ErrorResponse handleBadRequestExceptions(Exception ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleForbiddenException(ForbiddenException ex) {
-        return new ErrorResponse(ex.getMessage());
-    }
-
-    @ExceptionHandler(FeignException.class)
+    @ExceptionHandler({
+            EntityNotFoundException.class,
+            FeignException.class,
+            EventPublishingException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleFeignException(FeignException ex) {
-        return new ErrorResponse(ex.getMessage());
-    }
-
-    @ExceptionHandler(EventPublishingException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleEventPublishingException(EventPublishingException ex) {
+    public ErrorResponse handleNotFoundExceptions(Exception ex) {
         return new ErrorResponse(ex.getMessage());
     }
 }

@@ -1,8 +1,13 @@
 package school.faang.user_service.service.s3;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +24,7 @@ import school.faang.user_service.exception.FileException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -26,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,11 +43,18 @@ class S3ServiceImplTest {
 
     private final String bucketName = "test-bucket";
     private final String folder = "test-folder";
+    private final String fileKey = "folder/file.txt";
 
     @Mock
     private AmazonS3 s3Client;
     @Mock
     private MultipartFile multipartFile;
+    @Mock
+    private S3Object s3Object;
+    @Mock
+    S3ObjectInputStream inputStream;
+    @Mock
+    ObjectMetadata metadata;
 
     @InjectMocks
     private S3ServiceImpl s3Service;
@@ -144,5 +159,60 @@ class S3ServiceImplTest {
         });
 
         verify(s3Client, times(typeMapping.size())).putObject(Mockito.any(PutObjectRequest.class));
+    }
+
+    @Test
+    void testDeleteFile() {
+        doNothing().when(s3Client).deleteObject(bucketName, fileKey);
+
+        s3Service.deleteFile(fileKey);
+
+        verify(s3Client).deleteObject(bucketName, fileKey);
+    }
+
+    @Test
+    void testDeleteFileShouldThrowAmazonServiceException() {
+        doThrow(new AmazonServiceException("S3 error"))
+                .when(s3Client).deleteObject(bucketName, fileKey);
+
+        FileException fileException = assertThrows(FileException.class, () -> s3Service.deleteFile(fileKey));
+        assertTrue(fileException.getMessage().contains("storage service error"));
+    }
+
+    @Test
+    void testDeleteFileShouldThrowSdkClientException() {
+        doThrow(new SdkClientException("Client error"))
+                .when(s3Client).deleteObject(bucketName, fileKey);
+
+        FileException fileException = assertThrows(FileException.class, () -> s3Service.deleteFile(fileKey));
+        assertTrue(fileException.getMessage().contains("connection issue"));
+    }
+
+    @Test
+    void testGetFile() throws IOException {
+        byte[] content = "test content".getBytes();
+        InputStream contentStream = new ByteArrayInputStream(content);
+        S3ObjectInputStream s3InputStream = new S3ObjectInputStream(contentStream, null);
+
+        when(s3Client.getObject(bucketName, fileKey)).thenReturn(s3Object);
+        when(s3Object.getObjectContent()).thenReturn(s3InputStream);
+        when(s3Object.getObjectMetadata()).thenReturn(metadata);
+        when(metadata.getContentType()).thenReturn("text/plain");
+
+        MultipartFile result = s3Service.getFile(fileKey);
+
+        assertEquals(fileKey, result.getName());
+        assertEquals(fileKey, result.getOriginalFilename());
+        verify(s3Client).getObject(bucketName, fileKey);
+        verify(s3Object).close();
+    }
+
+    @Test
+    void testGetFileShouldThrowWhenFileNotFound() {
+        when(s3Client.getObject(bucketName, fileKey))
+                .thenThrow(new AmazonS3Exception("Not found"));
+
+        FileException fileException = assertThrows(FileException.class, () -> s3Service.getFile(fileKey));
+        assertTrue(fileException.getMessage().contains("not found"));
     }
 }

@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.resource.ResourceDto;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -20,8 +22,10 @@ import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.user.UserFilter;
+import school.faang.user_service.mapper.ResourceMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -30,6 +34,7 @@ import school.faang.user_service.repository.user.ResourceRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.s3.S3ServiceImpl;
+import school.faang.user_service.validation.resource.ResourceValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,6 +49,15 @@ public class UserServiceImpl implements UserService {
     @Value("${user.password.min.length}")
     private int minPasswordLength;
 
+    @Value("${user.avatar.max-avatar-file-size:5}")
+    private int maxAvatarFileSize;
+
+    @Value("${user.avatar.max-big-avatar-file-side-length:1080}")
+    private int maxBigAvatarFileSideLength;
+
+    @Value("${user.avatar.max-small-avatar-file-side-length:170}")
+    private int maxSmallAvatarFileSideLength;
+
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
@@ -55,6 +69,7 @@ public class UserServiceImpl implements UserService {
     private final S3ServiceImpl s3Service;
     private final DiceBearClient diceBearClient;
     private final ResourceRepository resourceRepository;
+    private final ResourceMapper resourceMapper;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -255,5 +270,133 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAllById(usersIds).stream()
                 .filter(user -> !user.isBanned())
                 .map(User::getId).toList();
+    }
+
+    @Override
+    public ResourceDto addAvatar(MultipartFile file) {
+        ResourceValidator.validateFileSize(file, maxAvatarFileSize);
+        MultipartFile bigAvatarFile = ResourceValidator
+                .validateImageDimensions(file, maxBigAvatarFileSideLength, maxBigAvatarFileSideLength);
+        MultipartFile smallAvatarFile = ResourceValidator
+                .validateImageDimensions(file, maxSmallAvatarFileSideLength, maxSmallAvatarFileSideLength);
+
+        long userId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(userId);
+        log.debug("Got user by id {}", userId);
+
+        String folder = userId + user.getUsername();
+
+        Resource bigAvatarResource = s3Service.uploadFile(bigAvatarFile, folder);
+        Resource smallAvatarResource = s3Service.uploadFile(smallAvatarFile, folder);
+        bigAvatarResource.setCreatedBy(user);
+        smallAvatarResource.setCreatedBy(user);
+
+        Resource savedBigAvatarResource = resourceRepository.save(bigAvatarResource);
+        log.info("Resource {} has been saved", savedBigAvatarResource.getId());
+
+        Resource savedSmallAvatarResource = resourceRepository.save(smallAvatarResource);
+        log.info("Resource {} has been saved", smallAvatarResource.getId());
+
+        UserProfilePic userProfilePic = UserProfilePic.builder()
+                .fileId(savedBigAvatarResource.getKey())
+                .smallFileId(savedSmallAvatarResource.getKey())
+                .build();
+
+        user.setUserProfilePic(userProfilePic);
+        userRepository.save(user);
+        log.info("User {} has been updated", userId);
+
+        return resourceMapper.toResourceDto(savedBigAvatarResource);
+    }
+
+    @Override
+    public void deleteAvatar() {
+        long userId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(userId);
+        log.debug("Got user by id {}", userId);
+
+        UserProfilePic userProfilePic = user.getUserProfilePic();
+        validateAndDeleteUserProfilePic(userProfilePic, userId);
+
+        user.setUserProfilePic(UserProfilePic.builder().build());
+        userRepository.save(user);
+        log.info("User {} has been updated", userId);
+    }
+
+    @Override
+    public MultipartFile getAvatar() {
+        long userId = userContext.getUserId();
+        User user = userRepository.getByIdOrThrow(userId);
+        log.debug("Got user by id {}", userId);
+
+        String avatarKey = validateUserAvatarKey(user);
+        return s3Service.getFile(avatarKey);
+    }
+
+    private void validateAndDeleteUserProfilePic(UserProfilePic userProfilePic, long userId) {
+        String avatarAbsentErrorMessage = "User %d hasn't avatar".formatted(userId);
+
+        if (userProfilePic == null || (userProfilePic.getFileId().isEmpty() && userProfilePic
+                .getSmallFileId().isEmpty())) {
+            log.error(avatarAbsentErrorMessage);
+            throw new EntityNotFoundException(avatarAbsentErrorMessage);
+        }
+
+        if (userProfilePic.getFileId().isEmpty()) {
+            log.warn("User's {} big avatar is absent. Trying to delete small avatar", userId);
+
+            if (userProfilePic.getSmallFileId().isEmpty()) {
+                log.error(avatarAbsentErrorMessage);
+                throw new EntityNotFoundException(avatarAbsentErrorMessage);
+            }
+            s3Service.deleteFile(userProfilePic.getSmallFileId());
+            deleteResource(userProfilePic.getSmallFileId());
+        } else {
+            if (!userProfilePic.getSmallFileId().isEmpty()) {
+                s3Service.deleteFile(userProfilePic.getSmallFileId());
+                deleteResource(userProfilePic.getSmallFileId());
+            }
+            s3Service.deleteFile(userProfilePic.getFileId());
+            deleteResource(userProfilePic.getFileId());
+        }
+    }
+
+    private Resource getResourceByKey(String key) {
+        return resourceRepository.findByKey(key).orElseThrow(
+                () -> {
+                    String errorMessage = "Resource by key %s not found".formatted(key);
+                    log.error(errorMessage);
+                    return new EntityNotFoundException(errorMessage);
+                }
+        );
+    }
+
+    private void deleteResource(String key) {
+        Resource resource = getResourceByKey(key);
+        log.debug("Got resource id {}", resource.getId());
+
+        resourceRepository.deleteById(resource.getId());
+        log.info("Resource {} has been deleted", resource.getId());
+    }
+
+    private String validateUserAvatarKey(User user) {
+        String errorMessage = "User %d hasn't avatar".formatted(user.getId());
+        UserProfilePic userProfilePic = user.getUserProfilePic();
+        if (userProfilePic == null) {
+
+            log.error(errorMessage);
+            throw new EntityNotFoundException(errorMessage);
+        }
+
+        String avatarKey = userProfilePic.getFileId();
+
+        if (avatarKey == null || avatarKey.isEmpty()) {
+            avatarKey = userProfilePic.getSmallFileId();
+            if (avatarKey == null || avatarKey.isEmpty()) {
+                log.error(errorMessage);
+                throw new EntityNotFoundException(errorMessage);
+            }
+        }
+        return avatarKey;
     }
 }

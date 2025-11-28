@@ -1,5 +1,7 @@
 package school.faang.user_service.service.user;
 
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.resource.ResourceDto;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -75,6 +77,12 @@ public interface UserService {
     void banUsers(List<Long> usersIds);
 
     List<Long> getNotBannedUsersIds(List<Long> usersIds);
+
+    ResourceDto addAvatar(MultipartFile file);
+
+    void deleteAvatar();
+
+    MultipartFile getAvatar();
 }
 
 

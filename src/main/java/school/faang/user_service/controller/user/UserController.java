@@ -2,7 +2,11 @@ package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.resource.ResourceDto;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.GetUsersDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
@@ -21,7 +27,9 @@ import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -87,5 +95,26 @@ public class UserController {
         if (value == null) {
             throw new DataValidationException(paramName + " should be present!");
         }
+    }
+
+    @PostMapping("/avatar")
+    public ResponseEntity<ResourceDto> addUserAvatar(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.addAvatar(file));
+    }
+
+    @DeleteMapping("/avatar")
+    public void deleteUserAvatar() {
+        userService.deleteAvatar();
+    }
+
+    @GetMapping("/avatar")
+    public ResponseEntity<byte[]> getUserAvatar() throws IOException {
+        MultipartFile file = userService.getAvatar();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + file.getOriginalFilename() + "\"")
+                .body(file.getBytes());
     }
 }

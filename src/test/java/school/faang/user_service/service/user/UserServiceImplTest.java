@@ -8,9 +8,12 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.client.DiceBearClient;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -23,6 +26,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.resource.Resource;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
@@ -30,6 +34,7 @@ import school.faang.user_service.filter.user.UserExperienceFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNamePatternFilter;
 import school.faang.user_service.filter.user.UserPhonePatternFilter;
+import school.faang.user_service.mapper.ResourceMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -38,15 +43,24 @@ import school.faang.user_service.repository.user.ResourceRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.s3.S3ServiceImpl;
+import school.faang.user_service.validation.resource.ResourceValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +68,9 @@ import static org.mockito.Mockito.when;
 public class UserServiceImplTest {
 
     private final int minPasswordLength = 6;
+    private final int maxAvatarFileSize = 5;
+    private final int maxBigAvatarFileSideLength = 1080;
+    private final int maxSmallAvatarFileSideLength = 170;
     private final UserFiltersDto userFiltersDto
             = new UserFiltersDto("Anton", "89991231213", 3, 7);
     private final UserFilter userExperienceFilter = new UserExperienceFilter();
@@ -97,6 +114,10 @@ public class UserServiceImplTest {
     private ArgumentCaptor<List<Event>> saveEventCaptor;
     @Captor
     private ArgumentCaptor<List<Event>> deleteEventCaptor;
+    @Captor
+    private ArgumentCaptor<MultipartFile> multipartFileArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Resource> resourceArgumentCaptor;
 
     @Mock
     private UserRepository userRepository;
@@ -118,6 +139,8 @@ public class UserServiceImplTest {
     private DiceBearClient diceBearClient;
     @Mock
     private ResourceRepository resourceRepository;
+    @Mock
+    private ResourceMapper resourceMapper;
 
     private UserServiceImpl userService;
 
@@ -125,9 +148,13 @@ public class UserServiceImplTest {
     void setUp() {
         userService = new UserServiceImpl(userRepository, countryRepository, userMapper, userContext,
                 List.of(userExperienceFilter, userNamePatternFilter, userPhonePatternFilter), goalRepository,
-                eventRepository, mentorshipService, s3Service, diceBearClient, resourceRepository);
+                eventRepository, mentorshipService, s3Service, diceBearClient, resourceRepository,
+                resourceMapper);
 
+        ReflectionTestUtils.setField(userService, "maxAvatarFileSize", maxAvatarFileSize);
+        ReflectionTestUtils.setField(userService, "maxBigAvatarFileSideLength", maxBigAvatarFileSideLength);
         ReflectionTestUtils.setField(userService, "minPasswordLength", minPasswordLength);
+        ReflectionTestUtils.setField(userService, "maxSmallAvatarFileSideLength", maxSmallAvatarFileSideLength);
     }
 
     @Test
@@ -410,7 +437,7 @@ public class UserServiceImplTest {
 
         userService.banUsers(usersIds);
 
-        verify(userRepository).banUsers(Mockito.eq(usersIds));
+        verify(userRepository).banUsers(eq(usersIds));
     }
 
     @Test
@@ -440,5 +467,218 @@ public class UserServiceImplTest {
 
         Assertions.assertEquals(1, notBannedUsersIds.size());
         Assertions.assertEquals(user.getId(), notBannedUsersIds.get(0));
+    }
+
+    @Test
+    void testAddAvatar() {
+        try (MockedStatic<ResourceValidator> mockedStatic = mockStatic(ResourceValidator.class)) {
+            Resource bigAvatarResource = new Resource();
+            Resource smallAvatarResource = new Resource();
+            bigAvatarResource.setId(1L);
+            bigAvatarResource.setKey("bigAvatarResource");
+            smallAvatarResource.setId(2L);
+            smallAvatarResource.setKey("smallAvatarResource");
+
+            MultipartFile bigAvatarFile = new MockMultipartFile("bigAvatarFile", new byte[]{});
+            MultipartFile smallAvatarFile = new MockMultipartFile("smallAvatarFile", new byte[]{});
+
+            when(userContext.getUserId()).thenReturn(firstUser.getId());
+            when(ResourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
+                    eq(maxBigAvatarFileSideLength), eq(maxBigAvatarFileSideLength))).thenReturn(bigAvatarFile);
+            when(ResourceValidator.validateImageDimensions(Mockito.any(MultipartFile.class),
+                    eq(maxSmallAvatarFileSideLength), eq(maxSmallAvatarFileSideLength))).thenReturn(smallAvatarFile);
+            when(userRepository.getByIdOrThrow(anyLong())).thenReturn(firstUser);
+            when(s3Service.uploadFile(eq(bigAvatarFile), anyString())).thenReturn(bigAvatarResource);
+            when(s3Service.uploadFile(eq(smallAvatarFile), anyString())).thenReturn(smallAvatarResource);
+            when(resourceRepository.save(eq(bigAvatarResource))).thenReturn(bigAvatarResource);
+            when(resourceRepository.save(eq(smallAvatarResource))).thenReturn(smallAvatarResource);
+
+            MultipartFile fileToAdd = new MockMultipartFile("fileToAdd", new byte[]{});
+            userService.addAvatar(fileToAdd);
+
+            mockedStatic.verify(() -> ResourceValidator
+                    .validateImageDimensions(eq(fileToAdd), anyInt(), anyInt()), times(2)
+            );
+            verify(s3Service, times(2)).uploadFile(multipartFileArgumentCaptor.capture(),
+                    eq(firstUser.getId() + firstUser.getUsername()));
+            verify(resourceRepository, times(2)).save(resourceArgumentCaptor.capture());
+            verify(userRepository).save(userCaptor.capture());
+
+            List<MultipartFile> allMultipartFileCaptures = multipartFileArgumentCaptor.getAllValues();
+            List<Resource> allResourceCaptures = resourceArgumentCaptor.getAllValues();
+            User capturedUser = userCaptor.getValue();
+
+            assertTrue(allMultipartFileCaptures.containsAll(List.of(bigAvatarFile, smallAvatarFile)));
+            assertTrue(allResourceCaptures.containsAll(List.of(bigAvatarResource, smallAvatarResource)));
+            assertEquals(firstUser.getId(), capturedUser.getId());
+        }
+    }
+
+    @Test
+    void testGetAvatarWhenUserHasBigAvatarShouldReturnFile() {
+        MultipartFile bigAvatarFile = new MockMultipartFile("bigAvatarFile", new byte[]{});
+        UserProfilePic userProfilePic = mock(UserProfilePic.class);
+        User firstUser = User.builder()
+                .id(22L)
+                .username("antony")
+                .userProfilePic(userProfilePic)
+                .build();
+
+        when(userContext.getUserId()).thenReturn(firstUser.getId());
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+        when(userProfilePic.getFileId()).thenReturn(bigAvatarFile.getName());
+        when(s3Service.getFile(bigAvatarFile.getName())).thenReturn(bigAvatarFile);
+
+        MultipartFile result = userService.getAvatar();
+
+        assertEquals(result, bigAvatarFile);
+        verify(s3Service).getFile(bigAvatarFile.getName());
+    }
+
+    @Test
+    void testGetAvatarWhenUserHasOnlySmallAvatarShouldReturnFile() {
+        MultipartFile smallAvatarFile = new MockMultipartFile("smallAvatarFile", new byte[]{});
+        UserProfilePic userProfilePic = new UserProfilePic("", smallAvatarFile.getName());
+        User firstUser = User.builder()
+                .id(22L)
+                .username("antony")
+                .userProfilePic(userProfilePic)
+                .build();
+
+        when(userContext.getUserId()).thenReturn(firstUser.getId());
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+        when(userContext.getUserId()).thenReturn(firstUser.getId());
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+        when(s3Service.getFile(smallAvatarFile.getName())).thenReturn(smallAvatarFile);
+
+        MultipartFile result = userService.getAvatar();
+
+        assertEquals(result, smallAvatarFile);
+        verify(s3Service).getFile(smallAvatarFile.getName());
+    }
+
+    @Test
+    void testGetAvatarWhenUserHasNoAvatarShouldThrowException() {
+        User firstUser = User.builder()
+                .id(22L)
+                .userProfilePic(new UserProfilePic())
+                .build();
+
+        when(userContext.getUserId()).thenReturn(firstUser.getId());
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+
+        EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
+                () -> userService.getAvatar());
+        assertTrue(entityNotFoundException.getMessage().contains("User %d hasn't avatar".formatted(firstUser.getId())));
+    }
+
+    @Test
+    void testGetAvatarWhenUserProfilePicIsNullShouldThrowException() {
+        when(userContext.getUserId()).thenReturn(firstUser.getId());
+        when(userRepository.getByIdOrThrow(firstUser.getId())).thenReturn(firstUser);
+
+        EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
+                () -> userService.getAvatar());
+        assertTrue(entityNotFoundException.getMessage().contains("User %d hasn't avatar".formatted(firstUser.getId())));
+    }
+
+    @Test
+    void testDeleteAvatarWhenUserHasOnlySmallAvatarShouldDeleteSmall() {
+        User user = User.builder()
+                .id(1L)
+                .userProfilePic(new UserProfilePic("", "small-key"))
+                .build();
+
+        Resource smallResource = new Resource();
+        smallResource.setId(2L);
+
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
+        when(resourceRepository.findByKey(user.getUserProfilePic().getSmallFileId()))
+                .thenReturn(Optional.of(smallResource));
+
+        userService.deleteAvatar();
+
+        verify(s3Service).deleteFile("small-key");
+        verify(resourceRepository).deleteById(2L);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testDeleteAvatarWhenUserHasBothAvatarsShouldDeleteBoth() {
+        User user = User.builder()
+                .id(1L)
+                .userProfilePic(new UserProfilePic("big-key", "small-key"))
+                .build();
+
+        Resource bigResource = new Resource();
+        bigResource.setId(1L);
+        Resource smallResource = new Resource();
+        smallResource.setId(2L);
+
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
+        when(resourceRepository.findByKey(user.getUserProfilePic().getFileId())).thenReturn(Optional.of(bigResource));
+        when(resourceRepository.findByKey(user.getUserProfilePic().getSmallFileId()))
+                .thenReturn(Optional.of(smallResource));
+
+        userService.deleteAvatar();
+
+        verify(s3Service).deleteFile("big-key");
+        verify(s3Service).deleteFile("small-key");
+        verify(resourceRepository).deleteById(bigResource.getId());
+        verify(resourceRepository).deleteById(smallResource.getId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testDeleteAvatarWhenUserHasOnlyBigAvatarShouldDeleteBig() {
+        User user = User.builder()
+                .id(1L)
+                .userProfilePic(new UserProfilePic("big-key", ""))
+                .build();
+
+        Resource bigResource = new Resource();
+        bigResource.setId(1L);
+
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
+        when(resourceRepository.findByKey(user.getUserProfilePic().getFileId())).thenReturn(Optional.of(bigResource));
+
+        userService.deleteAvatar();
+
+        verify(s3Service).deleteFile(eq("big-key"));
+        verify(resourceRepository).deleteById(bigResource.getId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testDeleteAvatarWhenUserHasNoAvatarsShouldThrowException() {
+        User user = User.builder()
+                .id(1L)
+                .userProfilePic(new UserProfilePic("", ""))
+                .build();
+
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
+
+        EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
+                () -> userService.getAvatar());
+        assertTrue(entityNotFoundException.getMessage().contains("User %d hasn't avatar".formatted(user.getId())));
+    }
+
+    @Test
+    void testDeleteAvatarWhenUserProfilePicIsNullShouldThrowException() {
+        User user = User.builder()
+                .id(1L)
+                .userProfilePic(null)
+                .build();
+
+        when(userContext.getUserId()).thenReturn(user.getId());
+        when(userRepository.getByIdOrThrow(user.getId())).thenReturn(user);
+
+        EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class,
+                () -> userService.getAvatar());
+        assertTrue(entityNotFoundException.getMessage().contains("User %d hasn't avatar".formatted(user.getId())));
     }
 }

@@ -78,6 +78,10 @@ user:
   skill:
     recommendation:
       min: 3
+  avatar:
+    max-avatar-file-size: 5
+    max-big-avatar-file-side-length: 1080
+    max-small-avatar-file-side-length: 170
 
 
 max-active-goals: 2
