@@ -71,4 +71,12 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toUserDto(user);
     }
+
+    @Override
+    public void banUser(long userId) {
+        User userToBan = userRepository.getByIdOrThrow(userId);
+        userToBan.setBanned(true);
+        userRepository.save(userToBan);
+        log.info("Пользователь с id: {} успешно забанен.", userId);
+    }
 }
