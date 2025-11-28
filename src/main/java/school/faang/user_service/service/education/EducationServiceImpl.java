@@ -64,19 +64,16 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDto getById(long educationId) {
-        log.info("Request to get education by id={}", educationId);
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(() -> {
+                    log.error("Education not found. id={}", educationId);
+                    return new EntityNotFoundException("Education not found. id={}");
+                });
+        log.info("Education found. id={}, userId={}",
+                education.getId(),
+                education.getUser() != null ? education.getUser().getId() : null);
 
-        try {
-            Education education = educationRepository.getByIdOrThrow(educationId);
-            log.info("Education found. id={}, userId={}",
-                    education.getId(),
-                    education.getUser() != null ? education.getUser().getId() : null);
-
-            return educationMapper.toEducationDto(education);
-        } catch (EntityNotFoundException ex) {
-            log.warn("Education not found. id={}", educationId);
-            throw ex;
-        }
+        return educationMapper.toEducationDto(education);
 
     }
 
