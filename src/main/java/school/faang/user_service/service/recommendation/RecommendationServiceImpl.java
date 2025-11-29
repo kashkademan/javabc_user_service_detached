@@ -13,6 +13,7 @@ import java.util.Random;
 public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
     private final UserContext userContext;
+
     @Override
     public void recommendUser(long receiverId) {
         // TODO Реализовать логику рекомендации

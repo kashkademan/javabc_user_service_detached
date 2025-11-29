@@ -17,6 +17,7 @@ import school.faang.user_service.service.recommendation.RecommendationService;
 // TODO контроллер заглушка
 public class RecommendationController {
     private final RecommendationService recommendationService;
+
     @PostMapping("/")
     public ResponseEntity<String> add(@RequestBody Recommendation recommendation) {
         recommendationService.recommendUser(recommendation.getReceiveId());
