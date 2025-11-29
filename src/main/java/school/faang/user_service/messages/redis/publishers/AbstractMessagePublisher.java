@@ -14,9 +14,10 @@ public abstract class AbstractMessagePublisher<T> {
 
     public void publish(T message) {
         try {
+            log.info("Publish event {}", message);
             redisTemplate.convertAndSend(topic.getTopic(), message);
         } catch (RedisPublishException e) {
-            log.error("Error to send {} topic", topic.getTopic(), e);
+            log.error("Error to send {} topic", topic.getTopic(), e.getCause());
         }
     }
 }

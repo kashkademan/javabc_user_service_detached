@@ -38,7 +38,7 @@ public class MentorshipServiceImpl implements MentorshipService {
 
         mentorshipRepository.addMentorshipNative(mentorId, menteeId);
         MentorshipEventDto eventDto = new MentorshipEventDto(mentorId, menteeId);
-        mentorshipOfferedEventPublisher.sendNotification(eventDto);
+        mentorshipOfferedEventPublisher.publish(eventDto);
     }
 
     @Override
