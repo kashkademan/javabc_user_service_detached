@@ -148,7 +148,7 @@ public class EventServiceImpl implements EventService {
             return;
         }
         log.info("{} Event waiting to send on {}", eventStartDto.eventId(), delay);
-        taskScheduler.getTaskScheduler().schedule(()-> {
+        taskScheduler.getTaskScheduler().schedule(() -> {
             publishEventStart.publish(eventStartDto);
             log.info("Event send to topic: {}", eventStartDto.eventId());
         }, Instant.now().plusMillis(delay));

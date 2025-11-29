@@ -267,7 +267,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void prepareEventsPublish_withEvents_To_shouldCallMapperFourTimes() {
+    void prepareEventsPublish_withEvents_shouldCallMapperFourTimes() {
         Event event = new Event();
         event.setId(1L);
         event.setStartDate(LocalDateTime.now().plusDays(1));
@@ -291,7 +291,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void prepareEventsPublish_withEmptyEvents_To_shouldNotCallMapper() {
+    void prepareEventsPublish_withEmptyEvents_shouldNotCallMapper() {
         when(eventRepository.findEventsFor24HourReminder()).thenReturn(List.of());
 
         service.prepareEventsToPublish();
@@ -300,7 +300,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testClearExpiredEvents_DeletesInMultipleBatches() {
+    void testClearExpiredEvents_deletesInMultipleBatches() {
         doReturn(100, 50, 0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
@@ -315,7 +315,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testClearExpiredEvents_NoExpiredEvents() {
+    void testClearExpiredEvents_noExpiredEvents() {
         doReturn(0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
@@ -331,7 +331,7 @@ class EventServiceImplTest {
 
 
     @Test
-    void testClearExpiredEvents_ExactlyBatchSizeThenStop() {
+    void testClearExpiredEvents_exactlyBatchSizeThenStop() {
         doReturn(batchSize, 0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));

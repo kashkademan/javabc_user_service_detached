@@ -40,9 +40,7 @@ class UsersBanListenerTest {
         listener.onMessage(message, "user-ban".getBytes());
 
         verify(userService).banUsers(argThat(list ->
-                list != null &&
-                        list.size() == 3 &&
-                        list.containsAll(List.of(1, 2, 3))
+                list != null && list.size() == 3 && list.containsAll(List.of(1, 2, 3))
         ));
     }
 
