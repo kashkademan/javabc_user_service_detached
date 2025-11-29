@@ -19,6 +19,7 @@ import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.event.mentorship.MentorshipAcceptedEvent;
 import school.faang.user_service.event.mentorship.MentorshipOfferedEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -29,6 +30,7 @@ import school.faang.user_service.filter.mentorship_request.MentorshipRequestStat
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.publisher.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +75,8 @@ public class MentorshipRequestServiceImplTest {
     private MentorshipRequestRepository mentorshipRequestRepository;
     @Mock
     private MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
+    @Mock
+    private MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
     @Spy
     private UserContext userContext;
 
@@ -85,7 +90,7 @@ public class MentorshipRequestServiceImplTest {
         mentorshipRequestService = new MentorshipRequestServiceImpl(userRepository, mentorshipRequestRepository,
                 mentorshipRequestMapper, userContext, mentorshipOfferedEventPublisher,
                 List.of(new MentorshipRequestReceiverIdFilter(), new MentorshipRequestRequesterIdFilter(),
-                        new MentorshipRequestStatusFilter()));
+                        new MentorshipRequestStatusFilter()), mentorshipAcceptedEventPublisher);
 
         ReflectionTestUtils.setField(mentorshipRequestService, "periodForRequest", requestPeriod);
 
@@ -247,11 +252,13 @@ public class MentorshipRequestServiceImplTest {
     @Test
     void testAcceptPositive() {
         acceptCustomMocks();
+        when(mentorshipRequestRepository.save(any(MentorshipRequest.class))).thenReturn(mentorshipRequestForAccept);
 
         ArgumentCaptor<MentorshipRequest> requestCaptor = ArgumentCaptor.forClass(MentorshipRequest.class);
         mentorshipRequestService.accept(mentorshipRequestForAccept.getId());
 
         verify(mentorshipRequestRepository).save(requestCaptor.capture());
+        verify(mentorshipAcceptedEventPublisher).publish(Mockito.any(MentorshipAcceptedEvent.class));
         MentorshipRequest actualMentorshipRequest = requestCaptor.getValue();
 
         Assertions.assertEquals(RequestStatus.ACCEPTED, actualMentorshipRequest.getStatus());
