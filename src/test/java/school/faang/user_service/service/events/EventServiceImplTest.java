@@ -14,8 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.thread.ScheduleThreadsPoolConfig;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
@@ -44,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -74,6 +77,12 @@ class EventServiceImplTest {
 
     @Mock
     private EventMapper eventMapper;
+
+    @Mock
+    ScheduleThreadsPoolConfig scheduleThreadsPoolConfig;
+
+    @Mock
+    private TaskScheduler taskScheduler;
 
     @InjectMocks
     private EventServiceImpl service;
@@ -268,6 +277,7 @@ class EventServiceImplTest {
 
     @Test
     void prepareEventsPublish_withEvents_shouldCallMapperFourTimes() {
+        when(scheduleThreadsPoolConfig.getTaskScheduler()).thenReturn(taskScheduler);
         Event event = new Event();
         event.setId(1L);
         event.setStartDate(LocalDateTime.now().plusDays(1));
@@ -288,6 +298,7 @@ class EventServiceImplTest {
         verify(eventMapper).toStartDto(event, EventStart.FIVE_HOURS);
         verify(eventMapper).toStartDto(event, EventStart.ONE_HOUR);
         verify(eventMapper).toStartDto(event, EventStart.TEN_MINUTES);
+        verifyNoMoreInteractions(eventMapper);
     }
 
     @Test

@@ -11,7 +11,7 @@ import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,9 +39,7 @@ class UsersBanListenerTest {
 
         listener.onMessage(message, "user-ban".getBytes());
 
-        verify(userService).banUsers(argThat(list ->
-                list != null && list.size() == 3 && list.containsAll(List.of(1, 2, 3))
-        ));
+        verify(userService).banUsers(eq(List.of(1L, 2L, 3L)));
     }
 
     @Test
