@@ -3,10 +3,8 @@ package school.faang.user_service.service.events;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
-import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {

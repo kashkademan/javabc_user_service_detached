@@ -29,7 +29,7 @@ public class UsersBanListener implements MessageListener {
         try {
             List<Long> userIds = objectMapper.readValue(
                     message.getBody(),
-                    new TypeReference<List<Long>>() {}
+                    new TypeReference<>() {}
             );
             userService.banUsers(userIds);
         } catch (IOException e) {
