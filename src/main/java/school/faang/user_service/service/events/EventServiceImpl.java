@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.thread.ScheduleThreadsPoolConfig;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
@@ -24,19 +25,18 @@ import school.faang.user_service.entity.user.Skill;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.EventMapper;
-import school.faang.user_service.messages.redis.publishers.PublishEventStart;
+import school.faang.user_service.messages.redis.publishers.EventStartPublisher;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.user.SkillRepository;
 import school.faang.user_service.repository.user.UserRepository;
 import school.faang.user_service.service.skill.SkillServiceImpl;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,9 +49,18 @@ public class EventServiceImpl implements EventService {
     private final UserContext userContext;
     private final EventMapper eventMapper;
     private final EntityManager entityManager;
+    private final ScheduleThreadsPoolConfig taskScheduler;
+    private final EventStartPublisher publishEventStart;
     @Value("${scheduler.clear-events.batch-size}")
     private int batchSize;
-    private final PublishEventStart publishEventStart;
+    @Value("${event-notification.one-day}")
+    private int notificationOneDay;
+    @Value("${event-notification.five-hours}")
+    private int notificationFiveHours;
+    @Value("${event-notification.one-hour}")
+    private int notificationOneHour;
+    @Value("${event-notification.ten-minutes}")
+    private int notificationTenMinutes;
 
     @Transactional
     @Override
@@ -112,7 +121,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void startEventsPublish() {
+    public void prepareEventsToPublish() {
         LocalDateTime now = LocalDateTime.now();
         log.info("Current Date {}", now);
 
@@ -120,35 +129,29 @@ public class EventServiceImpl implements EventService {
         log.info("Number of Events per notification {}", events.size());
         events.forEach(event -> {
             LocalDateTime eventStartTime = event.getStartDate();
-            scheduleNotification(eventMapper.toStartDto(event, EventStart.ONE_DAY),
-                    eventStartTime.minusHours(24));
-            scheduleNotification(eventMapper.toStartDto(event, EventStart.FIVE_HOURS),
-                    eventStartTime.minusHours(5));
-            scheduleNotification(eventMapper.toStartDto(event, EventStart.ONE_HOUR),
-                    eventStartTime.minusHours(1));
-            scheduleNotification(eventMapper.toStartDto(event, EventStart.TEN_MINUTES),
-                    eventStartTime.minusMinutes(10));
+            scheduleNotificationEvent(eventMapper.toStartDto(event, EventStart.ONE_DAY),
+                    eventStartTime.minusHours(notificationOneDay));
+            scheduleNotificationEvent(eventMapper.toStartDto(event, EventStart.FIVE_HOURS),
+                    eventStartTime.minusHours(notificationFiveHours));
+            scheduleNotificationEvent(eventMapper.toStartDto(event, EventStart.ONE_HOUR),
+                    eventStartTime.minusHours(notificationOneHour));
+            scheduleNotificationEvent(eventMapper.toStartDto(event, EventStart.TEN_MINUTES),
+                    eventStartTime.minusMinutes(notificationTenMinutes));
         });
     }
 
-    private void scheduleNotification(EventStartDto eventStartDto, LocalDateTime notifyTime) {
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+    private void scheduleNotificationEvent(EventStartDto eventStartDto, LocalDateTime notifyTime) {
         long delay = ChronoUnit.MILLIS.between(LocalDateTime.now(), notifyTime);
         if (delay <= 0) {
             log.info("Notification skipped (already past) for Event: {}, delay {}, date now {}",
-                    eventStartDto.eventId(), delay, now);
+                    eventStartDto.eventId(), delay, LocalDateTime.now(ZoneOffset.UTC));
             return;
         }
-
-        Timer timer = new Timer();
         log.info("{} Event waiting to send on {}", eventStartDto.eventId(), delay);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                publishEventStart.sendNotification(eventStartDto);
-                log.info("Event send to topic: {}", eventStartDto.eventId());
-            }
-        }, delay);
+        taskScheduler.getTaskScheduler().schedule(()-> {
+            publishEventStart.publish(eventStartDto);
+            log.info("Event send to topic: {}", eventStartDto.eventId());
+        }, Instant.now().plusMillis(delay));
     }
 
     @Override

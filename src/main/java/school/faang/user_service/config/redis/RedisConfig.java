@@ -43,16 +43,13 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        Jackson2JsonRedisSerializer<Object> jackson =
-                new Jackson2JsonRedisSerializer<>(new ObjectMapper(), Object.class);
-
+        Jackson2JsonRedisSerializer<Object> jackson = new Jackson2JsonRedisSerializer<>(Object.class);
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
         redisTemplate.setConnectionFactory(connectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setHashKeySerializer(stringSerializer);
         redisTemplate.setHashValueSerializer(jackson);
         redisTemplate.setValueSerializer(jackson);
-
-
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }

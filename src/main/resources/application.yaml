@@ -24,9 +24,9 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
 
 server:
   port: 8080
@@ -58,7 +58,7 @@ skills:
   min-offers-for-acquire: 3
 
 schedule:
-    events-cron: "0 0 0 * * *"
+  events-cron: "0 0 0 * * *"
 
 services:
   s3:
@@ -83,3 +83,14 @@ scheduler:
 recommendation:
   time:
     limit: 6
+
+thread:
+  taskScheduler:
+    thread-pool-size: 10
+    await-termination-second: 30
+
+event-notification:
+  one-day: 24
+  five-hours: 5
+  one-hour: 1
+  ten-minutes: 10

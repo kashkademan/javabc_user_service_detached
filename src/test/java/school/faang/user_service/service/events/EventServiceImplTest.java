@@ -267,7 +267,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void startEventsPublish_withEvents_shouldCallMapperFourTimes() {
+    void prepareEventsPublish_withEvents_To_shouldCallMapperFourTimes() {
         Event event = new Event();
         event.setId(1L);
         event.setStartDate(LocalDateTime.now().plusDays(1));
@@ -282,7 +282,7 @@ class EventServiceImplTest {
         when(eventMapper.toStartDto(event, EventStart.TEN_MINUTES)).thenReturn(new EventStartDto(1L,
                 null, EventStart.TEN_MINUTES, null));
 
-        service.startEventsPublish();
+        service.prepareEventsToPublish();
 
         verify(eventMapper).toStartDto(event, EventStart.ONE_DAY);
         verify(eventMapper).toStartDto(event, EventStart.FIVE_HOURS);
@@ -291,10 +291,10 @@ class EventServiceImplTest {
     }
 
     @Test
-    void startEventsPublish_withEmptyEvents_shouldNotCallMapper() {
+    void prepareEventsPublish_withEmptyEvents_To_shouldNotCallMapper() {
         when(eventRepository.findEventsFor24HourReminder()).thenReturn(List.of());
 
-        service.startEventsPublish();
+        service.prepareEventsToPublish();
 
         verifyNoInteractions(eventMapper);
     }

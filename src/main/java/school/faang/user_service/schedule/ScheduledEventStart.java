@@ -15,7 +15,7 @@ public class ScheduledEventStart {
     @Scheduled(cron =  "${schedule.events-cron}")
     public void scheduledEventStart() {
         log.info("Start scheduled Event start");
-        eventService.startEventsPublish();
+        eventService.prepareEventsToPublish();
         log.info("Complete scheduled Event start");
     }
 }
