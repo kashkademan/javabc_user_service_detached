@@ -45,7 +45,8 @@ public class RecommendationRequestController {
     })
     @Operation(summary = "Create a recommendation request")
     @PostMapping
-    public RecommendationRequestDto createRecommendationRequest(@RequestBody @Valid CreateRecommendationRequestDto dto) {
+    public RecommendationRequestDto createRecommendationRequest(
+            @RequestBody @Valid CreateRecommendationRequestDto dto) {
         return recommendationRequestService.create(dto);
     }
 

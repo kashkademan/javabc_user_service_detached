@@ -28,7 +28,8 @@ public interface RecommendationRequestRepository extends JpaRepository<Recommend
                     WHERE r.requester.id = :requesterId AND r.receiver.id = :receiverId
                     ORDER BY r.createdAt DESC
                     """)
-    Optional<RecommendationRequest> findLatestRequest(@Param("requesterId") long requesterId, @Param("receiverId") long receiverId);
+    Optional<RecommendationRequest> findLatestRequest(@Param("requesterId") long requesterId,
+                                                      @Param("receiverId") long receiverId);
 
     @EntityGraph(attributePaths = {"requester", "receiver"})
     @Override
@@ -42,7 +43,8 @@ public interface RecommendationRequestRepository extends JpaRepository<Recommend
                     join r.receiver receiver
                     where (:requesterId is null or requester.id = :requesterId)
                         and (:receiverId is null or receiver.id = :receiverId)
-                        and (:messageContains is null or lower(r.message) like lower(concat('%', :messageContains, '%')))
+                        and (:messageContains is null
+                                             or lower(r.message) like lower(concat('%', :messageContains, '%')))
                         and (:status is null or r.status = :status)
                     """
     )
