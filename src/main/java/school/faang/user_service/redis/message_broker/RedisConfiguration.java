@@ -1,5 +1,6 @@
 package school.faang.user_service.redis.message_broker;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +36,12 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory connectionFactory,
+                                                       ObjectMapper objectMapper) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory);
+        template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
         return template;
     }
 
@@ -53,13 +56,18 @@ public class RedisConfiguration {
     }
 
     @Bean
+    ChannelTopic recommendationTopic(@Value("${spring.data.redis.topics.recommendation}") String topic) {
+        return new ChannelTopic(topic);
+    }
+
+    @Bean
     RedisMessageListenerContainer redisContainer(
             MessageListenerAdapter messageListenerAdapter,
             JedisConnectionFactory jedisConnectionFactory,
-            ChannelTopic topic) {
+            ChannelTopic commenterBannerTopic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(messageListenerAdapter, commenterBannerTopic());
+        container.addMessageListener(messageListenerAdapter, commenterBannerTopic);
         return container;
     }
 }
