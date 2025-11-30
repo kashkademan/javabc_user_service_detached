@@ -28,6 +28,9 @@ spring:
     port: ${REDIS_PORT}
     password: ${REDIS_PASSWORD}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}:${KAFKA_PORT}
+
 server:
   port: 8080
 
