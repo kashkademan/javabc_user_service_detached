@@ -7,17 +7,19 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship.CreateMentorshipRequestDto;
-import school.faang.user_service.event.mentorship.MentorshipOfferedEvent;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.user.MentorshipRequest;
 import school.faang.user_service.entity.user.User;
+import school.faang.user_service.event.mentorship.MentorshipAcceptedEvent;
+import school.faang.user_service.event.mentorship.MentorshipOfferedEvent;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.filter.mentorship_request.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.publisher.MentorshipOfferedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
@@ -38,6 +40,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserContext userContext;
     private final MentorshipOfferedEventPublisher mentorshipOfferedEventPublisher;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
+    private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
     @Value("${mentorship.request.periodForRequest}")
     private int periodForRequest;
@@ -118,7 +121,13 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
         log.info("Mentorship request {} was accepted", requestId);
-        mentorshipRequestRepository.save(mentorshipRequest);
+        MentorshipRequest savedMentorshipRequest = mentorshipRequestRepository.save(mentorshipRequest);
+
+        mentorshipAcceptedEventPublisher.publish(MentorshipAcceptedEvent.builder()
+                .mentorshipRequestId(savedMentorshipRequest.getId())
+                .mentorId(savedMentorshipRequest.getReceiver().getId())
+                .menteeId(savedMentorshipRequest.getRequester().getId())
+                .build());
     }
 
     @Override
