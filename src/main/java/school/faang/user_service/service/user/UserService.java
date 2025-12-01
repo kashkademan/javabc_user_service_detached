@@ -66,7 +66,7 @@ public interface UserService {
      * @param email  почта пользователя для аутентификации в телеграм-боте
      * @return объект {@link UserDto}, представляющий обновлённого пользователя
      */
-    UserDto updateChatIdByEmail(long chatId, String email);
+    UserDto updateChatIdByEmail(long chatId, String email); //TODO: изменить параметры на @RequestBody
 
     /**
      * Возвращает информацию о пользователе по его идентификатору.

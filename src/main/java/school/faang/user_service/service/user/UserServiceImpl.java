@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto updateChatIdByEmail(long chatId, String email) {
+    public UserDto updateChatIdByEmail(long chatId, String email) { //TODO: изменить параметры на @RequestBody
         User currentUser = userRepository.findByEmailIgnoreCase(email);
         if (currentUser == null) {
             log.error("User with email '{}' does not exist", email);
