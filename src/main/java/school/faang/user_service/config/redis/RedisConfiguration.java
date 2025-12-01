@@ -41,8 +41,14 @@ public class RedisConfiguration {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        objectMapper.findAndRegisterModules();
+
         Jackson2JsonRedisSerializer<Object> jackson =
-                new Jackson2JsonRedisSerializer<>(new ObjectMapper(), Object.class);
+                new Jackson2JsonRedisSerializer<>(Object.class);
+        jackson.setObjectMapper(objectMapper);
 
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());

@@ -1,20 +1,19 @@
 package school.faang.user_service.service.mentorship;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.mentorship.MentorshipDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.dto.mentorship.MentorshipDto;
 import school.faang.user_service.repository.mentorship.service.validation.MentorshipServiceValidation;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
