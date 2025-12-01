@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@Disabled // TODO: Удалить после исправление
+@Disabled // TODO: Удалить после исправления
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
