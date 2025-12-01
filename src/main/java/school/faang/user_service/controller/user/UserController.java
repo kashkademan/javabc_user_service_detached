@@ -47,7 +47,7 @@ public class UserController {
         return userService.update(userId, userDto);
     }
 
-    @PutMapping("/user/{chatId}")
+    @PostMapping("/chats/{chatId}") //TODO: изменить параметры на @RequestBody
     public UserDto updateChatIdByEmail(@PathVariable long chatId, @RequestParam("email") String email) {
         validateEmail(email);
         return userService.updateChatIdByEmail(chatId, email);

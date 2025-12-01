@@ -77,13 +77,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto updateChatIdByEmail(long chatId, String email) {
-        if (!userRepository.existsByEmailIgnoreCase(email)) {
+        User currentUser = userRepository.findByEmailIgnoreCase(email);
+        if (currentUser == null) {
             log.error("User with email '{}' does not exist", email);
             throw new EntityNotFoundException(String.format("User with email '%s' does not exist", email));
         }
-        User currentUser = userRepository.findByEmailIgnoreCase(email);
         currentUser.setChatId(chatId);
-        currentUser = userRepository.save(currentUser);
         return userMapper.toUserDto(currentUser);
     }
 
