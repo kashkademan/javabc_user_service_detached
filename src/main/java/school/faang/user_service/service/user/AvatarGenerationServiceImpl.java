@@ -2,6 +2,8 @@ package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,96 +12,36 @@ import java.util.Random;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@PropertySource("file:src/main/resources/properties/avatar_generation.properties")
 public class AvatarGenerationServiceImpl implements AvatarGenerationService {
-    private final List<String> flipVariants = List.of(
-            "true",
-            "false"
-    );
-    private final List<String> backgroundColorVariants = List.of(
-            "b6e3f4",
-            "c0aede",
-            "d1d4f9",
-            "ffd5dc",
-            "ffdfbf"
-    );
-    private final List<String> eyesVariants = List.of(
-            "cheery",
-            "normal",
-            "confused",
-            "starstruck",
-            "winking",
-            "sleepy",
-            "sad",
-            "angry"
-    );
-    private final List<String> hairVariants = List.of(
-            "shortHair",
-            "mohawk",
-            "wavyBob",
-            "bowlCutHair",
-            "curlyBob",
-            "straightHair",
-            "braids",
-            "shavedHead",
-            "bunHair",
-            "froBun",
-            "bangs",
-            "halfShavedHead",
-            "curlyShortHair"
-    );
-    private final List<String> hairColorVariants = List.of(
-            "220f00",
-            "3a1a00",
-            "71472d",
-            "e2ba87",
-            "605de4",
-            "238d80",
-            "d56c0c",
-            "e9b729"
-    );
-    private final List<String> moutheVariants = List.of(
-            "openedSmile",
-            "unimpressed",
-            "gapSmile",
-            "openSad",
-            "teethSmile",
-            "awkwardSmile",
-            "braces",
-            "kawaii"
-    );
-    private final List<String> skinColorVariants = List.of(
-            "ffe4c0",
-            "f5d7b1",
-            "efcc9f",
-            "e2ba87",
-            "c99c62",
-            "a47539",
-            "8c5a2b",
-            "643d19"
-    );
+
+    @Value("${base_url}")
+    private String baseUrl;
+
+    @Value("${parameter_url_for_img_size}")
+    private String parametrUrlForImgSize;
+
+    @Value("${face_features}")
+    private List<String> features;
+
+    @Value("#{'${face_features_vatiants}'.split(';')}")
+    private List<List<String>> featuresVariants;
 
     @Override
     public String generateAvatarUrl() {
         Random random = new Random();
-        String generatedAvatarUrl = "https://api.dicebear.com/9.x/big-smile/svg";
-        int randomElementIndex = random.nextInt(flipVariants.size());
-        generatedAvatarUrl += "?flip=" + flipVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(backgroundColorVariants.size());
-        generatedAvatarUrl += "&backgroundColor=" + backgroundColorVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(eyesVariants.size());
-        generatedAvatarUrl += "&eyes=" + eyesVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(hairVariants.size());
-        generatedAvatarUrl += "&hair=" + hairVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(hairColorVariants.size());
-        generatedAvatarUrl += "&hairColor=" + hairColorVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(moutheVariants.size());
-        generatedAvatarUrl += "&mouthe=" + moutheVariants.get(randomElementIndex);
-        randomElementIndex = random.nextInt(skinColorVariants.size());
-        return generatedAvatarUrl + "&skinColor=" + skinColorVariants.get(randomElementIndex);
+        StringBuilder generatedAvatarUrl = new StringBuilder(baseUrl);
+        for (int i = 0; i < features.size(); i++) {
+            String feature = features.get(i);
+            List<String> featureVariants = featuresVariants.get(i);
+            int randomElementIndex = random.nextInt(featureVariants.size());
+            generatedAvatarUrl.append(feature).append(featureVariants.get(randomElementIndex));
+        }
+        return generatedAvatarUrl.toString();
     }
 
     @Override
     public String setSizeToGeneratedAvatar(String generatedAvatarUrl, int requiredSize) {
-        return generatedAvatarUrl + "&size=" + requiredSize;
+        return generatedAvatarUrl + parametrUrlForImgSize + requiredSize;
     }
 }
