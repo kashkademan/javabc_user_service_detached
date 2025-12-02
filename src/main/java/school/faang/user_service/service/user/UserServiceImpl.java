@@ -19,7 +19,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -43,7 +42,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(userDto);
         user.setActive(true);
         user.setCountry(countryRepository.getByIdOrThrow(userDto.countryId()));
-        user.setFollowers(new ArrayList<>());
         user = userRepository.save(user);
         log.info("User {} created", user.getId());
         return userMapper.toUserDto(user);
@@ -79,7 +77,6 @@ public class UserServiceImpl implements UserService {
     public UserDto updateChatIdByEmail(long chatId, String email) { //TODO: изменить параметры на @RequestBody
         User currentUser = userRepository.findByEmailIgnoreCase(email);
         if (currentUser == null) {
-            log.error("User with email '{}' does not exist", email);
             throw new EntityNotFoundException(String.format("User with email '%s' does not exist", email));
         }
         currentUser.setChatId(chatId);

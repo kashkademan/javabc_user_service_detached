@@ -97,7 +97,7 @@ public class User {
     @ManyToMany
     @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private List<User> followers;
+    private List<User> followers = new ArrayList<>();
 
     @ManyToMany(mappedBy = "followers")
     private List<User> followees;
