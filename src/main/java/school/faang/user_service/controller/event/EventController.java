@@ -52,13 +52,20 @@ public class EventController {
 
     @GetMapping
     public List<EventResponseDto> getAllByFilter(@RequestBody AllEventByFilterDto allEventByFilterDto,
-                                          @RequestParam
-                                          @DefaultValue(value = "0")
-                                          int page,
-                                          @RequestParam
-                                          @DefaultValue(value = "10")
-                                          int size) {
+                                                 @RequestParam
+                                                 @DefaultValue(value = "0")
+                                                 int page,
+                                                 @RequestParam
+                                                 @DefaultValue(value = "10")
+                                                 int size) {
         return eventService.getAllByFilter(allEventByFilterDto, page, size);
+    }
+
+    @GetMapping("/{eventId}")
+    public EventResponseDto getEventById(@Positive(message = "Event cannot be negative")
+                                         @PathVariable
+                                         Long eventId) {
+        return eventService.getEventById(eventId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

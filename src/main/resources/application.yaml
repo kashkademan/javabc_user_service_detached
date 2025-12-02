@@ -24,9 +24,9 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
 
 server:
   port: 8080
@@ -57,6 +57,9 @@ user:
 skills:
   min-offers-for-acquire: 3
 
+schedule:
+  events-cron: "0 0 0 * * *"
+
 services:
   s3:
     endpoint: ${MINIO_ENDPOINT}:${MINIO_PORT}
@@ -64,11 +67,13 @@ services:
     secretKey: ${MINIO_SECRET_KEY}
     bucketName: ${MINIO_BUCKET_NAME}
 
+
 redis:
   topics:
     name:
       user-ban-topic: "user-ban-topic"
       mentorship-offered: "mentorship-offered"
+      event-start-topic: "event_start_topic"
 
 scheduler:
   clear-events:
@@ -78,3 +83,14 @@ scheduler:
 recommendation:
   time:
     limit: 6
+
+thread:
+  taskScheduler:
+    thread-pool-size: 10
+    await-termination-second: 30
+
+event-notification:
+  one-day: 24
+  five-hours: 5
+  one-hour: 1
+  ten-minutes: 10

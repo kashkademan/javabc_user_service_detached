@@ -57,6 +57,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                     @Param("participantId") Long participantId,
                                     Pageable pageable);
 
+    @Query(value = """
+            SELECT * FROM event 
+            WHERE status = 0 
+              AND start_date >= now() 
+              AND start_date <= now() + INTERVAL '25 hours'
+            """,
+            nativeQuery = true)
+    List<Event> findEventsFor24HourReminder();
+
     @Modifying
     @Query(value = """
             DELETE FROM event

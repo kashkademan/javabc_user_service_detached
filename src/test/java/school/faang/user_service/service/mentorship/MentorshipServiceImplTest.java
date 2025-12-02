@@ -55,7 +55,7 @@ class MentorshipServiceImplTest {
         mentorshipService.addMentorship(mentorId, menteeId);
 
         verify(mentorshipRepository, times(1)).addMentorshipNative(mentorId, menteeId);
-        verify(mentorshipOfferedEventPublisher, times(1)).sendNotification(any(MentorshipEventDto.class));
+        verify(mentorshipOfferedEventPublisher, times(1)).publish(any(MentorshipEventDto.class));
     }
 
     @Test

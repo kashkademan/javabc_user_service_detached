@@ -14,13 +14,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.config.thread.ScheduleThreadsPoolConfig;
 import school.faang.user_service.dto.events.AllEventByFilterDto;
 import school.faang.user_service.dto.events.EventCreateDto;
 import school.faang.user_service.dto.events.EventResponseDto;
+import school.faang.user_service.dto.events.EventStartDto;
 import school.faang.user_service.dto.events.UpdateEventDto;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.entity.EventStart;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.entity.user.User;
@@ -41,6 +45,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -71,6 +77,12 @@ class EventServiceImplTest {
 
     @Mock
     private EventMapper eventMapper;
+
+    @Mock
+    ScheduleThreadsPoolConfig scheduleThreadsPoolConfig;
+
+    @Mock
+    private TaskScheduler taskScheduler;
 
     @InjectMocks
     private EventServiceImpl service;
@@ -264,7 +276,42 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testClearExpiredEvents_DeletesInMultipleBatches() {
+    void prepareEventsPublish_withEvents_shouldCallMapperFourTimes() {
+        when(scheduleThreadsPoolConfig.getTaskScheduler()).thenReturn(taskScheduler);
+        Event event = new Event();
+        event.setId(1L);
+        event.setStartDate(LocalDateTime.now().plusDays(1));
+
+        when(eventRepository.findEventsFor24HourReminder()).thenReturn(List.of(event));
+        when(eventMapper.toStartDto(event, EventStart.ONE_DAY)).thenReturn(new EventStartDto(1L,
+                null, EventStart.ONE_DAY, null));
+        when(eventMapper.toStartDto(event, EventStart.FIVE_HOURS)).thenReturn(new EventStartDto(1L,
+                null, EventStart.FIVE_HOURS, null));
+        when(eventMapper.toStartDto(event, EventStart.ONE_HOUR)).thenReturn(new EventStartDto(1L,
+                null, EventStart.ONE_HOUR, null));
+        when(eventMapper.toStartDto(event, EventStart.TEN_MINUTES)).thenReturn(new EventStartDto(1L,
+                null, EventStart.TEN_MINUTES, null));
+
+        service.prepareEventsToPublish();
+
+        verify(eventMapper).toStartDto(event, EventStart.ONE_DAY);
+        verify(eventMapper).toStartDto(event, EventStart.FIVE_HOURS);
+        verify(eventMapper).toStartDto(event, EventStart.ONE_HOUR);
+        verify(eventMapper).toStartDto(event, EventStart.TEN_MINUTES);
+        verifyNoMoreInteractions(eventMapper);
+    }
+
+    @Test
+    void prepareEventsPublish_withEmptyEvents_shouldNotCallMapper() {
+        when(eventRepository.findEventsFor24HourReminder()).thenReturn(List.of());
+
+        service.prepareEventsToPublish();
+
+        verifyNoInteractions(eventMapper);
+    }
+
+    @Test
+    void testClearExpiredEvents_deletesInMultipleBatches() {
         doReturn(100, 50, 0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
@@ -279,7 +326,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void testClearExpiredEvents_NoExpiredEvents() {
+    void testClearExpiredEvents_noExpiredEvents() {
         doReturn(0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));
@@ -295,7 +342,7 @@ class EventServiceImplTest {
 
 
     @Test
-    void testClearExpiredEvents_ExactlyBatchSizeThenStop() {
+    void testClearExpiredEvents_exactlyBatchSizeThenStop() {
         doReturn(batchSize, 0)
                 .when(eventRepository)
                 .deleteExpiredEventsBatch(any(LocalDateTime.class), eq(batchSize));

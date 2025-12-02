@@ -17,5 +17,9 @@ public interface EventService {
 
     void deleteEvent(Long eventId);
 
+    EventResponseDto getEventById(Long eventId);
+
+    void prepareEventsToPublish();
+
     void clearExpiredEvents();
 }
