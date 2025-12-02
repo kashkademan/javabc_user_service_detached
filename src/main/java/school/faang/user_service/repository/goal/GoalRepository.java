@@ -69,4 +69,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
                 () -> new EntityNotFoundException(String.format("Goal %d not found", goalId))
         );
     }
+
+    void deleteById(Long goalId);
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.education;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -14,11 +15,11 @@ public class EducationController {
     private final EducationService educationService;
     private final UserContext userContext;
 
-    public EducationDto addEducation(EducationDto educationDto) {
+    public EducationDto addEducation(@Valid EducationDto educationDto) {
         return educationService.addEducation(userContext.getUserId(), educationDto);
     }
 
-    public EducationDto updateEducation(long educationId, EducationDto educationDto) {
+    public EducationDto updateEducation(long educationId, @Valid EducationDto educationDto) {
         return educationService.updateEducation(userContext.getUserId(),
                 educationId,
                 educationDto);
