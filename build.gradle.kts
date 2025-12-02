@@ -10,6 +10,7 @@ plugins {
 group = "faang.school"
 version = "1.0"
 
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -58,7 +59,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-
+    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
 
     /**
