@@ -19,6 +19,9 @@ spring:
   data:
     kafka:
       bootstrap_servers: localhost:9092
+      topics:
+        goal-completed:
+          name: goal-completed
 
     redis:
       port: 6379
