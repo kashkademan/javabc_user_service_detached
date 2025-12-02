@@ -17,6 +17,11 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   data:
+    kafka:
+      topics:
+        profile_view:
+          name: profile-view
+
     redis:
       port: 6379
       host: localhost
