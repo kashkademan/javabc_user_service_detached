@@ -26,6 +26,9 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.topics.commenter_banner}")
     private String commenterBannerTopicName;
 
+    @Value("${spring.data.redis.topics.recommendation}")
+    private String recommendationTopic;
+
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
@@ -56,8 +59,8 @@ public class RedisConfiguration {
     }
 
     @Bean
-    ChannelTopic recommendationTopic(@Value("${spring.data.redis.topics.recommendation}") String topic) {
-        return new ChannelTopic(topic);
+    ChannelTopic recommendationTopic() {
+        return new ChannelTopic(recommendationTopic);
     }
 
     @Bean
