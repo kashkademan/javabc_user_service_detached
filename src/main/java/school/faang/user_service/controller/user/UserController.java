@@ -56,6 +56,7 @@ public class UserController {
         }
     }
 
+
     private void validateNotNull(Object value, String paramName) {
         if (value == null) {
             throw new DataValidationException(paramName + " should be present!");
