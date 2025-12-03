@@ -62,10 +62,3 @@ mentorship:
 recommendation:
   cooldown:
     months: 6
-
-services:
-  s3:
-    endpoint: http://localhost:9000
-    accessKey: user
-    secretKey: password
-    bucketName: corpbucket
