@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -17,6 +18,10 @@ import org.testcontainers.utility.DockerImageName;
 @ActiveProfiles("test")
 class ApplicationContextTest {
     private static final String REDIS_PASSWORD = "testContainerRedis";
+
+    @Container
+    private static final KafkaContainer KAFKA_CONTAINER =
+            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
@@ -52,6 +57,10 @@ class ApplicationContextTest {
         registry.add("services.minio.endpoint", MINIO_CONTAINER::getS3URL);
         registry.add("services.minio.accessKey", MINIO_CONTAINER::getUserName);
         registry.add("services.minio.secretKey", MINIO_CONTAINER::getPassword);
+
+        registry.add("KAFKA_HOST", KAFKA_CONTAINER::getHost);
+        registry.add("KAFKA_PORT", () -> KAFKA_CONTAINER.getMappedPort(9092).toString());
+        registry.add("spring.kafka.bootstrap-serverce", KAFKA_CONTAINER::getBootstrapServers);
     }
 
     @Test
