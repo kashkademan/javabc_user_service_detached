@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -18,6 +19,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.messages.kafka.publusher.RecommendationPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -32,6 +34,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final UserRepository userRepository;
     private final UserContext userContext;
+    private final RecommendationPublisher recommendationPublisher;
     @Value("${recommendation.time.limit}")
     private int limit;
 
@@ -60,6 +63,13 @@ public class RecommendationServiceImpl implements RecommendationService {
         recommendation.setContent(recommendationDto.content());
 
         Recommendation saved = recommendationRepository.save(recommendation);
+
+
+        recommendationPublisher.publish(RecommendationEventDto.builder()
+                .authorId(saved.getAuthor().getId())
+                .receiverId(saved.getReceiver().getId())
+                .content(saved.getContent())
+                .build());
 
         return RecommendationDto.builder()
                 .id(saved.getId())

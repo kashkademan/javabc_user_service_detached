@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -20,6 +21,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.messages.kafka.publusher.RecommendationPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -43,6 +45,8 @@ class RecommendationServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private UserContext userContext;
+    @Mock
+    private RecommendationPublisher recommendationPublisher;
 
     @InjectMocks
     private RecommendationServiceImpl service;
@@ -124,6 +128,37 @@ class RecommendationServiceImplTest {
 
         assertThatThrownBy(() -> service.create(new CreateRecommendationDto(2L, "hi")))
                 .isInstanceOf(DataValidationException.class);
+    }
+
+    @Test
+    public void create_shouldPublishToTopic() {
+        given(userContext.getUserId()).willReturn(1L);
+        given(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
+                .willReturn(Optional.empty());
+
+        User author = new User();
+        author.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+        given(userRepository.getByIdOrThrow(1L)).willReturn(author);
+        given(userRepository.getByIdOrThrow(2L)).willReturn(receiver);
+
+        Recommendation saved = new Recommendation();
+        saved.setId(100L);
+        saved.setAuthor(author);
+        saved.setReceiver(receiver);
+        saved.setContent("hi");
+        given(recommendationRepository.save(any(Recommendation.class))).willReturn(saved);
+
+        service.create(new CreateRecommendationDto(2L, "Test"));
+
+        RecommendationEventDto publishDto = RecommendationEventDto.builder()
+                .authorId(saved.getAuthor().getId())
+                .receiverId(saved.getReceiver().getId())
+                .content(saved.getContent())
+                .build();
+
+        verify(recommendationPublisher).publish(publishDto);
     }
 
     @Test
