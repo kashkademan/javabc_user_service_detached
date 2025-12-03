@@ -23,6 +23,7 @@ spring:
       channels:
         commenter_banner: commenter_banner
         mentorship_request: mentorship_request
+        recommendation: recommendation
 
 server:
   port: 8080
