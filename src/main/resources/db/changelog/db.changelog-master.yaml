@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V009__premium_payment_field.sql
   - include:
       file: db/changelog/changeset/user_V010__premium_purchase_attempts.sql
+  - include:
+      file: db/changelog/changeset/user_V011__insert_chat_id.sql
