@@ -9,6 +9,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -21,7 +22,8 @@ class ApplicationContextTest {
 
     @Container
     private static final KafkaContainer KAFKA_CONTAINER =
-            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
+            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"))
+                    .waitingFor(Wait.forListeningPort());
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
@@ -58,9 +60,10 @@ class ApplicationContextTest {
         registry.add("services.minio.accessKey", MINIO_CONTAINER::getUserName);
         registry.add("services.minio.secretKey", MINIO_CONTAINER::getPassword);
 
-        registry.add("KAFKA_HOST", KAFKA_CONTAINER::getHost);
-        registry.add("KAFKA_PORT", () -> KAFKA_CONTAINER.getMappedPort(9092).toString());
-        registry.add("spring.kafka.bootstrap-serverce", KAFKA_CONTAINER::getBootstrapServers);
+        registry.add("KAFKA_HOST", () -> "hosthost");
+        registry.add("KAFKA_PORT", () -> "9092");
+        registry.add("spring.kafka.bootstrap-service", KAFKA_CONTAINER::getBootstrapServers);
+
     }
 
     @Test
