@@ -7,10 +7,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RecommendationPublisher extends AbstractPublishKafka{
+public class RecommendationPublisher extends AbstractPublishKafka {
 
     public RecommendationPublisher(@Qualifier("kafkaTemplate") KafkaTemplate<String, Object> kafkaTemplate,
-                                   @Value("${spring.kafka.topics.recommendation}") String eventRecommendation, ObjectMapper objectMapper) {
+                                   @Value("${spring.kafka.topics.recommendation}") String eventRecommendation,
+                                   ObjectMapper objectMapper) {
         super(kafkaTemplate, objectMapper, eventRecommendation);
     }
 }

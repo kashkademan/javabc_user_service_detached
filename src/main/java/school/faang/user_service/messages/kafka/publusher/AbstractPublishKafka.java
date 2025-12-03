@@ -18,7 +18,7 @@ public abstract class AbstractPublishKafka {
     public void publish(Object message) {
         try {
             log.info("Sending to the Kafka topic {}", message);
-            String json = null;
+            String json;
             try {
                 json = objectMapper.writeValueAsString(message);
             } catch (JsonProcessingException e) {
