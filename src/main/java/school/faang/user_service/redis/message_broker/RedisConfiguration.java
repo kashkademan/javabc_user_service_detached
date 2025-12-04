@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,6 +27,9 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.topics.commenter_banner}")
     private String commenterBannerTopicName;
 
+    @Value("${spring.data.redis.topics.recommendation}")
+    private String recommendationTopic;
+
     @Value("${spring.data.redis.topics.search-appearance}")
     private String topicSearchAppearance;
 
@@ -41,10 +43,10 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
+    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory connectionFactory,
                                                        ObjectMapper objectMapper) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
+        template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
         return template;
@@ -58,6 +60,11 @@ public class RedisConfiguration {
     @Bean
     ChannelTopic commenterBannerTopic() {
         return new ChannelTopic(commenterBannerTopicName);
+    }
+
+    @Bean
+    ChannelTopic recommendationTopic() {
+        return new ChannelTopic(recommendationTopic);
     }
 
     @Bean

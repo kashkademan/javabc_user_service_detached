@@ -7,11 +7,13 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
 import java.time.LocalDateTime;
@@ -26,6 +28,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
     private final UserContext userContext;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Override
     public RecommendationDto create(CreateRecommendationDto recommendationDto) {
@@ -36,6 +39,14 @@ public class RecommendationServiceImpl implements RecommendationService {
         Long newRecommendationId = recommendationRepository.create(authorId, receiverId, recommendationDto.content());
         Recommendation recommendation = recommendationRepository.findById(newRecommendationId)
                 .orElseThrow(() -> new DataValidationException("Recommendation has not been created"));
+
+        RecommendationReceivedEvent event = new RecommendationReceivedEvent(
+                newRecommendationId,
+                authorId,
+                receiverId,
+                recommendation.getCreatedAt());
+        recommendationReceivedEventPublisher.publish(event);
+
         return recommendationMapper.toRecommendationDto(recommendation);
     }
 
