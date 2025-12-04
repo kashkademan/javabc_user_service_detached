@@ -1,8 +1,7 @@
 package school.faang.user_service.publisher;
 
-import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
+public interface MessagePublisher<T> {
 
-public interface MessagePublisher {
+    void publish(T event);
 
-    void publish(RecommendationReceivedEvent event);
 }

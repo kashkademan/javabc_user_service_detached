@@ -17,12 +17,19 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   data:
+    kafka:
+      topics:
+        profile_view:
+          name: profile-view
+
     redis:
       port: 6379
       host: localhost
       topics:
         commenter_banner: commenter_banner
         recommendation: recommendation_topic
+        search-appearance: search_appearance_channel
+
 
 server:
   port: 8080
