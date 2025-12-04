@@ -10,7 +10,7 @@ import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class RecommendationReceivedEventPublisher implements MessagePublisher {
+public class RecommendationReceivedEventPublisher implements MessagePublisher<RecommendationReceivedEvent> {
 
     @Value("${spring.data.redis.topics.recommendation}")
     private String recommendationChannelName;
