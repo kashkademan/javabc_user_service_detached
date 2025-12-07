@@ -42,7 +42,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Disabled // TODO: Удалить после исправления
+@Disabled // TODO: Удалить после исправление
 @ExtendWith(MockitoExtension.class)
 class PremiumServiceTest {
 
