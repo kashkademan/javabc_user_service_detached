@@ -6,12 +6,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.MentorshipStartEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ConflictException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
+import school.faang.user_service.service.publisher.MentorshipStartPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +32,9 @@ class MentorshipServiceImplTest {
 
     @Mock
     private MentorshipRepository mentorshipRepository;
+
+    @Mock
+    private MentorshipStartPublisher mentorshipStartPublisher;
 
     @Spy
     private UserMapperImpl userMapper;
@@ -57,6 +64,7 @@ class MentorshipServiceImplTest {
         verify(mentorshipRepository, times(1)).getByIdOrThrow(mentorId);
         verify(mentorshipRepository, times(1)).getByIdOrThrow(menteeId);
         verify(mentorshipRepository, times(1)).save(mentee);
+        verify(mentorshipStartPublisher, times(1)).publish(any(MentorshipStartEvent.class));
     }
 
     @Test
@@ -81,6 +89,7 @@ class MentorshipServiceImplTest {
 
         verify(mentorshipRepository, times(1)).getByIdOrThrow(mentorId);
         verify(mentorshipRepository, times(1)).getByIdOrThrow(menteeId);
+        verify(mentorshipStartPublisher, never()).publish(any(MentorshipStartEvent.class));
     }
 
     @Test
