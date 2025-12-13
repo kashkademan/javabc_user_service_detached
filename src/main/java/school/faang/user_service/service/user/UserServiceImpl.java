@@ -25,12 +25,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    @Value("${user.password.min.length}")
+    private int minPasswordLength;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
-    @Value("${user.password.min.length}")
-    private int minPasswordLength;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDto(user);
     }
 
+
     @Override
     public List<UserDto> getUsersByIds(List<Long> ids) {
         List<User> users = userRepository.findAllById(ids);
@@ -79,21 +80,8 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.getByIdOrThrow(userId);
         userMapper.update(userDto, user);
-
         Country country = countryRepository.getByIdOrThrow(userDto.countryId());
         user.setCountry(country);
-
-        if (userDto.preference() != null && !userDto.preference().isBlank()) {
-            PreferredContact prefEnum = PreferredContact.fromString(userDto.preference());
-
-            ContactPreference cp = ContactPreference.builder()
-                    .user(user)
-                    .preference(prefEnum)
-                    .build();
-
-            user.setContactPreference(cp);
-        }
-
         user = userRepository.save(user);
         log.info("User {} updated", user.getId());
         return userMapper.toUserDto(user);
@@ -104,4 +92,5 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getByIdOrThrow(userId);
         return userMapper.toUserDto(user);
     }
+
 }

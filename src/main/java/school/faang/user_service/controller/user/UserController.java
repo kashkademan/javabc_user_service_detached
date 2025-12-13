@@ -28,6 +28,11 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @PostMapping
+    public UserDto create(@RequestBody @Valid CreateUserDto userDto) {
+        return userService.create(userDto);
+    }
+
     @GetMapping
     public List<UserDto> getUsersByIds(@RequestParam("ids") List<Long> ids) {
         if (ids.isEmpty()) {
@@ -35,11 +40,6 @@ public class UserController {
             return List.of();
         }
         return userService.getUsersByIds(ids);
-    }
-
-    @PostMapping
-    public UserDto create(@RequestBody @Valid CreateUserDto userDto) {
-        return userService.create(userDto);
     }
 
     @PutMapping("/{userId}")
@@ -51,4 +51,5 @@ public class UserController {
     public UserDto getById(@PathVariable @Positive long userId) {
         return userService.getById(userId);
     }
+
 }
