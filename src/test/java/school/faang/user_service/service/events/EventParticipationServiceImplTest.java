@@ -1,6 +1,5 @@
 package school.faang.user_service.service.events;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,7 @@ import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +61,7 @@ public class EventParticipationServiceImplTest {
         preparationData(DEFAULT_USER_ID, DEFAULT_EVENT_ID);
         Mockito.when(userContext.getUserId()).thenReturn(DEFAULT_USER_ID);
 
-        Assert.assertThrows(EntityNotFoundException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> eventParticipationServiceImpl.registerParticipant(DEFAULT_EVENT_ID, DEFAULT_USER_ID));
     }
 
@@ -70,7 +70,7 @@ public class EventParticipationServiceImplTest {
         Mockito.when(userContext.getUserId()).thenReturn(anyLong());
         preparationData(DEFAULT_USER_ID, DEFAULT_EVENT_ID);
 
-        Assert.assertThrows(ForbiddenException.class,
+        assertThrows(ForbiddenException.class,
                 () -> eventParticipationServiceImpl.registerParticipant(DEFAULT_EVENT_ID, DEFAULT_USER_ID));
     }
 
@@ -97,7 +97,7 @@ public class EventParticipationServiceImplTest {
         Mockito.when(userContext.getUserId()).thenReturn(DEFAULT_USER_ID);
         preparationData(anyLong(), DEFAULT_USER_ID);
 
-        Assert.assertThrows(EntityNotFoundException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> eventParticipationServiceImpl.unregisteredParticipation(DEFAULT_EVENT_ID, DEFAULT_USER_ID));
     }
 
@@ -107,7 +107,7 @@ public class EventParticipationServiceImplTest {
         preparationData(anyLong(), DEFAULT_EVENT_ID);
         long anotherIdUser = DEFAULT_USER_ID + DEFAULT_USER_ID;
 
-        Assert.assertThrows(ForbiddenException.class,
+        assertThrows(ForbiddenException.class,
                 () -> eventParticipationServiceImpl.unregisteredParticipation(DEFAULT_EVENT_ID, anotherIdUser));
     }
 
