@@ -22,6 +22,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipReceiverFilter;
 import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipRequesterFilter;
 import school.faang.user_service.service.mentorship.fiters.ForTestMentorshipStatusFilter;
+import school.faang.user_service.service.publisher.MentorshipRequestedEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +44,9 @@ public class MentorshipRequestServiceTest {
 
     @Mock
     UserContext userContext;
+
+    @Mock
+    MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     @Spy
     MentorshipRequestMapperImpl mentorshipRequestMapper;
@@ -134,12 +138,14 @@ public class MentorshipRequestServiceTest {
                     mentorshipRequestRepository,
                     userContext,
                     mentorshipRequestMapper,
-                    requestFilters1);
+                    requestFilters1,
+                    mentorshipRequestedEventPublisher);
             requestService2 = new MentorshipRequestServiceImpl(
                     mentorshipRequestRepository,
                     userContext,
                     mentorshipRequestMapper,
-                    requestFilters2);
+                    requestFilters2,
+                    mentorshipRequestedEventPublisher);
         }
 
         @Test
