@@ -24,8 +24,14 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.channels.commenter_banner}")
+    @Value("${spring.data.redis.topics.commenter_banner}")
     private String commenterBannerTopicName;
+
+    @Value("${spring.data.redis.topics.recommendation}")
+    private String recommendationTopic;
+
+    @Value("${spring.data.redis.topics.search-appearance}")
+    private String topicSearchAppearance;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -33,7 +39,6 @@ public class RedisConfiguration {
                 redisHost,
                 redisPort
         );
-
         return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
@@ -66,6 +71,16 @@ public class RedisConfiguration {
     @Bean
     ChannelTopic commenterBannerTopic() {
         return new ChannelTopic(commenterBannerTopicName);
+    }
+
+    @Bean
+    ChannelTopic recommendationTopic() {
+        return new ChannelTopic(recommendationTopic);
+    }
+
+    @Bean
+    ChannelTopic topicSearchAppearance() {
+        return new ChannelTopic(topicSearchAppearance);
     }
 
     @Bean

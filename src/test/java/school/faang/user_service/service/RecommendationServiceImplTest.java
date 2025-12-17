@@ -19,6 +19,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.recommendation.RecommendationServiceImpl;
 
@@ -28,12 +29,17 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationServiceImplTest {
 
     @Mock
     private RecommendationRepository recommendationRepository;
+
+    @Mock
+    RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Spy
     private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
@@ -91,6 +97,7 @@ public class RecommendationServiceImplTest {
                 .thenReturn(TEST_RECOMMENDATION_ID);
         Mockito.when(recommendationRepository.findById(TEST_RECOMMENDATION_ID))
                 .thenReturn(Optional.of(recommendation1));
+        doNothing().when(recommendationReceivedEventPublisher).publish(any());
 
         RecommendationDto expectedDto = new RecommendationDto(TEST_RECOMMENDATION_ID,
                 TEST_USER_ID, TEST_RECEIVER_ID, TEST_CONTENT_TEXT);
