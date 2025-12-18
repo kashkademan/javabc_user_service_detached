@@ -27,7 +27,8 @@ spring:
       host: localhost
       topics:
         commenter_banner: commenter_banner
-        recommendation: recommendation_topic
+        mentorship_request: mentorship_request
+        recommendation: recommendation
         search-appearance: search_appearance_channel
 
 

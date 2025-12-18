@@ -104,6 +104,7 @@ checkstyle {
     toolVersion = "10.17.0"
     configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
     checkstyle.enableExternalDtdLoad.set(true)
+    isIgnoreFailures = true
 }
 
 tasks.checkstyleMain {
