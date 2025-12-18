@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.recommendation.CreateRecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationFilterDto;
 import school.faang.user_service.dto.recommendation.UpdateRecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -20,6 +21,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
+import school.faang.user_service.messages.kafka.publusher.RecommendationPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -35,7 +37,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class RecommendationServiceImplTest {
+public class RecommendationServiceImplTest {
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -43,12 +45,13 @@ class RecommendationServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private UserContext userContext;
-
+    @Mock
+    private RecommendationPublisher recommendationPublisher;
     @InjectMocks
     private RecommendationServiceImpl service;
 
     @BeforeEach
-    void setup() {
+    public void setup() {
         try {
             var f = RecommendationServiceImpl.class.getDeclaredField("limit");
             f.setAccessible(true);
@@ -60,7 +63,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("create: успех")
-    void create_success() {
+    public void create_success() {
         given(userContext.getUserId()).willReturn(1L);
         given(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
                 .willReturn(Optional.empty());
@@ -90,7 +93,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("create: self-recommendation — ошибка")
-    void create_selfRecommendation_error() {
+    public void create_selfRecommendation_error() {
         given(userContext.getUserId()).willReturn(2L);
 
         assertThatThrownBy(() -> service.create(new CreateRecommendationDto(2L, "hi")))
@@ -99,7 +102,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("create: отсутствует пользователь — ошибка")
-    void create_userNotFound_error() {
+    public void create_userNotFound_error() {
         given(userContext.getUserId()).willReturn(1L);
 
         User author = new User();
@@ -115,7 +118,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("create: частые рекомендации — ошибка")
-    void create_tooOften_error() {
+    public void create_tooOften_error() {
         given(userContext.getUserId()).willReturn(1L);
         Recommendation recent = new Recommendation();
         recent.setCreatedAt(LocalDateTime.now());
@@ -127,8 +130,39 @@ class RecommendationServiceImplTest {
     }
 
     @Test
+    public void create_shouldPublishToTopic() {
+        given(userContext.getUserId()).willReturn(1L);
+        given(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
+                .willReturn(Optional.empty());
+
+        User author = new User();
+        author.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+        given(userRepository.getByIdOrThrow(1L)).willReturn(author);
+        given(userRepository.getByIdOrThrow(2L)).willReturn(receiver);
+
+        Recommendation saved = new Recommendation();
+        saved.setId(100L);
+        saved.setAuthor(author);
+        saved.setReceiver(receiver);
+        saved.setContent("hi");
+        given(recommendationRepository.save(any(Recommendation.class))).willReturn(saved);
+
+        service.create(new CreateRecommendationDto(2L, "Test"));
+
+        RecommendationEventDto publishDto = RecommendationEventDto.builder()
+                .authorId(saved.getAuthor().getId())
+                .receiverId(saved.getReceiver().getId())
+                .content(saved.getContent())
+                .build();
+
+        verify(recommendationPublisher).publish(publishDto);
+    }
+
+    @Test
     @DisplayName("update: успех")
-    void update_success() {
+    public void update_success() {
         given(userContext.getUserId()).willReturn(1L);
         Recommendation rec = new Recommendation();
         User author = new User();
@@ -149,7 +183,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("update: не автор — ошибка доступа")
-    void update_forbidden_error() {
+    public void update_forbidden_error() {
         given(userContext.getUserId()).willReturn(9L);
         Recommendation rec = new Recommendation();
         User author = new User();
@@ -163,7 +197,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("update: не найдено — ошибка")
-    void update_notFound_error() {
+    public void update_notFound_error() {
         given(recommendationRepository.findById(10L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.update(new UpdateRecommendationDto("updated"), 10L))
@@ -172,7 +206,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("delete: успех")
-    void delete_success() {
+    public void delete_success() {
         given(userContext.getUserId()).willReturn(1L);
         given(recommendationRepository.findAuthorIdById(10L)).willReturn(Optional.of(1L));
 
@@ -183,7 +217,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("delete: не автор — ошибка доступа")
-    void delete_forbidden_error() {
+    public void delete_forbidden_error() {
         given(userContext.getUserId()).willReturn(2L);
         given(recommendationRepository.findAuthorIdById(10L)).willReturn(Optional.of(1L));
 
@@ -193,7 +227,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("delete: не найдено — ошибка")
-    void delete_notFound_error() {
+    public void delete_notFound_error() {
         given(recommendationRepository.findAuthorIdById(10L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.delete(10L))
@@ -202,7 +236,7 @@ class RecommendationServiceImplTest {
 
     @Test
     @DisplayName("getByFilters: успех")
-    void getByFilters_success() {
+    public void getByFilters_success() {
         Recommendation recommendation = new Recommendation();
         recommendation.setId(1L);
         User author = new User();
@@ -227,5 +261,3 @@ class RecommendationServiceImplTest {
         assertThat(result.getContent().get(0).getContent()).isEqualTo("c1");
     }
 }
-
-

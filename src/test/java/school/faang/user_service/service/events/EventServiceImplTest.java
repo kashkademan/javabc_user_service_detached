@@ -1,7 +1,6 @@
 package school.faang.user_service.service.events;
 
 import jakarta.persistence.EntityManager;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,7 +103,7 @@ class EventServiceImplTest {
         when(userContext.getUserId()).thenReturn(0L);
         when(skillService.getByUserId(0L)).thenReturn(listSkillDto);
 
-        Assert.assertThrows(ForbiddenException.class,
+        assertThrows(ForbiddenException.class,
                 () -> service.createEvent(dto));
     }
 
@@ -125,7 +124,7 @@ class EventServiceImplTest {
                 .relatedSkillsId(new ArrayList<>(List.of(1L)))
                 .title("Test")
                 .build();
-        Assert.assertThrows(ForbiddenException.class,
+        assertThrows(ForbiddenException.class,
                 () -> service.createEvent(dto));
     }
 
