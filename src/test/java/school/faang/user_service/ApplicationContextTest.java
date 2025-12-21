@@ -2,10 +2,12 @@ package school.faang.user_service;
 
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -17,6 +19,7 @@ import org.testcontainers.utility.DockerImageName;
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
+@EnabledIf("school.faang.user_service.ApplicationContextTest#isDockerAvailable")
 class ApplicationContextTest {
     private static final String REDIS_PASSWORD = "testContainerRedis";
 
@@ -40,8 +43,16 @@ class ApplicationContextTest {
                     .withUserName("user")
                     .withPassword("password");
 
+    static boolean isDockerAvailable() {
+        return DockerClientFactory.instance().isDockerAvailable();
+    }
+
     @DynamicPropertySource
     static void postgresqlProperties(DynamicPropertyRegistry registry) {
+        if (!isDockerAvailable()) {
+            return;
+        }
+
         POSTGRESQL_CONTAINER.start();
         REDIS_CONTAINER.start();
         MINIO_CONTAINER.start();
