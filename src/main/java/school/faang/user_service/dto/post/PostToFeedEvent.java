@@ -18,4 +18,5 @@ public class PostToFeedEvent {
     private long postId;
     private long authorId;
     private List<Long> subscriberIds;
+    private long createdAt;
 }

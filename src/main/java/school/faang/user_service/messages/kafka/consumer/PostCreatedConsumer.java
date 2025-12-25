@@ -61,6 +61,7 @@ public class PostCreatedConsumer {
                             .postId(event.getId())
                             .authorId(event.getAuthorId())
                             .subscriberIds(batch)
+                            .createdAt(event.getCreatedAt())
                             .build();
 
                     OutboxEvent outboxEvent = OutboxEvent.builder()
