@@ -121,6 +121,13 @@ public class UserServiceImpl implements UserService {
         return getPageFromList(allUsers, pageable);
     }
 
+    @Override
+    public List<Long> getUserFollowers(long userId) {
+        return userRepository.getByIdOrThrow(userId).getFollowers().stream()
+                .map(User::getId)
+                .toList();
+    }
+
     private List<UserDto> getUsersWithPromotions(Pageable pageable, int limit) {
         return promotionRedisService.fetchPromotionsAndUpdateViews(limit, pageable);
     }

@@ -20,6 +20,8 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.UserService;
 
+import java.util.List;
+
 @Slf4j
 @RequestMapping("/api/v1/users")
 @RestController
@@ -59,6 +61,11 @@ public class UserController {
     public Page<UserDto> getUser(@PageableDefault Pageable pageable) {
         Page<UserDto> results = userService.getUser(pageable);
         return results;
+    }
+
+    @GetMapping("/followers/{userId}")
+    public List<Long> getUserFollowers(@PathVariable long userId) {
+        return userService.getUserFollowers(userId);
     }
 
     private void validateNotNull(Object value, String paramName) {
