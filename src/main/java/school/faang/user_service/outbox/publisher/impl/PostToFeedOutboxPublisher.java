@@ -1,5 +1,6 @@
 package school.faang.user_service.outbox.publisher.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,12 +24,10 @@ public class PostToFeedOutboxPublisher implements OutboxEventPublisher {
     @Override
     public void publish(String payload) {
         try {
-            PostToFeedEvent event =
-                    objectMapper.readValue(payload, PostToFeedEvent.class);
-
+            PostToFeedEvent event = objectMapper.readValue(payload, PostToFeedEvent.class);
             postToFeedProducer.publish(event);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse PostToFeedEvent payload", e);
         }
     }
 }

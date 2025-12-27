@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 
 @Component
-public class RecommendationPublisher extends AbstractPublishKafka {
+public class RecommendationPublisher extends AbstractPublishKafka<RecommendationEventDto> {
 
-    public RecommendationPublisher(@Qualifier("kafkaTemplate") KafkaTemplate<String, Object> kafkaTemplate,
-                                   @Value("${spring.kafka.topics.recommendation}") String eventRecommendation) {
+    public RecommendationPublisher(
+            @Qualifier("recommendationKafkaTemplate") KafkaTemplate<String, RecommendationEventDto> kafkaTemplate,
+            @Value("${spring.kafka.topics.recommendation}") String eventRecommendation) {
         super(kafkaTemplate, eventRecommendation);
     }
 }

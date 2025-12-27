@@ -2,6 +2,9 @@ spring:
   config:
     import: optional:classpath:application.properties
 
+  application:
+    name: user-service
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
@@ -29,6 +32,7 @@ spring:
 
   outbox:
     fixed-delay-ms: 5000
+    page-size: 100
 
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}

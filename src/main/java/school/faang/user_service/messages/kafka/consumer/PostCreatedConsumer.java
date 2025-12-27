@@ -1,8 +1,10 @@
 package school.faang.user_service.messages.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,6 +18,7 @@ import school.faang.user_service.outbox.entity.OutboxEventType;
 import school.faang.user_service.outbox.entity.OutboxStatus;
 import school.faang.user_service.outbox.repository.OutboxRepository;
 import school.faang.user_service.repository.user.UserRepository;
+import school.faang.user_service.service.post.PostCreatedBatchService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,52 +31,46 @@ public class PostCreatedConsumer {
     private final ObjectMapper objectMapper;
     private final OutboxRepository outboxRepository;
     private final UserRepository userRepository;
+    private final PostCreatedBatchService batchService;
+    @Value("${spring.application.name}")
+    private String serviceName;
 
     private static final int BATCH_SIZE = 500;
     private static final int PAGE_SIZE = 5000;
 
-    @Transactional
     @KafkaListener(topics = "${kafka.topics.post-created:post.created}", groupId = "user-service-group")
     public void listen(String message, Acknowledgment ack) {
+        PostCreatedEvent event;
+
         try {
-            PostCreatedEvent event = objectMapper.readValue(message, PostCreatedEvent.class);
-            log.info("Received PostCreatedEvent for postId={} by authorId={}", event.getId(), event.getAuthorId());
+            event = objectMapper.readValue(message, PostCreatedEvent.class);
+        } catch (Exception e) {
+            log.error("Failed to parse PostCreatedEvent: {}", message, e);
+            return;
+        }
 
-            boolean alreadyProcessed = outboxRepository.existsByAggregateIdAndEventType(
-                    event.getId(), OutboxEventType.POST_TO_FEED
-            );
+        log.info("Received PostCreatedEvent for postId={} by authorId={}", event.getId(), event.getAuthorId());
 
-            if (alreadyProcessed) {
-                log.info("PostCreatedEvent for postId={} already processed, skipping", event.getId());
-                ack.acknowledge();
-                return;
-            }
+        boolean alreadyProcessed = outboxRepository.existsByAggregateIdAndEventType(
+                event.getId(), OutboxEventType.POST_TO_FEED
+        );
 
-            int page = 0;
-            List<Long> subscriberPage;
+        if (alreadyProcessed) {
+            log.info("PostCreatedEvent for postId={} already processed, skipping", event.getId());
+            ack.acknowledge();
+            return;
+        }
 
+        int page = 0;
+        List<Long> subscriberPage;
+
+        try {
             do {
                 Pageable pageable = PageRequest.of(page, PAGE_SIZE);
                 subscriberPage = userRepository.findFollowerIdsPaged(event.getAuthorId(), pageable);
 
                 for (List<Long> batch : partition(subscriberPage, BATCH_SIZE)) {
-                    PostToFeedEvent feedEvent = PostToFeedEvent.builder()
-                            .postId(event.getId())
-                            .authorId(event.getAuthorId())
-                            .subscriberIds(batch)
-                            .createdAt(event.getCreatedAt())
-                            .build();
-
-                    OutboxEvent outboxEvent = OutboxEvent.builder()
-                            .eventType(OutboxEventType.POST_TO_FEED)
-                            .aggregateId(event.getId())
-                            .payload(objectMapper.writeValueAsString(feedEvent))
-                            .status(OutboxStatus.NEW)
-                            .sourceService("user-service")
-                            .build();
-
-                    OutboxEvent saved = outboxRepository.saveAndFlush(outboxEvent);
-                    log.info("Saved outboxEvent id={} status={}", saved.getId(), saved.getStatus());
+                    batchService.processBatch(event, batch);
                 }
 
                 page++;
@@ -83,6 +80,31 @@ public class PostCreatedConsumer {
             log.info("Finished processing PostCreatedEvent for postId={}", event.getId());
         } catch (Exception e) {
             log.error("Error processing PostCreatedEvent: {}", message, e);
+        }
+    }
+
+    @Transactional
+    public void processBatch(PostCreatedEvent event, List<Long> subscriberBatch) throws JsonProcessingException {
+        try {
+            PostToFeedEvent feedEvent = PostToFeedEvent.builder()
+                    .postId(event.getId())
+                    .authorId(event.getAuthorId())
+                    .subscriberIds(subscriberBatch)
+                    .createdAt(event.getCreatedAt())
+                    .build();
+
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .eventType(OutboxEventType.POST_TO_FEED)
+                    .aggregateId(event.getId())
+                    .payload(objectMapper.writeValueAsString(feedEvent))
+                    .status(OutboxStatus.NEW)
+                    .sourceService(serviceName)
+                    .build();
+
+            outboxRepository.save(outboxEvent);
+        } catch (Exception e) {
+            log.error("Failed to save outbox batch for postId={}, subscribers={}", event.getId(), subscriberBatch, e);
+            throw e;
         }
     }
 
