@@ -38,16 +38,12 @@ public class PostCreatedConsumer {
     private static final int BATCH_SIZE = 500;
     private static final int PAGE_SIZE = 5000;
 
-    @KafkaListener(topics = "${kafka.topics.post-created:post.created}", groupId = "user-service-group")
-    public void listen(String message, Acknowledgment ack) {
-        PostCreatedEvent event;
-
-        try {
-            event = objectMapper.readValue(message, PostCreatedEvent.class);
-        } catch (Exception e) {
-            log.error("Failed to parse PostCreatedEvent: {}", message, e);
-            return;
-        }
+    @KafkaListener(
+            topics = "${kafka.topics.post-created:post.created}",
+            groupId = "user-service-group",
+            containerFactory = "postCreatedKafkaListenerFactory"
+    )
+    public void listen(PostCreatedEvent event, Acknowledgment ack) {
 
         log.info("Received PostCreatedEvent for postId={} by authorId={}", event.getId(), event.getAuthorId());
 
@@ -79,7 +75,7 @@ public class PostCreatedConsumer {
             ack.acknowledge();
             log.info("Finished processing PostCreatedEvent for postId={}", event.getId());
         } catch (Exception e) {
-            log.error("Error processing PostCreatedEvent: {}", message, e);
+            log.error("Error processing PostCreatedEvent: {}", event, e);
         }
     }
 
