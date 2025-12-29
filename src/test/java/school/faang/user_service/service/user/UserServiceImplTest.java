@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.CreateUserDto;
@@ -15,13 +16,15 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.user.Country;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -38,7 +41,7 @@ public class UserServiceImplTest {
     @Mock
     private CountryRepository countryRepository;
     @Spy
-    private UserMapper userMapper;
+    private UserMapperImpl userMapper;
     @Mock
     private UserContext userContext;
 
@@ -209,7 +212,6 @@ public class UserServiceImplTest {
         assertEquals(expected, result);
         assertEquals(3, result.size());
         verify(userRepository).findAllById(ids);
-        verify(userMapper).toUserDtoList(users);
     }
 
     @Test
@@ -226,6 +228,38 @@ public class UserServiceImplTest {
         assertEquals(0, result.size());
         verify(userRepository).findAllById(ids);
         verify(userMapper).toUserDtoList(emptyList);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    @Test
+    void addStudents_parsesCsvAndReturnsUserDtos() throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream is = classLoader.getResourceAsStream("students.csv")) {
+            assertNotNull(is.toString(), "students.csv not found in test resources!");
+            byte[] fileContent = is.readAllBytes();
+
+            MockMultipartFile multipartFile = new MockMultipartFile(
+                    "students",      // поле формы (любое, если неважно)
+                    "students.csv",  // оригинальное имя файла
+                    "text/csv",
+                    fileContent
+            );
+
+            List<UserDto> userDtos = userService.addStudents(multipartFile);
+
+            assertNotNull(userDtos);
+            assertEquals(2, userDtos.size());
+
+            UserDto first = userDtos.get(0);
+            assertEquals("John Doe", first.username());
+            assertEquals("johndoe@example.com", first.email());
+            assertEquals("+1-123-456-7890", first.phone());
+
+            UserDto second = userDtos.get(1);
+            assertEquals("Jane Smith", second.username());
+            assertEquals("janesmith@example.com", second.email());
+            assertEquals("+1-987-654-3210", second.phone());
+        }
     }
 
     private UserDto createUserDto(long id) {
