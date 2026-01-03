@@ -1,4 +1,4 @@
-package school.faang.user_service.service.Skill.integrationTest;
+package school.faang.user_service.service.skill.integrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package school.faang.user_service.service.User;
+package school.faang.user_service.service.user;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.service.Mentorship.MentorshipService;
+import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
 

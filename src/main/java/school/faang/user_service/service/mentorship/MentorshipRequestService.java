@@ -1,4 +1,4 @@
-package school.faang.user_service.service.Mentorship;
+package school.faang.user_service.service.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

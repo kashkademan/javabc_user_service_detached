@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,13 +36,15 @@ public class GoalServiceImpl implements GoalService {
     private final SkillService skillService;
 
     @Override
+    @Transactional
     public GoalDto create(CreateGoalDto createGoalDto) {
         userValidator.validatorUserExistence(userContext.getUserId());
+        long userId = userContext.getUserId();
 
         if (createGoalDto.getMentorId() == null) {
-            validActiveGoal(userContext.getUserId());
+            validActiveGoal(userId);
             checkingUserListEmpty(createGoalDto);
-            User user = userService.findById(userContext.getUserId());
+            User user = userService.findById(userId);
             List<Skill> userSkill = skillService.findAllById(createGoalDto.getSkillsToAchieveIds());
             Goal goalToSave = goalMapper.toGoal(createGoalDto);
 
@@ -53,11 +56,11 @@ public class GoalServiceImpl implements GoalService {
             return goalMapper.toGoalDto(result);
         }
 
-        if (createGoalDto.getMentorId() == userContext.getUserId()) {
+        if (createGoalDto.getMentorId() == userId) {
             validActiveGoalList(createGoalDto.getUserIds());
             List<Skill> userSkill = skillService.findAllById(createGoalDto.getSkillsToAchieveIds());
             List<User> listMentee = userService.findAllById(createGoalDto.getUserIds());
-            User mentor = userService.findById(userContext.getUserId());
+            User mentor = userService.findById(userId);
             Goal goalToSave = goalMapper.toGoal(createGoalDto);
 
             goalToSave.setUsers(listMentee);
@@ -73,33 +76,52 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional
     public GoalDto update(long goalId, UpdateGoalDto updateGoalDto) {
-        Goal goal = goalRepository.findById(goalId)
-                .orElseThrow(() -> new DataValidationException("такой цели нет!"));
+        long userId = userContext.getUserId();
+        Goal goal = findOrReturnGoal(goalId);
         if (goal.getStatus() == COMPLETED) {
             throw new DataValidationException("Цель нельзя обновить: цель завершена");
         }
-        if (goal.getMentor().getId() != null && userContext.getUserId() != goal.getMentor().getId()) {
-            checkHaveGoalUser(goal.getUsers());
-        }
-
-        if (updateGoalDto.getStatus() == COMPLETED) {
-            if (goal.getMentor().getId() != null && userContext.getUserId() == goal.getMentor().getId()) {
+        if (goal.getMentor() != null && userId != goal.getMentor().getId()) {
+            checkHaveGoalUser(goal.getUsers(), userId);
+            if (updateGoalDto.getStatus() == COMPLETED) {
                 goal.setStatus(COMPLETED);
             }
         }
+
         goalMapper.update(goal, updateGoalDto);
         Goal goalUpdate = goalRepository.save(goal);
         return goalMapper.toGoalDto(goalUpdate);
     }
 
     @Override
+    @Transactional
     public void delete(long goalId) {
+        Goal goal = findOrReturnGoal(goalId);
+        long userId = userContext.getUserId();
+        userValidator.validatorUserExistence(userId);
+        User user = userService.findById(userId);
 
+        if (goal.getMentor() != null && user.getId().equals(goal.getMentor().getId())) {
+            goalRepository.delete(goal);
+            return;
+        }
+        checkHaveGoalUser(goal.getUsers(), userId);
+        if (goal.getUsers().size() == 1) {
+            goalRepository.delete(goal);
+            return;
+        }
+
+        goal.getUsers().removeIf(u -> u.getId().equals(user.getId()));
+        goalRepository.save(goal);
     }
 
-    private void checkHaveGoalUser(List<User> users) {
-        long ownerRequestId = userContext.getUserId();
+    private Goal findOrReturnGoal(long goalId) {
+        return goalRepository.findById(goalId).orElseThrow(() -> new DataValidationException("такой цели нет!"));
+    }
+
+    private void checkHaveGoalUser(List<User> users, long ownerRequestId) {
         users.stream()
                 .filter(user -> user.getId() == ownerRequestId)
                 .findFirst()
@@ -114,7 +136,7 @@ public class GoalServiceImpl implements GoalService {
 
     private void validActiveGoal(long userId) {
         if (goalRepository.countActiveGoalsPerUser(userId) >= 2) {
-            throw new IllegalStateException("У пользователя " + userContext.getUserId() + " больше 2 целей");
+            throw new IllegalStateException("Пользователь не может иметь больше 2ух целей!");
         }
     }
 
