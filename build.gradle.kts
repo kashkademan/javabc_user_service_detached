@@ -74,6 +74,11 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
 
     /**
+     * Selenium
+     */
+    testImplementation("org.seleniumhq.selenium:selenium-java:4.38.0")
+
+    /**
      * Test containers
      */
     implementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))

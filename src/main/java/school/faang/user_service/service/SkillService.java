@@ -91,4 +91,8 @@ public class SkillService {
 
         userSkillGuaranteeRepository.saveAll(guarantees);
     }
+
+    public List<Skill> findAllById(List<Long> skillsToAchieveIds) {
+        return skillRepository.findAllById(skillsToAchieveIds);
+    }
 }

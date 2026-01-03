@@ -1,4 +1,4 @@
-package school.faang.user_service.service.Mentorship;
+package school.faang.user_service.service.mentorship;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.User.UserMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRepository;
-import school.faang.user_service.service.MentorshipService;
 import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;

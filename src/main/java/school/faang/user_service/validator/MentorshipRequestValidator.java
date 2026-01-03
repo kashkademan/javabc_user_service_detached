@@ -9,7 +9,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.MentorshipRequestService;
+import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.time.LocalDateTime;
 import java.util.List;
