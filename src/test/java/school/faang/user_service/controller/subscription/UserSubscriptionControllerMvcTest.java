@@ -198,8 +198,8 @@ public class UserSubscriptionControllerMvcTest {
         when(subscriptionService.getFollowers(followeeId, userFiltersDto))
                 .thenReturn(filteredFollowers);
 
-        mockMvc.perform(get("/api/users/{userId}/followers" +
-                        "?namePattern=John&phoneNumber=123777000&experienceMin=15&experienceMax=30", followeeId))
+        mockMvc.perform(get("/api/users/{userId}/followers"
+                        + "?namePattern=John&phoneNumber=123777000&experienceMin=15&experienceMax=30", followeeId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -223,8 +223,8 @@ public class UserSubscriptionControllerMvcTest {
     void getFollowersShouldReturn400_whenUserExperienceFiltersInvalid() throws Exception {
         long followeeId = 1L;
 
-        mockMvc.perform(get("/api/users/{userId}/followers" +
-                        "?experienceMin=100&experienceMax=10", followeeId))
+        mockMvc.perform(get("/api/users/{userId}/followers"
+                        + "?experienceMin=100&experienceMax=10", followeeId))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(400))
@@ -247,8 +247,8 @@ public class UserSubscriptionControllerMvcTest {
         when(subscriptionService.getFollowees(followerId, userFiltersDto))
                 .thenReturn(filteredFollowees);
 
-        mockMvc.perform(get("/api/users/{userId}/followees" +
-                        "?namePattern=Cyntia&phoneNumber=336699&experienceMin=30&experienceMax=45", followerId))
+        mockMvc.perform(get("/api/users/{userId}/followees"
+                        + "?namePattern=Cyntia&phoneNumber=336699&experienceMin=30&experienceMax=45", followerId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

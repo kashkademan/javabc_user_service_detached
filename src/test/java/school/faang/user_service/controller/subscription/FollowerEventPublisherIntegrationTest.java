@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Testcontainers
-public class FollowerEventPublisherIT {
+public class FollowerEventPublisherIntegrationTest {
 
     @Autowired
     private FollowerEventPublisher eventPublisher;
