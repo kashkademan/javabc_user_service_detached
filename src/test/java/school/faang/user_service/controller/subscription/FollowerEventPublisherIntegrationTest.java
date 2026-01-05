@@ -12,6 +12,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 import school.faang.user_service.event.FollowerEvent;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 
@@ -67,19 +68,29 @@ public class FollowerEventPublisherIntegrationTest {
         listenerContainer.afterPropertiesSet();
         listenerContainer.start();
 
-        FollowerEvent event = new FollowerEvent(2L, 1L, LocalDateTime.now());
-        eventPublisher.publish(event);
+        try {
+            Awaitility.await()
+                    .atMost(5, TimeUnit.SECONDS)
+                    .until(listenerContainer::isRunning);
 
-        boolean received = latch.await(5, TimeUnit.SECONDS);
-        assertTrue(received, "redis message did not arrive");
+            FollowerEvent event = new FollowerEvent(2L, 1L, LocalDateTime.now());
+            eventPublisher.publish(event);
 
-        String jsonMessage = receivedPayload.get();
-        assertNotNull(jsonMessage);
+            boolean received = latch.await(5, TimeUnit.SECONDS);
+            assertTrue(received, "redis message did not arrive");
 
-        FollowerEvent deserializedMessage = objectMapper.readValue(jsonMessage, FollowerEvent.class);
+            String jsonMessage = receivedPayload.get();
+            assertNotNull(jsonMessage);
 
-        assertEquals(2L, deserializedMessage.followeeId());
-        assertEquals(1L, deserializedMessage.followerId());
-        assertNotNull(deserializedMessage.timestamp());
+            FollowerEvent deserializedMessage =
+                    objectMapper.readValue(jsonMessage, FollowerEvent.class);
+
+            assertEquals(2L, deserializedMessage.followeeId());
+            assertEquals(1L, deserializedMessage.followerId());
+            assertNotNull(deserializedMessage.timestamp());
+        } finally {
+            listenerContainer.stop();
+            listenerContainer.destroy();
+        }
     }
 }
