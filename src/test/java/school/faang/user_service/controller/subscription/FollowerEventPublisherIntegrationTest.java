@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -35,6 +37,9 @@ public class FollowerEventPublisherIntegrationTest {
     private JedisConnectionFactory redisConnectionFactory;
 
     @Autowired
+    private ChannelTopic followerTopic;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Container
@@ -47,23 +52,21 @@ public class FollowerEventPublisherIntegrationTest {
         registry.add("spring.data.redis.host", () -> redisContainer.getHost());
     }
 
-    private static final String CHANNEL = "follower_channel";
-
     @Test
     void shouldPublishEventToRedisChannel() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<String> receivedPayload = new AtomicReference<>();
 
-        new Thread(() -> {
-            try (RedisConnection redisConnection = redisConnectionFactory.getConnection()) {
-                redisConnection.subscribe((message, pattern) -> {
-                    receivedPayload.set(new String(message.getBody(), StandardCharsets.UTF_8));
-                    latch.countDown();
-                }, CHANNEL.getBytes(StandardCharsets.UTF_8));
-            }
-        }).start();
+        RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
+        listenerContainer.setConnectionFactory(redisConnectionFactory);
 
-        Thread.sleep(200);
+        listenerContainer.addMessageListener((message, pattern) -> {
+            receivedPayload.set(new String(message.getBody(), StandardCharsets.UTF_8));
+            latch.countDown();
+        }, followerTopic);
+
+        listenerContainer.afterPropertiesSet();
+        listenerContainer.start();
 
         FollowerEvent event = new FollowerEvent(2L, 1L, LocalDateTime.now());
         eventPublisher.publish(event);
