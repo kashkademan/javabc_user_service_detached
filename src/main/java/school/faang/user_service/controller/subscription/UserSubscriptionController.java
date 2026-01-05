@@ -1,15 +1,15 @@
 package school.faang.user_service.controller.subscription;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.CountResponse;
@@ -23,53 +23,58 @@ import school.faang.user_service.service.subscription.UserSubscriptionService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/subscriptions")
+@RequestMapping("/api/users")
 @Validated
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
     private final FollowerEventPublisher eventPublisher;
 
-    @PostMapping("/following")
-    public void followUser(@RequestParam @Positive long followeeId) {
+    @PostMapping("/{userId}/followers")
+    public ResponseEntity<Void> followUser(@PathVariable("userId") @Positive long followeeId) {
         long followerId = userContext.getUserId();
         ensureFollowerAndFolloweeNotTheSameUser(followerId, followeeId);
         userSubscriptionService.followUser(followerId, followeeId);
         eventPublisher.publish(new FollowerEvent(followeeId, followerId, LocalDateTime.now()));
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/unfollowing")
-    public void unfollowUser(@RequestParam @Positive long followeeId) {
+    @DeleteMapping("/{userId}/followers")
+    public ResponseEntity<Void> unfollowUser(@PathVariable("userId") @Positive long followeeId) {
         long followerId = userContext.getUserId();
         ensureFollowerAndFolloweeNotTheSameUser(followerId, followeeId);
         userSubscriptionService.unfollowUser(followerId, followeeId);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{followeeId}/followers/count")
-    public CountResponse getFollowersCount(@PathVariable @Positive long followeeId) {
+    @GetMapping("/{userId}/followers/count")
+    public CountResponse getFollowersCount(@PathVariable("userId") @Positive long followeeId) {
         return userSubscriptionService.getFollowersCount(followeeId);
     }
 
-    @GetMapping("/{followerId}/followees/count")
-    public CountResponse getFolloweesCount(@PathVariable @Positive long followerId) {
+    @GetMapping("/{userId}/followees/count")
+    public CountResponse getFolloweesCount(@PathVariable("userId") @Positive long followerId) {
         return userSubscriptionService.getFolloweesCount(followerId);
     }
 
-    @GetMapping("/{followeeId}/followers")
-    public List<UserDto> getFollowers(@PathVariable @Positive long followeeId,
-                                      @Valid @RequestBody UserFiltersDto userFiltersDto) {
-        ensureUserFiltersDtoValid(userFiltersDto);
+    @GetMapping("/{userId}/followers")
+    public List<UserDto> getFollowers(
+            @PathVariable("userId") @Positive long followeeId,
+            @ModelAttribute UserFiltersDto userFiltersDto
+    ) {
+        ensureUserExperienceFilterValid(userFiltersDto);
         return userSubscriptionService.getFollowers(followeeId, userFiltersDto);
     }
 
-    @GetMapping("/{followerId}/followees")
-    public List<UserDto> getFollowees(@PathVariable @Positive long followerId,
-                                      @Valid @RequestBody UserFiltersDto userFiltersDto) {
-        ensureUserFiltersDtoValid(userFiltersDto);
+    @GetMapping("/{userId}/followees")
+    public List<UserDto> getFollowees(
+            @PathVariable("userId") @Positive long followerId,
+            @ModelAttribute UserFiltersDto userFiltersDto
+    ) {
+        ensureUserExperienceFilterValid(userFiltersDto);
         return userSubscriptionService.getFollowees(followerId, userFiltersDto);
     }
 
@@ -79,9 +84,7 @@ public class UserSubscriptionController {
         }
     }
 
-    private void ensureUserFiltersDtoValid(UserFiltersDto userFiltersDto) {
-        Objects.requireNonNull(userFiltersDto, "user filters cannot be null");
-
+    private void ensureUserExperienceFilterValid(UserFiltersDto userFiltersDto) {
         if (userFiltersDto.experienceMin() > userFiltersDto.experienceMax()) {
             throw new DataValidationException("experience min cannot be greater than experience max");
         }
