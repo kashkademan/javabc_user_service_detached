@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.subscription;
+package school.faang.user_service.publisher.subscription;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
