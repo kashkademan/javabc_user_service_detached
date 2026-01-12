@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,6 +32,21 @@ public class GlobalExceptionHandler {
 
         log.warn("Method argument not valid exception at {}, {}: {}",
                 safeMethod(req), safeUri(req), errors);
+
+        return ErrorResponseFactory.create(e, req, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e,
+                                                            HttpServletRequest req) {
+
+        String errors = e.getConstraintViolations()
+                .stream()
+                .map(v -> String.format("%s - %s", v.getPropertyPath(), v.getMessage()))
+                .collect(Collectors.joining("; "));
+
+        log.warn("Constraint violation at {}, {}: {}", safeMethod(req), safeUri(req), errors);
 
         return ErrorResponseFactory.create(e, req, HttpStatus.BAD_REQUEST);
     }
