@@ -1,6 +1,10 @@
 package school.faang.user_service.controller.subscription;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.CountResponse;
@@ -15,18 +19,21 @@ import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/follow")
 public class UserSubscriptionController {
     private final UserSubscriptionService userSubscriptionService;
     private final UserContext userContext;
 
-    public void followUser(long followeeId) {
+    @PostMapping("/{followeeId}")
+    public void followUser(@PathVariable long followeeId) {
         ensureUserIdValid(followeeId);
         long followerId = userContext.getUserId();
         ensureFollowerAndFolloweeNotTheSameUser(followerId, followeeId);
         userSubscriptionService.followUser(followerId, followeeId);
     }
 
-    public void unfollowUser(long followeeId) {
+    @PostMapping("/{followeeId}/unfollow")
+    public void unfollowUser(@PathVariable long followeeId) {
         ensureUserIdValid(followeeId);
         long followerId = userContext.getUserId();
         ensureFollowerAndFolloweeNotTheSameUser(followerId, followeeId);
