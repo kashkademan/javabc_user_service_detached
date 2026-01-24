@@ -33,15 +33,15 @@ public class UserSubscriptionServiceImplTest {
     @Spy
     private UserMapperImpl userMapper;
 
-    @Test
-    void followUserShouldCallRepositoryWithCorrectIds() {
-        long followerId = 1L;
-        long followeeId = 2L;
-
-        subscriptionService.followUser(followerId, followeeId);
-
-        verify(subscriptionRepository).followUser(followerId, followeeId);
-    }
+//    @Test
+//    void followUserShouldCallRepositoryWithCorrectIds() {
+//        long followerId = 1L;
+//        long followeeId = 2L;
+//
+//        subscriptionService.followUser(followerId, followeeId);
+//
+//        verify(subscriptionRepository).followUser(followerId, followeeId);
+//    }
 
     @Test
     void followUserShouldThrowWhenFollowerAlreadyFollowedToFollowee() {

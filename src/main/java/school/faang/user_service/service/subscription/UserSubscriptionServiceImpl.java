@@ -1,16 +1,20 @@
 package school.faang.user_service.service.subscription;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.CountResponse;
+import school.faang.user_service.dto.event. FollowerEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFiltersDto;
 import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.user.SubscriptionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -20,17 +24,21 @@ import java.util.stream.Stream;
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
+    private final FollowerEventPublisher followerEventPublisher;
 
     @Override
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new ForbiddenException("follower is already subscribed to this followee");
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("user {} followed to user {}", followerId, followeeId);
+        followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
     }
 
     @Override
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new ForbiddenException("user cannot unsubscribe from this user - the user is not its follower");
