@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.recommendation.CreateRecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationEventDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -16,6 +17,7 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
+import school.faang.user_service.messages.kafka.publusher.RecommendationRequestPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -31,6 +33,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     private final UserRepository userRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserContext userContext;
+    private final RecommendationRequestPublisher publisher;
     @Value("${recommendation.time.limit}")
     private int limit;
 
@@ -58,6 +61,12 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         request.setStatus(RequestStatus.PENDING);
 
         RecommendationRequest saved = recommendationRequestRepository.save(request);
+
+        publisher.publish(RecommendationEventDto.builder()
+                .authorId(saved.getRequester().getId())
+                .receiverId(saved.getReceiver().getId())
+                .content(saved.getMessage())
+                .build());
 
         return recommendationRequestMapper.toRecommendationRequestDto(saved);
     }

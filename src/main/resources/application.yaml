@@ -32,6 +32,7 @@ spring:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     topics:
       recommendation: "recommendation-topic"
+      recommendation-request: "recommendation-request-topic"
 
 server:
   port: 8080
