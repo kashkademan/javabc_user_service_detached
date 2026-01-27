@@ -20,6 +20,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
+import school.faang.user_service.messages.kafka.publusher.RecommendationRequestPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
@@ -48,6 +49,9 @@ class RecommendationRequestServiceImplTest {
 
     @Mock
     private UserContext userContext;
+
+    @Mock
+    private RecommendationRequestPublisher publisher;
 
     @InjectMocks
     private RecommendationRequestServiceImpl service;
