@@ -23,6 +23,7 @@ spring:
       channel:
         follower: follower_channel
         achievement: achievement_channel
+        profile_view: profile_view_channel
 
 server:
   port: 8080
