@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.event.ProfileViewEvent;
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -13,9 +14,11 @@ import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ForbiddenException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.user.CountryRepository;
 import school.faang.user_service.repository.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -29,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final UserContext userContext;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     @Override
     public UserDto create(CreateUserDto userDto) {
