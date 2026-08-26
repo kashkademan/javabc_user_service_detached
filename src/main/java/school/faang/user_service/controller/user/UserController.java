@@ -1,12 +1,16 @@
 package school.faang.user_service.controller.user;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/user/{userId}")
-    public UserDto update(long userId, UpdateUserDto userDto) {
+    public UserDto update(@PathVariable long userId, @RequestBody UpdateUserDto userDto) {
         validateString(userDto.username(), "username");
         validateString(userDto.email(), "email");
         validateNotNull(userDto.countryId(), "country");
@@ -43,6 +47,11 @@ public class UserController {
     @GetMapping("/user/{userId}")
     public UserDto getById(@PathVariable long userId) {
         return userService.getById(userId);
+    }
+
+    @GetMapping("/users")
+    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
+        return userService.getUsersByIds(ids);
     }
 
     private void validateString(String value, String paramName) {

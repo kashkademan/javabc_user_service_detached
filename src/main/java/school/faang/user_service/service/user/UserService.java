@@ -1,5 +1,7 @@
 package school.faang.user_service.service.user;
 
+import java.util.List;
+
 import school.faang.user_service.dto.user.CreateUserDto;
 import school.faang.user_service.dto.user.UpdateUserDto;
 import school.faang.user_service.dto.user.UserDto;
@@ -55,6 +57,17 @@ public interface UserService {
      * @return объект {@link UserDto}, содержащий данные пользователя
      */
     UserDto getById(long userId);
+
+    /**
+     * Возвращает информацию о пользователх по их айди.
+     * <p>
+     * Если пользователь с указанным идентификатором не найден,
+     * выбрасывается {@code EntityNotFoundException}.
+     *
+     * @param ids идентификаторы пользователей
+     * @return объект {@link List<UserDto>}, содержащий данные пользователя
+     */
+    List<UserDto> getUsersByIds(List<Long> ids);
 }
 
 
