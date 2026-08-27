@@ -49,7 +49,7 @@ public class UserController {
         return userService.getById(userId);
     }
 
-    @GetMapping("/users")
+    @PostMapping("/users")
     public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
         return userService.getUsersByIds(ids);
     }
